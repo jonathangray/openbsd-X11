@@ -82,7 +82,7 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 # define ServerExtraSysLibs	-li386
 #else
 # define OptimizedCDebugFlags 	-O2
-# if defined(SparcArchitecture) || defined(AlphaArchitecture) || defined(AmigaArchitecture)
+# if defined(SparcArchitecture) || defined(AlphaArchitecture) || defined(AmigaArchitecture) || defined(Sun3Architecture)
 #  define ServerOSDefines 	-DDDXOSINIT
 # else
 #  define ServerOSDefines 	/**/
@@ -101,7 +101,9 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 # if defined(AlphaArchitecture)
 #  define ServerExtraDefines GccGasOption -D_XSERVER64
 # else
-#  define ServerExtraDefines GccGasOption
+#  if !defined(Sun3Architecture)
+#   define ServerExtraDefines GccGasOption
+#  endif
 # endif
 #endif
 
@@ -389,10 +391,10 @@ install.man:: 								@@\
 # define ServerExtraDefines    GccGasOption -Dmc68000 -Dmc68020
 
 # ifndef Xsun24Server
-#  define Xsun24Server		NO
+#  define Xsun24Server		YES
 # endif
 # ifndef XsunServer
-#  define XsunServer		NO
+#  define XsunServer		YES
 # endif
 # ifndef XsunMonoServer
 #  define XsunMonoServer	YES
