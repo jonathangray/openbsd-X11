@@ -20,7 +20,7 @@
 #include <X11/cursorfont.h>
 #define XK_MISCELLANY
 #include <X11/keysymdef.h>
-#if !defined(__bsdi__) && !defined(__FreeBSD__)
+#if !defined(__bsdi__) && !defined(__FreeBSD__) && !defined(__OpenBSD__)
 #include <malloc.h>
 #endif
 #include <string.h>
