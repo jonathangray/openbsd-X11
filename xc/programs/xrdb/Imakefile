@@ -3,7 +3,7 @@ XCOMM $XFree86: xc/programs/xrdb/Imakefile,v 3.1 1994/12/17 10:10:44 dawes Exp $
 #if PatheticCpp
         CPPDEFS = -DPATHETICCPP
 #endif
-#ifdef HasMkstemp
+#if HasMkstemp
         CPPDEFS = -DHAS_MKSTEMP
 #endif
 XCOMM Due to ill make parsing the cpp is passed directly in source file
