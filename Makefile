@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.6 1998/04/27 04:59:10 todd Exp $
+#	$OpenBSD: Makefile,v 1.7 1998/06/09 07:05:38 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -46,6 +46,8 @@ release:
 		exit 255; \
 	fi
 	${CP} ${HOSTDEF} ${CONFHOSTDEF}
+	@${MKDIR} -p ${DESTDIR}/usr/X11R6
+	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/usr/X11R6
 	@make build
 .if defined(MACHINE) && ${MACHINE} == hp300
 	@${CP} ${XHP} ${DESTDIR}/usr/X11R6/bin
