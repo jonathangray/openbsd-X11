@@ -516,6 +516,10 @@ StartClient (verify, d, pidp, name, passwd)
     switch (pid = fork ()) {
     case 0:
 	CleanUpChild ();
+#ifdef XDMCP
+	/* The chooser socket is not closed by CleanUpChild() */
+	DestroyWellKnownSockets();
+#endif
 
 	/* Do system-dependent login setup here */
 
