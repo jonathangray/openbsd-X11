@@ -104,29 +104,38 @@ void
 
 #ifdef USE_ASM_BANK_MACROS
 #define DO_BANK_READ(_bank)						\
+({									\
+unsigned long _nothing;							\
 __asm__ __volatile__							\
-("call *%0"								\
- : /* OUT     */							\
+("call *%1"								\
+ : /* OUT     */ "=a" (_nothing)					\
  : /* IN      */ "c" /*ecx*/ ((unsigned long)vgaSetReadFunc),		\
-		 "a" /*eax*/ (_bank)					\
- : /* CLOBBER */ "ax","dx","memory" /*eax,edx*/				\
-);
+		 "0" /*eax*/ (_bank)					\
+ : /* CLOBBER */ "dx","memory" /*eax,edx*/				\
+);									\
+})
 #define DO_BANK_WRITE(_bank)						\
+({									\
+unsigned long _nothing;							\
 __asm__ __volatile__							\
-("call *%0"								\
- : /* OUT     */							\
+("call *%1"								\
+ : /* OUT     */ "=a" (_nothing)					\
  : /* IN      */ "c" /*ecx*/ ((unsigned long)vgaSetWriteFunc),		\
-		 "a" /*eax*/ (_bank)					\
- : /* CLOBBER */ "ax","dx","memory" /*eax,edx*/				\
-);
-#define DO_BANK_READ_WRITE(_bank)						\
+		 "0" /*eax*/ (_bank)					\
+ : /* CLOBBER */ "dx","memory" /*eax,edx*/				\
+);									\
+})
+#define DO_BANK_READ_WRITE(_bank)					\
+({									\
+unsigned long _nothing;							\
 __asm__ __volatile__							\
-("call *%0"								\
- : /* OUT     */							\
+("call *%1"								\
+ : /* OUT     */ "=a" (_nothing)					\
  : /* IN      */ "c" /*ecx*/ ((unsigned long)vgaSetReadWriteFunc),	\
 		 "a" /*eax*/ (_bank)					\
- : /* CLOBBER */ "ax","dx","memory" /*eax,edx*/				\
-);
+ : /* CLOBBER */ "dx","memory" /*eax,edx*/				\
+);									\
+})
 #else
 extern void vgaBankRead(
 #if NeedFunctionPrototypes

@@ -124,7 +124,7 @@ static int screenStride;
 static __inline__ void outsw(void *buf, int count, unsigned short port)
 {
    __asm__ __volatile__ ("cld;rep;outsw"
-		     ::"d" (port),"S" (buf),"c" (count):"cx","si");
+		     : "=S" (buf),"=c" (count):"d" (port),"0" (buf),"1" (count));
 }
 
 __inline__ void mach32SetVGAPage(int page)
