@@ -61,7 +61,7 @@ XCOMM  XPMINC = -I/usr/include/Vk
 
 XCOMM If you get an error "Cannot find libXpm" while linking, set XPMLIBPATH
 XCOMM to the directory libXpm.* is in.  Below is a guess.
-XPMLIB = -L/usr/local/lib -lXpm
+XPMLIB = XpmLibrary
 
 #endif
 
