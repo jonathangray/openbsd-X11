@@ -1,6 +1,6 @@
 XCOMM $XConsortium: Imakefile /main/1 1996/01/23 06:59:52 kaleb $
 
-     DATAFILES = us
+     DATAFILES = se us
 
 all::
 
