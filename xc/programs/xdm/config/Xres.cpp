@@ -38,15 +38,14 @@ xlogin*greetColor: CadetBlue
 xlogin*borderWidth: 1
 xlogin*frameWidth: 5
 xlogin*innerFramesWidth: 2
-xlogin*shdColor: grey30
-xlogin*hiColor: grey90
-xlogin*background: grey
-!xlogin*foreground: darkgreen
-xlogin*greetColor: Blue3
+xlogin*shdColor: #404040
+xlogin*hiColor: #c0c0c0
+xlogin*background: gray0
+xlogin*greetColor: red
 #endif /* XPM */
 xlogin*failColor: red
-*Foreground: black
-*Background: #fffff0
+*Foreground: #f0f8f0
+*Background: #3f3f3f
 /**/#else
 #ifdef XPM
 xlogin*borderWidth: 3
