@@ -79,7 +79,7 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 # define ServerExtraSysLibs	-li386
 #else
 # define OptimizedCDebugFlags 	-O2
-# if defined(SparcArchitecture) || defined(AlphaArchitecture)
+# if defined(SparcArchitecture) || defined(AlphaArchitecture) || defined(AmigaArchitecture)
 #  define ServerOSDefines 	-DDDXOSINIT
 # else
 #  define ServerOSDefines 	/**/
@@ -217,7 +217,6 @@ install.man:: 								@@\
  * options and setting here into the correct section
  */
 
-
 /*
  * Definitions for the alpha architecture
  */
@@ -267,6 +266,14 @@ install.man:: 								@@\
  */
 #ifdef Mc68020Architecture
 
+/*
+ * Function CSE makes gas -k not recognize external function calls as lazily
+ * resolvable symbols, thus sometimes making ld.so report undefined symbol
+ * errors on symbols found in shared library members that would never be 
+ * called.  Ask niklas@openbsd.org for details.
+ */
+# define PositionIndependentCFlags -fpic -fno-function-cse
+
 #endif /* Mc68020Architecture */
 
 
@@ -275,8 +282,55 @@ install.man:: 								@@\
  */
 #ifdef AmigaArchitecture
 
+# define XF86Contrib
 # include <xf86.rules>
-# define BuildServer		NO
+
+/*
+ * We need this define to get a working autorepeat under XKB.
+ */
+#define	XkbServerDefines	-DXKB_ALWAYS_USES_SOFT_REPEAT
+
+/*
+ * These are the defines for the Xamiga Server
+ */
+# ifndef XamigaCCmono
+#  define XamigaCCmono		NO
+# endif
+
+# ifndef XamigaCCcolor
+#  define XamigaCCcolor		YES
+# endif
+
+# ifndef XamigaGfxCardSupport
+#  define XamigaGfxCardSupport	YES
+# endif
+
+# ifndef XamigaRetinaZ3Support
+#  define XamigaRetinaZ3Support	YES
+# endif
+
+# ifndef XamigaCl5426Server
+#  define XamigaCl5426Server	YES
+# endif
+
+# ifndef XamigaCV64Support
+#  define XamigaCV64Support	YES
+# endif
+
+/*
+ * You need XamigaGfxCardSupport if you enable XamigaCl5426Server,
+ * XamigaRetinaZ3Support or XamigaCV64Support and you can't use XamigaCCmono
+ * if you enable XamigaCCcolor.
+ * Don't change the next 8 lines !!!!!!!!!  */
+# if (XamigaCl5426Server || XamigaCV64Support || XamigaRetinaZ3Support) && !XamigaGfxCardSupport
+#  undef XamigaGfxCardSupport
+#  define XamigaGfxCardSupport	YES
+# endif
+
+# if XamigaCCcolor
+#  undef XamigaCCmono
+#  define XamigaCCmono		NO
+# endif
 
 #endif /* AmigaArchitecture */
 
