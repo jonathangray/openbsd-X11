@@ -8,10 +8,8 @@ FVWM_SRCDIR = ..
 NullMake()
 
 #if InstallSample
-/* FreeBSD ports -- maybe a bug(typo?). reported. */
-InstallNonExecFile(system$(FVWMRC),$(FVWMDIR))
-/* FreeBSD ports */
-/* FreeBSD ports -- More informations are welcomed :-) */
+InstallNonExecFile(system.fvwmrc,$(FVWMDIR))
+InstallNonExecFile(system.fvwm2rc,$(FVWMDIR))
 InstallNonExecFile(decor_examples,$(FVWMDIR))
 InstallNonExecFile(system.fvwm2rc-sample-1,$(FVWMDIR))
 InstallNonExecFile(system.fvwm2rc-sample-2,$(FVWMDIR))

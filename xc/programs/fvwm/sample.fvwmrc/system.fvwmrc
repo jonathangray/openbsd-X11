@@ -4,27 +4,28 @@
 # fvwm web page (see the FAQ).
 
 # be sure to customize these paths for your installation:
-ModulePath /usr/lib/X11/fvwm2
-PixmapPath /usr/include/X11/pixmaps
-IconPath   /usr/include/X11/bitmaps
+ModulePath /usr/X11R6/lib/X11/fvwm
+PixmapPath /usr/X11R6/include/X11/pixmaps
+IconPath   /usr/X11R6/include/X11/bitmaps
 
 EdgeResistance 250 10
 EdgeScroll 100 100
 ClickTime 750
 
 # make sure these fonts exist on your system:
-WindowFont -adobe-times-bold-r-*-*-18-*-*-*-*-*-*-*
+WindowFont -adobe-times-bold-r-*-*-14-*-*-*-*-*-*-*
 IconFont -adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*
 
-HilightColor black palevioletred
-DeskTopSize 2x2
-MenuStyle maroon grey60 grey40 -adobe-times-bold-r-*-*-14-*-*-*-*-*-*-* fvwm
+HilightColor #bebebe darkblue
+MenuStyle #4d4d4d #bebebe #e7e7e7 -adobe-times-bold-r-*-*-12-*-*-*-*-*-*-* fvwm
+
+DeskTopSize 3x2
 
 ColormapFocus FollowsMouse
 
 # default Styles:
 Style "*"           BorderWidth 7, HandleWidth 7
-Style "*"           Icon unknown1.xpm, Color lightgrey/dimgrey
+Style "*"           Icon unknown1.xpm, Color #bebebe/#4d4d4d
 Style "*"           MWMFunctions, MWMDecor, HintOverride
 Style "*"           DecorateTransient, NoPPosition
 Style "*"           IconBox 0 -10 -280 -1
@@ -53,6 +54,7 @@ Style "xman"	    Icon xman.xpm, RandomPlacement, ClickToFocus
 Style "xmag"	    Icon mag_glass.xpm, RandomPlacement, ClickToFocus
 Style "xgraph"      Icon graphs.xpm, RandomPlacement, ClickToFocus
 Style "xmosaic"     Color Green/Yellow, ClickToFocus
+Style "xconsole"    Icon rterm.xpm, WindowListSkip, Sticky
 
 
 # some simple default key bindings:
@@ -79,20 +81,20 @@ Mouse 2	FST	A	Menu Window-Ops2 Nop
 Mouse 3	TSIF	A	RaiseLower
 
 ######################## Initialization Functions ############################
-AddToFunc InitFunction 	  "I" Module FvwmButtons
-+			  "I" exec xsetroot -mod 2 2 -fg \#554055 -bg \#705070
+AddToFunc InitFunction 	  "I" Module FvwmPager 0 0
++			  "I" exec /usr/X11R6/bin/xpmroot /usr/X11R6/lib/X11/xdm/pixmaps/OpenBSD.xpm
 
-AddToFunc RestartFunction "I" Module FvwmButtons
-+			  "I" exec xsetroot -mod 2 2 -fg \#554055 -bg \#705070
+AddToFunc RestartFunction "I" Module FvwmPager 0 0
++			  "I" exec /usr/X11R6/bin/xpmroot /usr/X11R6/lib/X11/xdm/pixmaps/OpenBSD.xpm
 
 
 ######################## Menus ###################
 AddToMenu RootMenu	"Root Menu"	Title
-+			"XTerm"		Exec exec xterm
-+			"Rxvt"		Exec exec rxvt
++			"XTerm%mini.xterm.xpm%"		Exec exec xterm -ls -bg black -fg white
+#+			"Rxvt"		Exec exec rxvt
 +			""		Nop
-+			"Remote Logins"	Popup Remote-Logins
-+			""		Nop
+#+			"Remote Logins"	Popup Remote-Logins
+#+			""		Nop
 +                       "Utilities"     Popup Utilities
 +			""		Nop
 +			"Fvwm Modules"	          Popup Module-Popup
@@ -105,7 +107,7 @@ AddToMenu RootMenu	"Root Menu"	Title
 +			"Exit Fvwm"	Popup Quit-Verify
 
 AddToMenu Utilities     "Utilities" Title
-+			"Top"		Exec exec xterm -T Top -n Top -e top
++			"Top"		Exec exec xterm -bg black -fg white -T Top -n Top -e top
 +			"Calculator"	Exec exec xcalc
 +			"Xman"		Exec exec xman
 +			"Xmag"		Exec exec xmag
@@ -114,7 +116,7 @@ AddToMenu Utilities     "Utilities" Title
 +			"XEmacs"	Exec exec xemacs
 +                       "Mail"          MailFunction xmh "-font fixed"
 +			""		Nop
-+                       "XLock"         Exec exec xlock -mode random
++                       "XLock%mini.xlock.xpm%"         Exec exec xlock -mode random
 +			""		Nop
 +                       "Reset X defaults" Exec xrdb -load $HOME/.Xdefaults 
 
@@ -134,31 +136,31 @@ AddToMenu Misc-Ops "Misc Config Opts" Title
 +                  "Full Paging && Edge Wrap" EdgeScroll 100000 100000
 
 AddToMenu Window-Ops	"Window Ops"	Title		
-+			"Move"		Move
-+			"Resize"	Resize
-+			"Raise"		Raise
-+			"Lower"		Lower 
-+		 	"(De)Iconify"	Iconify
-+			"(Un)Stick"	Stick		
-+			"(Un)Maximize"	Maximize
++			"Move%mini.move.xpm%"		Move
++			"Resize%mini.resize.xpm%"	Resize
++			"Raise%mini.raise.xpm%"		Raise
++			"Lower%mini.lower.xpm%"		Lower 
++		 	"(De)Iconify%mini.iconify.xpm%"	Iconify
++			"(Un)Stick%mini.stick2.xpm%"	Stick		
++			"(Un)Maximize%mini.maximize.xpm%"	Maximize
 +			""		Nop
-+			"Delete"	Delete
-+			"Close"		Close
-+			"Destroy"	Destroy
++			"Delete%mini.excl.xpm%"	Delete
++			"Close%mini.cut.xpm%"		Close
++			"Destroy%mini.destroy.xpm%"	Destroy
 +			""		Nop
-+			"Refresh Window" RefreshWindow
++			"Refresh Window%mini.refresh.xpm%" RefreshWindow
 
-AddToMenu Window-Ops2	"&Move"		Move
-+			"&Resize"	Resize
-+			"R&aise"	Raise   	
-+			"&Lower"	Lower   	
-+			"(De)&Iconify"	Iconify 	
-+			"(Un)&Stick"	Stick		
-+                       "(Un)Ma&ximize" Maximize
+AddToMenu Window-Ops2	"&Move%mini.move.xpm%"		Move
++			"&Resize%mini.resize.xpm%"	Resize
++			"R&aise%mini.raise.xpm%"	Raise   	
++			"&Lower%mini.lower.xpm%"	Lower   	
++			"(De)&Iconify%mini.iconify.xpm%"	Iconify 	
++			"(Un)&Stick%mini.stick2.xpm%"	Stick		
++                       "(Un)Ma&ximize%mini.maximize.xpm%" Maximize
 +			""		Nop     	
-+			"&Delete"	Delete	
-+			"&Close"	Close
-+			"Destroy"	Destroy 	
++			"&Delete%mini.excl.xpm%"	Delete	
++			"&Close%mini.cut.xpm%"	Close
++			"Destroy%mini.destroy.xpm%"	Destroy 	
 +			""		Nop
 +			"ScrollBar" 	Module FvwmScroll 2 2	
 +			"Print"         PrintFunction
@@ -196,12 +198,12 @@ AddToMenu Module-Popup	"FvwmModules"	Title
 +                       "Form - MyFvwmTalk"  Module FvwmForm MyFvwmTalk
 +                       "Form - QuitVerify"  Module FvwmForm QuitVerify
 
-AddToMenu Quit-Verify 	"Really Quit Fvwm?" Title	
-+		      	"Yes, Really Quit"  Quit	
+AddToMenu Quit-Verify 	"Really Quit Fvwm?%mini.fvwm.xpm%" Title	
++		      	"Yes, Really Quit%mini.exit.xpm%"  Quit	
 +		      	""		    Nop	
-+                       "Restart Fvwm2"     Restart fvwm2
-+		      	"Restart Fvwm"	    Restart fvwm
++		      	"Restart Fvwm%mini.refresh.xpm%"	    Restart fvwm
 +		      	""		    Nop	
++	      	      	"Start wm2"         Restart wm2
 +		      	"Start twm"         Restart twm
 +		      	"Start ctwm"        Restart ctwm
 +		        "Start tvtwm"       Restart tvtwm
@@ -209,7 +211,7 @@ AddToMenu Quit-Verify 	"Really Quit Fvwm?" Title
 +		      	"Start mwm"    	    Restart mwm
 +	      	      	"Start olwm"        Restart /usr/openwin/bin/olwm
 +		      	""		    Nop	
-+		      	"Start dummy"       Restart xterm
++		      	"Start dummy%mini.xterm.xpm%"       Restart xterm
 +		      	""		    Nop	
 +		      	"No, Don't Quit"    Nop	
 
@@ -292,12 +294,12 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 *FvwmIdentFont -adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*
 
 ########################### Pager #########################################
-*FvwmPagerBack #908090
-*FvwmPagerFore #484048
 *FvwmPagerFont -adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*
-*FvwmPagerHilight #cab3ca
-*FvwmPagerGeometry -1-1
-*FvwmPagerLabel 0 Misc
+*FvwmPagerBack darkblue
+*FvwmPagerFore #e7e7e7
+*FvwmPagerHilight #2d2d2d
+*FvwmPagerGeometry 80x60-1-1
+*FvwmPagerLabel 0 OpenBSD 2.3
 *FvwmPagerLabel 1 Maker
 *FvwmPagerLabel 2 Mail
 *FvwmPagerLabel 3 Matlab
@@ -467,4 +469,3 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 # to change banner pixmap
 #*FvwmBannerPixmap fvwm3.xpm
 #*FvwmBannerTimeout 2
-

@@ -30,5 +30,6 @@ else
 	if [ -f "$resources" ]; then
 		xrdb -load "$resources"
 	fi
-	exec xsm
+	xterm -ls -bg black -fg white &
+	exec fvwm
 fi

@@ -6,7 +6,6 @@ xlogin*login.translations: #override BS
 	<Key>F1: set-session-argument(failsafe) finish-field()NLBS
 	Ctrl<Key>Return: set-session-argument(failsafe) finish-field()NLBS
 	<Key>Return: set-session-argument() finish-field()
-xlogin*borderWidth: 3
 #ifndef XPM
 xlogin*greeting: CLIENTHOST
 xlogin*namePrompt: login:\040
@@ -51,9 +50,11 @@ xlogin*frameWidth: 0
 xlogin*innerFramesWidth: 0
 xlogin*shdColor: black
 xlogin*hiColor: white
-#endif /* XPM */
+#else
+xlogin*borderWidth: 3
 xlogin*Foreground: black
 xlogin*Background: white
+#endif /* XPM */
 /**/#endif
 #ifdef XPM
 xlogin*logoFileName: BITMAPDIR/**//OpenBSD.xpm
