@@ -1,8 +1,0 @@
-This is a driver for neomagic 128 based boards.
-
-Look at <http://www.mnsinc.com/js/Neomagic.html> for some
-documentation about this driver.
-
-It was done by js@mnsinc.com (Jeff Shorey) and it's not supported by
-XFree86. Please direct all questions and bug reports to js@mnsinc.com,
-not to the XFree86 project.
