@@ -4,7 +4,7 @@
 <title>README for XFree86 3.3.1 on OpenBSD
 <author>
 Matthieu Herrb
-<Date>Last modified on: 26 July 1997
+<Date>Last modified on: 7 Oct 1997
 
 <toc>
 
@@ -26,14 +26,9 @@ The sources for XFree86 are available by anonymous ftp from:
 <htmlurl name="ftp://ftp.XFree86.org/pub/XFree86/current"
 url="ftp://ftp.XFree86.org/pub/XFree86/current">
 
-Binaries for OpenBSD 2.1  are available from:
+Binaries for OpenBSD 2.2  are available in the OpenBSD 2.2 
+binary distribution.
 
-<htmlurl name="ftp://ftp.XFree86.org/pub/XFree86/current/binaries/"
-url="ftp://ftp.XFree86.org/pub/XFree86/current/binaries/OpenBSD">
-
-A list of mirror sites is provided by
-<htmlurl name="ftp://ftp.XFree86.org/pub/XFree86/MIRRORS"
-url="ftp://ftp.XFree86.org/pub/XFree86/MIRRORS">
 
 <p>
 
@@ -49,9 +44,16 @@ Send email to <em/matthieu@laas.fr/ (Matthieu Herrb) or
 this file and we'll revise it.
 
 <sect>New features in this release
-
+This release have been done for OpenBSD 2.2. It contains a few minor changes
+in respect to the XFree86 3.3.1 distribution for OpenBSD 2.1 that can
+be found on the XFree86 sites
 <p>
 <enum>
+<item>The servers are no longer installed setuid. You need to run xdm
+to use X safely. You can also set the setuid bit yourself, but
+<bf/don't do that/ unless you know what you are doing.
+<item>A security hole that allow to view the first words of an
+arbitrary file when the servers are setuid has been fixed.
 <item>See the <htmlurl url="RELNOTES.html" name="Release Notes"> for
 non-OS dependent new features in XFree86 3.3.1.
 </enum>
@@ -62,38 +64,6 @@ non-OS dependent new features in XFree86 3.3.1.
 Refer to section 4 of the <htmlurl url="RELNOTES.html" name="Release
 Notes">  for detailed installation instructions.
 
-
-<sect1>Installing Xdm, the display manager
-
-<p>
-The file <tt>xc/lib/Xdmcp/WrapHelp.c</tt> is not available in
-France (where the binary distribution is built) so support for
-XDM-AUTHORIZATION-1 is not included here. You'll have to get
-WrapHelp.c and rebuild xdm after having set <tt/HasXdmAuth/ in
-<tt/host.def/.
-
-The file is available within the US; for
-details see <htmlurl name="ftp.x.org:/pub/R6/xdm-auth/README"
-url="ftp://ftp.x.org/pub/R6/xdm-auth/README">.
-
-To start the display manager, log in as root on the console and type:
-``<tt/xdm -nodaemon/''.
-
-You can start xdm automatically on bootup by disabling the console getty
-and adding the following code to <tt>/etc/rc.local</tt>:
-
-<tscreen><verb>
-  if [ -x /usr/X11R6/bin/xdm ]; then
-    echo -n ' xdm'; /usr/X11R6/bin/xdm
-  fi
-</verb></tscreen>
-
-To disable the console getty, change ``<bf/on/'' to ``<bf/off/'' in
-the console entry in <tt>/etc/ttys</tt>:
-
-<tscreen><verb>
- ttyC0	"/usr/libexec/getty Pc"	pc	off secure
-</verb></tscreen>
 
 
 <sect>Configuring X for Your Hardware
@@ -186,6 +156,49 @@ lines to the <bf/Module/ section of <tt/XF86Config/:
 </verb></tscreen>
 
 
+<sect>Installing Xdm, the display manager
+
+<p>
+The file <tt>xc/lib/Xdmcp/WrapHelp.c</tt> is not available in
+France (where the binary distribution is built) so support for
+XDM-AUTHORIZATION-1 is not included here. You'll have to get
+WrapHelp.c and rebuild xdm after having set <tt/HasXdmAuth/ in
+<tt/host.def/.
+
+The file is available within the US; for
+details see <htmlurl name="ftp.x.org:/pub/R6/xdm-auth/README"
+url="ftp://ftp.x.org/pub/R6/xdm-auth/README">.
+
+To start the display manager, log in as root on the console and type:
+``<tt/xdm -nodaemon/''.
+
+You can start xdm automatically on bootup un-commenting the following
+code in <tt>/etc/rc.local</tt>:
+
+<tscreen><verb>
+  if [ -x /usr/X11R6/bin/xdm ]; then
+    echo -n ' xdm'; /usr/X11R6/bin/xdm
+  fi
+</verb></tscreen>
+
+On the default OpenBSD 2.2 installation, you will also need to create
+the virtual console device for the X server:
+<tscreen><verb>
+cd /dev
+ ./MAKEDEV ttyC5
+</verb></tscreen>
+
+It's also better to specify explicitly the virtual console to be used
+by the X server. If you're experimenting keyboards lockup with xdm, in
+<tt>/usr/X11R6/lib/X11/xdm/Xservers</tt>, replace the line:
+<tscreen><verb>
+:0 local /usr/X11R6/bin/X
+</verb></tscreen>
+by:
+<tscreen><verb>
+:0 local /usr/X11R6/bin/X vt06
+</verb></tscreen>
+
 <sect>Running X
 
 <p>
@@ -212,7 +225,7 @@ To make sure X support is enabled under  OpenBSD, the following
 line must be in your config file in <tt>/sys/arch/i386/conf</tt>:
 
 <tscreen>
- options XSERVER, UCONSOLE
+ option XSERVER
 </tscreen>
 
 The server supports the two standard  OpenBSD/i386
@@ -258,6 +271,8 @@ There are two ways to allow XFree86 to access linear memory:
    `option INSECURE' in the kernel configuration file and build a new
    kernel. 
 
+In OpenBSD 2.2, you will also need to comment out the line
+initializing <tt/securelevel/ to 1 in <tt>/etc/rc.securelevel</tt>.
 
 <item>Install the aperture driver:
 <enum>
@@ -276,7 +291,7 @@ system version:
  fi
 </verb></tscreen>
 
-<item> OpenBSD 2.1
+<item> OpenBSD 2.1, 2.2
     <p>
     Uncomment the lines loading the aperture driver from
     <tt>/etc/rc.securelevel</tt> 
@@ -411,7 +426,7 @@ Per Fogelstrom (pefo@OpenBSD.org) for details.
 The Xsun server patches from Dennis Ferguson and Matthew Green for
 NetBSD have been integrated in
 <tt>xc/programs/Xserver/hw/sun</tt>. The Xsun server can be built on
-the sparc and the sun3.
+the sparc and the sun3, with patches from Kenneth Stailey.
 
 The client side of XFree86 also builds on the alpha, pmax, amiga,
 mac68k and mvme68k architectures.
