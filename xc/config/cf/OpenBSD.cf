@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.10 1997/07/27 02:41:03 dawes Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.12 1998/02/21 10:44:41 matthieu Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.13 1998/02/28 13:53:56 deraadt Exp $
 XCOMM
 XCOMM If building for the mac68k, you MUST use BOOTSTRAPCFLAGS="-Dmac68k"
 XCOMM with make World
@@ -527,6 +527,8 @@ install.man:: 								@@\
 #ifndef UseRgbTxt
 # define UseRgbTxt			YES
 #endif
+
+#define	HasXdmAuth		YES
 
 #ifndef OSBinaryType
 # if UseElfFormat
