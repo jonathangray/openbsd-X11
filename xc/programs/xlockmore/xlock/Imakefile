@@ -36,7 +36,7 @@ all:: $(XLOCKUTILOBJS) $(XLOCKDEBUGOBJS)
 DependTarget()
 LintTarget()
 
-InstallProgram(xlock,$(BINDIR))
+InstallProgramWithFlags(xlock,$(BINDIR),$(INSTUIDFLAGS))
 InstallAppDefaults(XLock)
 InstallManPage(xlock,$(MANDIR))
 
