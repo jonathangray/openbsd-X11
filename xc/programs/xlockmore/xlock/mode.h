@@ -1,9 +1,12 @@
 #ifndef __XLOCK_MODE_H__
 #define __XLOCK_MODE_H__
 
+#if !defined( lint ) && !defined( SABER )
+/* #ident  "@(#)mode.h      4.14 99/06/17 xlockmore" */
+
+#endif
+
 /*-
- * @(#)mode.h	4.13 99/02/14 xlockmore
- *
  * mode.h - mode management for xlock, the X Window System lockscreen.
  *
  * Copyright (c) 1991 by Patrick J. Naughton.
@@ -96,7 +99,6 @@
 #define MI_IS_INWINDOW(MI)	(!(MI)->root_p)
 #define MI_IS_ICONIC(MI)	(False)
 #define MI_IS_WIREFRAME(MI)	((MI)->wireframe_p)
-#define MI_IS_MOUSE(MI)	((MI)->mouse)
 #define MI_IS_USE3D(MI)	((MI)->threed)
 #define MI_COUNT(MI)	((MI)->count)
 #define MI_NCOLORS(MI)    ((MI)->ncolors)
@@ -109,6 +111,8 @@
  XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc, \
    0, 0, (unsigned int) MI_WIDTH(mi), (unsigned int) MI_HEIGHT(mi)); \
 }
+#define MI_CLEARWINDOWCOLORMAPFAST(mi, gc, pixel) \
+ MI_CLEARWINDOWCOLORMAP(mi, gc, pixel)
 #define MI_CLEARWINDOWCOLOR(mi, pixel) \
  MI_CLEARWINDOWCOLORMAP(mi, MI_GC(mi), pixel)
 
@@ -146,7 +150,6 @@ typedef struct ModeInfo {
 	long        threed_none_color;
 	long        threed_delta;
 	Bool        wireframe_p;
-	Bool        mouse;
 	char       *bitmap;
 	Bool        is_drawn;
 } ModeInfo;
@@ -293,15 +296,14 @@ typedef struct {
 #define WI_FLAG_MONO		0x004
 #define WI_FLAG_INWINDOW	0x008
 #define WI_FLAG_INROOT		0x010
-#define WI_FLAG_NOLOCK	0x020
+#define WI_FLAG_NOLOCK		0x020
 #define WI_FLAG_INSTALL		0x040
 #define WI_FLAG_DEBUG		0x080
 #define WI_FLAG_USE3D		0x100
 #define WI_FLAG_VERBOSE		0x200
-#define WI_FLAG_FULLRANDOM		0x400
-#define WI_FLAG_WIREFRAME		0x800
-#define WI_FLAG_MOUSE		0x1000
-#define WI_FLAG_JUST_INITTED	0x2000	/* private state flag */
+#define WI_FLAG_FULLRANDOM	0x400
+#define WI_FLAG_WIREFRAME	0x800
+#define WI_FLAG_JUST_INITTED	0x1000	/* private state flag */
 
 #ifdef __cplusplus
   extern "C" {
@@ -372,7 +374,6 @@ typedef struct ModeInfo_s {
 #define MI_IS_VERBOSE(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_VERBOSE))
 #define MI_IS_FULLRANDOM(mi) (MI_FLAG_IS_SET (mi, WI_FLAG_FULLRANDOM))
 #define MI_IS_WIREFRAME(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_WIREFRAME))
-#define MI_IS_MOUSE(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_MOUSE))
 
 #define MI_SCREENINFO(mi)	((mi)->screeninfo)
 #define MI_DEPTH(mi)	((mi)->screeninfo->depth)
@@ -435,8 +436,11 @@ extern void erase_full_window(ModeInfo * mi, GC erase_gc, unsigned long pixel);
   }
 #endif
 
-#if 0
 #define MI_CLEARWINDOWCOLORMAP(mi, gc, pixel) \
+{ \
+ erase_full_window( mi , gc , pixel ); \
+}
+#define MI_CLEARWINDOWCOLORMAPFAST(mi, gc, pixel) \
 { \
  XSetForeground(MI_DISPLAY(mi), gc, pixel); \
  if ((MI_WIDTH(mi) >= 2) || (MI_HEIGHT(mi) >= 2)) { \
@@ -448,12 +452,6 @@ extern void erase_full_window(ModeInfo * mi, GC erase_gc, unsigned long pixel);
  XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc, 0, 0, \
   (unsigned int) MI_WIDTH(mi), (unsigned int) MI_HEIGHT(mi)); \
 }
-#else
-#define MI_CLEARWINDOWCOLORMAP(mi, gc, pixel) \
-{ \
- erase_full_window( mi , gc , pixel ); \
-}
-#endif
 #define MI_CLEARWINDOWCOLOR(mi, pixel) \
  MI_CLEARWINDOWCOLORMAP(mi, MI_GC(mi), pixel)
 #if 1
@@ -585,6 +583,7 @@ extern void release_last_mode(ModeInfo *);
 #define MODE_swirl
 #define MODE_tetris
 #define MODE_thornbird
+#define MODE_tik_tak
 #define MODE_triangle
 #define MODE_tube
 #define MODE_turtle
@@ -1342,6 +1341,14 @@ extern ModeHook release_thornbird;
 extern ModeHook refresh_thornbird;
 extern ModeHook change_thornbird;
 extern ModeSpecOpt thornbird_opts;
+#endif
+
+#ifdef MODE_tik_tak
+extern ModeHook init_tik_tak;
+extern ModeHook draw_tik_tak;
+extern ModeHook release_tik_tak;
+extern ModeHook refresh_tik_tak;
+extern ModeSpecOpt tik_tak_opts;
 #endif
 
 #ifdef MODE_triangle

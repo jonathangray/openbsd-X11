@@ -286,7 +286,7 @@ fixColormap(Display * display, Window window,
 	Scr[screen].colormap = cmap;
 	if ((install || fixed) && !inroot && Scr[screen].npixels > 2) {
 #if 0
-		XGetWindowAttributes(display, window, &xgwa);
+		(void) XGetWindowAttributes(display, window, &xgwa);
 		if (cmap != xgwa.colormap)
 #endif
 #if 1				/* Turn off to simulate fvwm and tvwm */

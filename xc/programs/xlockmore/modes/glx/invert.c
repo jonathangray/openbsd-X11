@@ -60,7 +60,7 @@ reshape(int width, int height)
 
 
 static void
-pinit(ModeInfo * mi)
+pinit(void)
 {
 /*
   GLfloat front_mat[] = {.8, .7, .4, 1.0};
@@ -122,7 +122,7 @@ init_invert(ModeInfo * mi)
   gp->frames = glGenLists(STEPS);
   
   reshape(MI_WIDTH(mi), MI_HEIGHT(mi));
-  pinit(mi);
+  pinit();
 }
 
 void

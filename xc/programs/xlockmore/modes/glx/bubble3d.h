@@ -1,7 +1,20 @@
-/* GLBUBBLES (C) 1998 Richard W.M. Jones. */
-
 #ifndef __bubbles3d_h__
 #define __bubbles3d_h__
+
+#if !defined( lint ) && !defined( SABER )
+/* #ident	"@(#)bubble3d.h	4.14 99/06/17 xlockmore" */
+
+#endif
+
+/*-
+ * Bubble3d stuff
+ *
+ * GLBUBBLES (C) 1998 Richard W.M. Jones.
+ * See xlock.c for copying information.
+ *
+ * Revision History:
+ * 17-06-99: Started log. :)
+ */
 
 #include "xlock.h"
 #include <GL/gl.h>

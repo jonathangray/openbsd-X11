@@ -139,7 +139,6 @@ make_starfish(ModeInfo * mi)
 {
 	starfishstruct *sp = &starfishes[MI_SCREEN(mi)];
 	int         i;
-	int         mid;
 
 	sp->elasticity = SCALE * sp->thickness;
 
@@ -163,9 +162,10 @@ make_starfish(ModeInfo * mi)
 	sp->rota = 0.0004 + 0.0002 * (double) LRAND() / (double) MAXRAND;
 
 
-	if (!(LRAND() % 20))
-		sp->size *= (int) (0.35 * ((double) LRAND() / (double) MAXRAND +
-				 (double) LRAND() / (double) MAXRAND) + 0.3);
+	if (NRAND(20) == 5)
+		sp->size = (int) (sp->size *
+			(0.35 * ((double) LRAND() / (double) MAXRAND +
+				 (double) LRAND() / (double) MAXRAND) + 0.3));
 
 	{
 		static char skips[] =
@@ -188,7 +188,7 @@ make_starfish(ModeInfo * mi)
 
 	if (sp->min_r < (5 * SCALE))
 		sp->min_r = (5 * SCALE);
-	mid = ((sp->min_r + sp->max_r) / 2);
+	/* mid = ((sp->min_r + sp->max_r) / 2); */
 
 	sp->x = sp->winwidth / 2;
 	sp->y = sp->winheight / 2;

@@ -32,7 +32,7 @@ static const char sccsid[] = "@(#)star.c	4.07 97/11/24 xlockmore";
  * 8-May-96: Blue on left instead of green for 3d.  It seems more common
  *           than green.  Use "-left3d Green" if you have the other kind.
  * 17-Jan-96: 3D mode for star thanks to <theiling@coli.uni-sb.de>.
- *            Get out your 3D glasses, Red on right and Blue on left.
+ *            Get out your 3D glasses, Red on left and Blue on right.
  * 14-Apr-95: Jeremie PETIT <petit@aurora.unice.fr> added a "move" feature.
  * 2-Sep-93: xlock version David Bagley <bagleyd@tux.org>
  * 1992:     xscreensaver version Jamie Zawinski <jwz@jwz.org>
@@ -121,27 +121,22 @@ typedef struct _BitmapType {
 	int         direction, width, height;
 } BitmapType;
 
-#include "bitmaps/trek-0.xbm"	/* Enterprise SOUTH EAST */
-#include "bitmaps/trek-1.xbm"	/* Enterprise EAST */
-#ifdef ROMULAN			/* Bitmap looks messed up to me. */
-#include "bitmaps/trek-2.xbm"	/* Romulan (cloaked?) EAST */
-#define TREKIES 3
-#else
-#define TREKIES 2
-#endif
+#include "bitmaps/enterprise-2.xbm"	/* Enterprise EAST */
+#include "bitmaps/enterprise-3.xbm"	/* Enterprise SOUTH EAST */
+#include "bitmaps/enterprise-5.xbm"	/* Enterprise SOUTH WEST */
+#include "bitmaps/enterprise-6.xbm"	/* Enterprise WEST */
+#define TREKIES 4
 
 static BitmapType trekie[] =
 {
-	{3, trek0_width, trek0_height},
-	{2, trek1_width, trek1_height}
-#ifdef ROMULAN
-	,
-	{2, trek2_width, trek2_height}
-#endif
+	{2, enterprise2_width, enterprise2_height},
+	{3, enterprise3_width, enterprise3_height},
+	{5, enterprise5_width, enterprise5_height},
+	{6, enterprise6_width, enterprise6_height}
 };
 
 /*-
- * For 3d effect get some 3D glasses, right lens red, and left lens blue.
+ * For 3d effect get some 3D glasses, left lens red, and right lens blue.
  * Too bad monitors do not emit polarized light.
  */
 
@@ -152,7 +147,7 @@ static BitmapType trekie[] =
 #define MAXSIZE 200		/* how big (in pixels) stars are at depth 1 */
 #define DEPTH_SCALE 100		/* how many ticks there are between depths */
 #define RESOLUTION 1000
-#define MAX_DEP 0.3		/* how far the displacement can be (percents) */
+#define MAX_DEP 1.0		/* how far the displacement can be (percents) */
 #define DIRECTION_CHANGE_RATE 60
 #define MAX_DEP_SPEED 5		/* Maximum speed for movement */
 #define MOVE_STYLE 0		/* Only 0 and 1. Distinguishes the fact that
@@ -271,6 +266,8 @@ star_tick(ModeInfo * mi, astar * astars, int d)
 			astars->theta += RESOLUTION;
 		if (astars->depth < (MIN_DEPTH * DEPTH_SCALE))
 			astars->depth = 0;
+		else if (astars->depth > (MAX_DEPTH * DEPTH_SCALE))
+			astars->depth = MAX_DEPTH * DEPTH_SCALE;
 		else {
 			star_compute(mi, astars);
 			star_draw(mi, astars, True);
@@ -284,12 +281,10 @@ move_trek(starstruct * sp, int direction, int width, int height)
 {
 	switch (direction) {	/* Format: 0 = N, 1 = NE, etc */
 		case 2:	/* EAST */
-			sp->trek.loc.x = sp->width;
+			sp->trek.loc.x = -width;
 			sp->trek.loc.y = NRAND(sp->height);
-			sp->trek.delta.x = -(NRAND(3) + 1);
+			sp->trek.delta.x = NRAND(3) + 1;
 			sp->trek.delta.y = NRAND(7) - 4;
-			sp->trek.size.x = width;
-			sp->trek.size.y = height;
 			break;
 		case 3:	/* SOUTH EAST */
 			if (LRAND() & 1) {	/* Top to Right */
@@ -301,21 +296,36 @@ move_trek(starstruct * sp, int direction, int width, int height)
 			}
 			sp->trek.delta.x = NRAND(3) + 1;
 			sp->trek.delta.y = NRAND(3) + 1;
-			sp->trek.size.x = width;
-			sp->trek.size.y = height;
 			break;
 		case 4:	/* SOUTH */
 			sp->trek.loc.x = NRAND(sp->width);
 			sp->trek.loc.y = sp->height;
 			sp->trek.delta.x = NRAND(7) - 4;
 			sp->trek.delta.y = -(NRAND(3) + 1);
-			sp->trek.size.x = width;
-			sp->trek.size.y = height;
+			break;
+		case 5:	/* SOUTH EAST */
+			if (LRAND() & 1) {	/* Top to Right */
+				sp->trek.loc.x = NRAND(sp->width);
+				sp->trek.loc.y = -height;
+			} else {	/* Left to Bottom */
+				sp->trek.loc.x = sp->width;
+				sp->trek.loc.y = NRAND(sp->height);
+			}
+			sp->trek.delta.x = -(NRAND(3) + 1);
+			sp->trek.delta.y = NRAND(3) + 1;
+			break;
+		case 6:	/* WEST */
+			sp->trek.loc.x = sp->width;
+			sp->trek.loc.y = NRAND(sp->height);
+			sp->trek.delta.x = -(NRAND(3) + 1);
+			sp->trek.delta.y = NRAND(7) - 4;
 			break;
 		default:
 			(void) printf("not implemented for direction %d", direction);
 			break;
 	}
+	sp->trek.size.x = width;
+	sp->trek.size.y = height;
 }
 
 static void
@@ -340,8 +350,8 @@ draw_trek(ModeInfo * mi)
 
 		if ((sp->trek.loc.x < -sp->trek.size.x) ||
 		    (sp->trek.loc.y < -sp->trek.size.y) ||
-		    (sp->trek.loc.y > sp->height) ||
-		    (sp->trek.loc.x > sp->width)) {
+		    (sp->trek.loc.y >= sp->height) ||
+		    (sp->trek.loc.x >= sp->width)) {
 			sp->current_trek = TREKIES;
 			XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 			XFillRectangle(display, window, gc,
@@ -349,13 +359,36 @@ draw_trek(ModeInfo * mi)
 				       sp->trek.loc.y - sp->trek.delta.y,
 				       sp->trek.size.x, sp->trek.size.y);
 		} else {
+			int trekx, treky, trekwidth, trekheight;
+
 			XSetForeground(display, sp->stippledGC, MI_WHITE_PIXEL(mi));
 			XSetTSOrigin(display, sp->stippledGC, sp->trek.loc.x, sp->trek.loc.y);
 			XSetStipple(display, sp->stippledGC, sp->trekPixmaps[sp->current_trek]);
 			XSetFillStyle(display, sp->stippledGC, FillOpaqueStippled);
+		
+			trekx = sp->trek.loc.x;
+			treky = sp->trek.loc.y,
+			trekwidth = sp->trek.size.x;
+			trekheight = sp->trek.size.y;
+			/* Bound checks needed for Sun but does not hurt elsewhere */
+			if (trekx < 0) {
+				trekwidth = sp->trek.size.x + trekx;
+				trekx = 0;
+			}
+			if (treky < 0) {
+				trekheight = sp->trek.size.y + treky;
+				treky = 0;
+			}
+			/* This part is not needed but it jives with above */
+			if (trekx + trekwidth >= sp->width) {
+				trekwidth = sp->width - trekx;
+			}
+			if (treky + trekheight >= sp->height) {
+				trekheight = sp->height - treky;
+			}
 			XFillRectangle(display, window, sp->stippledGC,
-				       sp->trek.loc.x, sp->trek.loc.y,
-				       sp->trek.size.x, sp->trek.size.y);
+				       trekx, treky,
+				       trekwidth, trekheight);
 
 			if (!new_one) {
 				XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -540,11 +573,10 @@ init_pixmaps(ModeInfo * mi)
 	if (!sp->init_treks && trek) {
 /* PURIFY 4.0.1 on SunOS4 reports a 3264 byte memory leak on the next line. *
    PURIFY 4.0.1 on Solaris 2 does not report this memory leak. */
-		TREKBITS(trek0_bits, trek0_width, trek0_height);
-		TREKBITS(trek1_bits, trek1_width, trek1_height);
-#ifdef ROMULAN
-		TREKBITS(trek2_bits, trek2_width, trek2_height);
-#endif
+		TREKBITS(enterprise2_bits, enterprise2_width, enterprise2_height);
+		TREKBITS(enterprise3_bits, enterprise3_width, enterprise3_height);
+		TREKBITS(enterprise5_bits, enterprise5_width, enterprise5_height);
+		TREKBITS(enterprise6_bits, enterprise6_width, enterprise6_height);
 	}
 }
 
@@ -641,8 +673,6 @@ init_star(ModeInfo * mi)
 		sp->nstars = NRAND(-sp->nstars - MIN_STARS + 1) + MIN_STARS;
 	} else if (sp->nstars < MIN_STARS)
 		sp->nstars = MIN_STARS;
-	if (sp->speed < 1)
-		sp->speed = 1;
 	if (sp->speed > 100)
 		sp->speed = 100;
 
@@ -695,6 +725,12 @@ draw_star(ModeInfo * mi)
 	}
 	tick_stars(mi, sp->current_delta);
 	draw_trek(mi);
+#if 0
+	/* this is for making stars go backwards, not ready for prime-time */
+	if (!NRAND(500)) {
+		sp->speed = -sp->speed;
+	}
+#endif
 }
 
 void

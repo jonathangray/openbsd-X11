@@ -299,7 +299,7 @@ ACTION StartDtscreenDclock
 	TYPE		COMMAND
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode dclock
-	DESCRIPTION	dclock: A floating digital clock
+	DESCRIPTION	dclock: A floating digital clock or message
 }
 
 ACTION StartDtscreenDecay
@@ -380,7 +380,7 @@ ACTION StartDtscreenFlag
 	TYPE		COMMAND
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode flag
-	DESCRIPTION	flag: A waving flag of your operating system
+	DESCRIPTION	flag: A waving flag image
 }
 
 ACTION StartDtscreenFlow
@@ -606,6 +606,15 @@ ACTION StartDtscreenMarquee
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode marquee
 	DESCRIPTION	marquee: Messages
+}
+
+ACTION StartDtscreenMatrix
+{
+	LABEL		StartDtscreenMatrix
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode matrix
+	DESCRIPTION	matrix: The matrix
 }
 
 ACTION StartDtscreenMaze
@@ -858,6 +867,15 @@ ACTION StartDtscreenThornbird
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode thornbird
 	DESCRIPTION	thornbird: An animated Bird in a Thorn Bush fractal map
+}
+
+ACTION StartDtscreenTik_Tak
+{
+	LABEL		StartDtscreenTik_Tak
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode tik_tak +install
+	DESCRIPTION	tik_tak: Rotating polygons
 }
 
 ACTION StartDtscreenTriangle

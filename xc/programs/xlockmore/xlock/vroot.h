@@ -1,3 +1,11 @@
+#ifndef _VROOT_H_
+#define _VROOT_H_
+
+#if !defined( lint ) && !defined( SABER )
+/* #ident	"@(#)vroot.h	4.14 99/06/17 xlockmore" */
+
+#endif
+
 /*****************************************************************************/
 /**                   Copyright 1991 by Andreas Stolcke                     **/
 /**               Copyright 1990 by Solbourne Computer Inc.                 **/
@@ -53,14 +61,6 @@
  * - free children list (suggested by Mark Martin <mmm@cetia.fr>), 5/16/91
  * - include X11/Xlib.h and support RootWindowOfScreen, too 9/17/91
  */
-
-#ifndef _VROOT_H_
-#define _VROOT_H_
-
-#if !defined( lint ) && !defined( SABER )
-static const char vroot_rcsid[] = "$Id: vroot.h,v 1.1.1.3 1999/05/02 17:57:31 matthieu Exp $";
-
-#endif
 
 #include <X11/X.h>
 #include <X11/Xatom.h>

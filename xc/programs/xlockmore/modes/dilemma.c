@@ -86,27 +86,30 @@ static const char sccsid[] = "@(#)dilemma.c	4.07 97/11/24 xlockmore";
 /*-
  * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
  */
-extern int  neighbors;
-
+#define DEF_NEIGHBORS  "0"      /* choose random value */
 #define DEF_BONUS  "1.85"
 #define DEF_CONSCIOUS  "True"
 
+static int  neighbors;
 static float bonus;
 static Bool conscious;
 
 static XrmOptionDescRec opts[] =
 {
+	{"-neighbors", ".dilemma.neighbors", XrmoptionSepArg, (caddr_t) NULL},
 	{"-bonus", ".dilemma.bonus", XrmoptionSepArg, (caddr_t) NULL},
 	{"-conscious", ".dilemma.conscious", XrmoptionNoArg, (caddr_t) "on"},
 	{"+conscious", ".dilemma.conscious", XrmoptionNoArg, (caddr_t) "off"}
 };
 static argtype vars[] =
 {
+	{(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int},
 	{(caddr_t *) & bonus, "bonus", "Bonus", DEF_BONUS, t_Float},
    {(caddr_t *) & conscious, "conscious", "Conscious", DEF_CONSCIOUS, t_Bool}
 };
 static OptionStruct desc[] =
 {
+	{"-neighbors num", "squares 4 or 8, hexagons 6, triangles 3, 9 or 12"},
 	{"-bonus value", "bonus for cheating... between 1.0 and 4.0"},
 	{"-/+conscious", "turn on/off self-awareness"}
 };
@@ -207,8 +210,8 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 		dp->shape.hexagon[0].x = dp->xb + ccol * dp->xs;
 		dp->shape.hexagon[0].y = dp->yb + crow * dp->ys;
 		if (dp->xs == 1 && dp->ys == 1)
-			XFillRectangle(display, window, gc,
-			dp->shape.hexagon[0].x, dp->shape.hexagon[0].y, 1, 1);
+			XDrawPoint(display, window, gc,
+			dp->shape.hexagon[0].x, dp->shape.hexagon[0].y);
 		else if (bitmap == BITMAPS - 1)
 			XFillPolygon(display, window, gc,
 			    dp->shape.hexagon, 6, Convex, CoordModePrevious);
@@ -260,9 +263,9 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 		dp->shape.triangle[orient][0].x = dp->xb + col * dp->xs;
 		dp->shape.triangle[orient][0].y = dp->yb + row * dp->ys;
 		if (dp->xs <= 3 || dp->ys <= 3)
-			XFillRectangle(display, window, gc,
+			XDrawPoint(display, window, gc,
 			((orient) ? -1 : 1) + dp->shape.triangle[orient][0].x,
-				       dp->shape.triangle[orient][0].y, 1, 1);
+				       dp->shape.triangle[orient][0].y);
 		else {
 			if (orient)
 				dp->shape.triangle[orient][0].x += (dp->xs / 2 - 1);

@@ -19,20 +19,26 @@ ant: Turing Machines where the tape is the screen.
   -cycles <int>: how many cycles before a new ant
   -size <int>: size of ant in pixels
   
-  -neighbors <int>: 0 random, 4 ants, 3 & 6 bees, (8, 9, and 12
-    are also available, but in my opinion, produces nonsence)
+  -eyes  eyes on ant (did not bother for -neighbors 12)
+    eyes are backwards on triangular ants (easier to place them).
+  -neighbors <int>: 0 random, 4 & 8 ants, 3, 6, & 12 bees (9 seemed hard 
+    to make consistent, but since 3 was done, there should be a way...)
   -verbose: verbose help identify ant  (good to use with -inwindow or -debug)
 
-bug: Evolving bugs learn to walk straight (except in the garden) unlike
-   other modes there is no wrapping
+bug: Evolving bugs (big squares) learn to walk straight (except in the garden)
+   to pick up bacteria food (little squares) unlike other modes there is no
+   wrapping (this to me is logical because its like the bug is in a glass
+   jar)
  Mode options:
   -delay <int>: controls the length of a cycle in microsec
   -batchcount <int>: number of bugs
   -cycles <int>: how many cycles before a new world
   -size <int>: size of bug in pixels
 
-  -neighbor <int>: option has no effect.  Currently supports only a hexagonal
-    arrangement (6)  (other neighborhoods currently in development)
+  -eyes  eyes on bug
+  -neighbors <int>: 0 random, 4 & 8 rectangular, 6 hexagonal, 3 & 12
+    triangular (9 seemed hard to make consistent, but since 3 was done,
+    there should be a way...)
 
 demon: A simple modulo automata
  Mode options:
@@ -125,6 +131,8 @@ loop: Chris Langton's loops, its always the same but oriented 4 ways
   -delay <int>: controls the length of a cycle in microsec
   -cycles <int>: how many cycles before it starts over
   -size <int>: size of cell in pixels
+
+  -neighbors <int>: 0 random, 4 rectangular, 6 hexagonal
 
 voters: your political belief is influenced by your neighbor
  Mode options:

@@ -118,7 +118,7 @@ visualClassFromName(char *name)
 	return (visualclass);
 }
 
-char       *
+const char *
 nameOfVisualClass(int visualclass)
 {
 	int         a;

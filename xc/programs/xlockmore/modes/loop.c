@@ -35,7 +35,7 @@ static const char sccsid[] = "@(#)loop.c	4.13 98/10/18 xlockmore";
  */
 
 /*-
-  Grid     Number of Neigbors
+  Grid     Number of Neighbors
   ----     ------------------
   Square   4
   Hexagon  6  (currently in development)
@@ -84,10 +84,28 @@ static const char sccsid[] = "@(#)loop.c	4.13 98/10/18 xlockmore";
 /*-
  * neighbors of 0 randomizes between 4 and 6.
  */
-extern int  neighbors;
+#define DEF_NEIGHBORS  "0"      /* choose random value */
+
+static int  neighbors;
+
+static XrmOptionDescRec opts[] =
+{
+	{"-neighbors", ".loop.neighbors", XrmoptionSepArg, (caddr_t) NULL}
+};
+
+static argtype vars[] =
+{
+	{(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int}
+};
+
+static OptionStruct desc[] =
+{
+	{"-neighbors num", "squares 4 or hexagons 6"}
+};
 
 ModeSpecOpt loop_opts =
-{0, NULL, 0, NULL, NULL};
+{sizeof opts / sizeof opts[0], opts, sizeof vars / sizeof vars[0], vars, desc};
+
 
 #ifdef USE_MODULES
 ModStruct   loop_description =
@@ -103,7 +121,6 @@ ModStruct   loop_description =
   XCreatePixmapFromBitmapData(display,window,(char *)n,w,h,1,0,1)
 
 static int  local_neighbors = 0;
-static int  neighbor_kind = 0;
 
 #define COLORS 8
 #define REALCOLORS (COLORS-2)
@@ -753,8 +770,8 @@ fillcell(ModeInfo * mi, GC gc, int col, int row)
 		lp->shape.hexagon[0].x = lp->xb + ccol * lp->xs;
 		lp->shape.hexagon[0].y = lp->yb + crow * lp->ys;
 		if (lp->xs == 1 && lp->ys == 1)
-			XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
-				lp->shape.hexagon[0].x, lp->shape.hexagon[0].y, 1, 1);
+			XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
+				lp->shape.hexagon[0].x, lp->shape.hexagon[0].y);
 		else
 			XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 				lp->shape.hexagon, 6, Convex, CoordModePrevious);
@@ -865,8 +882,8 @@ draw_state(ModeInfo * mi, int state)
 			lp->shape.hexagon[0].x = lp->xb + ccol * lp->xs;
 			lp->shape.hexagon[0].y = lp->yb + crow * lp->ys;
 			if (lp->xs == 1 && lp->ys == 1)
-				XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
-					lp->shape.hexagon[0].x, lp->shape.hexagon[0].y, 1, 1);
+				XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
+					lp->shape.hexagon[0].x, lp->shape.hexagon[0].y);
 			else
 				XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 				  	lp->shape.hexagon, 6, Convex, CoordModePrevious);
@@ -1065,8 +1082,8 @@ init_adam(ModeInfo * mi)
 				break;
 		}
 #if DEBUGTEST
-				/* printf ("s %d  s %d \n", start.x, start.y); */
-		printf ("%d %d %d %d %d\t",
+				/* (void) printf ("s %d  s %d \n", start.x, start.y); */
+		(void) printf ("%d %d %d %d %d\t",
      start.x + i + ((lp->bnrows / 2 % 2) ? -j / 2 : -(j + 1) / 2) - lp->bx,
 		 start.y + j - lp->by, i, j, hex_self_reproducing_loop[j][i]);
 		/* Draw right away */
@@ -1075,10 +1092,10 @@ init_adam(ModeInfo * mi)
 		 hex_self_reproducing_loop[j][i]);
 #endif
 #if DEBUGTEST
-			 printf ("\n");
+			 (void) printf ("\n");
 #endif
 #if DEBUGTEST
-			 printf ("\n");
+			 (void) printf ("\n");
 #endif
   } else {
 		switch (NRAND(4)) {
@@ -1261,16 +1278,13 @@ init_loop(ModeInfo * mi)
     for (i = 0; i < NEIGHBORKINDS; i++) {
       if (neighbors == plots[i]) {
         local_neighbors = neighbors;
-        neighbor_kind = i;
         break;
       }
 			if (i == NEIGHBORKINDS - 1) {
 #if 1
 				local_neighbors = plots[NRAND(NEIGHBORKINDS)];
-				neighbor_kind = (local_neighbors == 4) ? 0 : 1;
 #else
 				local_neighbors = 4;
-				neighbor_kind = 0;
 #endif
 				break;
 			}
@@ -1360,7 +1374,7 @@ void
 draw_loop(ModeInfo * mi)
 {
 	loopstruct *lp = &loops[MI_SCREEN(mi)];
-	int         offset, i, j, life = 0;
+	int         offset, i, j;
 	unsigned char *z, *znew;
 
 	if (loops == NULL) {
@@ -1379,7 +1393,6 @@ draw_loop(ModeInfo * mi)
 				lp->dead = False;
 				*z = *znew;
 				addtolist(mi, i - lp->bx, j - lp->by, *znew);
-				life = 1;
 				if (i == lp->mincol && i > lp->bx)
 					lp->mincol--;
 				if (j == lp->minrow && j > lp->by)

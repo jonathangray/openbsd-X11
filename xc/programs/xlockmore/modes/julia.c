@@ -61,8 +61,29 @@ static const char sccsid[] = "@(#)julia.c	4.07 97/11/24 xlockmore";
 
 #ifdef MODE_julia
 
+#define DEF_TRACKMOUSE  "False"
+
+static Bool trackmouse;
+
+static XrmOptionDescRec opts[] =
+{
+        {"-trackmouse", ".julia.trackmouse", XrmoptionNoArg, (caddr_t) "on"},
+        {"+trackmouse", ".julia.trackmouse", XrmoptionNoArg, (caddr_t) "off"}
+};
+
+static argtype vars[] =
+{
+        {(caddr_t *) & trackmouse, "trackmouse", "TrackMouse", DEF_TRACKMOUSE, t_Bool}
+};
+
+static OptionStruct desc[] =
+{
+        {"-/+trackmouse", "turn on/off the tracking of the mouse"}
+};
+
 ModeSpecOpt julia_opts =
-{0, NULL, 0, NULL, NULL};
+{sizeof opts / sizeof opts[0], opts, sizeof vars / sizeof vars[0], vars, desc};
+
 
 #ifdef USE_MODULES
 ModStruct   julia_description =
@@ -133,7 +154,7 @@ apply(juliastruct * jp, register double xr, register double xi, int d)
 static void
 incr(ModeInfo * mi, juliastruct * jp)
 {
-	Bool        track_p = MI_IS_MOUSE(mi);
+	Bool        track_p = trackmouse;
 	int         cx, cy;
 
 	if (track_p) {
@@ -185,7 +206,7 @@ init_julia(ModeInfo * mi)
 	if (jp->depth > 10)
 		jp->depth = 10;
 
-	if (MI_IS_MOUSE(mi) && !jp->cursor) {	/* Create an invisible cursor */
+	if (trackmouse && !jp->cursor) {	/* Create an invisible cursor */
 		Pixmap      bit;
 		XColor      black;
 

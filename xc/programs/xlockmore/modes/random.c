@@ -571,7 +571,10 @@ static char geometry_modes[][MAXMODECHARS] =
 	"spiral",
 #endif
 #ifdef MODE_spline
-	"spline"
+	"spline",
+#endif
+#ifdef MODE_tik_tak
+	"tik_tak"
 #endif
 };
 

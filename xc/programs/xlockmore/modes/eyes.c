@@ -47,7 +47,7 @@ static const char sccsid[] = "@(#)eyes.c	4.07 97/11/24 xlockmore";
  "*cycles: 5 \n" \
  "*ncolors: 200 \n" \
  "*bitmap: \n" \
- "*mouse: False \n"
+ "*trackmouse: False \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 
 #else /* STANDALONE */
@@ -58,8 +58,28 @@ static const char sccsid[] = "@(#)eyes.c	4.07 97/11/24 xlockmore";
 
 #ifdef MODE_eyes
 
+#define DEF_TRACKMOUSE  "False"
+
+static Bool trackmouse;
+
+static XrmOptionDescRec opts[] =
+{
+	{"-track", ".eyes.trackmouse", XrmoptionNoArg, (caddr_t) "on"},
+	{"+track", ".eyes.trackmouse", XrmoptionNoArg, (caddr_t) "off"}
+};
+
+static argtype vars[] =
+{
+	{(caddr_t *) & trackmouse, "trackmouse", "TrackMouse", DEF_TRACKMOUSE, t_Bool}
+};
+
+static OptionStruct desc[] =
+{
+	{"-/+trackmouse", "turn on/off the tracking of the mouse"}
+};
+
 ModeSpecOpt eyes_opts =
-{0, NULL, 0, NULL, NULL};
+{sizeof opts / sizeof opts[0], opts, sizeof vars / sizeof vars[0], vars, desc};
 
 #ifdef USE_MODULES
 ModStruct   eyes_description =
@@ -134,6 +154,12 @@ typedef struct _TPoint {
 #define FLY_BITS		image_bits
 
 #include "eyes.xbm"
+#ifdef XBM_GRELB
+#include "eyes2.xbm"
+#define FLY2_WIDTH   image2_width
+#define FLY2_HEIGHT  image2_height
+#define FLY2_BITS    image2_bits
+#endif
 
 typedef struct {		/* info about a "fly" */
 	int         x, y;
@@ -149,7 +175,6 @@ typedef struct {		/* info about a pair of eyes */
 	int         x, y;
 	int         width;
 	int         height;
-	int         xoff, yoff;
 	int         rectw, recth;
 	int         painted;
 	unsigned long time_to_die;
@@ -164,6 +189,10 @@ typedef struct {		/* info about a pair of eyes */
 typedef struct {		/* per-screen info */
 	Pixmap      flypix;
 	int         flywidth, flyheight;
+#ifdef XBM_GRELB
+	Pixmap      fly2pix;
+	int         fly2width, fly2height;
+#endif
 	int         graphics_format;
 	GC          eyeGC;
 	GC          flyGC;
@@ -522,6 +551,12 @@ paint_fly(ModeInfo * mi, Fly * f)
 	} else {
 		unpaint_fly(mi, f);
 		XSetForeground(display, ep->flyGC, f->pixel);
+#ifdef XBM_GRELB
+		if (ep->fly2pix != None) {
+			XSetStipple(display, ep->flyGC, (f->vy <= 0) ? ep->flypix : ep->fly2pix);
+		} else
+#endif
+			XSetStipple(display, ep->flyGC, ep->flypix);
 		XSetTSOrigin(display, ep->flyGC, x, y);
 #ifdef FLASH
 		XSetFillStyle(display, ep->flyGC, FillStippled);
@@ -547,7 +582,7 @@ move_fly(ModeInfo * mi, Fly * f)
 	int         left = (f->side == FLY_SIDE_LEFT) ? -(f->width) : 0;
 	int         right = (f->side == FLY_SIDE_RIGHT) ? win_width :
 	win_width - f->width;
-	Bool        track_p = MI_IS_MOUSE(mi);
+	Bool        track_p = trackmouse;
 	int         cx, cy;
 
 
@@ -887,6 +922,15 @@ init_eyes(ModeInfo * mi)
 		if (ep->flypix == None) {
 			return;
 		}
+#ifdef XBM_GRELB
+		if (ep->graphics_format == IS_XBM) {
+			ep->graphics_format =0;
+			getPixmap(mi, window,
+			  FLY2_WIDTH, FLY2_HEIGHT, FLY2_BITS,
+			  &(ep->fly2width), &(ep->fly2height), &(ep->fly2pix),
+			  &(ep->graphics_format));
+		}
+#endif
 	}
 	if (ep->flyGC == None) {
 		XGCValues   gcv;
@@ -896,8 +940,6 @@ init_eyes(ModeInfo * mi)
 		if ((ep->flyGC = XCreateGC(display, window,
 				 GCForeground | GCBackground, &gcv)) == None)
 			return;
-		XSetStipple(display, ep->flyGC, ep->flypix);
-		XSetFillStyle(display, ep->flyGC, FillStippled);
 	}
 	if (ep->eyeGC == None) {
 		if ((ep->eyeGC = XCreateGC(display, window,
@@ -935,7 +977,7 @@ init_eyes(ModeInfo * mi)
 
 	init_fly(mi, &(ep->fly));	/* init the bouncer */
 
-	if (MI_IS_MOUSE(mi) && !ep->cursor) {	/* Create an invisible cursor */
+	if (trackmouse && !ep->cursor) {	/* Create an invisible cursor */
 		Pixmap      bit;
 		XColor      black;
 
@@ -1007,6 +1049,10 @@ release_eyes(ModeInfo * mi)
 				XFreeGC(display, ep->eyeGC);
 			if (ep->flypix != None)
 				XFreePixmap(display, ep->flypix);
+#ifdef XBM_GRELB
+			if (ep->fly2pix != None)
+				XFreePixmap(display, ep->fly2pix);
+#endif
 			free_eyes(display, ep);
 			if (ep->cursor)
 				XFreeCursor(display, ep->cursor);

@@ -9,6 +9,7 @@ static const char sccsid[] = "@(#)erase.c	4.14 99/04/23 xlockmore";
  * (c) 1997 by Johannes Keukelaar <johannes@nada.kth.se>
  *
  * Revision History:
+ *   17-May-99 : changed timing by Jouk Jansen
  *   13-Aug-98 : changed to be used with xlockmore by Jouk Jansen
  *               <joukj@hrem.stm.tudelft.nl>
  *   1997      : original version by Johannes Keukelaar <johannes@nada.kth.se>
@@ -23,7 +24,7 @@ static const char sccsid[] = "@(#)erase.c	4.14 99/04/23 xlockmore";
 #undef countof
 #define countof(x) (sizeof(x)/sizeof(*(x)))
 
-extern int  erasedelay, erasemode;
+extern int  erasedelay, erasemode, erasetime;
 extern int erasemodefromname(char *name);
 
 typedef void (*Eraser) (Display * dpy, Window window, GC gc,
@@ -39,18 +40,15 @@ static void
 random_lines(Display * dpy, Window window, GC gc,
 	     int width, int height, int delay, int granularity)
 {
+#define ERASEMODE "random_lines"
 	Bool        horiz_p = LRAND() & 1;
 	int         max = (horiz_p ? height : width);
 	int        *lines = (int *) calloc(max, sizeof (*lines));
 	int         i;
+        int         actual_delay = delay / max;
 
-#if HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	int         interval, t_prev;
+#include "erase_init.h"
 
-	GETTIMEOFDAY(&tp);
-	t_prev = tp.tv_usec;
-#endif
 	for (i = 0; i < max; i++)
 		lines[i] = i;
 
@@ -65,48 +63,38 @@ random_lines(Display * dpy, Window window, GC gc,
 
 	for (i = 0; i < max; i++) {
 		if (horiz_p)
-			XDrawLine(dpy, window, gc, 0, lines[i], width, lines[i]);
+			XDrawLine(dpy, window, gc, 0, lines[i], width,
+				  lines[i]);
 		else
-			XDrawLine(dpy, window, gc, lines[i], 0, lines[i], height);
+			XDrawLine(dpy, window, gc, lines[i], 0, lines[i],
+				  height);
 
 		XSync(dpy, False);
-		if (delay > 0 && ((i % granularity) == 0))
-#if HAVE_GETTIMEOFDAY
-		{
-			GETTIMEOFDAY(&tp);
-			interval = tp.tv_usec - t_prev;
-			if (interval <= 0)
-				interval = interval + 1000000;
-			interval = delay * granularity - interval;
-			if (interval > 0)
-				usleep(interval);
-			GETTIMEOFDAY(&tp);
-			t_prev = tp.tv_usec;
-		}
-#else
-			usleep(delay * granularity);
-#endif
+
+#define LOOPVAR i
+#include "erase.h"
+#undef LOOPVAR
+
 	}
 	(void) free((void *) lines);
+#include "erase_debug.h"
 }
+#undef ERASEMODE
 
 static void
 random_squares(Display * dpy, Window window, GC gc,
 	       int width, int height, int delay, int granularity)
 {
+#define ERASEMODE "random_squares"
 	int         randsize = MAX(1, MIN(width, height) / (16 + NRAND(32)));
 	int         max = (height / randsize + 1) * (width / randsize + 1);
 	int        *squares = (int *) calloc(max, sizeof (*squares));
 	int         i;
 	int         columns = width / randsize + 1;  /* Add an extra for roundoff */
+        int         actual_delay = delay / max;
 
-#if HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	int         interval, t_prev;
+#include "erase_init.h"
 
-	GETTIMEOFDAY(&tp);
-	t_prev = tp.tv_usec;
-#endif
 	for (i = 0; i < max; i++)
 		squares[i] = i;
 
@@ -122,49 +110,36 @@ random_squares(Display * dpy, Window window, GC gc,
 	for (i = 0; i < max; i++) {
 		XFillRectangle(dpy, window, gc,
 			       (squares[i] % columns) * randsize,
-						 (squares[i] / columns) * randsize,
-			       randsize, randsize);
+						 (squares[i] / columns) *
+			       randsize, randsize, randsize);
 
 		XSync(dpy, False);
-		if (delay > 0 && ((i % granularity) == 0))
-#if HAVE_GETTIMEOFDAY
-		{
-			GETTIMEOFDAY(&tp);
-			interval = tp.tv_usec - t_prev;
-			if (interval <= 0)
-				interval = interval + 1000000;
-			interval = delay * granularity - interval;
-			if (interval > 0)
-				usleep(interval);
-			GETTIMEOFDAY(&tp);
-			t_prev = tp.tv_usec;
-		}
-#else
-			usleep(delay * granularity);
-#endif
+
+#define LOOPVAR i
+#include "erase.h"
+#undef LOOPVAR
+
 	}
 	(void) free((void *) squares);
+#include "erase_debug.h"
 }
+#undef ERASEMODE
 
 static void
 venetian(Display * dpy, Window window, GC gc,
 	 int width, int height, int delay, int granularity)
 {
+#define ERASEMODE "venetian"
 	Bool        horiz_p = LRAND() & 1;
 	Bool        flip_p = LRAND() & 1;
 	int         max = (horiz_p ? height : width);
 	int        *lines = (int *) calloc(max, sizeof (*lines));
 	int         i, j;
+        int         actual_delay = delay / max;
 
-#if HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	int         interval, t_prev;
+#include "erase_init.h"
 
-	GETTIMEOFDAY(&tp);
-	t_prev = tp.tv_usec;
-#endif
-
-	granularity /= 6;
+/*	granularity /= 6;*/
 
 	j = 0;
 	for (i = 0; i < max * 2; i++) {
@@ -176,58 +151,47 @@ venetian(Display * dpy, Window window, GC gc,
 
 	for (i = 0; i < max; i++) {
 		if (horiz_p)
-			XDrawLine(dpy, window, gc, 0, lines[i], width, lines[i]);
+			XDrawLine(dpy, window, gc, 0, lines[i], width,
+				  lines[i]);
 		else
-			XDrawLine(dpy, window, gc, lines[i], 0, lines[i], height);
+			XDrawLine(dpy, window, gc, lines[i], 0, lines[i],
+				  height);
 
 		XSync(dpy, False);
-		if (delay > 0 && ((i % granularity) == 0))
-#if HAVE_GETTIMEOFDAY
-		{
-			GETTIMEOFDAY(&tp);
-			interval = tp.tv_usec - t_prev;
-			if (interval <= 0)
-				interval = interval + 1000000;
-			interval = delay * granularity - interval;
-			if (interval > 0)
-				usleep(interval);
-			GETTIMEOFDAY(&tp);
-			t_prev = tp.tv_usec;
-		}
-#else
-			usleep(delay * granularity);
-#endif
+
+#define LOOPVAR i
+#include "erase.h"
+#undef LOOPVAR
+
 	}
 	(void) free((void *) lines);
+#include "erase_debug.h"
 }
-
+#undef ERASEMODE
 
 static void
 triple_wipe(Display * dpy, Window window, GC gc,
 	    int width, int height, int delay, int granularity)
 {
+#define ERASEMODE "triple_wipe"
 	Bool        flip_x = LRAND() & 1;
 	Bool        flip_y = LRAND() & 1;
 	int         max = width + (height / 2);
 	int        *lines = (int *) calloc(max, sizeof (int));
 	int         i;
+        int         actual_delay = delay / max;
 
-#if HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	int         interval, t_prev;
-
-	GETTIMEOFDAY(&tp);
-	t_prev = tp.tv_usec;
-#endif
+#include "erase_init.h"
 
 	for (i = 0; i < width / 2; i++)
 		lines[i] = i * 2 + height;
 	for (i = 0; i < height / 2; i++)
 		lines[i + width / 2] = i * 2;
 	for (i = 0; i < width / 2; i++)
-		lines[i + width / 2 + height / 2] = width - i * 2 - (width % 2 ? 0 : 1) + height;
+		lines[i + width / 2 + height / 2] = width - i * 2 - (width % 2 ? 
+0 : 1) + height;
 
-	granularity /= 6;
+/*	granularity /= 6;*/
 
 	for (i = 0; i < max; i++) {
 		int         x, y, x2, y2;
@@ -244,46 +208,32 @@ triple_wipe(Display * dpy, Window window, GC gc,
 
 		XDrawLine(dpy, window, gc, x, y, x2, y2);
 		XSync(dpy, False);
-		if (delay > 0 && ((i % granularity) == 0))
-#if HAVE_GETTIMEOFDAY
-		{
-			GETTIMEOFDAY(&tp);
-			interval = tp.tv_usec - t_prev;
-			if (interval <= 0)
-				interval = interval + 1000000;
-			interval = delay * granularity - interval;
-			if (interval > 0)
-				usleep(interval);
-			GETTIMEOFDAY(&tp);
-			t_prev = tp.tv_usec;
-		}
-#else
-			usleep(delay * granularity);
-#endif
+
+#define LOOPVAR i
+#include "erase.h"
+#undef LOOPVAR
+
 	}
 	(void) free((void *) lines);
+#include "erase_debug.h"
 }
-
+#undef ERASEMODE
 
 static void
 quad_wipe(Display * dpy, Window window, GC gc,
 	  int width, int height, int delay, int granularity)
 {
+#define ERASEMODE "quad_wipe"
 	Bool        flip_x = LRAND() & 1;
 	Bool        flip_y = LRAND() & 1;
 	int         max = width + height;
 	int        *lines = (int *) calloc(max, sizeof (int));
 	int         i;
+        int         actual_delay = delay / max;
 
-#if HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	int         interval, t_prev;
+#include "erase_init.h"
 
-	GETTIMEOFDAY(&tp);
-	t_prev = tp.tv_usec;
-#endif
-
-	granularity /= 3;
+/*	granularity /= 3;*/
 
 	for (i = 0; i < max / 4; i++) {
 		lines[i * 4] = i * 2;
@@ -307,45 +257,30 @@ quad_wipe(Display * dpy, Window window, GC gc,
 
 		XDrawLine(dpy, window, gc, x, y, x2, y2);
 		XSync(dpy, False);
-		if (delay > 0 && ((i % granularity) == 0))
-#if HAVE_GETTIMEOFDAY
-		{
-			GETTIMEOFDAY(&tp);
-			interval = tp.tv_usec - t_prev;
-			if (interval <= 0)
-				interval = interval + 1000000;
-			interval = delay * granularity - interval;
-			if (interval > 0)
-				usleep(interval);
-			GETTIMEOFDAY(&tp);
-			t_prev = tp.tv_usec;
-		}
-#else
-			usleep(delay * granularity);
-#endif
+
+#define LOOPVAR i
+#include "erase.h"
+#undef LOOPVAR
+
 	}
 	(void) free((void *) lines);
+#include "erase_debug.h"
 }
-
-
+#undef ERASEMODE
 
 static void
 circle_wipe(Display * dpy, Window window, GC gc,
 	    int width, int height, int delay, int granularity)
 {
+#define ERASEMODE "circle_wipe"
 	int         full = 360 * 64;
 	int         inc = full / 64;
 	int         start = NRAND(full);
 	int         rad = (width > height ? width : height);
 	int         i;
+        int         actual_delay = delay * inc / full;
 
-#if HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	int         interval, t_prev;
-
-	GETTIMEOFDAY(&tp);
-	t_prev = tp.tv_usec;
-#endif
+#include "erase_init.h"
 
 	if (LRAND() & 1)
 		inc = -inc;
@@ -356,29 +291,21 @@ circle_wipe(Display * dpy, Window window, GC gc,
 		     (width / 2) - rad, (height / 2) - rad, rad * 2, rad * 2,
 			 (i + start) % full, inc);
 		XFlush(dpy);
-#if HAVE_GETTIMEOFDAY
-		{
-			GETTIMEOFDAY(&tp);
-			interval = tp.tv_usec - t_prev;
-			if (interval <= 0)
-				interval = interval + 1000000;
-			interval = delay * granularity - interval;
-			if (interval > 0)
-				usleep(interval);
-			GETTIMEOFDAY(&tp);
-			t_prev = tp.tv_usec;
-		}
-#else
-		usleep(delay * granularity);
-#endif
-	}
-}
 
+#define LOOPVAR i
+#include "erase.h"
+#undef LOOPVAR
+
+	}
+#include "erase_debug.h"
+}
+#undef ERASEMODE
 
 static void
 three_circle_wipe(Display * dpy, Window window, GC gc,
 		  int width, int height, int delay, int granularity)
 {
+#define ERASEMODE "three_circle_wipe"
 	int         i;
 	int         full = 360 * 64;
 	int         q = full / 6;
@@ -386,72 +313,62 @@ three_circle_wipe(Display * dpy, Window window, GC gc,
 	int         inc = full / 240;
 	int         start = NRAND(q);
 	int         rad = (width > height ? width : height);
+        int         actual_delay = delay * inc / q;
 
-#if HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	int         interval, t_prev;
-
-	GETTIMEOFDAY(&tp);
-	t_prev = tp.tv_usec;
-#endif
-
+#include "erase_init.h"
+   
 	for (i = 0; i < q; i += inc) {
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, rad * 2, rad * 2,
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+rad * 2, rad * 2,
 			 (start + i) % full, inc);
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, rad * 2, rad * 2,
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+rad * 2, rad * 2,
 			 (start - i) % full, -inc);
 
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, rad * 2, rad * 2,
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+rad * 2, rad * 2,
 			 (start + q2 + i) % full, inc);
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, rad * 2, rad * 2,
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+rad * 2, rad * 2,
 			 (start + q2 - i) % full, -inc);
 
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, rad * 2, rad * 2,
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+rad * 2, rad * 2,
 			 (start + q2 + q2 + i) % full, inc);
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, rad * 2, rad * 2,
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+rad * 2, rad * 2,
 			 (start + q2 + q2 - i) % full, -inc);
 
 		XSync(dpy, False);
-#if HAVE_GETTIMEOFDAY
-		{
-			GETTIMEOFDAY(&tp);
-			interval = tp.tv_usec - t_prev;
-			if (interval <= 0)
-				interval = interval + 1000000;
-			interval = delay * granularity - interval;
-			if (interval > 0)
-				usleep(interval);
-			GETTIMEOFDAY(&tp);
-			t_prev = tp.tv_usec;
-		}
-#else
-		usleep(delay * granularity);
-#endif
-	}
-}
 
+#define LOOPVAR i
+#include "erase.h"
+#undef LOOPVAR
+
+	}
+#include "erase_debug.h"
+}
+#undef ERASEMODE
 
 static void
 squaretate(Display * dpy, Window window, GC gc,
 	   int width, int height, int delay, int granularity)
 {
+#define ERASEMODE "squaretate"
 #ifdef FAST_CPU
-	int         steps = (((width > height ? width : width) * 2) / granularity);
+	int         steps = (((width > height ? width : width) * 2) / 
+granularity);
 
 #else
-	int         steps = (((width > height ? width : width)) / (4 * granularity));
+	int         steps = (((width > height ? width : width)) / (4 * 
+granularity));
 
 #endif
 	int         i;
 	Bool        flip = LRAND() & 1;
+        int         actual_delay = delay / steps;
 
-#if HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	int         interval, t_prev;
-
-	GETTIMEOFDAY(&tp);
-	t_prev = tp.tv_usec;
-#endif
+#include "erase_init.h"
 
 #define DRAW() \
       if (flip) { \
@@ -496,29 +413,22 @@ squaretate(Display * dpy, Window window, GC gc,
 		DRAW();
 
 		XSync(dpy, True);
-		if (delay > 0)
-#if HAVE_GETTIMEOFDAY
-		{
-			GETTIMEOFDAY(&tp);
-			interval = tp.tv_usec - t_prev;
-			if (interval <= 0)
-				interval = interval + 1000000;
-			interval = delay * granularity - interval;
-			if (interval > 0)
-				usleep(interval);
-			GETTIMEOFDAY(&tp);
-			t_prev = tp.tv_usec;
-		}
-#else
-			usleep(delay * granularity);
-#endif
+
+#define LOOPVAR i
+#include "erase.h"
+#undef LOOPVAR
+
 	}
 #undef DRAW
+#include "erase_debug.h"
 }
+#undef ERASEMODE
+
 static void
 fizzle (Display *dpy, Window window, GC gc,
 	    int width, int height, int delay, int granularity)
 {
+#define ERASEMODE "fizzle"
   /* These dimensions must be prime numbers.  They should be roughly the
      square root of the width and height. */
 # define BX 31
@@ -529,6 +439,9 @@ fizzle (Display *dpy, Window window, GC gc,
   int i, j;
   XPoint *skews;
   int nx, ny;
+  int actual_delay = delay / SIZE;
+
+#include "erase_init.h"
 
   /* Distribute the numbers [0,SIZE) randomly in the array */
   {
@@ -540,7 +453,7 @@ fizzle (Display *dpy, Window window, GC gc,
     } 
 
     for( i = 0; i < SIZE; i++ ) {
-      j = random()%(SIZE-i);
+      j = LRAND()%(SIZE-i);
       array[indices[j]] = i;
       indices[j] = indices[SIZE-i-1];
     }
@@ -553,8 +466,8 @@ fizzle (Display *dpy, Window window, GC gc,
   if( (XPoint *)0 != skews ) {
     for( i = 0; i < nx; i++ ) {
       for( j = 0; j < ny; j++ ) {
-        skews[j * nx + i].x = random()%BX;
-        skews[j * nx + i].y = random()%BY;
+        skews[j * nx + i].x = LRAND()%BX;
+        skews[j * nx + i].y = LRAND()%BY;
       }
     }
   }
@@ -580,8 +493,12 @@ fizzle (Display *dpy, Window window, GC gc,
 
     if( (BX-1) == (i%BX) ) {
       XSync (dpy, False);
-      usleep (delay*granularity);
     }
+
+#define LOOPVAR i
+# include "erase.h"
+#undef LOOPVAR
+
   }
 
 # undef SKEWX
@@ -594,14 +511,16 @@ fizzle (Display *dpy, Window window, GC gc,
 # undef BX
 # undef BY
 # undef SIZE
+#include "erase_debug.h"
 }
 
-
 /* from Rick Campbell <rick@campbellcentral.org> */
+#undef ERASEMODE
 static void
 spiral (Display *display, Window window, GC context,
         int width, int height, int delay, int granularity)
 {
+#define ERASEMODE "spiral"
 # define SPIRAL_ERASE_PI_2 (M_PI + M_PI)
 # define SPIRAL_ERASE_LOOP_COUNT (100)
 # define SPIRAL_ERASE_ARC_COUNT (360.0)
@@ -614,13 +533,9 @@ SPIRAL_ERASE_ARC_COUNT)
   int arc_max_limit;
   int length_step;
   XPoint points [3];
-#if HAVE_GETTIMEOFDAY
-	struct timeval tp;
-	int         interval, t_prev;
+   int actual_delay;
 
-	GETTIMEOFDAY(&tp);
-	t_prev = tp.tv_usec;
-#endif
+#include "erase_init.h"
 
   angle = 0.0;
   arc_limit = 1;
@@ -635,6 +550,8 @@ SPIRAL_ERASE_ARC_COUNT)
   points [1].y = points [0].y;
   points [2].x = points [1].x;
   points [2].y = points [1].y;
+
+	actual_delay = delay * length_step / arc_max_limit;
 
   for (arc_limit = length_step;
        arc_limit < arc_max_limit;
@@ -654,23 +571,12 @@ SPIRAL_ERASE_ARC_COUNT)
           XFillPolygon (display, window, context, points, 3, Convex,
                         CoordModeOrigin);
         }
-		if (delay > 0 )
-#if HAVE_GETTIMEOFDAY
-		{
-			GETTIMEOFDAY(&tp);
-			interval = tp.tv_usec - t_prev;
-			if (interval <= 0)
-				interval = interval + 1000000;
-			interval = delay * granularity - interval;
-			if (interval > 0)
-				usleep(interval);
-			GETTIMEOFDAY(&tp);
-			t_prev = tp.tv_usec;
-		}
-#else
-			usleep(delay * granularity);
-#endif
-# if (SPIRAL_ERASE_DELAY != 0)
+
+#define LOOPVAR arc_limit
+#include "erase.h"
+#undef LOOPVAR
+
+#if (SPIRAL_ERASE_DELAY != 0)
           usleep (SPIRAL_ERASE_DELAY);
 # endif /* (SPIRAL_ERASE_DELAY != 0) */
     }
@@ -679,7 +585,9 @@ SPIRAL_ERASE_ARC_COUNT)
 # undef SPIRAL_ERASE_ARC_COUNT
 # undef SPIRAL_ERASE_LOOP_COUNT
 # undef SPIRAL_ERASE_PI_2
+#include "erase_debug.h"
 }
+#undef ERASEMODE
 
 static struct eraser_names {
 	Eraser      mode;
@@ -726,7 +634,7 @@ static void
 erase_window(ModeInfo * mi, GC erase_gc, unsigned long pixel, int mode,
 	     int delay)
 {
-	int         granularity = 25;
+	int         granularity = 1;
 
 	XSetForeground(MI_DISPLAY(mi), erase_gc, pixel);
 	if (MI_IS_DRAWN(mi) && delay > 0) {

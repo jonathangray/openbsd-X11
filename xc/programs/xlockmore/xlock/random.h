@@ -1,5 +1,20 @@
 #ifndef _RANDOM_H_
 #define _RANDOM_H_
+
+#if !defined( lint ) && !defined( SABER )
+/* #ident	"@(#)random.h	4.14 99/06/17 xlockmore" */
+
+#endif
+
+/*-
+ * Random stuff
+ *
+ * See xlock.c for copying information.
+ *
+ * Revision History:
+ * 17-06-99: Started log. :)
+ */
+
 /*** random number generator ***/
 /* defaults */
 #ifdef STANDALONE

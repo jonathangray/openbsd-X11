@@ -53,10 +53,9 @@ CXG = $(CX) $(DG)
 @CCC@@GL@$(DOG)i_sphere$(OG)i_spline$(O)$(S)\
 @CCC@@GL@$(DOG)i_threejet$(OG)i_threejetvec$(O)$(S)\
 @CCC@@GL@$(DOG)i_twojet$(OG)i_twojetvec$(O)
-@UNSTABLE@@GL@XLOCKUNSTABLEGLOBJS =
 @UNSTABLE@@CCC@@GL@@GLTT@XLOCKUNSTABLETEXTGLOBJS = $(DOG)text3d$(O)
 @GL@XLOCKGLSRCS = $(DG)cage$(CG)gears$(C) \
-@GL@$(DG)text3d$(CXG)lament$(CG)moebius$(CG)morph3d$(C) \
+@GL@$(DG)lament$(CG)moebius$(CG)morph3d$(C) \
 @GL@$(DG)rubik$(CG)stairs$(CG)superquadrics$(C) \
 @GL@$(DG)buildlwo$(CG)pipes$(CG)pipeobjs$(C) \
 @GL@$(DG)sproingies$(CG)sproingiewrap$(CG)s1_b$(C) \
@@ -68,7 +67,7 @@ CXG = $(CX) $(DG)
 @GL@$(DG)i_threejet$(CXG)i_threejetvec$(CX) \
 @GL@$(DG)i_twojet$(CXG)i_twojetvec$(CX)
 # default target
-all : $(XLOCKGLOBJS) $(XLOCKXPMGLOBJS) $(XLOCKCPPGLOBJS) $(XLOCKUNSTABLEGLOBJS) $(XLOCKUNSTABLETEXTGLOBJS)
+all : $(XLOCKGLOBJS) $(XLOCKXPMGLOBJS) $(XLOCKCPPGLOBJS) $(XLOCKUNSTABLETEXTGLOBJS)
 
 # this tells GNU make not to export variables into the environment
 # But other makes do not understand its significance, so it must
@@ -94,6 +93,7 @@ xapploaddir = @APPDEFAULTS@
 #CC = gcc -g -Wall -W -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wmissing-prototypes -Wstrict-prototypes
 #CC = g++ -g -Wall
 CC = @CC@
+#CXX = g++ -fpermissive
 CXX = @CXX@
 
 LINT = lint
@@ -163,7 +163,7 @@ html :
 hlp :
 
 clean :
-	$(RM) *.o *.xlk core *~ *% *.bak *.orig *.rej make.log MakeOut
+	$(RM) *.o *.xlk core *~ *% *.bak *.orig *.rej make.log MakeOut *.patch
 
 distclean : clean
 	$(RM) Makefile
@@ -213,12 +213,6 @@ $(GLOBJDIR)/gears.o: ../../config.h
 $(GLOBJDIR)/gears.o: $(UTILDIR)/mode.h
 $(GLOBJDIR)/gears.o: $(UTILDIR)/random.h
 $(GLOBJDIR)/gears.o: $(UTILDIR)/vis.h
-$(GLOBJDIR)/text3d.o: $(UTILDIR)/xlock.h
-$(GLOBJDIR)/text3d.o: ../../config.h
-$(GLOBJDIR)/text3d.o: $(UTILDIR)/mode.h
-$(GLOBJDIR)/text3d.o: $(UTILDIR)/random.h
-$(GLOBJDIR)/text3d.o: $(UTILDIR)/vis.h
-$(GLOBJDIR)/text3d.o: text3d.h
 $(GLOBJDIR)/lament.o: $(UTILDIR)/xlock.h
 $(GLOBJDIR)/lament.o: ../../config.h
 $(GLOBJDIR)/lament.o: $(UTILDIR)/mode.h
@@ -365,7 +359,6 @@ $(GLOBJDIR)/text3d.o: ../../config.h
 $(GLOBJDIR)/text3d.o: $(UTILDIR)/mode.h
 $(GLOBJDIR)/text3d.o: $(UTILDIR)/random.h
 $(GLOBJDIR)/text3d.o: $(UTILDIR)/vis.h
-$(GLOBJDIR)/text3d.o: text3d.h
 $(GLOBJDIR)/invert.o: $(UTILDIR)/xlock.h
 $(GLOBJDIR)/invert.o: ../../config.h
 $(GLOBJDIR)/invert.o: $(UTILDIR)/mode.h
@@ -376,6 +369,10 @@ $(GLOBJDIR)/i_figureeight.o: i_figureeight.h
 $(GLOBJDIR)/i_figureeight.o: i_threejetvec.h
 $(GLOBJDIR)/i_figureeight.o: i_threejet.h
 $(GLOBJDIR)/i_figureeight.o: i_twojet.h
+$(GLOBJDIR)/i_figureeight.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_figureeight.o: ../../config.h
+$(GLOBJDIR)/i_figureeight.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_figureeight.o: $(UTILDIR)/random.h
 $(GLOBJDIR)/i_figureeight.o: i_twojetvec.h
 $(GLOBJDIR)/i_linkage.o: $(UTILDIR)/xlock.h
 $(GLOBJDIR)/i_linkage.o: ../../config.h
@@ -392,6 +389,10 @@ $(GLOBJDIR)/i_linkage.o: i_sphere.h
 $(GLOBJDIR)/i_sphere.o: i_threejetvec.h
 $(GLOBJDIR)/i_sphere.o: i_threejet.h
 $(GLOBJDIR)/i_sphere.o: i_twojet.h
+$(GLOBJDIR)/i_sphere.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_sphere.o: ../../config.h
+$(GLOBJDIR)/i_sphere.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_sphere.o: $(UTILDIR)/random.h
 $(GLOBJDIR)/i_sphere.o: i_twojetvec.h
 $(GLOBJDIR)/i_sphere.o: i_figureeight.h
 $(GLOBJDIR)/i_sphere.o: i_spline.h
@@ -408,11 +409,27 @@ $(GLOBJDIR)/i_spline.o: i_twojetvec.h
 $(GLOBJDIR)/i_spline.o: i_evert.h
 $(GLOBJDIR)/i_threejet.o: i_threejet.h
 $(GLOBJDIR)/i_threejet.o: i_twojet.h
+$(GLOBJDIR)/i_threejet.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_threejet.o: ../../config.h
+$(GLOBJDIR)/i_threejet.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_threejet.o: $(UTILDIR)/random.h
 $(GLOBJDIR)/i_threejetvec.o: i_threejetvec.h
 $(GLOBJDIR)/i_threejetvec.o: i_threejet.h
 $(GLOBJDIR)/i_threejetvec.o: i_twojet.h
+$(GLOBJDIR)/i_threejetvec.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_threejetvec.o: ../../config.h
+$(GLOBJDIR)/i_threejetvec.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_threejetvec.o: $(UTILDIR)/random.h
 $(GLOBJDIR)/i_threejetvec.o: i_twojetvec.h
 $(GLOBJDIR)/i_twojet.o: i_twojet.h
+$(GLOBJDIR)/i_twojet.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_twojet.o: ../../config.h
+$(GLOBJDIR)/i_twojet.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_twojet.o: $(UTILDIR)/random.h
 $(GLOBJDIR)/i_twojetvec.o: i_twojetvec.h
 $(GLOBJDIR)/i_twojetvec.o: i_twojet.h
+$(GLOBJDIR)/i_twojetvec.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_twojetvec.o: ../../config.h
+$(GLOBJDIR)/i_twojetvec.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_twojetvec.o: $(UTILDIR)/random.h
 

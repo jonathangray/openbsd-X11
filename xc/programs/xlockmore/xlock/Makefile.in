@@ -36,7 +36,7 @@ CU = $(C) $(DU)
 @CHECK@XLOCKCHECKOBJS = $(DOU)memcheck$(O)
 
 # List of object files
-XLOCKUTILOBJS = $(DOU)xlock$(OU)passwd$(OU)resource$(O)$(S)\
+XLOCKUTILOBJS = $(DOU)xlock$(OU)passwd$(OU)resource$(OU)parsecmd$(O)$(S)\
 $(DOU)util$(OU)logout$(OU)mode$(OU)ras$(OU)xbm$(O)$(S)\
 $(DOU)vis$(OU)color$(OU)random$(OU)iostuff$(OU)automata$(O)$(S)\
 $(DOU)spline$(OU)sound$(OU)erase$(O)$(S)\
@@ -45,7 +45,7 @@ $(DOU)vtlock$(OU)vtlock_proc$(O)$(S)$(XLOCKCHECKOBJS)
 XLOCKCHECKSRCS = $(DU)memcheck$(C)
 
 XLOCKUTILHDRS = xlock.h mode.h vroot.h ras.h version.h config.h
-XLOCKUTILSRCS = $(DU)xlock$(CU)passwd$(CU)resource$(C) \
+XLOCKUTILSRCS = $(DU)xlock$(CU)passwd$(CU)resource$(CU)parsecmd$(C) \
 $(DU)util$(CU)logout$(CU)mode$(CU)ras$(CU)xbm$(C) \
 $(DU)vis$(CU)color$(CU)random$(CU)iostuff$(CU)automata$(C) \
 $(DU)spline$(CU)sound$(CU)erase$(C) \
@@ -145,7 +145,7 @@ man :
 	nroff -man $(UTILDIR)/xlock.man | more
 
 html :
-	man xlock | man2html > $(UTILOBJDIR)xlock.html
+	nroff -man < $(UTILDIR)xlock.man | man2html > $(UTILOBJDIR)xlock.html
 
 hlp :
 	(echo '1 XLOCK' ; \
@@ -161,7 +161,7 @@ hlp :
  > $(UTILOBJDIR)xlock.hlp
 
 clean :
-	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut xlock memdiag.xlock-*
+	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut xlock memdiag.xlock-* *.patch
 
 distclean : clean
 	$(RM) Makefile
@@ -284,6 +284,9 @@ $(UTILOBJDIR)/erase.o: xlock.h
 $(UTILOBJDIR)/erase.o: ../config.h
 $(UTILOBJDIR)/erase.o: mode.h
 $(UTILOBJDIR)/erase.o: random.h
+$(UTILOBJDIR)/erase.o: erase_init.h
+$(UTILOBJDIR)/erase.o: erase.h
+$(UTILOBJDIR)/erase.o: erase_debug.h
 $(UTILOBJDIR)/vtlock.o: xlock.h
 $(UTILOBJDIR)/vtlock.o: ../config.h
 $(UTILOBJDIR)/vtlock.o: mode.h

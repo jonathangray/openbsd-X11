@@ -50,7 +50,7 @@ CXG = $(CX) $(DG)
 @CHECK@XLOCKCHECKOBJS = $(DOU)memcheck$(O)
 
 # List of object files
-XLOCKUTILOBJS = $(DOU)xlock$(OU)passwd$(OU)resource$(O)$(S)\
+XLOCKUTILOBJS = $(DOU)xlock$(OU)passwd$(OU)resource$(OU)parsecmd$(O)$(S)\
 $(DOU)util$(OU)logout$(OU)mode$(OU)ras$(OU)xbm$(O)$(S)\
 $(DOU)vis$(OU)color$(OU)random$(OU)iostuff$(OU)automata$(O)$(S)\
 $(DOU)spline$(OU)sound$(OU)erase$(O)$(S)\
@@ -74,7 +74,7 @@ qix$(OM)roll$(OM)rotor$(OM)\
 shape$(OM)sierpinski$(OM)slip$(OM)\
 sphere$(OM)spiral$(OM)spline$(OM)\
 star$(OM)starfish$(OM)strange$(OM)swarm$(OM)swirl$(OM)\
-tetris$(OM)thornbird$(OM)triangle$(OM)tube$(OM)turtle$(OM)\
+tetris$(OM)thornbird$(OM)tik_tak$(OM)triangle$(OM)tube$(OM)turtle$(OM)\
 vines$(OM)voters$(OM)\
 wator$(OM)wire$(OM)world$(OM)worm$(OM)xjack$(O)
 @UNSTABLE@XLOCKUNSTABLEOBJS = space$(O)
@@ -105,12 +105,13 @@ XLOCKALLUTILOBJS = $(XLOCKUTILOBJS)$(XLOCKDEBUGOBJS)
 XLOCKOBJS = $(XLOCKALLUTILOBJS)$(S)$(XLOCKALLMODEOBJS)
 
 # List of source files
-BITMAPS = decay.xbm eyes.xbm flag.xbm ghost.xbm image.xbm \
-life.xbm life1d.xbm maze.xbm puzzle.xbm
+BITMAPS = decay.xbm eyes.xbm eyes2.xbm flag.xbm ghost.xbm image.xbm \
+life.xbm life2.xbm life1d.xbm maze.xbm puzzle.xbm
 PIXMAPS = decay.xpm flag.xpm image.xpm maze.xpm puzzle.xpm
+# life.xpm
 XLOCKUTILHDRS = xlock.h mode.h vroot.h ras.h version.h config.h
 XLOCKCHECKSRCS = $(DU)memcheck$(C)
-XLOCKUTILSRCS = $(DU)xlock$(CU)passwd$(CU)resource$(C) \
+XLOCKUTILSRCS = $(DU)xlock$(CU)passwd$(CU)resource$(CU)parsecmd$(C) \
 $(DU)util$(CU)logout$(CU)mode$(CU)ras$(CU)xbm$(C) \
 $(DU)vis$(CU)color$(CU)random$(CU)iostuff$(CU)automata$(C) \
 $(DU)spline$(CU)sound$(CU)erase$(C) \
@@ -134,7 +135,7 @@ $(DM)qix$(CM)roll$(CM)rotor$(C) \
 $(DM)shape$(CM)sierpinski$(CM)slip$(C) \
 $(DM)space$(CM)sphere$(CM)spiral$(CM)spline$(C) \
 $(DM)star$(CM)starfish$(CM)strange$(CM)swarm$(CM)swirl$(C) \
-$(DM)tetris$(CM)thornbird$(CM)triangle$(CM)tube$(CM)turtle$(C) \
+$(DM)tetris$(CM)thornbird$(CM)tik_tak$(CM)triangle$(CM)tube$(CM)turtle$(C) \
 $(DM)vines$(CM)voters$(C) \
 $(DM)wator$(CM)wire$(CM)world$(CM)worm$(CM)xjack$(C)
 @XPM@XLOCKXPMSRCS = $(DM)cartoon$(C)
@@ -145,7 +146,11 @@ $(DM)wator$(CM)wire$(CM)world$(CM)worm$(CM)xjack$(C)
 @GL@$(DG)sproingies$(CG)sproingiewrap$(CG)s1_b$(C) \
 @GL@$(DG)s1_1$(CG)s1_2$(CG)s1_3$(CG)s1_4$(CG)s1_5$(CG)s1_6$(C) \
 @GL@$(DG)atlantis$(CG)dolphin$(CG)shark$(CG)swim$(CG)whale$(C) \
-@GL@$(DG)bubble3d$(CG)text3d$(CXG)b_draw$(CG)b_sphere$(CG)b_lockglue$(C)
+@GL@$(DG)bubble3d$(CG)b_draw$(CG)b_sphere$(CG)b_lockglue$(C) \
+@GL@$(DG)invert$(CG)i_figureeight$(CXG)i_linkage$(CX) \
+@GL@$(DG)i_sphere$(CXG)i_spline$(CX) \
+@GL@$(DG)i_threejet$(CXG)i_threejetvec$(CX) \
+@GL@$(DG)i_twojet$(CXG)i_twojetvec$(CXG)text3d$(CX)
 @BOMB@XLOCKBOMBSRCS = $(DM)bomb$(C)
 XLOCKUTILMODESRCS = $(XLOCKBOMBSRCS) $(DM)blank$(CM)random$(C)
 XLOCKSRCS = $(XLOCKUTILSRCS) $(XLOCKXPMSRCS) $(XLOCKGLSRCS) \
@@ -184,6 +189,7 @@ INSTPGMFLAGS = @INSTPGMFLAGS@
 #CC = gcc -g -Wall -W -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wmissing-prototypes -Wstrict-prototypes
 #CC = g++ -g -Wall
 CC = @CC@
+#CXX = g++ -fpermissive
 CXX = @CXX@
 
 LINT = lint
@@ -205,6 +211,7 @@ TINYBITMAP = t-x11
 SMALLBITMAP = s-$(BITMAPTYPE)
 MEDIUMBITMAP = m-$(BITMAPTYPE)
 LARGEBITMAP = l-$(BITMAPTYPE)
+SMALLPIXMAP = m-$(PIXMAPTYPE)
 MEDIUMPIXMAP = m-$(PIXMAPTYPE)
 LARGEPIXMAP = l-$(PIXMAPTYPE)
 
@@ -230,10 +237,12 @@ PUZZLEBITMAP = l-xlock
 #DECAYPIXMAP = $(LARGEPIXMAP)
 DECAYPIXMAP = l-xlock
 #DECAYPIXMAP = l-linux
+#FLAGPIXMAP = m-xlock
 FLAGPIXMAP = $(MEDIUMPIXMAP)
 #FLAGPIXMAP = m-xlock
 IMAGEPIXMAP = $(MEDIUMPIXMAP)
 #IMAGEPIXMAP = m-xlock
+LIFEPIXMAP = s-grelb
 MAZEPIXMAP = $(MEDIUMPIXMAP)
 #MAZEPIXMAP = m-xlock
 #PUZZLEPIXMAP = $(LARGEPIXMAP)
@@ -295,6 +304,9 @@ decay.xbm : $(BITMAPDIR)$(DECAYBITMAP).xbm
 eyes.xbm : $(BITMAPDIR)$(EYESBITMAP).xbm
 	$(RM) eyes.xbm ; $(LN_S) $(BITMAPDIR)$(EYESBITMAP).xbm eyes.xbm
 
+eyes2.xbm : $(BITMAPDIR)m-grelb-2.xbm
+	$(RM) eyes2.xbm ; $(LN_S) $(BITMAPDIR)m-grelb-2.xbm eyes2.xbm
+
 flag.xbm : $(BITMAPDIR)$(FLAGBITMAP).xbm
 	$(RM) flag.xbm ; $(LN_S) $(BITMAPDIR)$(FLAGBITMAP).xbm flag.xbm
 
@@ -306,6 +318,9 @@ ghost.xbm : $(BITMAPDIR)$(PACMANBITMAP).xbm
 
 life.xbm : $(BITMAPDIR)$(LIFEBITMAP).xbm
 	$(RM) life.xbm ; $(LN_S) $(BITMAPDIR)$(LIFEBITMAP).xbm life.xbm
+
+life2.xbm : $(BITMAPDIR)s-grelb-2.xbm
+	$(RM) life2.xbm ; $(LN_S) $(BITMAPDIR)s-grelb-2.xbm life2.xbm
 
 life1d.xbm : $(BITMAPDIR)$(LIFE1DBITMAP).xbm
 	$(RM) life1d.xbm ; $(LN_S) $(BITMAPDIR)$(LIFE1DBITMAP).xbm life1d.xbm
@@ -325,6 +340,9 @@ flag.xpm : $(PIXMAPDIR)$(FLAGPIXMAP).xpm
 image.xpm : $(PIXMAPDIR)$(IMAGEPIXMAP).xpm
 	$(RM) image.xpm ; $(LN_S) $(PIXMAPDIR)$(IMAGEPIXMAP).xpm image.xpm
 
+life.xpm : $(PIXMAPDIR)$(LIFEPIXMAP).xpm
+	$(RM) life.xpm ; $(LN_S) $(PIXMAPDIR)$(LIFEPIXMAP).xpm life.xpm
+
 maze.xpm : $(PIXMAPDIR)$(MAZEPIXMAP).xpm
 	$(RM) maze.xpm ; $(LN_S) $(PIXMAPDIR)$(MAZEPIXMAP).xpm maze.xpm
 
@@ -334,6 +352,7 @@ puzzle.xpm : $(PIXMAPDIR)$(PUZZLEPIXMAP).xpm
 $(UTILOBJDIR)xlock.o : $(UTILDIR)xlock.c
 $(UTILOBJDIR)passwd.o : $(UTILDIR)passwd.c
 $(UTILOBJDIR)resource.o : $(UTILDIR)resource.c
+$(UTILOBJDIR)parsecmd.o : $(UTILDIR)parsecmd.c
 $(UTILOBJDIR)util.o : $(UTILDIR)util.c
 $(UTILOBJDIR)logout.o : $(UTILDIR)logout.c
 $(UTILOBJDIR)mode.o : $(UTILDIR)mode.c
@@ -358,7 +377,6 @@ $(UTILOBJDIR)memcheck.o : $(UTILDIR)memcheck.c
 $(GLOBJDIR)cage.o : $(GLDIR)cage.c
 $(GLOBJDIR)gears.o : $(GLDIR)gears.c
 $(GLOBJDIR)lament.o : $(GLDIR)lament.c
-$(GLOBJDIR)text3d.o : $(GLDIR)text3d.cc
 $(GLOBJDIR)moebius.o : $(GLDIR)moebius.c
 $(GLOBJDIR)morph3d.o : $(GLDIR)morph3d.c
 $(GLOBJDIR)rubik.o : $(GLDIR)rubik.c
@@ -376,6 +394,25 @@ $(GLOBJDIR)s1_3.o : $(GLDIR)s1_3.c
 $(GLOBJDIR)s1_4.o : $(GLDIR)s1_4.c
 $(GLOBJDIR)s1_5.o : $(GLDIR)s1_5.c
 $(GLOBJDIR)s1_6.o : $(GLDIR)s1_6.c
+$(GLOBJDIR)atlantis.o : $(GLDIR)atlantis.c
+$(GLOBJDIR)swim.o : $(GLDIR)swim.c
+$(GLOBJDIR)dolphin.o : $(GLDIR)dolphin.c
+$(GLOBJDIR)shark.o : $(GLDIR)shark.c
+$(GLOBJDIR)whale.o : $(GLDIR)whale.c
+$(GLOBJDIR)bubble3d.o : $(GLDIR)bubble3d.c
+$(GLOBJDIR)b_draw.o : $(GLDIR)b_draw.c
+$(GLOBJDIR)b_lockglue.o : $(GLDIR)b_lockglue.c
+$(GLOBJDIR)b_sphere.o : $(GLDIR)b_sphere.c
+$(GLOBJDIR)invert.o : $(GLDIR)invert.c
+$(GLOBJDIR)i_figureeight.o : $(GLDIR)i_figureeight.cc
+$(GLOBJDIR)i_linkage.o : $(GLDIR)i_linkage.cc
+$(GLOBJDIR)i_sphere.o : $(GLDIR)i_sphere.cc
+$(GLOBJDIR)i_spline.o : $(GLDIR)i_spline.cc
+$(GLOBJDIR)i_threejet.o : $(GLDIR)i_threejet.cc
+$(GLOBJDIR)i_threejetvec.o : $(GLDIR)i_threejetvec.cc
+$(GLOBJDIR)i_twojet.o : $(GLDIR)i_twojet.cc
+$(GLOBJDIR)i_twojetvec.o : $(GLDIR)i_twojetvec.cc
+$(GLOBJDIR)text3d.o : $(GLDIR)text3d.cc
 
 #$(XLOCKGLOBJS) :
 #	cd $(GLOBJDIR) ; \
@@ -417,7 +454,7 @@ uninstall-ad :
 	$(RM) $(xapploaddir)/XLock
 
 lint :
-	$(LINT) -ax -DLINT $(DEFS) $(XLOCKINC) $(XLOCKSRCS) -L/usr/openwin/lib -lX11 -lm
+	$(LINT) -ax -DLINT $(DEFS) $(XLOCKINC) $(XLOCKSRCS) -L$(XLIBS) -lX11 -lm
 
 xrdb :
 
@@ -428,7 +465,7 @@ html :
 hlp :
 
 clean :
-	$(RM) *.o *.xlk core *~ *% *.bak *.orig *.rej make.log MakeOut
+	$(RM) *.o *.xlk core *~ *% *.bak *.orig *.rej make.log MakeOut *.patch
 
 distclean : clean
 	$(RM) Makefile $(BITMAPS) $(PIXMAPS)
@@ -558,6 +595,9 @@ $(UTILOBJDIR)/erase.o: $(UTILDIR)/xlock.h
 $(UTILOBJDIR)/erase.o: ../config.h
 $(UTILOBJDIR)/erase.o: $(UTILDIR)/mode.h
 $(UTILOBJDIR)/erase.o: $(UTILDIR)/random.h
+$(UTILOBJDIR)/erase.o: $(UTILDIR)/erase_init.h
+$(UTILOBJDIR)/erase.o: $(UTILDIR)/erase.h
+$(UTILOBJDIR)/erase.o: $(UTILDIR)/erase_debug.h
 $(UTILOBJDIR)/vtlock.o: $(UTILDIR)/xlock.h
 $(UTILOBJDIR)/vtlock.o: ../config.h
 $(UTILOBJDIR)/vtlock.o: $(UTILDIR)/mode.h
@@ -718,12 +758,6 @@ $(GLOBJDIR)/bubble3d.o: $(UTILDIR)/xlock.h
 $(GLOBJDIR)/bubble3d.o: ../config.h
 $(GLOBJDIR)/bubble3d.o: $(UTILDIR)/mode.h
 $(GLOBJDIR)/bubble3d.o: $(UTILDIR)/random.h
-$(GLOBJDIR)/text3d.o: $(UTILDIR)/xlock.h
-$(GLOBJDIR)/text3d.o: ../config.h
-$(GLOBJDIR)/text3d.o: $(UTILDIR)/mode.h
-$(GLOBJDIR)/text3d.o: $(UTILDIR)/random.h
-$(GLOBJDIR)/text3d.o: $(UTILDIR)/vis.h
-$(GLOBJDIR)/text3d.o: $(GLDIR)/text3d.h
 $(GLOBJDIR)/b_draw.o: $(GLDIR)/bubble3d.h
 $(GLOBJDIR)/b_draw.o: $(UTILDIR)/xlock.h
 $(GLOBJDIR)/b_draw.o: ../config.h
@@ -740,6 +774,85 @@ $(GLOBJDIR)/b_lockglue.o: ../config.h
 $(GLOBJDIR)/b_lockglue.o: $(UTILDIR)/mode.h
 $(GLOBJDIR)/b_lockglue.o: $(UTILDIR)/random.h
 $(GLOBJDIR)/b_lockglue.o: $(UTILDIR)/vis.h
+$(GLOBJDIR)/invert.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/invert.o: ../config.h
+$(GLOBJDIR)/invert.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/invert.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/invert.o: $(UTILDIR)/vis.h
+$(GLOBJDIR)/invert.o: $(GLDIR)/i_linkage.h
+$(GLOBJDIR)/i_figureeight.o: $(GLDIR)/i_figureeight.h
+$(GLOBJDIR)/i_figureeight.o: $(GLDIR)/i_threejetvec.h
+$(GLOBJDIR)/i_figureeight.o: $(GLDIR)/i_threejet.h
+$(GLOBJDIR)/i_figureeight.o: $(GLDIR)/i_twojet.h
+$(GLOBJDIR)/i_figureeight.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_figureeight.o: ../config.h
+$(GLOBJDIR)/i_figureeight.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_figureeight.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/i_figureeight.o: $(GLDIR)/i_twojetvec.h
+$(GLOBJDIR)/i_linkage.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_linkage.o: ../config.h
+$(GLOBJDIR)/i_linkage.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_linkage.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/i_linkage.o: $(GLDIR)/i_linkage.h
+$(GLOBJDIR)/i_linkage.o: $(GLDIR)/i_threejetvec.h
+$(GLOBJDIR)/i_linkage.o: $(GLDIR)/i_threejet.h
+$(GLOBJDIR)/i_linkage.o: $(GLDIR)/i_twojet.h
+$(GLOBJDIR)/i_linkage.o: $(GLDIR)/i_twojetvec.h
+$(GLOBJDIR)/i_linkage.o: $(GLDIR)/i_figureeight.h
+$(GLOBJDIR)/i_linkage.o: $(GLDIR)/i_spline.h
+$(GLOBJDIR)/i_linkage.o: $(GLDIR)/i_sphere.h
+$(GLOBJDIR)/i_sphere.o: $(GLDIR)/i_threejetvec.h
+$(GLOBJDIR)/i_sphere.o: $(GLDIR)/i_threejet.h
+$(GLOBJDIR)/i_sphere.o: $(GLDIR)/i_twojet.h
+$(GLOBJDIR)/i_sphere.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_sphere.o: ../config.h
+$(GLOBJDIR)/i_sphere.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_sphere.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/i_sphere.o: $(GLDIR)/i_twojetvec.h
+$(GLOBJDIR)/i_sphere.o: $(GLDIR)/i_figureeight.h
+$(GLOBJDIR)/i_sphere.o: $(GLDIR)/i_spline.h
+$(GLOBJDIR)/i_sphere.o: $(GLDIR)/i_sphere.h
+$(GLOBJDIR)/i_spline.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_spline.o: ../config.h
+$(GLOBJDIR)/i_spline.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_spline.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/i_spline.o: $(GLDIR)/i_spline.h
+$(GLOBJDIR)/i_spline.o: $(GLDIR)/i_threejetvec.h
+$(GLOBJDIR)/i_spline.o: $(GLDIR)/i_threejet.h
+$(GLOBJDIR)/i_spline.o: $(GLDIR)/i_twojet.h
+$(GLOBJDIR)/i_spline.o: $(GLDIR)/i_twojetvec.h
+$(GLOBJDIR)/i_spline.o: $(GLDIR)/i_evert.h
+$(GLOBJDIR)/i_threejet.o: $(GLDIR)/i_threejet.h
+$(GLOBJDIR)/i_threejet.o: $(GLDIR)/i_twojet.h
+$(GLOBJDIR)/i_threejet.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_threejet.o: ../config.h
+$(GLOBJDIR)/i_threejet.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_threejet.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/i_threejetvec.o: $(GLDIR)/i_threejetvec.h
+$(GLOBJDIR)/i_threejetvec.o: $(GLDIR)/i_threejet.h
+$(GLOBJDIR)/i_threejetvec.o: $(GLDIR)/i_twojet.h
+$(GLOBJDIR)/i_threejetvec.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_threejetvec.o: ../config.h
+$(GLOBJDIR)/i_threejetvec.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_threejetvec.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/i_threejetvec.o: $(GLDIR)/i_twojetvec.h
+$(GLOBJDIR)/i_twojet.o: $(GLDIR)/i_twojet.h
+$(GLOBJDIR)/i_twojet.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_twojet.o: ../config.h
+$(GLOBJDIR)/i_twojet.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_twojet.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/i_twojetvec.o: $(GLDIR)/i_twojetvec.h
+$(GLOBJDIR)/i_twojetvec.o: $(GLDIR)/i_twojet.h
+$(GLOBJDIR)/i_twojetvec.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/i_twojetvec.o: ../config.h
+$(GLOBJDIR)/i_twojetvec.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/i_twojetvec.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/text3d.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/text3d.o: ../config.h
+$(GLOBJDIR)/text3d.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/text3d.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/text3d.o: $(UTILDIR)/vis.h
+$(GLOBJDIR)/text3d.o: $(GLDIR)/text3d.h
 ant.o: $(UTILDIR)/xlock.h
 ant.o: ../config.h
 ant.o: $(UTILDIR)/mode.h
@@ -857,6 +970,7 @@ eyes.o: $(UTILDIR)/mode.h
 eyes.o: $(UTILDIR)/random.h
 eyes.o: $(UTILDIR)/iostuff.h
 eyes.o: eyes.xbm
+eyes.o: eyes2.xbm
 fadeplot.o: $(UTILDIR)/xlock.h
 fadeplot.o: ../config.h
 fadeplot.o: $(UTILDIR)/mode.h
@@ -946,6 +1060,7 @@ life.o: $(UTILDIR)/color.h
 life.o: $(UTILDIR)/iostuff.h
 life.o: $(UTILDIR)/automata.h
 life.o: life.xbm
+life.o: life2.xbm
 life1d.o: $(UTILDIR)/xlock.h
 life1d.o: ../config.h
 life1d.o: $(UTILDIR)/mode.h
@@ -1112,8 +1227,10 @@ star.o: $(UTILDIR)/xlock.h
 star.o: ../config.h
 star.o: $(UTILDIR)/mode.h
 star.o: $(UTILDIR)/random.h
-star.o: $(BITMAPDIR)/trek-0.xbm
-star.o: $(BITMAPDIR)/trek-1.xbm
+star.o: $(BITMAPDIR)/enterprise-2.xbm
+star.o: $(BITMAPDIR)/enterprise-3.xbm
+star.o: $(BITMAPDIR)/enterprise-5.xbm
+star.o: $(BITMAPDIR)/enterprise-6.xbm
 starfish.o: $(UTILDIR)/xlock.h
 starfish.o: ../config.h
 starfish.o: $(UTILDIR)/mode.h
@@ -1159,6 +1276,11 @@ thornbird.o: $(UTILDIR)/xlock.h
 thornbird.o: ../config.h
 thornbird.o: $(UTILDIR)/mode.h
 thornbird.o: $(UTILDIR)/random.h
+tik_tak.o: $(UTILDIR)/xlock.h
+tik_tak.o: ../config.h
+tik_tak.o: $(UTILDIR)/mode.h
+tik_tak.o: $(UTILDIR)/random.h
+tik_tak.o: $(UTILDIR)/color.h
 triangle.o: $(UTILDIR)/xlock.h
 triangle.o: ../config.h
 triangle.o: $(UTILDIR)/mode.h

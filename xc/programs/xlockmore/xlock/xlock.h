@@ -1,12 +1,16 @@
 #ifndef __XLOCK_XLOCK_H__
 #define __XLOCK_XLOCK_H__
 
+#if !defined( lint ) && !defined( SABER )
+/* #ident	"@(#)xlock.h	4.14 99/06/17 xlockmore" */
+
+#endif
+
 /*-
  * @(#)xlock.h	4.00 97/01/01 xlockmore 
  *
- * xlock.h - external interfaces for new modes and SYSV OS defines.
+ * External interfaces for new modes and SYSV OS defines.
  *
- * Copyright (c) 1991 by Patrick J. Naughton.
  * xscreensaver code, Copyright (c) 1997 Jamie Zawinski <jwz@jwz.org>
  *
  * Permission to use, copy, modify, and distribute this software and its
@@ -130,9 +134,14 @@ XrmOptionDescRec options[100];
 
 #define XSCREENSAVER_PREF 1	/* Disagreements handled with this  :) */
 
-#else /* STANDALONE */
+#else /* !STANDALONE */
+#include <sys/types.h>
+#ifdef __NetBSD__
+#include <signal.h>
+#else /* !__NetBSD__ */
 #include <sys/signal.h>
-# include <X11/Xlib.h>
+#endif /* __NetBSD__ */
+#include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xresource.h>
@@ -162,7 +171,9 @@ XrmOptionDescRec options[100];
 
 /* THIS MAY SOON BE DEFUNCT, SHOULD WORK NOW THOUGH FOR IMAKE */
 #define HAVE_GLBINDTEXTURE 1
+#if !defined(__cplusplus) && !defined(c_plusplus)
 #define inline
+#endif
 #ifdef AIXV3
 #define HAVE_SYS_SELECT_H 1
 #else
@@ -288,7 +299,6 @@ XrmOptionDescRec options[100];
 #if VMS
 #include <unixlib.h>
 #endif
-#include <sys/types.h>
 #if 0
 #ifndef uid_t
 #define uid_t int

@@ -476,10 +476,6 @@ init_goop(ModeInfo * mi)
 		(void) free((void *) plane_masks);
 
 	if (gp->mode != transparent) {
-		XColor      color;
-
-		color.flags = DoRed | DoGreen | DoBlue;
-
 		gp->background = 0;	/* init */
 
 		for (i = 0; i < gp->nlayers; i++) {

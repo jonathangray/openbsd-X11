@@ -1,7 +1,19 @@
+#ifndef AMD_H
+#define AMD_H 1
+
+#if !defined( lint ) && !defined( SABER )
+/* #ident	"@(#)vms_amd.h	4.14 99/06/17 xlockmore" */
+
+#endif
+
 /*-
- * Sound file for vms
- * Jouk Jansen <joukj@alpha.chem.uva.nl> contributed this
- * which he found at http://axp616.gsi.de:8080/www/vms/mzsw.html
+ * VMS sound stuff
+ *
+ * See xlock.c for copying information.
+ *
+ * Revision History:
+ * 199?: Jouk Jansen <joukj@alpha.chem.uva.nl> contributed this
+ *       which he found at http://axp616.gsi.de:8080/www/vms/mzsw.html
  */
 
 /** amd.h **/
@@ -9,9 +21,6 @@
 /*-
  *    AMD access for the SODRIVER
  */
-
-#ifndef AMD_H
-#define AMD_H 1
 
 /*-
  *    Define the SO Indirect Registers

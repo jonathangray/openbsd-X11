@@ -43,7 +43,7 @@ static const char sccsid[] = "@(#)ant.c	4.11 98/06/18 xlockmore";
  */
 
 /*-
-  Species Grid     Number of Neigbors
+  Species Grid     Number of Neighbors
   ------- ----     ------------------
   Ants    Square   4 (or 8)
   Bees    Hexagon  6
@@ -75,36 +75,43 @@ static const char sccsid[] = "@(#)ant.c	4.11 98/06/18 xlockmore";
 #ifdef MODE_ant
 
 /*-
- * neighbors of 0 randomizes it between 3, 4 and 6.
- * 8, 9 12 are available also but not recommended.
+ * neighbors of 0 randomizes it between 3, 4, 6, 8, and 12 are available
+ * also but not recommended.
  */
-extern int  neighbors;
 
+#define DEF_NEIGHBORS  "0"      /* choose random value */
 #define DEF_TRUCHET  "False"
+#define DEF_EYES  "False"
 #define DEF_SHARPTURN  "False"
 
+static int  neighbors;
 static Bool truchet;
+static Bool eyes;
 static Bool sharpturn;
 
 static XrmOptionDescRec opts[] =
 {
+	{"-neighbors", ".ant.neighbors", XrmoptionSepArg, (caddr_t) NULL},
 	{"-truchet", ".ant.truchet", XrmoptionNoArg, (caddr_t) "on"},
 	{"+truchet", ".ant.truchet", XrmoptionNoArg, (caddr_t) "off"},
+	{"-eyes", ".ant.eyes", XrmoptionNoArg, (caddr_t) "on"},
+	{"+eyes", ".ant.eyes", XrmoptionNoArg, (caddr_t) "off"},
 	{"-sharpturn", ".ant.sharpturn", XrmoptionNoArg, (caddr_t) "on"},
 	{"+sharpturn", ".ant.sharpturn", XrmoptionNoArg, (caddr_t) "off"}
 };
 static argtype vars[] =
 {
+	{(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int},
 	{(caddr_t *) & truchet, "truchet", "Truchet", DEF_TRUCHET, t_Bool},
+	{(caddr_t *) & eyes, "eyes", "Eyes", DEF_EYES, t_Bool},
    {(caddr_t *) & sharpturn, "sharpturn", "SharpTurn", DEF_SHARPTURN, t_Bool}
 };
 static OptionStruct desc[] =
 {
-#if 0
-      {"-neighbors num", "squares 4 or 8, hexagons 6, triangles 3, 9 or 12"},
-#endif
+	{"-neighbors num", "squares 4 or 8, hexagons 6, triangles 3 or 12"},
 	{"-/+truchet", "turn on/off Truchet lines"},
-	{"-/+sharpturn", "turn on/off sharp turns (6 or 12 neighbors only)"}
+	{"-/+eyes", "turn on/off eyes"},
+	{"-/+sharpturn", "turn on/off sharp turns (6, 8 or 12 neighbors only)"}
 };
 
 ModeSpecOpt ant_opts =
@@ -150,13 +157,15 @@ typedef struct {
 	int         generation;
 	int         xs, ys;
 	int         xb, yb;
+	int         init_dir;
 	int         nrows, ncols;
 	int         width, height;
 	unsigned char ncolors, nstates;
 	int         n;
 	int         redrawing, redrawpos;
 	int         truchet;	/* Only for Turk modes */
-	int         sharpturn;	/* Only for even neighbors > 4 (i.e. 6 and 12) */
+	int         eyes;
+	int         sharpturn;
 	statestruct machine[NUMSTIPPLES * STATES];
 	unsigned char *tape;
 	unsigned char *truchet_state;
@@ -172,11 +181,11 @@ typedef struct {
 } antfarmstruct;
 
 static char plots[] =
-{3,
-#if 1				/* Without this... this mode is misnamed... */
- 4,
+{3, 4, 6, 8,
+#ifdef NUMBER_9
+ 9,
 #endif
- 6};				/* Neighborhoods, 8 just makes a mess */
+ 12};
 
 #define NEIGHBORKINDS (long) (sizeof plots / sizeof *plots)
 
@@ -310,136 +319,20 @@ position_of_neighbor(antfarmstruct * ap, int dir, int *pcol, int *prow)
 				(void) fprintf(stderr, "wrong direction %d\n", dir);
 		}
 	} else {		/* TRI */
-		if ((col + row) % 2) {	/* right */
-			switch (dir) {
-				case 0:
-					col = (!col) ? ap->ncols - 1 : col - 1;
-					break;
-				case 30:
-				case 40:
-					col = (!col) ? ap->ncols - 1 : col - 1;
+		switch (dir) {
+			case 0:
+				col = (col + 1 == ap->ncols) ? 0 : col + 1;
+				break;
+			case 20:
+			case 30:
+			case 40:
+				col = (col + 1 == ap->ncols) ? 0 : col + 1;
+				row = (!row) ? ap->nrows - 1 : row - 1;
+				break;
+			case 60:
+				if ((col + row) % 2) {  /* right */
 					row = (!row) ? ap->nrows - 1 : row - 1;
-					break;
-				case 60:
-					col = (!col) ? ap->ncols - 1 : col - 1;
-					if (!row)
-						row = ap->nrows - 2;
-					else if (!(row - 1))
-						row = ap->nrows - 1;
-					else
-						row = row - 2;
-					break;
-				case 80:
-				case 90:
-					if (!row)
-						row = ap->nrows - 2;
-					else if (!(row - 1))
-						row = ap->nrows - 1;
-					else
-						row = row - 2;
-					break;
-				case 120:
-					row = (!row) ? ap->nrows - 1 : row - 1;
-					break;
-				case 150:
-				case 160:
-					col = (col + 1 == ap->ncols) ? 0 : col + 1;
-					row = (!row) ? ap->nrows - 1 : row - 1;
-					break;
-				case 180:
-					col = (col + 1 == ap->ncols) ? 0 : col + 1;
-					break;
-				case 200:
-				case 210:
-					col = (col + 1 == ap->ncols) ? 0 : col + 1;
-					row = (row + 1 == ap->nrows) ? 0 : row + 1;
-					break;
-				case 240:
-					row = (row + 1 == ap->nrows) ? 0 : row + 1;
-					break;
-				case 270:
-				case 280:
-					if (row + 1 == ap->nrows)
-						row = 1;
-					else if (row + 2 == ap->nrows)
-						row = 0;
-					else
-						row = row + 2;
-					break;
-				case 300:
-					col = (!col) ? ap->ncols - 1 : col - 1;
-					if (row + 1 == ap->nrows)
-						row = 1;
-					else if (row + 2 == ap->nrows)
-						row = 0;
-					else
-						row = row + 2;
-					break;
-				case 320:
-				case 330:
-					col = (!col) ? ap->ncols - 1 : col - 1;
-					row = (row + 1 == ap->nrows) ? 0 : row + 1;
-					break;
-				default:
-					(void) fprintf(stderr, "wrong direction %d\n", dir);
-			}
-		} else {	/* left */
-			switch (dir) {
-				case 0:
-					col = (col + 1 == ap->ncols) ? 0 : col + 1;
-					break;
-				case 30:
-				case 40:
-					col = (col + 1 == ap->ncols) ? 0 : col + 1;
-					row = (row + 1 == ap->nrows) ? 0 : row + 1;
-					break;
-				case 60:
-					col = (col + 1 == ap->ncols) ? 0 : col + 1;
-					if (row + 1 == ap->nrows)
-						row = 1;
-					else if (row + 2 == ap->nrows)
-						row = 0;
-					else
-						row = row + 2;
-					break;
-				case 80:
-				case 90:
-					if (row + 1 == ap->nrows)
-						row = 1;
-					else if (row + 2 == ap->nrows)
-						row = 0;
-					else
-						row = row + 2;
-					break;
-				case 120:
-					row = (row + 1 == ap->nrows) ? 0 : row + 1;
-					break;
-				case 150:
-				case 160:
-					col = (!col) ? ap->ncols - 1 : col - 1;
-					row = (row + 1 == ap->nrows) ? 0 : row + 1;
-					break;
-				case 180:
-					col = (!col) ? ap->ncols - 1 : col - 1;
-					break;
-				case 200:
-				case 210:
-					col = (!col) ? ap->ncols - 1 : col - 1;
-					row = (!row) ? ap->nrows - 1 : row - 1;
-					break;
-				case 240:
-					row = (!row) ? ap->nrows - 1 : row - 1;
-					break;
-				case 270:
-				case 280:
-					if (!row)
-						row = ap->nrows - 2;
-					else if (row == 1)
-						row = ap->nrows - 1;
-					else
-						row = row - 2;
-					break;
-				case 300:
+				} else { /* left */
 					col = (col + 1 == ap->ncols) ? 0 : col + 1;
 					if (!row)
 						row = ap->nrows - 2;
@@ -447,15 +340,90 @@ position_of_neighbor(antfarmstruct * ap, int dir, int *pcol, int *prow)
 						row = ap->nrows - 1;
 					else
 						row = row - 2;
-					break;
-				case 320:
-				case 330:
-					col = (col + 1 == ap->ncols) ? 0 : col + 1;
+				}
+				break;
+			case 80:
+			case 90:
+			case 100:
+				if (!row)
+					row = ap->nrows - 2;
+				else if (row == 1)
+					row = ap->nrows - 1;
+				else
+					row = row - 2;
+				break;
+			case 120:
+				if ((col + row) % 2) {  /* right */
+					col = (!col) ? ap->ncols - 1 : col - 1;
+					if (!row)
+						row = ap->nrows - 2;
+					else if (!(row - 1))
+						row = ap->nrows - 1;
+					else
+						row = row - 2;
+				} else { /* left */
 					row = (!row) ? ap->nrows - 1 : row - 1;
-					break;
-				default:
-					(void) fprintf(stderr, "wrong direction %d\n", dir);
-			}
+				}
+				break;
+			case 140:
+			case 150:
+			case 160:
+				col = (!col) ? ap->ncols - 1 : col - 1;
+				row = (!row) ? ap->nrows - 1 : row - 1;
+				break;
+			case 180:
+				col = (!col) ? ap->ncols - 1 : col - 1;
+				break;
+			case 200:
+			case 210:
+			case 220:
+				col = (!col) ? ap->ncols - 1 : col - 1;
+				row = (row + 1 == ap->nrows) ? 0 : row + 1;
+				break;
+			case 240:
+				if ((col + row) % 2) {  /* right */
+					col = (!col) ? ap->ncols - 1 : col - 1;
+					if (row + 1 == ap->nrows)
+						row = 1;
+					else if (row + 2 == ap->nrows)
+						row = 0;
+					else
+						row = row + 2;
+				} else { /* left */
+					row = (row + 1 == ap->nrows) ? 0 : row + 1;
+				}
+				break;
+			case 260:
+			case 270:
+			case 280:
+				if (row + 1 == ap->nrows)
+					row = 1;
+				else if (row + 2 == ap->nrows)
+					row = 0;
+				else
+					row = row + 2;
+				break;
+			case 300:
+				if ((col + row) % 2) {  /* right */
+					row = (row + 1 == ap->nrows) ? 0 : row + 1;
+				} else { /* left */
+					col = (col + 1 == ap->ncols) ? 0 : col + 1;
+					if (row + 1 == ap->nrows)
+						row = 1;
+					else if (row + 2 == ap->nrows)
+						row = 0;
+					else
+						row = row + 2;
+				}
+				break;
+			case 320:
+			case 330:
+			case 340:
+				col = (col + 1 == ap->ncols) ? 0 : col + 1;
+				row = (row + 1 == ap->nrows) ? 0 : row + 1;
+				break;
+			default:
+				(void) fprintf(stderr, "wrong direction %d\n", dir);
 		}
 	}
 	*pcol = col;
@@ -473,8 +441,8 @@ fillcell(ModeInfo * mi, GC gc, int col, int row)
 		ap->shape.hexagon[0].x = ap->xb + ccol * ap->xs;
 		ap->shape.hexagon[0].y = ap->yb + crow * ap->ys;
 		if (ap->xs == 1 && ap->ys == 1)
-			XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
-			ap->shape.hexagon[0].x, ap->shape.hexagon[0].y, 1, 1);
+			XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
+			ap->shape.hexagon[0].x, ap->shape.hexagon[0].y);
 		else
 			XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 			    ap->shape.hexagon, 6, Convex, CoordModePrevious);
@@ -488,9 +456,9 @@ fillcell(ModeInfo * mi, GC gc, int col, int row)
 		ap->shape.triangle[orient][0].x = ap->xb + col * ap->xs;
 		ap->shape.triangle[orient][0].y = ap->yb + row * ap->ys;
 		if (ap->xs <= 3 || ap->ys <= 3)
-			XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
+			XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 			((orient) ? -1 : 1) + ap->shape.triangle[orient][0].x,
-				       ap->shape.triangle[orient][0].y, 1, 1);
+				       ap->shape.triangle[orient][0].y);
 		else {
 			if (orient)
 				ap->shape.triangle[orient][0].x += (ap->xs / 2 - 1);
@@ -518,7 +486,7 @@ truchetcell(ModeInfo * mi, int col, int row, int truchetstate)
 			hex.x = ap->xb + ccol * ap->xs - (int) ((double) ap->xs / 2.0) - 1;
 			hex.y = ap->yb + crow * ap->ys - (int) ((double) ap->ys / 2.0) - 1;
 			for (side = 0; side < 6; side++) {
-				if (side > 0) {
+				if (side) {
 					hex.x += ap->shape.hexagon[side].x;
 					hex.y += ap->shape.hexagon[side].y;
 				}
@@ -529,15 +497,28 @@ truchetcell(ModeInfo * mi, int col, int row, int truchetstate)
 			}
 		} else {
 			/* Very crude approx of Sqrt 3, so it will not cause drawing errors. */
-			hex.x = ap->xb + ccol * ap->xs - (int) ((double) ap->xs * 1.6 / 2.0);
-			hex.y = ap->yb + crow * ap->ys - (int) ((double) ap->ys * 1.6 / 2.0);
+			hex.x = ap->xb + ccol * ap->xs - (int) ((double) ap->xs * 1.6 / 2.0) - 1;
+			hex.y = ap->yb + crow * ap->ys - (int) ((double) ap->ys * 1.6 / 2.0) - 1;
 			for (side = 0; side < 6; side++) {
-				if (side > 0) {
+				if (side) {
 					hex.x += ap->shape.hexagon[side].x;
 					hex.y += ap->shape.hexagon[side].y;
 				}
 				hex2.x = hex.x + ap->shape.hexagon[side + 1].x / 2;
-				hex2.y = hex.y + ap->shape.hexagon[side + 1].y / 2;
+				hex2.y = hex.y + ap->shape.hexagon[side + 1].y / 2 + 1;
+				/* Lots of fudging here */
+				if (side == 1) {
+					hex2.x += ap->xs * 0.1 + 1;
+					hex2.y += ap->ys * 0.1 - ((ap->ys > 5) ? 1 : 0);
+				} else if (side == 2) {
+					hex2.x += ap->xs * 0.1;
+				} else if (side == 4) {
+					hex2.x += ap->xs * 0.1;
+					hex2.y += ap->ys * 0.1 - 1;
+				} else if (side == 5) {
+					hex2.x += ap->xs * 0.5;
+					hex2.y += -ap->ys * 0.3 + 1;
+				}
 				if (truchetstate == side % 3)
 					/* Crude approx of 120 deg, so it will not cause drawing errors. */
 					XDrawArc(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
@@ -574,6 +555,7 @@ truchetcell(ModeInfo * mi, int col, int row, int truchetstate)
 		int         orient = (col + row) % 2;	/* O left 1 right */
 		int         side, ang;
 		int         fudge = 7;	/* fudge because the triangles are not exact */
+		double      fudge2 = 1.18;
 		XPoint      tri;
 
 		tri.x = ap->xb + col * ap->xs;
@@ -588,14 +570,14 @@ truchetcell(ModeInfo * mi, int col, int row, int truchetstate)
 				tri.x += ap->shape.triangle[orient][side].x;
 				tri.y += ap->shape.triangle[orient][side].y;
 			}
-			if (truchetstate == side % 3) {
+			if (truchetstate == side) {
 				if (orient)
 					ang = (510 - side * 120) % 360;		/* Right */
 				else
 					ang = (690 - side * 120) % 360;		/* Left */
 				XDrawArc(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
-				  tri.x - ap->xs / 2, tri.y - 3 * ap->ys / 4,
-					 ap->xs, 3 * ap->ys / 2,
+				  tri.x - ap->xs * fudge2 / 2, tri.y - 3 * ap->ys * fudge2 / 4,
+					 ap->xs * fudge2, 3 * ap->ys * fudge2 / 2,
 				  (ang + fudge) * 64, (60 - 2 * fudge) * 64);
 			}
 		}
@@ -644,48 +626,152 @@ drawtruchet(ModeInfo * mi, int col, int row,
 }
 
 static void
-draw_anant(ModeInfo * mi, int col, int row)
+draw_anant(ModeInfo * mi, int direction, int col, int row)
 {
-	XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_WHITE_PIXEL(mi));
+	antfarmstruct *ap = &antfarms[MI_SCREEN(mi)];
+	Display    *display = MI_DISPLAY(mi);
+	Window      window = MI_WINDOW(mi);
+
+	XSetForeground(display, MI_GC(mi), MI_WHITE_PIXEL(mi));
 	fillcell(mi, MI_GC(mi), col, row);
-#if 0				/* Can not see eyes */
-	{
-		antfarmstruct *ap = &antfarms[MI_SCREEN(mi)];
-		Display    *display = MI_DISPLAY(mi);
-		Window      window = MI_WINDOW(mi);
+	if (ap->eyes) {		/* Draw Eyes */
+		XSetForeground(display, MI_GC(mi), MI_BLACK_PIXEL(mi));
+		if (ap->neighbors == 6) {
+			int         ccol = 2 * col + !(row & 1), crow = 2 * row;
+			int         side, ang;
+			XPoint      hex;
 
-		if (ap->xs > 2 && ap->ys > 2) {		/* Draw Eyes */
-
-			XSetForeground(display, MI_GC(mi), MI_BLACK_PIXEL(mi));
+			if (!(ap->xs > 3 && ap->ys > 3))
+				return;
+			hex.x = ap->xb + ccol * ap->xs;
+			hex.y = ap->yb + crow * ap->ys + ap->ys / 2;
+			ang = direction * ap->neighbors / ANGLES;
+			for (side = 0; side < ap->neighbors; side++) {
+				if (side) {
+					hex.x -= ap->shape.hexagon[side].x / 2;
+					hex.y += ap->shape.hexagon[side].y / 2;
+				}
+				if (side == (ap->neighbors + ang - 2) % ap->neighbors) 
+					XDrawPoint(display, window, MI_GC(mi), hex.x, hex.y);	
+				if (side == (ap->neighbors + ang - 1) % ap->neighbors) 
+					XDrawPoint(display, window, MI_GC(mi), hex.x, hex.y);	
+			}
+		} else if (ap->neighbors == 4 || ap->neighbors == 8) {
+			if (!(ap->xs > 3 && ap->ys > 3))
+				return;
 			switch (direction) {
 				case 0:
 					XDrawPoint(display, window, MI_GC(mi),
-					    ap->xb + ap->xs - 1, ap->yb + 1);
+						ap->xb + ap->xs * (col + 1) - 3,
+					 	ap->yb + ap->ys * row + ap->ys / 2 - 2);
 					XDrawPoint(display, window, MI_GC(mi),
-						   ap->xb + ap->xs - 1, ap->yb + ap->ys - 2);
+						ap->xb + ap->xs * (col + 1) - 3,
+					 	ap->yb + ap->ys * row + ap->ys / 2);
+					break;
+				case 45:
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * (col + 1) - 4,
+						ap->yb + ap->ys * row + 1);
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * (col + 1) - 3,
+						ap->yb + ap->ys * row + 2);
+					break;
+				case 90:
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * col + ap->xs / 2 - 2,
+						ap->yb + ap->ys * row + 1);
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * col + ap->xs / 2,
+						ap->yb + ap->ys * row + 1);
+					break;
+				case 135:
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * col + 2,
+						ap->yb + ap->ys * row + 1);
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * col + 1,
+						ap->yb + ap->ys * row + 2);
 					break;
 				case 180:
-					XDrawPoint(display, window, MI_GC(mi), ap->xb, ap->yb + 1);
-					XDrawPoint(display, window, MI_GC(mi), ap->xb, ap->yb + ap->ys - 2);
+					XDrawPoint(display, window, MI_GC(mi),
+						ap->xb + ap->xs * col + 1,
+					 	ap->yb + ap->ys * row + ap->ys / 2 - 2);
+					XDrawPoint(display, window, MI_GC(mi),
+						ap->xb + ap->xs * col + 1,
+					 	ap->yb + ap->ys * row + ap->ys / 2);
 					break;
-					if (neighbors == 4) {
-				case 90:
-						XDrawPoint(display, window, MI_GC(mi), ap->xb + 1, ap->yb);
-						XDrawPoint(display, window, MI_GC(mi),
-						ap->xb + ap->xs - 2, ap->yb);
-						break;
+				case 225:
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * col + 2,
+						ap->yb + ap->ys * (row + 1) - 3);
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * col + 1,
+						ap->yb + ap->ys * (row + 1) - 4);
+					break;
 				case 270:
-						XDrawPoint(display, window, MI_GC(mi),
-							   ap->xb + 1, ap->yb + ap->ys - 1);
-						XDrawPoint(display, window, MI_GC(mi),
-							   ap->xb + ap->xs - 2, ap->yb + ap->ys - 1);
-						break;
-					}	/* else BEE */
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * col + ap->xs / 2 - 2,
+						ap->yb + ap->ys * (row + 1) - 3);
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * col + ap->xs / 2,
+						ap->yb + ap->ys * (row + 1) - 3);
+					break;
+				case 315:
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * (col + 1) - 4,
+						ap->yb + ap->ys * (row + 1) - 3);
+					XDrawPoint(display, window, MI_GC(mi),
+					 	ap->xb + ap->xs * (col + 1) - 3,
+						ap->yb + ap->ys * (row + 1) - 4);
+					break;
 				default:
+					(void) fprintf(stderr, "wrong eyes direction %d for ant eyes\n", direction);
+			}
+		} else {		/* TRI */
+			int         orient = (col + row) % 2;	/* O left 1 right */
+			int         side, ang;
+			XPoint      tri;
+
+			if (!(ap->xs > 6 && ap->ys > 6))
+				return;
+			tri.x = ap->xb + col * ap->xs;
+			tri.y = ap->yb + row * ap->ys;
+			if (orient)
+				tri.x += (ap->xs / 6 - 1);
+			else
+				tri.x -= (ap->xs / 6 - 1);
+			ang = direction * ap->neighbors / ANGLES;
+			/* approx... does not work that well for even numbers */
+			if (
+#ifdef NUMBER_9
+			ap->neighbors == 9 ||
+#endif
+			ap->neighbors == 12) {
+#ifdef UNDER_CONSTRUCTION
+				/* Not sure why this does not work */
+				ang = ((ang + ap->neighbors / 6) / (ap->neighbors / 3)) % 3; 
+#else
+				return;
+#endif
+			}
+			for (side = 0; side < 3; side++) {
+				if (side) {
+					tri.x += ap->shape.triangle[orient][side].x / 3;
+					tri.y += ap->shape.triangle[orient][side].y / 3;
+				}
+				/* Either you have the eyes in back or one eye in front */
+#if 0
+				if (side == ang)
+					XDrawPoint(display, window, MI_GC(mi), tri.x, tri.y);	
+#else
+				if (side == (ang + 2) % 3) 
+					XDrawPoint(display, window, MI_GC(mi), tri.x, tri.y);	
+				if (side == (ang + 1) % 3) 
+					XDrawPoint(display, window, MI_GC(mi), tri.x, tri.y);	
+#endif
 			}
 		}
 	}
-#endif
 }
 
 #if 0
@@ -710,33 +796,34 @@ RandomSoup(mi)
 static short
 fromTableDirection(unsigned char dir, int local_neighbors)
 {
+	/* Crafted to work for odd number of neighbors */
 	switch (dir) {
 		case FS:
 			return 0;
-		case TRS:
-			return (ANGLES / local_neighbors);
-		case THRS:
-			return (ANGLES / 2 - ANGLES / local_neighbors);
-		case TBS:
-			return (ANGLES / 2);
-		case THLS:
-			return (ANGLES / 2 + ANGLES / local_neighbors);
 		case TLS:
+			return (ANGLES / local_neighbors);
+		case THLS:
+			return (2 * ANGLES / local_neighbors);
+		case TBS:
+			return ((local_neighbors / 2) * ANGLES / local_neighbors);
+		case THRS:
+			return (ANGLES - 2 * ANGLES / local_neighbors);
+		case TRS:
 			return (ANGLES - ANGLES / local_neighbors);
 		case SF:
 			return ANGLES;
-		case STR:
-			return (ANGLES + ANGLES / local_neighbors);
-		case STHR:
-			return (3 * ANGLES / 2 - ANGLES / local_neighbors);
-		case STB:
-			return (3 * ANGLES / 2);
-		case STHL:
-			return (3 * ANGLES / 2 + ANGLES / local_neighbors);
 		case STL:
+			return (ANGLES + ANGLES / local_neighbors);
+		case STHL:
+			return (ANGLES + 2 * ANGLES / local_neighbors);
+		case STB:
+			return (ANGLES + (local_neighbors / 2) * ANGLES / local_neighbors);
+		case STHR:
+			return (2 * ANGLES - 2 * ANGLES / local_neighbors);
+		case STR:
 			return (2 * ANGLES - ANGLES / local_neighbors);
 		default:
-			(void) fprintf(stderr, "wrong direction %d\n", dir);
+			(void) fprintf(stderr, "wrong direction %d from table\n", dir);
 	}
 	return -1;
 }
@@ -758,7 +845,7 @@ getTable(ModeInfo * mi, int i)
 			  ap->n, ap->neighbors, i, ap->ncolors, ap->nstates);
 	for (j = 0; j < total; j++) {
 		ap->machine[j].color = *patptr++;
-		if (ap->sharpturn && ap->neighbors > 4 && !(ap->neighbors % 2)) {
+		if (ap->sharpturn && ap->neighbors > 4) {
 			int         k = *patptr++;
 
 			switch (k) {
@@ -815,7 +902,7 @@ getTurk(ModeInfo * mi, int i)
 	total = ap->ncolors * ap->nstates;
 	for (j = 0; j < total; j++) {
 		ap->machine[j].color = (j + 1) % total;
-		if (ap->sharpturn && ap->neighbors > 4 && !(ap->neighbors % 2)) {
+		if (ap->sharpturn && ap->neighbors > 4) {
 			ap->machine[j].direction = (power2 & number) ?
 				fromTableDirection(THRS, ap->neighbors) :
 				fromTableDirection(THLS, ap->neighbors);
@@ -879,7 +966,12 @@ init_ant(ModeInfo * mi)
 	ap->width = MI_WIDTH(mi);
 	ap->height = MI_HEIGHT(mi);
 
-	if (neighbors == 8 || neighbors == 9 || neighbors == 12)
+	if (neighbors == 8
+#ifdef NUMBER_9
+/* Not sure if this makes any sense at all... I am so confused. */
+	|| neighbors == 9
+#endif
+	|| neighbors == 12)
 		ap->neighbors = neighbors;	/* Discourage but not deny use... */
 	else
 		for (i = 0; i < NEIGHBORKINDS; i++) {
@@ -993,13 +1085,14 @@ init_ant(ModeInfo * mi)
 
 	if (MI_IS_FULLRANDOM(mi)) {
 		ap->truchet = (Bool) (LRAND() & 1);
+		ap->eyes = (Bool) (LRAND() & 1);
 		ap->sharpturn = (Bool) (LRAND() & 1);
 	} else {
 		ap->truchet = truchet;
+		ap->eyes = eyes;
 		ap->sharpturn = sharpturn;
 	}
-	/* Exclude odd # of neighbors, stepping forward not defined */
-	if (!NRAND(NUMSTIPPLES) && ((ap->neighbors + 1) % 2)) {
+	if (!NRAND(NUMSTIPPLES)) {
 		getTable(mi, (int) (NRAND(NTABLES)));
 	} else
 		getTurk(mi, (int) (NRAND(NUMSTIPPLES - 1)));
@@ -1019,9 +1112,16 @@ init_ant(ModeInfo * mi)
 	ap->truchet_state = (unsigned char *)
 		calloc(ap->ncols * ap->nrows, sizeof (unsigned char));
 
-	col = ap->ncols / 2;
 	row = ap->nrows / 2;
+	col = ap->ncols / 2;
+	if (col > 0 && ((ap->neighbors % 2) || ap->neighbors == 12) && (LRAND() & 1))
+		col--;
 	dir = NRAND(ap->neighbors) * ANGLES / ap->neighbors;
+	ap->init_dir = dir;
+#ifdef NUMBER_9
+	if (ap->neighbors == 9 && !((col + row) & 1))
+		dir = (dir + ANGLES - ANGLES / (ap->neighbors * 2)) % ANGLES;
+#endif
 	/* Have them all start in the same spot, why not? */
 	for (i = 0; i < ap->n; i++) {
 		ap->ants[i].col = col;
@@ -1029,7 +1129,7 @@ init_ant(ModeInfo * mi)
 		ap->ants[i].direction = dir;
 		ap->ants[i].state = 0;
 	}
-	draw_anant(mi, col, row);
+	draw_anant(mi, dir, col, row);
 }
 
 void
@@ -1064,7 +1164,10 @@ draw_ant(ModeInfo * mi)
 
 			if (ap->neighbors == 6) {
 				if (ap->sharpturn) {
-					a = (chg_dir / 120 == 2);
+					a = (((ANGLES + anant->direction - old_dir) % ANGLES) == 240);
+	/* should be some way of getting rid of the init_dir dependency... */
+					b = !(ap->init_dir % 120);
+					a = ((a && !b) || (b && !a));
 					drawtruchet(mi, anant->col, anant->row, status->color, a);
 				} else {
 					a = (old_dir / 60) % 3;
@@ -1078,20 +1181,44 @@ draw_ant(ModeInfo * mi)
 				a = ((a && !b) || (b && !a));
 				drawtruchet(mi, anant->col, anant->row, status->color, a);
 			} else if (ap->neighbors == 3) {
-				if (chg_dir == 240)
-					a = (2 + anant->direction / 120) % 3;
-				else
-					a = (1 + anant->direction / 120) % 3;
+				a = (1 + (chg_dir == 240) + anant->direction / 120) % 3;
 				drawtruchet(mi, anant->col, anant->row, status->color, a);
 			}
 			ap->truchet_state[tape_pos] = a + 1;
 		}
 		anant->state = status->next;
+		if (ap->neighbors == 3) {
+			/* No sense of forward... force it to be logical */
+			/* This is probably not correct in general */
+			if ((anant->col + anant->row) & 1)
+			  old_dir = (3 * ANGLES / 2 - old_dir) % ANGLES;
+			else
+			  old_dir = (ANGLES - old_dir) % ANGLES;
+		}
+#ifdef NUMBER_9
+		else if (ap->neighbors == 9) {
+			/* No sense of forward... force it to be logical */
+			/* This is probably not correct in general */
+			if ((anant->col + anant->row) & 1)
+				old_dir = (old_dir + ANGLES - ANGLES / (ap->neighbors * 2)) % ANGLES;
+			else
+				old_dir = (old_dir + ANGLES / (ap->neighbors * 2)) % ANGLES;
+		} else if (ap->neighbors % 2) {
+			if (!(anant->direction % 60))
+				anant->direction = (anant->direction + ANGLES - ANGLES / (ap->neighbors * 2)) % ANGLES;
+		}
+#endif
 
-		/* If edge than wrap it */
+		/* Allow step first and turn */
 		old_dir = ((status->direction < ANGLES) ? anant->direction : old_dir);
+#if DEBUG
+		(void) printf("old_dir %d, col %d, row %d", old_dir, anant->col, anant->row);
+#endif
 		position_of_neighbor(ap, old_dir, &(anant->col), &(anant->row));
-		draw_anant(mi, anant->col, anant->row);
+#if DEBUG
+		(void) printf(", ncol %d, nrow %d\n", anant->col, anant->row);
+#endif
+		draw_anant(mi, anant->direction, anant->col, anant->row);
 	}
 	if (++ap->generation > MI_CYCLES(mi)) {
 		init_ant(mi);

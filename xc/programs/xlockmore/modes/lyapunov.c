@@ -170,7 +170,7 @@ init_lyapunov(ModeInfo * mi)
 		}
 
   if (MI_IS_VERBOSE(mi)) {
-		(void) printf("0x%x forcing number", lp->periodic_forcing);
+		(void) printf("0x%lx forcing number", lp->periodic_forcing);
 		switch (lp->periodic_forcing) {
 			case 0x2:
 				(void) printf(", swallow\n");
@@ -228,6 +228,7 @@ pick_rgb(unsigned short bottom,unsigned short top,
 {
 	/* por == part of range */
 	double por;
+
 	if (color_ind<ncolors/2) {
 		/* going up */
 		por = ((float)color_ind*2) / ncolors;
@@ -235,7 +236,7 @@ pick_rgb(unsigned short bottom,unsigned short top,
 		/* going down */
 		por = ((float)(color_ind-ncolors/2)*2) / ncolors;
 	}
-	return bottom + (top - bottom)*por;
+	return ((unsigned short) (bottom + (top - bottom)*por));
 }
 #endif
 

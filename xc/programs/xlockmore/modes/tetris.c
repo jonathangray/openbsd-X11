@@ -84,17 +84,17 @@ static Bool cycle_p;
 
 static XrmOptionDescRec opts[] =
 {
-	{"-tshift", ".tetris.tshift", XrmoptionNoArg, (caddr_t) "on"},
-	{"+tshift", ".tetris.tshift", XrmoptionNoArg, (caddr_t) "off"}
+	{"-cycle", ".tetris.cycle", XrmoptionNoArg, (caddr_t) "on"},
+	{"+cycle", ".tetris.cycle", XrmoptionNoArg, (caddr_t) "off"}
 };
 
 static argtype vars[] =
 {
-	{(caddr_t *) & cycle_p, "tshift", "TShift", DEF_CYCLE, t_Bool}
+	{(caddr_t *) & cycle_p, "cycle", "Cycle", DEF_CYCLE, t_Bool}
 };
 static OptionStruct desc[] =
 {
-	{"-/+tshift", "turn on/off colour cycling"}
+	{"-/+cycle", "turn on/off colour cycling"}
 };
 
 ModeSpecOpt tetris_opts =
@@ -105,7 +105,7 @@ ModStruct   tetris_description =
 {"tetris", "init_tetris", "draw_tetris", "release_tetris",
  "refresh_tetris", "init_tetris", NULL, &tetris_opts,
  600000, -40, 200, 0, 64, 1.0, "",
- "Autoplaying tetris game", 0, NULL};
+ "Shows an autoplaying tetris game", 0, NULL};
 
 #endif
 
@@ -403,7 +403,6 @@ redoNext(ModeInfo * mi)
 
 static void
 newPolyomino(ModeInfo * mi) {
-	Display *   display = MI_DISPLAY(mi);
 	trisstruct *tp = &triss[MI_SCREEN(mi)];
 
 	tp->curPolyomino.random_number = LRAND();
@@ -552,96 +551,104 @@ checkLines(ModeInfo *mi)
 	}
 
 	if (nset) {
-	for (i = 0; i < ((NUM_FLASHES / nset) % 2) * 2; i++) {
-		for (j = 0; j < tp->nrows; j++) {
-			if (lSet[j] == tp->ncols)
-#if 0 /* Future */
-				XFillRectangle(display, blockWin, xorGC,
-				0, j * BOXSIZE, frameW, BOXSIZE)
-#endif
-				;
+#ifdef UNDER_CONSTRUCTION 
+		for (i = 0; i < ((NUM_FLASHES / nset) % 2) * 2; i++) {
+			for (j = 0; j < tp->nrows; j++) {
+				if (lSet[j] == tp->ncols)
+					XFillRectangle(display, blockWin, xorGC,
+					  0, j * BOXSIZE, frameW, BOXSIZE);
+			}
+			XFlush(display);
 		}
-		XFlush(display);
-	}
-
-	for (j = tp->nrows - 1; j >= 0; j--) {
-	    if (lSet[j] == tp->ncols) {
-		for (y = j; y > 0; y--)
-		    for (i = 0; i < tp->ncols; i++)
-			tp->field[y * tp->ncols + i] = tp->field[(y - 1) * tp->ncols + i];
-		for (i = 0; i < tp->ncols; i++)
-		    tp->field[i].pmid = -1;
-
-#if 0 /* Future */
-		XCopyArea(display, blockWin, blockWin, tinyGC,
-			0, 0, frameW, j * BOXSIZE, 0, BOXSIZE);
-		
-		XFillRectangle(display, blockWin, revGC,
-			0, 0, frameW, BOXSIZE);
 #endif
 
-		for (i = j; i > 0; i--)
-		    lSet[i] = lSet[i-1];
-		lSet[0] = 0;
+		for (j = tp->nrows - 1; j >= 0; j--) {
+			if (lSet[j] == tp->ncols) {
+				for (y = j; y > 0; y--)
+			   	 for (i = 0; i < tp->ncols; i++)
+					tp->field[y * tp->ncols + i] =
+					   tp->field[(y - 1) * tp->ncols + i];
+				for (i = 0; i < tp->ncols; i++)
+					tp->field[i].pmid = -1;
 
-		if (j > 0)
-		    for (i = 0; i < tp->ncols; i++) {
-			int	     tmp = tp->field[j * tp->ncols + i].pmid;
-			if ((tmp >= 0) && (tmp != CHECKDOWN(tmp))) {
-			    tp->field[j * tp->ncols + i].pmid = CHECKDOWN(tmp);
-			    drawSquare(mi, tp->field[j * tp->ncols + i].pmid, tp->field[j * tp->ncols + i].cid,
-				       i, j);
+#ifdef UNDER_CONSTRUCTION 
+				XCopyArea(display, blockWin, blockWin, tinyGC,
+				  0, 0, frameW, j * BOXSIZE, 0, BOXSIZE);
+		
+				XFillRectangle(display, blockWin, revGC,
+				  0, 0, frameW, BOXSIZE);
+#endif
+
+				for (i = j; i > 0; i--)
+					lSet[i] = lSet[i-1];
+				lSet[0] = 0;
+
+				if (j > 0)
+					for (i = 0; i < tp->ncols; i++) {
+						int	     tmp = tp->field[j * tp->ncols + i].pmid;
+
+						if ((tmp >= 0) && (tmp != CHECKDOWN(tmp))) {
+							tp->field[j * tp->ncols + i].pmid = CHECKDOWN(tmp);
+							 	drawSquare(mi,
+					 		  tp->field[j * tp->ncols + i].pmid, tp->field[j * tp->ncols + i].cid,
+							  i, j);
+						}
+			   		}
+
+				j++;
+
+				if (j < tp->nrows)
+					for (i = 0; i < tp->ncols; i++) {
+						int	     tmp = tp->field[j * tp->ncols + i].pmid;
+
+						if ((tmp >= 0) && (tmp != CHECKUP(tmp))) {
+							tp->field[j * tp->ncols + i].pmid = CHECKUP(tmp);
+							drawSquare(mi,
+							  tp->field[j * tp->ncols + i].pmid, tp->field[j * tp->ncols + i].cid,
+							  i, j);
+						}
+					}
+
+				XFlush(display);
 			}
-		    }
+		}
 
-		j++;
-
-		if (j < tp->nrows)
-		    for (i = 0; i < tp->ncols; i++) {
-			int	     tmp = tp->field[j * tp->ncols + i].pmid;
-			if ((tmp >= 0) && (tmp != CHECKUP(tmp))) {
-			    tp->field[j * tp->ncols + i].pmid = CHECKUP(tmp);
-			    drawSquare(mi, tp->field[j * tp->ncols + i].pmid, tp->field[j * tp->ncols + i].cid,
-				       i, j);
-			}
-		    }
-
-		XFlush(display);
-	    }
+		XSync(display, False);
 	}
 
-	XSync(display, False);
-    }
-
-    if (lSet)
-	(void) free((void *) lSet);
+	if (lSet)
+		(void) free((void *) lSet);
 
 
-    return nset;
+	return nset;
 }
-
 
 static Bool
 moveOne(ModeInfo *mi, move_t move)
 {
 	Display    *display = MI_DISPLAY(mi);
-	int	     lines;
 
     if ((move == DROP) || ((move == FALL) && atBottom(mi))) {
 	putBox(mi);
-	lines = checkLines(mi);
-#if 0
-	rows += lines;
-	if (rows > THRESHOLD(level)) {
-	    level++;
-	    if (bonus) /* No good deed goes unpunished */
-	      bonusNow = True;
+#ifdef UNDER_CONSTRUCTION 
+	{
+		int	     lines;
+
+		lines = checkLines(mi);
+		rows += lines;
+		if (rows > THRESHOLD(level)) {
+		    level++;
+		    if (bonus) /* No good deed goes unpunished */
+	     		bonusNow = True;
+		}
 	}
+#else
+	(void) checkLines(mi);
 #endif
 	newPolyomino(mi);
 	XSync(display, True);	/* discard all events */
 	if (overlapping(mi)) {
-#if 0
+#ifdef UNDER_CONSTRUCTION 
 		gameOver();
 #endif
 		init_tetris(mi);
@@ -652,7 +659,7 @@ moveOne(ModeInfo *mi, move_t move)
 	return True;
     } else {
 	tryMove(mi, move);
-#if 0
+#ifdef UNDER_CONSTRUCTION 
 	if (rows > THRESHOLD(level)) {
 	    level++;
 	    if (bonus)
@@ -767,6 +774,7 @@ init_tetris(ModeInfo * mi) {
 		}
 
 		readPolyominoes(tp);
+		tp->blackpixel = MI_BLACK_PIXEL(mi);
 		if (MI_IS_INSTALL(mi) && MI_NPIXELS(mi) > 2) {
 			XColor      color;
 
@@ -777,7 +785,6 @@ init_tetris(ModeInfo * mi) {
 			tp->fg = MI_FG_PIXEL(mi);
 			tp->bg = MI_BG_PIXEL(mi);
 #endif
-			tp->blackpixel = MI_BLACK_PIXEL(mi);
 			tp->whitepixel = MI_WHITE_PIXEL(mi);
 			tp->cmap = XCreateColormap(display, window,
 						    MI_VISUAL(mi), AllocNone);

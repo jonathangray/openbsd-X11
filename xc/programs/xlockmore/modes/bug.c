@@ -53,8 +53,32 @@ static const char sccsid[] = "@(#)bug.c	4.07 97/11/24 xlockmore";
 
 #ifdef MODE_bug
 
+#define DEF_NEIGHBORS  "0"      /* choose random value */
+#define DEF_EYES  "False"
+
+static int  neighbors;
+static Bool eyes;
+
+static XrmOptionDescRec opts[] =
+{
+	{"-neighbors", ".bug.neighbors", XrmoptionSepArg, (caddr_t) NULL},
+	{"-eyes", ".bug.eyes", XrmoptionNoArg, (caddr_t) "on"},
+	{"+eyes", ".bug.eyes", XrmoptionNoArg, (caddr_t) "off"},
+};
+static argtype vars[] =
+{
+	{(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int},
+	{(caddr_t *) & eyes, "eyes", "Eyes", DEF_EYES, t_Bool},
+};
+static OptionStruct desc[] =
+{
+	{"-neighbors num", "squares 4 or 8, hexagons 6"},
+	{"-/+eyes", "turn on/off eyes"}
+};
+
 ModeSpecOpt bug_opts =
-{0, NULL, 0, NULL, NULL};
+{sizeof opts / sizeof opts[0], opts, sizeof vars / sizeof vars[0], vars, desc};
+
 
 #ifdef USE_MODULES
 ModStruct   bug_description =
@@ -68,8 +92,6 @@ ModStruct   bug_description =
 #if DEBUG
 #include <assert.h>
 #endif
-
-extern int  neighbors;
 
 #define BUGBITS(n,w,h)\
   bp->pixmaps[bp->init_bits++]=\
@@ -90,14 +112,9 @@ extern int  neighbors;
 #define MINGRIDSIZE 24
 #define MINSIZE 1
 #define ANGLES 360
-#define NEIGHBORKINDS 6
-#ifdef NEIGHBORS
 #define MAXNEIGHBORS 12
-#else
-#define MAXNEIGHBORS 6
-#endif
 
-/* Relative bug moves */
+/* Relative hex bug moves */
 /* Forward, Right, Hard Right, Reverse, Hard Left, Left */
 
 /* Bug data */
@@ -108,6 +125,10 @@ typedef struct {
 	int         col, row;
 	int         gene[MAXNEIGHBORS];
 	double      gene_prob[MAXNEIGHBORS];
+#if EXTRA_GENES
+	int         lgene[MAXNEIGHBORS];
+	double      lgene_prob[MAXNEIGHBORS];
+#endif
 } bugstruct;
 
 /* Doublely linked list */
@@ -119,15 +140,16 @@ typedef struct _BugList {
 typedef struct {
 	Bool        painted;
 	int         neighbors;
-	int         n;		/* Number of bugs */
+	int         nbugs;	/* Number of bugs */
 	int         eden;	/* Does the garden exist? */
 	int         generation;
-	int         nhcols, nhrows;
+	int         ncols, nrows;
 	int         width, height;
 	int         edenwidth, edenheight;
 	int         edenstartx, edenstarty;
 	int         xs, ys, xb, yb;
 	int         redrawing, redrawpos;
+	int         eyes;
 	BugList    *currbug, *babybug, *lastbug, *firstbug, *lasttemp, *firsttemp;
 	BugList   **arr;	/* 0=empty or pts to a bug */
 	char       *bacteria;	/* 0=empty or food */
@@ -142,15 +164,18 @@ typedef struct {
 
 static double genexp[MAXGENE - MINGENE + 1];
 
-#ifdef NEIGHBORS
-static char plots[NEIGHBORKINDS] =
-{3, 4, 6, 8, 9, 12};		/* Neighborhoods */
-
+static char plots[] =
+{3, 4, 6, 8,
+#ifdef NUMBER_9
+ 9,
 #endif
+ 12};		/* Neighborhoods */
+
+#define NEIGHBORKINDS (long) (sizeof plots / sizeof *plots)
 
 static bugfarmstruct *bugfarms = NULL;
 
-#ifdef NEIGHBORS
+#if 0
 static void
 position_of_neighbor(bugfarmstruct * bp, int dir, int *pcol, int *prow)
 {
@@ -223,112 +248,81 @@ position_of_neighbor(bugfarmstruct * bp, int dir, int *pcol, int *prow)
 				(void) fprintf(stderr, "wrong direction %d\n", dir);
 		}
 	} else {		/* TRI */
-		if ((col + row) % 2) {	/* right */
-			switch (dir) {
-				case 0:
-					col = col - 1;
-					break;
-				case 30:
-				case 40:
-					col = col - 1;
+		switch (dir) {
+			case 0:
+				col = col + 1;
+				break;
+			case 20:
+			case 30:
+			case 40:
+				col = col + 1;
+				row = row - 1;
+				break;
+			case 60:
+				if ((col + row) % 2) {	/* right */
 					row = row - 1;
-					break;
-				case 60:
-					col = col - 1;
-					row = row - 2;
-					break;
-				case 80:
-				case 90:
-					row = row - 2;
-					break;
-				case 120:
-					row = row - 1;
-					break;
-				case 150:
-				case 160:
-					col = col + 1;
-					row = row - 1;
-					break;
-				case 180:
-					col = col + 1;
-					break;
-				case 200:
-				case 210:
-					col = col + 1;
-					row = row + 1;
-					break;
-				case 240:
-					row = row + 1;
-					break;
-				case 270:
-				case 280:
-					row = row + 2;
-					break;
-				case 300:
-					col = col - 1;
-					row = row + 2;
-					break;
-				case 320:
-				case 330:
-					col = col - 1;
-					row = row + 1;
-					break;
-				default:
-					(void) fprintf(stderr, "wrong direction %d\n", dir);
-			}
-		} else {	/* left */
-			switch (dir) {
-				case 0:
-					col = col + 1;
-					break;
-				case 30:
-				case 40:
-					col = col + 1;
-					row = row + 1;
-					break;
-				case 60:
-					col = col + 1;
-					row = row + 2;
-					break;
-				case 80:
-				case 90:
-					row = row + 2;
-					break;
-				case 120:
-					row = row + 1;
-					break;
-				case 150:
-				case 160:
-					col = col - 1;
-					row = row + 1;
-					break;
-				case 180:
-					col = col - 1;
-					break;
-				case 200:
-				case 210:
-					col = col - 1;
-					row = row - 1;
-					break;
-				case 240:
-					row = row - 1;
-					break;
-				case 270:
-				case 280:
-					row = row - 2;
-					break;
-				case 300:
+				} else { /* left */
 					col = col + 1;
 					row = row - 2;
-					break;
-				case 320:
-				case 330:
-					col = col + 1;
+				}
+				break;
+			case 80:
+			case 90:
+			case 100:
+				row = row - 2;
+				break;
+			case 120:
+				if ((col + row) % 2) {	/* right */
+					col = col - 1;
+					row = row - 2;
+				} else { /* left */
 					row = row - 1;
-					break;
-				default:
-					(void) fprintf(stderr, "wrong direction %d\n", dir);
-			}
+				}
+				break;
+			case 140:
+			case 150:
+			case 160:
+				col = col - 1;
+				row = row - 1;
+				break;
+			case 180:
+				col = col - 1;
+				break;
+			case 200:
+			case 210:
+			case 220:
+				col = col - 1;
+				row = row + 1;
+				break;
+			case 240:
+				if ((col + row) % 2) {	/* right */
+					col = col - 1;
+					row = row + 2;
+				} else { /* left */
+					row = row + 1;
+				}
+				break;
+			case 260:
+			case 270:
+			case 280:
+				row = row + 2;
+				break;
+			case 300:
+				if ((col + row) % 2) {	/* right */
+					row = row + 1;
+				} else { /* left */
+					col = col + 1;
+					row = row + 2;
+				}
+				break;
+			case 320:
+			case 330:
+			case 340:
+				col = col + 1;
+				row = row + 1;
+				break;
+			default:
+				(void) fprintf(stderr, "wrong direction %d\n", dir);
 		}
 	}
 	*pcol = col;
@@ -339,90 +333,268 @@ position_of_neighbor(bugfarmstruct * bp, int dir, int *pcol, int *prow)
 
 #if 0
 static void
-cart2hex(cx, cy, hx, hy)
-	int         cx, cy, *hx, *hy;
+screen2grid(bugfarmstruct *bp, int sx, int sy, int x, int y)
 {
-	*hy = cy / 2;
-	*hx = (cx + 1) / 2 - 1;
+	*y = sy / 2;
+	if (bp->neighbors == 6) {
+		*x = (sx + 1) / 2 - 1;
+	} else if (bp->neighbors == 4 || bp->neighbors == 8) {
+		*x = sx / 2;
+	} else {		/* TRI */
+		/* Wrong but... */
+		*x = sx / 3;
+	}
 }
 
 #endif
 
 static void
-hex2cart(int hx, int hy, int *cx, int *cy)
+grid2screen(bugfarmstruct *bp, int x, int y, int *sx, int *sy)
 {
-	*cy = hy * 2 + 1;
-	*cx = 2 * hx + 1 + !(hy & 1);
+	*sy = y * 2 + 1;
+	if (bp->neighbors == 6) {
+		*sx = 2 * x + 1 + !(y & 1);
+	} else if (bp->neighbors == 4 || bp->neighbors == 8) {
+		*sx = x * 2 + 1;
+	} else {		/* TRI */
+		*sx = x * 3 + 1 + ((y & 1) ? (x & 1) : !(x & 1));
+	}
 }
 
-/* hexagon compass move */
 static char
-hexcmove(bugfarmstruct * bp, int hx, int hy, int dir, int *nhx, int *nhy)
+dirmove(bugfarmstruct * bp, int x, int y, int dir, int *nx, int *ny)
 {
-	switch (dir) {
-		case 0:
-			*nhy = hy - 1;
-			*nhx = hx + (int) !(hy & 1);
-			return (*nhy >= 0 && *nhx < bp->nhcols - !(*nhy & 1));
-		case 60:
-			*nhy = hy;
-			*nhx = hx + 1;
-			return (*nhx < bp->nhcols - !(*nhy & 1));
-		case 120:
-			*nhy = hy + 1;
-			*nhx = hx + (int) !(hy & 1);
-			return (*nhy < bp->nhrows && *nhx < bp->nhcols - !(*nhy & 1));
-		case 180:
-			*nhy = hy + 1;
-			*nhx = hx - (int) (hy & 1);
-			return (*nhy < bp->nhrows && *nhx >= 0);
-		case 240:
-			*nhy = hy;
-			*nhx = hx - 1;
-			return (*nhx >= 0);
-		case 300:
-			*nhy = hy - 1;
-			*nhx = hx - (int) (hy & 1);
-			return (*nhy >= 0 && *nhx >= 0);
-		default:
-			return 0;
+	if (bp->neighbors == 6) {
+		switch (dir) {
+			case 0:
+				*ny = y;
+				*nx = x + 1;
+				return (*nx < bp->ncols - !(*ny & 1));
+			case 60:
+				*ny = y - 1;
+				*nx = x + (int) !(y & 1);
+				return (*ny >= 0 && *nx < bp->ncols - !(*ny & 1));
+			case 120:
+				*ny = y - 1;
+				*nx = x - (int) (y & 1);
+				return (*ny >= 0 && *nx >= 0);
+			case 180:
+				*ny = y;
+				*nx = x - 1;
+				return (*nx >= 0);
+			case 240:
+				*ny = y + 1;
+				*nx = x - (int) (y & 1);
+				return (*ny < bp->nrows && *nx >= 0);
+			case 300:
+				*ny = y + 1;
+				*nx = x + (int) !(y & 1);
+				return (*ny < bp->nrows && *nx < bp->ncols - !(*ny & 1));
+			default:
+				(void) fprintf(stderr, "wrong direction %d\n", dir);
+		}
+	} else if (bp->neighbors == 4 || bp->neighbors == 8) {
+		switch (dir) {
+			case 0:
+				*ny = y;
+				*nx = x + 1;
+				return (*nx < bp->ncols);
+			case 45:
+				*ny = y - 1;
+				*nx = x + 1;
+				return (*ny >= 0 && *nx < bp->ncols);
+			case 90:
+				*ny = y - 1;
+				*nx = x;
+				return (*ny >= 0);
+			case 135:
+				*ny = y - 1;
+				*nx = x - 1;
+				return (*ny >= 0 && *nx >= 0);
+			case 180:
+				*ny = y;
+				*nx = x - 1;
+				return (*nx >= 0);
+			case 225:
+				*ny = y + 1;
+				*nx = x - 1;
+				return (*ny < bp->nrows && *nx >= 0);
+			case 270:
+				*ny = y + 1;
+				*nx = x;
+				return (*ny < bp->nrows);
+			case 315:
+				*ny = y + 1;
+				*nx = x + 1;
+				return (*ny < bp->nrows && *nx < bp->ncols);
+			default:
+				(void) fprintf(stderr, "wrong direction %d\n", dir);
+		}
+	} else {		/* TRI */
+		switch (dir) {
+			case 0:
+				*nx = x + 1;
+				*ny = y;
+				return (*nx < bp->ncols);
+			case 20:
+			case 30:
+			case 40:
+				*nx = x + 1;
+				*ny = y - 1;
+				return (*nx < bp->ncols && *ny >= 0);
+			case 60:
+				if ((x + y) % 2) {  /* right */
+					*nx = x;
+					*ny = y - 1;
+					return (*ny >= 0);
+				} else { /* left */
+					*nx = x + 1;
+					*ny = y - 2;
+					return (*nx < bp->ncols && *ny >= 0);
+				}
+			case 80:
+			case 90:
+			case 100:
+				*nx = x;
+				*ny = y - 2;
+				return (*ny >= 0);
+			case 120:
+				if ((x + y) % 2) {  /* right */
+					*nx = x - 1;
+					*ny = y - 2;
+					return (*nx >= 0 && *ny >= 0);
+				} else { /* left */
+					*nx = x;
+					*ny = y - 1;
+					return (*ny >= 0);
+				}
+			case 140:
+			case 150:
+			case 160:
+				*nx = x - 1;
+				*ny = y - 1;
+				return (*nx >= 0 && *ny >= 0);
+			case 180:
+				*nx = x - 1;
+				*ny = y;
+				return (*nx >= 0);
+			case 200:
+			case 210:
+			case 220:
+				*nx = x - 1;
+				*ny = y + 1;
+				return (*nx >= 0 && *ny < bp->nrows);
+			case 240:
+				if ((x + y) % 2) {  /* right */
+					*nx = x - 1;
+					*ny = y + 2;
+					return (*nx >= 0 && *ny < bp->nrows);
+				} else { /* left */
+					*nx = x;
+					*ny = y + 1;
+					return (*ny < bp->nrows);
+				}
+			case 260:
+			case 270:
+			case 280:
+				*nx = x;
+				*ny = y + 2;
+				return (*ny < bp->nrows);
+			case 300:
+				if ((x + y) % 2) {  /* right */
+					*nx = x;
+					*ny = y + 1;
+					return (*ny < bp->nrows);
+				} else { /* left */
+					*nx = x + 1;
+					*ny = y + 2;
+					return (*nx < bp->ncols && *ny < bp->nrows);
+				}
+			case 320:
+			case 330:
+			case 340:
+				*nx = x + 1;
+				*ny = y + 1;
+				return (*nx < bp->ncols && *ny < bp->nrows);
+			default:
+				(void) fprintf(stderr, "wrong direction %d\n", dir);
+		}
 	}
+	*nx = -1;
+	*ny = -1;
+	return 0;
 }
 
+/* This keeps bugs from walking over each other and escaping off the screen */
 static int
-has_neighbor(bugfarmstruct * bp, int hcol, int hrow)
+has_neighbor(bugfarmstruct * bp, int col, int row)
 {
-	int         colrow = hcol + hrow * bp->nhcols;
+	int         colrow = col + row * bp->ncols;
 
-	if ((hrow > 0) && (bp->arr[colrow - bp->nhcols]))
-		return True;
-	if ((hrow < bp->nhrows - 1) && bp->arr[colrow + bp->nhcols])
-		return True;
-	if (hcol > 0) {
-		if (bp->arr[colrow - 1])
+	if (bp->neighbors == 6) {
+		if ((row > 0) && bp->arr[colrow - bp->ncols])
 			return True;
-		if (hrow & 1) {
-			if ((hrow > 0) && bp->arr[colrow - 1 - bp->nhcols])
+		if ((row < bp->nrows - 1) && bp->arr[colrow + bp->ncols])
+			return True;
+		if (col > 0) {
+			if (bp->arr[colrow - 1])
 				return True;
-			if ((hrow < bp->nhrows - 1) && bp->arr[colrow - 1 + bp->nhcols])
+			if (row & 1) {
+				if ((row > 0) && bp->arr[colrow - 1 - bp->ncols])
+					return True;
+				if ((row < bp->nrows - 1) && bp->arr[colrow - 1 + bp->ncols])
+					return True;
+			}
+		}
+		if (col < bp->ncols - 1) {
+			if (bp->arr[colrow + 1])
+				return True;
+			if (!(row & 1)) {
+				if ((row > 0) && bp->arr[colrow + 1 - bp->ncols])
+					return True;
+				if ((row < bp->nrows - 1) && bp->arr[colrow + 1 + bp->ncols])
+					return True;
+			}
+		}
+	} else if (bp->neighbors == 4 || bp->neighbors == 8) {
+		/* Same for both because the bug square takes up the space regardless */
+		if ((row > 0) && bp->arr[colrow - bp->ncols])
+			return True;
+		if ((row < bp->nrows - 1) && bp->arr[colrow + bp->ncols])
+			return True;
+		if ((col > 0) && bp->arr[colrow - 1])
+			return True;
+		if ((col < bp->ncols - 1) && bp->arr[colrow + 1])
+			return True;
+		if (row > 0 && col > 0 && bp->arr[colrow - bp->ncols - 1])
+			return True;
+		if (row > 0 && col < bp->ncols - 1 && bp->arr[colrow - bp->ncols + 1])
+			return True;
+		if (row < bp->nrows - 1 && col > 0 && bp->arr[colrow + bp->ncols - 1])
+			return True;
+		if (row < bp->nrows - 1 && col < bp->ncols - 1 && bp->arr[colrow + bp->ncols + 1])
+			return True;
+	} else {		/* TRI */
+		/* Same for all three neighbor kinds. Only care about 3
+		   adjacent spots because that is all the squares will
+		   overlap.*/
+		if (((row & 1) && (col & 1)) || ((!(row & 1)) && (!(col & 1)))) {
+			if ((col < bp->ncols - 1) && bp->arr[colrow + 1])
+				return True;
+		} else {
+			if ((col > 0) && bp->arr[colrow - 1])
 				return True;
 		}
-	}
-	if (hcol < bp->nhcols - 1) {
-		if (bp->arr[colrow + 1])
+		if ((row > 0) && bp->arr[colrow - bp->ncols])
 			return True;
-		if (!(hrow & 1)) {
-			if ((hrow > 0) && bp->arr[colrow + 1 - bp->nhcols])
-				return True;
-			if ((hrow < bp->nhrows - 1) && bp->arr[colrow + 1 + bp->nhcols])
-				return True;
-		}
+		if ((row < bp->nrows - 1) && bp->arr[colrow + bp->ncols])
+			return True;
 	}
 	return False;
 }
 
 static void
-drawabacterium(ModeInfo * mi, int hcol, int hrow, unsigned char color)
+drawabacterium(ModeInfo * mi, int col, int row, unsigned char color)
 {
 	bugfarmstruct *bp = &bugfarms[MI_SCREEN(mi)];
 	int         ccol, crow;
@@ -431,21 +603,23 @@ drawabacterium(ModeInfo * mi, int hcol, int hrow, unsigned char color)
 		XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_WHITE_PIXEL(mi));
 	else
 		XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_BLACK_PIXEL(mi));
-	hex2cart(hcol, hrow, &ccol, &crow);
+	grid2screen(bp, col, row, &ccol, &crow);
 	XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
-		       bp->xb + bp->xs * ccol, bp->yb + bp->ys * crow,
-		       bp->xs, bp->ys);
+	       bp->xb + bp->xs * ccol, bp->yb + bp->ys * crow,
+	       bp->xs, bp->ys);
 }
 
 static void
-drawabug(ModeInfo * mi, int hcol, int hrow, unsigned int color)
+drawabug(ModeInfo * mi, int col, int row, unsigned int color, int direction)
 {
 	bugfarmstruct *bp = &bugfarms[MI_SCREEN(mi)];
+	Display *display = MI_DISPLAY(mi);
+	Window window = MI_WINDOW(mi);
 	int         ccol, crow;
 	GC          gc;
 
 	if (MI_NPIXELS(mi) > 3) {
-		XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_PIXEL(mi, color));
+		XSetForeground(display, MI_GC(mi), MI_PIXEL(mi, color));
 		gc = MI_GC(mi);
 	} else {
 		XGCValues   gcv;
@@ -458,24 +632,116 @@ drawabug(ModeInfo * mi, int hcol, int hrow, unsigned int color)
 		gc = bp->stippledGC;
 	}
 
-	hex2cart(hcol, hrow, &ccol, &crow);
-	XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
-		  bp->xb + bp->xs * (ccol - 1), bp->yb + bp->ys * (crow - 1),
-		       3 * bp->xs, 3 * bp->ys);
+	grid2screen(bp, col, row, &ccol, &crow);
+	ccol = bp->xb + bp->xs * (ccol - 1);
+	crow = bp->yb + bp->ys * (crow - 1);
+	XFillRectangle(display, window, gc,
+		ccol, crow, 3 * bp->xs, 3 * bp->ys);
+
+	if (bp->eyes && bp->xs >= 1 && bp->ys >= 1) { /* Draw Eyes */
+		XSetForeground(display, MI_GC(mi), MI_BLACK_PIXEL(mi));
+		switch (direction) {
+			case 0:
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 3 * bp->xs - 2,
+					crow + 3 * bp->ys / 2 - 1);
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 3 * bp->xs - 2,
+					crow + 3 * bp->ys / 2 + 1);
+					break;
+			case 20:
+			case 30:
+			case 40:
+			case 45:
+			case 60:
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 3 * bp->xs - 3,
+					crow + 1);
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 3 * bp->xs - 2,
+					crow + 2);
+				break;
+			case 80:
+			case 90:
+			case 100:
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 3 * bp->xs / 2 - 1,
+					crow + 1);
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 3 * bp->xs / 2 + 1,
+					crow + 1);
+				break;
+			case 120:
+			case 135:
+			case 140:
+			case 150:
+			case 160:
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 2,
+					crow + 1);
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 1,
+						crow + 2);
+				break;
+			case 180:
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 1,
+					crow + 3 * bp->ys / 2 - 1);
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 1,
+					crow + 3 * bp->ys / 2 + 1);
+				break;
+			case 200:
+			case 210:
+			case 220:
+			case 225:
+			case 240:
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 2,
+					crow + 3 * bp->ys - 2);
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 1,
+					crow + 3 * bp->ys - 3);
+				break;
+			case 260:
+			case 270:
+			case 280:
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 3 * bp->xs / 2 - 1,
+					crow + 3 * bp->ys - 2);
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 3 * bp->xs / 2 + 1,
+					crow + 3 * bp->ys - 2);
+				break;
+			case 300:
+			case 315:
+			case 320:
+			case 330:
+			case 340:
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 3 * bp->xs - 3,
+					crow + 3 * bp->ys - 2);
+				XDrawPoint(display, window, MI_GC(mi),
+					ccol + 3 * bp->xs - 2,
+					crow + 3 * bp->ys - 3);
+				break;
+			default:
+				(void) fprintf(stderr, "wrong direction %d\n", direction);
+		}
+	}
 }
 
-
 static void
-eraseabug(ModeInfo * mi, int hcol, int hrow)
+eraseabug(ModeInfo * mi, int col, int row)
 {
 	bugfarmstruct *bp = &bugfarms[MI_SCREEN(mi)];
 	int         ccol, crow;
 
 	XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_BLACK_PIXEL(mi));
-	hex2cart(hcol, hrow, &ccol, &crow);
+	grid2screen(bp, col, row, &ccol, &crow);
 	XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
-		  bp->xb + bp->xs * (ccol - 1), bp->yb + bp->ys * (crow - 1),
-		       3 * bp->xs, 3 * bp->ys);
+		bp->xb + bp->xs * (ccol - 1), bp->yb + bp->ys * (crow - 1),
+		3 * bp->xs, 3 * bp->ys);
 }
 
 static void
@@ -514,7 +780,7 @@ removefrom_buglist(bugfarmstruct * bp, BugList * ptr)
 {
 	ptr->previous->next = ptr->next;
 	ptr->next->previous = ptr->previous;
-	bp->arr[ptr->info.col + ptr->info.row * bp->nhcols] = 0;
+	bp->arr[ptr->info.col + ptr->info.row * bp->ncols] = 0;
 	(void) free((void *) ptr);
 }
 
@@ -568,7 +834,7 @@ flush_buglist(bugfarmstruct * bp)
 		bp->currbug = bp->lastbug->previous;
 		bp->currbug->previous->next = bp->lastbug;
 		bp->lastbug->previous = bp->currbug->previous;
-		/*bp->arr[bp->currbug->info.col + bp->currbug->info.row * bp->nhcols] = 0; */
+		/*bp->arr[bp->currbug->info.col + bp->currbug->info.row * bp->ncols] = 0; */
 		(void) free((void *) bp->currbug);
 	}
 
@@ -576,7 +842,7 @@ flush_buglist(bugfarmstruct * bp)
 		bp->currbug = bp->lasttemp->previous;
 		bp->currbug->previous->next = bp->lasttemp;
 		bp->lasttemp->previous = bp->currbug->previous;
-		/*bp->arr[bp->currbug->info.col + bp->currbug->info.row * bp->nhcols] = 0; */
+		/*bp->arr[bp->currbug->info.col + bp->currbug->info.row * bp->ncols] = 0; */
 		(void) free((void *) bp->currbug);
 	}
 }
@@ -588,10 +854,21 @@ dirbug(bugstruct * info, int local_neighbors)
 	int         i;
 
 	prob = (double) LRAND() / MAXRAND;
-	for (i = 0; i < local_neighbors; i++) {
-		sum += info->gene_prob[i];
-		if (prob < sum)
-			return i;
+#if EXTRA_GENES
+	if ((local_neighbors % 2) && !((info->col + info->row) & 1)) {
+		for (i = 0; i < local_neighbors; i++) {
+			sum += info->lgene_prob[i];
+			if (prob < sum)
+				return i;
+		}
+	} else
+#endif
+	{
+		for (i = 0; i < local_neighbors; i++) {
+			sum += info->gene_prob[i];
+			if (prob < sum)
+				return i;
+		}
 	}
 	return local_neighbors - 1;	/* Could miss due to rounding */
 }
@@ -616,28 +893,51 @@ mutatebug(bugstruct * info, int local_neighbors)
 		sum += genexp[info->gene[gene] + MAXGENE];
 	for (gene = 0; gene < local_neighbors; gene++)
 		info->gene_prob[gene] = genexp[info->gene[gene] + MAXGENE] / sum;
+#if EXTRA_GENES
+	if (local_neighbors % 2) {
+		sum = 0.0;
+		gene = NRAND(local_neighbors);
+		if (LRAND() & 1) {
+			if (info->lgene[gene] == MAXGENE)
+				return;
+			info->lgene[gene]++;
+		} else {
+			if (info->lgene[gene] == MINGENE)
+				return;
+			info->lgene[gene]--;
+		}
+		for (gene = 0; gene < local_neighbors; gene++)
+			sum += genexp[info->lgene[gene] + MAXGENE];
+		for (gene = 0; gene < local_neighbors; gene++)
+			info->lgene_prob[gene] = genexp[info->lgene[gene] + MAXGENE] / sum;
+	}
+#endif
 }
 
 static void
 makebacteria(ModeInfo * mi,
 	     int n, int startx, int starty, int width, int height, Bool draw)
 {
-	int         i = 0, j = 0, hcol, hrow, colrow;
+	int         nbacteria = 0, ntries = 0, col = 0, row, colrow;
 	bugfarmstruct *bp = &bugfarms[MI_SCREEN(mi)];
 
-	/* Make bacteria but if can't, don't loop forever */
-	while (i < n && j < 2 * n) {
-		hrow = NRAND(height) + starty;
-		if (width - (!(hrow & 1)) > 0)
-			hcol = NRAND(width - (!(hrow & 1))) + startx;
-		else
-			hcol = startx;
-		colrow = hcol + hrow * bp->nhcols;
-		j++;
+	/* Make bacteria but if can not, exit */
+	while (nbacteria < n && ntries < 2 * n) {
+		row = NRAND(height) + starty;
+		if (bp->neighbors == 6) {
+			if (width - (!(row & 1)) > 0)
+				col = NRAND(width - (!(row & 1))) + startx;
+			else
+				col = startx;
+		} else { /* RECT or TRI */
+			col = NRAND(width) + startx;
+		}
+		colrow = col + row * bp->ncols;
+		ntries++;
 		if (!bp->arr[colrow] && !bp->bacteria[colrow]) {
-			i++;
+			nbacteria++;
 			bp->bacteria[colrow] = True;
-			drawabacterium(mi, hcol, hrow, draw);
+			drawabacterium(mi, col, row, draw);
 		}
 	}
 }
@@ -645,15 +945,15 @@ makebacteria(ModeInfo * mi,
 static void
 redrawbacteria(ModeInfo * mi, int colrow)
 {
-	int         hcol, hrow;
+	int         col, row;
 	bugfarmstruct *bp = &bugfarms[MI_SCREEN(mi)];
 
 	if (!bp->bacteria[colrow])
 		return;
 
-	hrow = colrow / bp->nhcols;
-	hcol = colrow % bp->nhcols;
-	drawabacterium(mi, hcol, hrow, True);
+	row = colrow / bp->ncols;
+	col = colrow % bp->ncols;
+	drawabacterium(mi, col, row, True);
 }
 
 void
@@ -664,7 +964,7 @@ init_bug(ModeInfo * mi)
 	int         size = MI_SIZE(mi);
 	XGCValues   gcv;
 	bugfarmstruct *bp;
-	int         i = 0, j = 0, hcol, hrow, gene, colrow;
+	int         nbugs = 0, ntries = 0, col = 0, row, gene, colrow, i;
 	int         nccols, ncrows;
 	double      sum;
 	bugstruct   info;
@@ -698,20 +998,16 @@ init_bug(ModeInfo * mi)
 	} else			/* Apocolypse now */
 		flush_buglist(bp);
 
-#ifndef NEIGHBORS
-	bp->neighbors = 6;
-#else
 	for (i = 0; i < NEIGHBORKINDS; i++) {
 		if (neighbors == plots[i]) {
-			dp->neighbors = plots[i];
+			bp->neighbors = plots[i];
 			break;
 		}
 		if (i == NEIGHBORKINDS - 1) {
-			dp->neighbors = plots[NRAND(NEIGHBORKINDS)];
+			bp->neighbors = plots[NRAND(NEIGHBORKINDS)];
 			break;
 		}
 	}
-#endif
 
 	bp->width = MI_WIDTH(mi);
 	bp->height = MI_HEIGHT(mi);
@@ -734,54 +1030,90 @@ init_bug(ModeInfo * mi)
 	bp->xs = bp->ys;
 	nccols = MAX(bp->width / bp->xs - 2, 2);
 	ncrows = MAX(bp->height / bp->ys - 1, 2);
-	bp->nhcols = nccols / 2;
-	bp->nhrows = ncrows / 2;
-	bp->nhrows -= !(bp->nhrows & 1);	/* Must be odd */
+	bp->nrows = ncrows / 2;
+	if ((bp->neighbors % 2) || bp->neighbors == 12) {
+		bp->ncols = nccols / 3;
+		if (bp->ncols & 1)
+			bp->ncols--;	/* Must be odd for no wrap */
+		if (!(bp->nrows & 1))
+			bp->nrows--;	/* Must be even for no wrap */
+	} else
+		bp->ncols = nccols / 2;
+	if (bp->neighbors == 6 && !(bp->nrows & 1))
+		bp->nrows--;	/* Must be odd for no wrap */
 	bp->xb = (bp->width - bp->xs * nccols) / 2;
 	bp->yb = (bp->height - bp->ys * ncrows) / 2;
 	if (bp->arr != NULL)
 		(void) free((void *) bp->arr);
-	bp->arr = (BugList **) calloc(bp->nhcols * bp->nhrows, sizeof (BugList *));
+	bp->arr = (BugList **) calloc(bp->ncols * bp->nrows, sizeof (BugList *));
 	if (bp->bacteria != NULL)
 		(void) free((void *) bp->bacteria);
-	bp->bacteria = (char *) calloc(bp->nhcols * bp->nhrows, sizeof (char));
+	bp->bacteria = (char *) calloc(bp->ncols * bp->nrows, sizeof (char));
 
-	bp->edenwidth = bp->nhcols / 4;
-	bp->edenheight = bp->nhrows / 4;
-	if (bp->edenheight)
-		bp->edenheight -= !(bp->edenheight & 1);	/* Make sure its odd */
+	bp->edenheight = bp->nrows / 4;
+	bp->edenwidth = bp->ncols / 4;
+	if ((bp->neighbors % 2) || bp->neighbors == 12) {
+		if (bp->edenwidth & 1)
+			bp->edenwidth--;
+		if (!(bp->edenheight & 1))
+			bp->edenheight--;
+	} else if (bp->neighbors == 6 && bp->edenheight && !(bp->edenheight & 1))
+		bp->edenheight--;	/* Make sure its odd */
 	bp->eden = (bp->edenwidth > 1 && bp->edenheight > 1);
 	if (bp->eden) {
-		bp->edenstartx = NRAND(bp->nhcols - bp->edenwidth);
-		bp->edenstarty = NRAND(bp->nhrows - bp->edenheight);
-		if (bp->edenstarty & 1)
-			bp->edenstarty++;
+		bp->edenstartx = NRAND(bp->ncols - bp->edenwidth);
+		bp->edenstarty = NRAND(bp->nrows - bp->edenheight);
+		if ((bp->neighbors % 2) || bp->neighbors == 12) {
+			if (bp->edenstartx & 1) {
+				bp->edenstartx--;
+				bp->eden = (bp->edenwidth > 1);
+			}
+			if (bp->edenstarty & 1) {
+				bp->edenstarty--;
+				bp->eden = (bp->edenheight > 1);
+			}
+		} else if (bp->neighbors == 6 && (bp->edenstarty & 1)) {
+			bp->edenstarty--;
+			bp->eden = (bp->edenheight > 1);
+		}
 	}
-	/* Play G-d with these numbers */
-	bp->n = MI_COUNT(mi);
-	if (bp->n < 0)
-		bp->n = NRAND(-bp->n) + 1;
+	/* Play G-d with these numbers... the genes */
+	nbugs = MI_COUNT(mi);
+	if (nbugs < 0)
+		nbugs = NRAND(-nbugs) + 1;
+	bp->nbugs = 0;
 
 	MI_CLEARWINDOW(mi);
 	bp->painted = False;
 
-	/* Make bugs but if can't, don't loop forever */
-	i = 0, j = 0;
-	while (i < bp->n && j < 2 * bp->n) {
-		hrow = NRAND(bp->nhrows);
-		if (bp->nhcols - (!(hrow & 1)) > 0)
-			hcol = NRAND(bp->nhcols - (!(hrow & 1)));
-		else
-			hcol = 0;
-		colrow = hcol + hrow * bp->nhcols;
-		j++;
-		if (!bp->arr[colrow] && !has_neighbor(bp, hcol, hrow)) {
-			i++;
+	if (MI_IS_FULLRANDOM(mi)) {
+		bp->eyes = (Bool) (LRAND() & 1);
+	} else {
+		bp->eyes = eyes;
+	}
+	bp->eyes = (bp->eyes && bp->xs > 1 && bp->ys > 1);
+
+	/* Try to make bugs, but if can not, exit */
+	while (bp->nbugs < nbugs && ntries < 2 * nbugs) {
+		row = NRAND(bp->nrows);
+		if (bp->neighbors == 6) {
+			if (bp->ncols - (!(row & 1)) > 0)
+				col = NRAND(bp->ncols - (!(row & 1)));
+			else
+				col = 0;
+		} else { /* RECT or TRI */
+			col = NRAND(bp->ncols);
+		}
+		colrow = col + row * bp->ncols;
+		ntries++;
+		if (!bp->arr[colrow] && !has_neighbor(bp, col, row)) {
+			bp->nbugs++;
 			info.age = 0;
 			info.energy = INITENERGY;
 			info.direction = NRAND(bp->neighbors);
 			for (gene = 0; gene < bp->neighbors; gene++)
-#if 0				/* Some creationalism, may create gliders or twirlers */
+#if 0
+				/* Some creationalism, may create gliders or twirlers */
 				do {
 					double      temp = (double) LRAND() / MAXRAND;
 
@@ -797,23 +1129,44 @@ init_bug(ModeInfo * mi)
 				sum += genexp[info.gene[gene] + MAXGENE];
 			for (gene = 0; gene < bp->neighbors; gene++)
 				info.gene_prob[gene] = genexp[info.gene[gene] + MAXGENE] / sum;
+#if EXTRA_GENES
+			if (bp->neighbors % 2) {
+				for (gene = 0; gene < bp->neighbors; gene++)
+#if 0
+				/* Some creationalism, may create gliders or twirlers */
+					do {
+						double      temp = (double) LRAND() / MAXRAND;
+
+						info.lgene[gene] = ((int) (1.0 / (1.0 - temp * temp)) - 1) *
+							((LRAND() & 1) ? -1 : 1);
+					} while (info.lgene[gene] > MAXGENE / 2 ||
+						 info.lgene[gene] < MINGENE / 2);
+#else /* Jitterbugs, evolve or die */
+					info.lgene[gene] = 0;
+#endif
+				sum = 0;
+				for (gene = 0; gene < bp->neighbors; gene++)
+					sum += genexp[info.lgene[gene] + MAXGENE];
+				for (gene = 0; gene < bp->neighbors; gene++)
+					info.lgene_prob[gene] = genexp[info.lgene[gene] + MAXGENE] / sum;
+			}
+#endif
 			if (MI_NPIXELS(mi) > 3)
 				info.color = NRAND(MI_NPIXELS(mi));
 			else
 				info.color = NRAND(NUMSTIPPLES - 1);
-			info.col = hcol;
-			info.row = hrow;
+			info.col = col;
+			info.row = row;
 			addto_buglist(bp, info);
 			bp->arr[colrow] = bp->currbug;
-			drawabug(mi, hcol, hrow, bp->currbug->info.color);
+			drawabug(mi, col, row, bp->currbug->info.color, (int) bp->currbug->info.direction * ANGLES / bp->neighbors);
 		}
 	}
-	makebacteria(mi, bp->nhcols * bp->nhrows / 2, 0, 0, bp->nhcols, bp->nhrows,
+	makebacteria(mi, bp->ncols * bp->nrows / 2, 0, 0, bp->ncols, bp->nrows,
 		     False);
 	if (bp->eden)
 		makebacteria(mi, bp->edenwidth * bp->edenheight / 2,
-		bp->edenstartx, bp->edenstarty, bp->edenwidth, bp->edenheight,
-			     False);
+		bp->edenstartx, bp->edenstarty, bp->edenwidth, bp->edenheight, False);
 	bp->redrawing = 1;
 	bp->redrawpos = 0;
 }
@@ -823,16 +1176,17 @@ void
 draw_bug(ModeInfo * mi)
 {
 	bugfarmstruct *bp = &bugfarms[MI_SCREEN(mi)];
-	int         hcol, hrow, nhcol, nhrow, colrow, ncolrow, absdir, tryit;
+	int         col, row, ncol = -1, nrow = -1, colrow, ncolrow;
+	int         absdir = 0, tryit, dir;
 
 	MI_IS_DRAWN(mi) = True;
 
 	bp->painted = True;
 	bp->currbug = bp->firstbug->next;
 	while (bp->currbug != bp->lastbug) {
-		hcol = bp->currbug->info.col;
-		hrow = bp->currbug->info.row;
-		colrow = hcol + hrow * bp->nhcols;
+		col = bp->currbug->info.col;
+		row = bp->currbug->info.row;
+		colrow = col + row * bp->ncols;
 		if (bp->currbug->info.energy-- < 0) {	/* Time to die, Bug */
 #if DEBUG
 			assert(bp->currbug == bp->arr[colrow]);
@@ -844,8 +1198,8 @@ draw_bug(ModeInfo * mi)
 			assert(bp->arr[colrow] == 0);
 #endif
 			bp->arr[colrow] = 0;
-			eraseabug(mi, hcol, hrow);
-			bp->n--;
+			eraseabug(mi, col, row);
+			bp->nbugs--;
 		} else {	/* try to move */
 			bp->arr[colrow] = 0;	/* Don't want neighbor to detect itself */
 			tryit = 0;
@@ -855,21 +1209,28 @@ draw_bug(ModeInfo * mi)
 				}
 				absdir = (bp->currbug->info.direction +
 					  dirbug(&bp->currbug->info, bp->neighbors)) % bp->neighbors;
-			} while (!hexcmove(bp, hcol, hrow, absdir * ANGLES / bp->neighbors,
-			  &nhcol, &nhrow) || has_neighbor(bp, nhcol, nhrow) ||
-			  bp->arr[nhcol + nhrow * bp->nhcols]);
+				dir = absdir * ANGLES / bp->neighbors;
+				if (bp->neighbors % 2) {
+					if ((col + row) & 1)
+						dir = (3 * ANGLES / 2 - dir) % ANGLES;
+					else
+						dir = (ANGLES - dir) % ANGLES;
+				}
+			} while (!dirmove(bp, col, row, dir,
+			  &ncol, &nrow) || has_neighbor(bp, ncol, nrow) ||
+			  bp->arr[ncol + nrow * bp->ncols]);
 			bp->currbug->info.age++;
 			bp->currbug->info.energy--;
 			if (tryit <= ENOUGH) {
-				ncolrow = nhcol + nhrow * bp->nhcols;
+				ncolrow = ncol + nrow * bp->ncols;
 				if (bp->bacteria[ncolrow]) {
 					bp->currbug->info.energy += BACTERIAENERGY;
 					bp->bacteria[ncolrow] = 0;
 					if (bp->currbug->info.energy > MAXENERGY)
 						bp->currbug->info.energy = MAXENERGY;
 				}
-				bp->currbug->info.col = nhcol;
-				bp->currbug->info.row = nhrow;
+				bp->currbug->info.col = ncol;
+				bp->currbug->info.row = nrow;
 				bp->currbug->info.direction = absdir;
 #if DEBUG
 				assert(bp->arr[ncolrow] == 0);
@@ -877,7 +1238,7 @@ draw_bug(ModeInfo * mi)
 				bp->arr[ncolrow] = bp->currbug;
 				if (bp->currbug->info.energy > STRONG &&
 				    bp->currbug->info.age > MATURE) {	/* breed */
-					drawabug(mi, nhcol, nhrow, bp->currbug->info.color);
+					drawabug(mi, ncol, nrow, bp->currbug->info.color, (int) bp->currbug->info.direction * ANGLES / bp->neighbors);
 					cutfrom_buglist(bp);	/* This rotates out who goes first */
 					bp->babybug->info.age = 0;
 					bp->babybug->info.energy = INITENERGY;
@@ -885,12 +1246,12 @@ draw_bug(ModeInfo * mi)
 					mutatebug(&bp->babybug->previous->info, bp->neighbors);
 					mutatebug(&bp->babybug->info, bp->neighbors);
 					bp->arr[colrow] = bp->babybug;
-					bp->babybug->info.col = hcol;
-					bp->babybug->info.row = hrow;
-					bp->n++;
+					bp->babybug->info.col = col;
+					bp->babybug->info.row = row;
+					bp->nbugs++;
 				} else {
-					eraseabug(mi, hcol, hrow);
-					drawabug(mi, nhcol, nhrow, bp->currbug->info.color);
+					eraseabug(mi, col, row);
+					drawabug(mi, ncol, nrow, bp->currbug->info.color, (int) bp->currbug->info.direction * ANGLES / bp->neighbors);
 				}
 			} else
 				bp->arr[colrow] = bp->currbug;
@@ -898,11 +1259,11 @@ draw_bug(ModeInfo * mi)
 		bp->currbug = bp->currbug->next;
 	}
 	reattach_buglist(bp);
-	makebacteria(mi, FOODPERCYCLE, 0, 0, bp->nhcols, bp->nhrows, True);
+	makebacteria(mi, FOODPERCYCLE, 0, 0, bp->ncols, bp->nrows, True);
 	if (bp->eden)
 		makebacteria(mi, FOODPERCYCLE,
 			     bp->edenstartx, bp->edenstarty, bp->edenwidth, bp->edenheight, True);
-	if (!bp->n || bp->generation >= MI_CYCLES(mi))
+	if (!bp->nbugs || bp->generation >= MI_CYCLES(mi))
 		init_bug(mi);
 	bp->generation++;
 	if (bp->redrawing) {
@@ -911,7 +1272,7 @@ draw_bug(ModeInfo * mi)
 		for (i = 0; i < REDRAWSTEP; i++) {
 			if (bp->bacteria[bp->redrawpos])
 				redrawbacteria(mi, bp->redrawpos);
-			if (++(bp->redrawpos) >= bp->nhcols * bp->nhrows) {
+			if (++(bp->redrawpos) >= bp->ncols * bp->nrows) {
 				bp->redrawing = 0;
 				break;
 			}

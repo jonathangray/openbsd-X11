@@ -137,23 +137,32 @@ free_stuff(Display * display, imagestruct * ip)
 		ip->cmap = None;
 	} else
 		ip->backGC = None;
-	destroyImage(&ip->logo, &ip->graphics_format);
 }
 
-void
-refresh_image(ModeInfo * mi)
+static void
+free_image(Display * display, imagestruct * ip)
+{
+	if (ip->icons != NULL) {
+		(void) free((void *) ip->icons);
+		ip->icons = NULL;
+	}
+	free_stuff(display, ip);
+	if (ip->logo) {
+		destroyImage(&ip->logo, &ip->graphics_format);
+		ip->logo = NULL;
+	}
+}
+
+static void
+drawimages(ModeInfo * mi)
 {
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
 	imagestruct *ip = &ims[MI_SCREEN(mi)];
 	int         i;
 
+
 	MI_CLEARWINDOWCOLORMAP(mi, ip->backGC, ip->black);
-#if defined( USE_XPM ) || defined( USE_XPMINC )
-	/* This is needed when another program changes the colormap. */
-	free_stuff(MI_DISPLAY(mi), ip);
-	init_stuff(mi);
-#endif
 	if (MI_NPIXELS(mi) <= 2)
 		XSetForeground(display, ip->backGC, MI_WHITE_PIXEL(mi));
 	for (i = 0; i < ip->iconcount; i++) {
@@ -166,6 +175,22 @@ refresh_image(ModeInfo * mi)
 					 ip->logo->width, ip->logo->height);
 		}
 	}
+}
+
+void
+refresh_image(ModeInfo * mi)
+{
+	imagestruct *ip = &ims[MI_SCREEN(mi)];
+
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+	if (ip->graphics_format >= IS_XPM) {
+		/* This is needed when another program changes the colormap. */
+		free_image(MI_DISPLAY(mi), ip);
+		init_image(mi);
+		return;
+	}
+#endif
+	drawimages(mi);
 }
 
 void
@@ -232,7 +257,7 @@ draw_image(ModeInfo * mi)
 		ip->icons[i].y = NRAND(ip->nrows);
 		ip->icons[i].color = NRAND(MI_NPIXELS(mi));
 	}
-	refresh_image(mi);
+	drawimages(mi);
 }
 
 void
@@ -245,9 +270,7 @@ release_image(ModeInfo * mi)
 			imagestruct *ip = &ims[screen];
 			Display    *display = MI_DISPLAY(mi);
 
-			if (ip->icons != NULL)
-				(void) free((void *) ip->icons);
-			free_stuff(display, ip);
+			free_image(display, ip);
 		}
 		(void) free((void *) ims);
 		ims = NULL;

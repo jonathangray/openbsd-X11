@@ -155,16 +155,24 @@ static void
 free_stuff(Display * display, decaystruct * dp)
 {
 	if (dp->cmap != None) {
+		XFreeColormap(display, dp->cmap);
 		if (dp->backGC != None) {
 			XFreeGC(display, dp->backGC);
 			dp->backGC = None;
 		}
-		XFreeColormap(display, dp->cmap);
 		dp->cmap = None;
-	}
-	dp->backGC = None;
-	if (dp->hide)
+	} else
+		dp->backGC = None;
+}
+
+static void
+free_decay(Display * display, decaystruct * dp)
+{
+	free_stuff(display, dp);
+	if (dp->hide && dp->logo) {
 		destroyImage(&dp->logo, &dp->graphics_format);
+		dp->logo = None;
+	}
 }
 
 void
@@ -173,8 +181,6 @@ init_decay (ModeInfo * mi)
 	Display *display = MI_DISPLAY(mi);
 	Window window = MI_WINDOW(mi);
 	decaystruct *dp;
-	XGCValues gcv;
-	long gcflags;
 
 	char *s = "random";
 	
@@ -198,7 +204,7 @@ init_decay (ModeInfo * mi)
 	else if (s && !strcmp(s, "out")) dp->mode = OUT;
 	else {
 		if (s && *s && !!strcmp(s, "random"))
-			fprintf(stderr, "%s: unknown mode %s\n", ProgramName, s);
+			(void) fprintf(stderr, "%s: unknown mode %s\n", ProgramName, s);
 		dp->mode = LRAND() % (OUT+1);
 	}
 
@@ -323,7 +329,16 @@ draw_decay (ModeInfo * mi)
 void
 refresh_decay(ModeInfo * mi)
 {
-	return;
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+	decaystruct *dp = &decay_info[MI_SCREEN(mi)];
+
+        if (dp->graphics_format >= IS_XPM) {
+                /* This is needed when another program changes the colormap. */
+                free_decay(MI_DISPLAY(mi), dp);
+                init_decay(mi);
+                return;
+        }
+#endif
 }
 
 void
@@ -335,7 +350,7 @@ release_decay(ModeInfo * mi)
 		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
 			decaystruct *dp = &decay_info[screen];
 
-			free_stuff(MI_DISPLAY(mi), dp);
+			free_decay(MI_DISPLAY(mi), dp);
 		}
 		(void) free((void *) decay_info);
 		decay_info = NULL;

@@ -1,4 +1,4 @@
-xlockmore-4.14ALPHA: the maintained version of xlock
+xlockmore-4.15: the maintained version of xlock
 see docs/Revisions for more version stuff
 see docs/TODO for stuff to do :)
 
@@ -294,6 +294,11 @@ XCOMM #define DtSaverLibrary
       system resulting in the CDE lock and exit buttons to fail, 5 to 50%
       of the time.  I am told this will not be fixed by HP, only documented.
       The only supported method of doing this stuff is via dtstyle.
+    configure --without-editres   if configure gets tripped up
+    I found on my system -g -O trips up on life.c and shape.c ... so just
+      have one or the other.  Also had to link with cc not CC or got
+CC: error: could not find _main symbol.  You must use CC to link.
+If your main is not in C++, a call to _main() is required. (740)
 
   IRIX (SGI)
     OpenGL works but may be a little flaky.
@@ -302,6 +307,9 @@ XCOMM #define DtSaverLibrary
     See iconfig.h (xmkmf) or modes/Makefile.in (configure).
     
   Linux (Intel 80386, 80486, & Pentium)
+    Red Hat and PAM ... may not work ... #define BAD_PAM in config.h after
+      you do a configure and before a make.  Then make sure xlock is setuid
+      root.
     If you are using elf _or_ shadow passwords:
       xlock should compile with -DHAVE_SHADOW
       this is already forced if you have elf so do not worry, it should
@@ -323,7 +331,7 @@ XCOMM #define DtSaverLibrary
     So far, Slackware (a major Linux distribution) does NOT come with shadow
       passwords standard.  If you want to install shadow passwords (be
       careful, it can be tricky) it's on sunsite.unc.edu in
-      /pub/Linux/system/Admin .
+
     Also see "XFree86" if applicable.
 
   Linux (Alpha)
@@ -366,6 +374,8 @@ xlock.c:1584: `sigset_t' undeclared (first use this function)
       cc: language F not recognized
     Solaris2.x NIS+ or not using NIS (/etc/passwd):
       If you use netgroup make sure there is a return at the end of file.
+    If your using g++-2.95 or later and have old X11 includes you may have
+      to change "g++" to "g++ -fpermissive" in the Makefiles.
 
   SunOS4.1.x (Sun Sparc & 680x0)
     bubble may crash the xnews server if patch 100444-76 OpenWindows V3.0
@@ -375,6 +385,8 @@ xlock.c:1584: `sigset_t' undeclared (first use this function)
     Put in a link from /usr/include/X11 to your ${OPENWINHOME}/include/X11
       to use the xmkmf or use the configure file provided.
     gcc -Wall gives a lot of silly warnings, its safe to disregard them.
+    If your using g++-2.95 or later and have old X11 includes you may have
+      to change "g++" to "g++ -fpermissive" in the Makefiles.
  
   Ultrix (DEC)
     I heard that the logout button just kills xlock.
@@ -423,6 +435,10 @@ xlock.c:1584: `sigset_t' undeclared (first use this function)
          You need some UNIX utilities installed (XVMSUTILS).  See where to get
          it below.
          Look at the make.com and xvmsutil stuff.
+
+  X11
+    If your using g++-2.95 or later and have old X11 includes you may have
+      to change "g++" to "g++ -fpermissive" in the Makefiles.
 
   XFree86
     Control-Alt-Backspace will defeat locking mechanism and return your
@@ -557,7 +573,9 @@ Lab Environment
   you are root.  Otherwise, it will kill all of root's processes, not
   a good idea.  As long as you do not lock the screen (using -nolock,
   -inwindow, or -inroot) the policy of xlock users does not go into
-  effect.
+  effect.  If configured with --use-button-logout=-1, the user can decide
+  if he/she wants the logout button enabled (not enabled if
+  XLock.buttonLogout=0).
 
 
 xlock still does not work:  :-(

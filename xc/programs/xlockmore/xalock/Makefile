@@ -50,14 +50,14 @@ exec_prefix = ${prefix}
 
 bindir = ${exec_prefix}/bin
 mandir = ${prefix}/man/man1
-xapploaddir = /usr/remote/lib/app-defaults
+xapploaddir = /usr/X11R6/lib/X11/app-defaults
 
 CONFIGDIR = $(srcdir)/config/
 
-INSTALL = .././install-sh -c
+INSTALL = /usr/bin/ginstall -c
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_DATA = ${INSTALL} -m 644
-INSTPGMFLAGS = -s -o root -m 4111
+INSTPGMFLAGS = -s -o root -g bin -m 4111
 
 #CC = cc -g
 #CC = cc -Ac -g
@@ -88,14 +88,14 @@ ECHO = echo
 #ECHO = write sys$output
 
 DEFS = -DHAVE_CONFIG_H $(DEFINES)
-XALOCKINC = -I/usr/openwin/include  -I/usr/include -I/usr/include -I.. -I$(top_srcdir)
+XALOCKINC = -I/usr/X11R6/include  -I/usr/X11R6/include -I/usr/X11R6/include -I.. -I$(top_srcdir)
 # -I$(UTILDIR)
 CFLAGS = -g -O2
 #CFLAGS = -O
 #CFLAGS = -g
-XALOCKLDFLAGS = -R/usr/lib:/usr/openwin/lib:/usr/lib:/usr/lib
-XLIBS = /usr/openwin/lib
-XALOCKLIBS = -L/usr/openwin/lib  -L/usr/lib -L/usr/lib -lXmu -lXaw -lXt  -lX11
+XALOCKLDFLAGS = 
+XLIBS = /usr/X11R6/lib
+XALOCKLIBS = -L/usr/X11R6/lib  -L/usr/X11R6/lib -L/usr/X11R6/lib -lXmu -lXaw -lXt  -lX11
 #If you have purify, and want to use it, uncomment this definition or
 # run the make as `make PURIFY=purify'
 # or run configure with the --with-purify argument.
@@ -148,7 +148,7 @@ html :
 hlp :
 
 clean :
-	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut xalock
+	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut xalock *.patch
 
 distclean : clean
 	$(RM) Makefile

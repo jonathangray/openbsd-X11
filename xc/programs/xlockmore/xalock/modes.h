@@ -68,6 +68,7 @@ static char *LockProcs[] =
 "lyapunov",
 "mandelbrot",
 "marquee",
+"matrix",
 "maze",
 #ifdef USE_GL
 "moebius",
@@ -114,6 +115,7 @@ static char *LockProcs[] =
 "swirl",
 "tetris",
 "thornbird",
+"tik_tak",
 "triangle",
 "tube",
 "turtle",

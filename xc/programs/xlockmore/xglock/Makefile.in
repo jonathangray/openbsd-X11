@@ -141,7 +141,7 @@ html :
 hlp :
 
 clean :
-	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut memdiag* xglock
+	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut *.patch xglock
 
 distclean : clean
 	$(RM) Makefile

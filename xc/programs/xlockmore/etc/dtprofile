@@ -12,7 +12,7 @@
 ###   (c) Copyright 1993, 1994 Novell, Inc.
 ###
 ### 
-###   $Revision: 1.1.1.3 $
+###   $Revision: 1.1.1.4 $
 ###
 #############################################################################
 
@@ -211,6 +211,7 @@ StartDtscreenLoop \
 StartDtscreenLyapunov \
 StartDtscreenMandelbrot \
 StartDtscreenMarquee \
+StartDtscreenMatrix \
 StartDtscreenMaze \
 StartDtscreenMoebius \
 StartDtscreenMorph3d \
@@ -243,6 +244,7 @@ StartDtscreenSwarm \
 StartDtscreenSwirl \
 StartDtscreenTetris \
 StartDtscreenThornbird \
+StartDtscreenTik_Tak \
 StartDtscreenTriangle \
 StartDtscreenTube \
 StartDtscreenTurtle \

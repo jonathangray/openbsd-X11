@@ -39,7 +39,7 @@ static const char sccsid[] = "@(#)demon.c	4.07 97/11/24 xlockmore";
  */
 
 /*-
-  Grid     Number of Neigbors
+  Grid     Number of Neighbors
   ----     ------------------
   Square   4 or 8
   Hexagon  6
@@ -70,10 +70,26 @@ static const char sccsid[] = "@(#)demon.c	4.07 97/11/24 xlockmore";
 /*-
  * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
  */
-extern int  neighbors;
+#define DEF_NEIGHBORS  "0"      /* choose random value */
+
+static int  neighbors;
+
+static XrmOptionDescRec opts[] =
+{
+	{"-neighbors", ".demon.neighbors", XrmoptionSepArg, (caddr_t) NULL}
+};
+
+static argtype vars[] =
+{
+	{(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int}
+};
+static OptionStruct desc[] =
+{
+	{"-neighbors num", "squares 4 or 8, hexagons 6, triangles 3, 9 or 12"}
+};
 
 ModeSpecOpt demon_opts =
-{0, NULL, 0, NULL, NULL};
+{sizeof opts / sizeof opts[0], opts, sizeof vars / sizeof vars[0], vars, desc};
 
 #ifdef USE_MODULES
 ModStruct   demon_description =
@@ -160,8 +176,8 @@ drawcell(ModeInfo * mi, int col, int row, unsigned char state)
 		dp->shape.hexagon[0].x = dp->xb + ccol * dp->xs;
 		dp->shape.hexagon[0].y = dp->yb + crow * dp->ys;
 		if (dp->xs == 1 && dp->ys == 1)
-			XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi),
-				       gc, dp->shape.hexagon[0].x, dp->shape.hexagon[0].y, 1, 1);
+			XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi),
+				       gc, dp->shape.hexagon[0].x, dp->shape.hexagon[0].y);
 		else
 			XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 			    dp->shape.hexagon, 6, Convex, CoordModePrevious);
@@ -175,9 +191,9 @@ drawcell(ModeInfo * mi, int col, int row, unsigned char state)
 		dp->shape.triangle[orient][0].x = dp->xb + col * dp->xs;
 		dp->shape.triangle[orient][0].y = dp->yb + row * dp->ys;
 		if (dp->xs <= 3 || dp->ys <= 3)
-			XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
+			XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 			((orient) ? -1 : 1) + dp->shape.triangle[orient][0].x,
-				       dp->shape.triangle[orient][0].y, 1, 1);
+				       dp->shape.triangle[orient][0].y);
 		else {
 			if (orient)
 				dp->shape.triangle[orient][0].x += (dp->xs / 2 - 1);
@@ -308,8 +324,8 @@ draw_state(ModeInfo * mi, int state)
 			dp->shape.hexagon[0].x = dp->xb + ccol * dp->xs;
 			dp->shape.hexagon[0].y = dp->yb + crow * dp->ys;
 			if (dp->xs == 1 && dp->ys == 1)
-				XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi),
-					       gc, dp->shape.hexagon[0].x, dp->shape.hexagon[0].y, 1, 1);
+				XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi),
+					       gc, dp->shape.hexagon[0].x, dp->shape.hexagon[0].y);
 			else
 				XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 					     dp->shape.hexagon, 6, Convex, CoordModePrevious);
@@ -345,9 +361,9 @@ draw_state(ModeInfo * mi, int state)
 			dp->shape.triangle[orient][0].x = dp->xb + col * dp->xs;
 			dp->shape.triangle[orient][0].y = dp->yb + row * dp->ys;
 			if (dp->xs <= 3 || dp->ys <= 3)
-				XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
+				XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 					       ((orient) ? -1 : 1) + dp->shape.triangle[orient][0].x,
-				      dp->shape.triangle[orient][0].y, 1, 1);
+				      dp->shape.triangle[orient][0].y);
 			else {
 				if (orient)
 					dp->shape.triangle[orient][0].x += (dp->xs / 2 - 1);

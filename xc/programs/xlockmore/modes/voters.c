@@ -51,10 +51,28 @@ static const char sccsid[] = "@(#)voters.c	4.07 97/11/24 xlockmore";
 /*-
  * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
  */
-extern int  neighbors;
+#define DEF_NEIGHBORS  "0"      /* choose random value */
+
+static int  neighbors;
+
+static XrmOptionDescRec opts[] =
+{
+        {"-neighbors", ".voters.neighbors", XrmoptionSepArg, (caddr_t) NULL}
+};
+
+static argtype vars[] =
+{
+        {(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int
+}
+};
+static OptionStruct desc[] =
+{
+        {"-neighbors num", "squares 4 or 8, hexagons 6, triangles 3, 9 or 12"}
+};
 
 ModeSpecOpt voters_opts =
-{0, NULL, 0, NULL, NULL};
+{sizeof opts / sizeof opts[0], opts, sizeof vars / sizeof vars[0], vars, desc};
+
 
 #ifdef USE_MODULES
 ModStruct   voters_description =
@@ -64,8 +82,6 @@ ModStruct   voters_description =
  "Shows Dewdney's Voters", 0, NULL};
 
 #endif
-
-extern int  neighbors;
 
 /*-
  * From far left to right, at least in the currently in the US.  By the way, I
@@ -150,8 +166,8 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 		vp->hexagonList[0].x = vp->xb + ccol * vp->xs;
 		vp->hexagonList[0].y = vp->yb + crow * vp->ys;
 		if (vp->xs == 1 && vp->ys == 1)
-			XFillRectangle(display, window, gc,
-			   vp->hexagonList[0].x, vp->hexagonList[0].y, 1, 1);
+			XDrawPoint(display, window, gc,
+			   vp->hexagonList[0].x, vp->hexagonList[0].y);
 		else if (bitmap == BITMAPS - 1)
 			XFillPolygon(display, window, gc,
 			      vp->hexagonList, 6, Convex, CoordModePrevious);
@@ -203,9 +219,9 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 		vp->triangleList[orient][0].x = vp->xb + col * vp->xs;
 		vp->triangleList[orient][0].y = vp->yb + row * vp->ys;
 		if (vp->xs <= 3 || vp->ys <= 3)
-			XFillRectangle(display, window, gc,
+			XDrawPoint(display, window, gc,
 			 ((orient) ? -1 : 1) + vp->triangleList[orient][0].x,
-				       vp->triangleList[orient][0].y, 1, 1);
+				       vp->triangleList[orient][0].y);
 		else {
 			if (orient)
 				vp->triangleList[orient][0].x += (vp->xs / 2 - 1);

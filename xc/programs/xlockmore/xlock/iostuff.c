@@ -376,7 +376,6 @@ getImage(ModeInfo * mi, XImage ** logo,
 	XpmAttributes attrib;
 
 #endif
-	*ncm = None;
 #if 0
 	/* This probably works best in most cases but for random mode used
 	   with random selection of a file it will fail often. */
@@ -441,8 +440,9 @@ getImage(ModeInfo * mi, XImage ** logo,
 			if (*graphics_format <= 0) {
 				if (*ncm != None)
 					reserveColors(mi, *ncm, black);
-				if (XpmSuccess == XpmReadFileToImage(display, bitmap_local, logo,
-						  (XImage **) NULL, &attrib))
+				if (XpmSuccess == XpmReadFileToImage(display,
+				      bitmap_local, logo,
+				      (XImage **) NULL, &attrib))
 					*graphics_format = IS_XPMFILE;
 			}
 		}
@@ -469,7 +469,8 @@ getImage(ModeInfo * mi, XImage ** logo,
 	}
 #ifndef STANDALONE
 #if defined( USE_XPM ) || defined( USE_XPMINC )
-	if (*graphics_format <= 0 && default_xpm)
+	if (*graphics_format <= 0 &&
+	    ((MI_IS_FULLRANDOM(mi)) ? LRAND() & 1: default_xpm))
 #ifndef USE_MONOXPM
 		if (MI_NPIXELS(mi) > 2)
 #endif

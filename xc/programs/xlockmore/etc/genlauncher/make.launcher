@@ -40,4 +40,6 @@ then
   fi
 else
   echo "xlockgen is not present, please compile it"
+  echo "  using lex: gcc lex.yy.c -o xlockgen -ll"
+  echo "  using flex: gcc lex.yy.c -o xlockgen -lfl"
 fi

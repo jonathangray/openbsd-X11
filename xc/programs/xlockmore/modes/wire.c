@@ -79,10 +79,27 @@ static const char sccsid[] = "@(#)wire.c	4.07 97/11/24 xlockmore";
 /*-
  * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
  */
-extern int  neighbors;
+#define DEF_NEIGHBORS  "0"      /* choose random value */
+
+static int  neighbors;
+
+static XrmOptionDescRec opts[] =
+{
+	{"-neighbors", ".wire.neighbors", XrmoptionSepArg, (caddr_t) NULL}
+};
+
+static argtype vars[] =
+{
+	{(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int
+}
+};
+static OptionStruct desc[] =
+{
+	{"-neighbors num", "squares 4 or 8, hexagons 6, triangles 3, 9 or 12"}
+};
 
 ModeSpecOpt wire_opts =
-{0, NULL, 0, NULL, NULL};
+{sizeof opts / sizeof opts[0], opts, sizeof vars / sizeof vars[0], vars, desc};
 
 #ifdef USE_MODULES
 ModStruct   wire_description =
@@ -348,8 +365,8 @@ fillcell(ModeInfo * mi, GC gc, int col, int row)
 		wp->shape.hexagon[0].x = wp->xb + ccol * wp->xs;
 		wp->shape.hexagon[0].y = wp->yb + crow * wp->ys;
 		if (wp->xs == 1 && wp->ys == 1)
-			XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
-			wp->shape.hexagon[0].x, wp->shape.hexagon[0].y, 1, 1);
+			XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
+			wp->shape.hexagon[0].x, wp->shape.hexagon[0].y);
 		else
 			XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 			    wp->shape.hexagon, 6, Convex, CoordModePrevious);
@@ -363,9 +380,9 @@ fillcell(ModeInfo * mi, GC gc, int col, int row)
 		wp->shape.triangle[orient][0].x = wp->xb + col * wp->xs;
 		wp->shape.triangle[orient][0].y = wp->yb + row * wp->ys;
 		if (wp->xs <= 3 || wp->ys <= 3)
-			XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
+			XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 			((orient) ? -1 : 1) + wp->shape.triangle[orient][0].x,
-				       wp->shape.triangle[orient][0].y, 1, 1);
+				       wp->shape.triangle[orient][0].y);
 		else {
 			if (orient)
 				wp->shape.triangle[orient][0].x += (wp->xs / 2 - 1);
@@ -503,8 +520,8 @@ draw_state(ModeInfo * mi, int state)
 			wp->shape.hexagon[0].x = wp->xb + ccol * wp->xs;
 			wp->shape.hexagon[0].y = wp->yb + crow * wp->ys;
 			if (wp->xs == 1 && wp->ys == 1)
-				XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi),
-					       gc, wp->shape.hexagon[0].x, wp->shape.hexagon[0].y, 1, 1);
+				XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi),
+					       gc, wp->shape.hexagon[0].x, wp->shape.hexagon[0].y);
 			else
 				XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 					     wp->shape.hexagon, 6, Convex, CoordModePrevious);
@@ -542,9 +559,9 @@ draw_state(ModeInfo * mi, int state)
 			wp->shape.triangle[orient][0].x = wp->xb + col * wp->xs;
 			wp->shape.triangle[orient][0].y = wp->yb + row * wp->ys;
 			if (wp->xs <= 3 || wp->ys <= 3)
-				XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
+				XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
 					       ((orient) ? -1 : 1) + wp->shape.triangle[orient][0].x,
-				      wp->shape.triangle[orient][0].y, 1, 1);
+				      wp->shape.triangle[orient][0].y);
 			else {
 				if (orient)
 					wp->shape.triangle[orient][0].x += (wp->xs / 2 - 1);

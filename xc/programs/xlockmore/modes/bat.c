@@ -335,44 +335,47 @@ init_stuff(ModeInfo * mi)
 	if (!bp->cmap && !bp->pixelmode) {
 #if defined( USE_XPM ) || defined( USE_XPMINC )
 		int         total = 0;
-		XpmAttributes attrib;
+
+		if (!MI_IS_FULLRANDOM(mi) || LRAND() & 1) {
+			XpmAttributes attrib;
 
 #ifndef STANDALONE
-		if (!fixedColors(mi)) {
-			bp->cmap = XCreateColormap(display, window, MI_VISUAL(mi), AllocNone);
-			attrib.colormap = bp->cmap;
-			reserveColors(mi, bp->cmap, &bp->black);
-		} else
+			if (!fixedColors(mi)) {
+				bp->cmap = XCreateColormap(display, window, MI_VISUAL(mi), AllocNone);
+				attrib.colormap = bp->cmap;
+				reserveColors(mi, bp->cmap, &bp->black);
+			} else
 #endif /* STANDALONE */
-			attrib.colormap = MI_COLORMAP(mi);
+				attrib.colormap = MI_COLORMAP(mi);
 
-		attrib.visual = MI_VISUAL(mi);
-		attrib.depth = MI_DEPTH(mi);
-		attrib.valuemask = XpmVisual | XpmColormap | XpmDepth;
+			attrib.visual = MI_VISUAL(mi);
+			attrib.depth = MI_DEPTH(mi);
+			attrib.valuemask = XpmVisual | XpmColormap | XpmDepth;
 
-		if (bp->graphics_format == IS_NONE
+			if (bp->graphics_format == IS_NONE
 #ifndef USE_MONOXPM
-		    && MI_NPIXELS(mi) > 2
+			    && MI_NPIXELS(mi) > 2
 #endif
-			) {
-			for (i = 0; i <= ORIENTS / 2; i++)
-				if (XpmSuccess != XpmCreateImageFromData(display, pixs[i],
-				&(bp->images[i]), (XImage **) NULL, &attrib))
-					break;
-			bp->graphics_format = IS_XPM;
-			total = i;
-			if (total <= ORIENTS / 2) {	/* All or nothing */
-				bp->graphics_format = IS_XBM;
-				if (MI_IS_VERBOSE(mi))
-					(void) fprintf(stderr, "Full color images could not be loaded.\n");
-				for (i = 0; i < total; i++) {
-					(void) XDestroyImage(bp->images[i]);
-					bp->images[i] = None;
-				}
-				bp->images[total] = None;
-				if (bp->cmap != None) {
-					XFreeColormap(display, bp->cmap);
-					bp->cmap = None;
+				) {
+				for (i = 0; i <= ORIENTS / 2; i++)
+					if (XpmSuccess != XpmCreateImageFromData(display, pixs[i],
+					&(bp->images[i]), (XImage **) NULL, &attrib))
+						break;
+				bp->graphics_format = IS_XPM;
+				total = i;
+				if (total <= ORIENTS / 2) {	/* All or nothing */
+					bp->graphics_format = IS_XBM;
+					if (MI_IS_VERBOSE(mi))
+						(void) fprintf(stderr, "Full color images could not be loaded.\n");
+					for (i = 0; i < total; i++) {
+						(void) XDestroyImage(bp->images[i]);
+						bp->images[i] = None;
+					}
+					bp->images[total] = None;
+					if (bp->cmap != None) {
+						XFreeColormap(display, bp->cmap);
+						bp->cmap = None;
+					}
 				}
 			}
 		}

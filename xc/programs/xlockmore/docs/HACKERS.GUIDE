@@ -560,9 +560,9 @@ modes/Makefile.in make.com modes/Imakefile  Makefiles
 modes/glx/Imakefile                         If it is a gl mode
 xlock/XLock.ad                              Resource file
 xlock/xlock.man                             The manual
-xmlock/modes.h                              Motif launcher file (description)
-xalock/modes.h                              Athena launcher file
-etc/xlock.tcl                               TCL lanuncher file
+xmlock/modes.h                              Motif launcher file (generated)
+xalock/modes.h                              Athena launcher file (generated)
+etc/xlock.tcl                               TCL lanuncher file (generated)
 etc/xlockFrame.java                         Java lanuncher file
 etc/system.fvwm2rc.xlock                    fvwm2 menu
 etc/system.fvwmrc.xlock                     fvwm menu

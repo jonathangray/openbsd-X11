@@ -61,7 +61,7 @@ sub search {
     }
     $col = $X - $firstcol + 1;
     $row = $Y;
-    print "    {\n        ";
+    print "	{\n		";
     for ($j = 0; $j <= $Y; $j++) {
         $found = 0;
         for ($i = 0; $i <= $X; $i++) {
@@ -73,9 +73,9 @@ sub search {
             }
         }
         if ($found) {
-            print "\n        ";
+            print "\n		";
         }
   }
-  print "127\n    },\n";
+  print "127\n	},\n";
   $X = $col;
 }

@@ -121,7 +121,6 @@ static int  maxsum_size;
 
 #define MINGRIDSIZE 10
 #define MINSIZE 2		/* 3 may be better here */
-#define REPEAT 24
 #define MAXSTATES 5
 
 typedef struct {
@@ -585,7 +584,43 @@ free_stuff(Display * display, life1dstruct * lp)
 		lp->cmap = None;
 	} else
 		lp->backGC = None;
-	destroyImage(&lp->logo, &lp->graphics_format);
+}
+
+static void
+free_life1d(Display * display, life1dstruct * lp)
+{
+	int         shade;
+
+	if (lp->stippledGC != NULL) {
+		XFreeGC(display, lp->stippledGC);
+		lp->stippledGC = NULL;
+	}
+	if (lp->init_bits != 0) {
+		for (shade = 0; shade < MAXSTATES; shade++)
+			XFreePixmap(display, lp->pixmaps[shade]);
+		lp->init_bits = 0;
+	}
+	if (lp->newcells != NULL) {
+		(void) free((void *) lp->newcells);
+		lp->newcells = NULL;
+	}
+	if (lp->oldcells != NULL) {
+		(void) free((void *) lp->oldcells);
+		lp->oldcells = NULL;
+	}
+	if (lp->buffer != NULL) {
+		(void) free((void *) lp->buffer);
+		lp->buffer = NULL;
+	}
+	if (lp->nextstate != NULL) {
+		(void) free((void *) lp->nextstate);
+		lp->nextstate = NULL;
+	}
+	free_stuff(display, lp);
+	if (lp->logo) {
+		destroyImage(&lp->logo, &lp->graphics_format);
+		lp->logo = NULL;
+	}
 }
 
 void
@@ -770,7 +805,7 @@ draw_life1d(ModeInfo * mi)
 			else
 				lp->repeating = 0;
 		}
-		lp->repeating += (lp->row == lp->nrows - 1) ? REPEAT * compare(mi) : 0;
+		lp->repeating += (lp->row == lp->nrows - 1) ? (lp->nrows - 1) * compare(mi) : 0;
 	}
 	if (lp->repeating >= 1) {
 		XGCValues   gcv;
@@ -785,7 +820,7 @@ draw_life1d(ModeInfo * mi)
 			       lp->width, lp->ys);
 	}
 	lp->row++;
-	if (lp->repeating >= REPEAT) {
+	if (lp->repeating >= lp->nrows - 1) {
 		if (lp->row < lp->nrows) {
 			XSetForeground(display, lp->backGC, lp->black);
 			XFillRectangle(display, MI_WINDOW(mi), lp->backGC,
@@ -810,24 +845,8 @@ release_life1d(ModeInfo * mi)
 
 		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
 			life1dstruct *lp = &life1ds[screen];
-			int         shade;
 
-			if (lp->stippledGC != NULL) {
-				XFreeGC(MI_DISPLAY(mi), lp->stippledGC);
-			}
-			if (lp->init_bits != 0) {
-				for (shade = 0; shade < MAXSTATES; shade++)
-					XFreePixmap(MI_DISPLAY(mi), lp->pixmaps[shade]);
-			}
-			if (lp->newcells != NULL)
-				(void) free((void *) lp->newcells);
-			if (lp->oldcells != NULL)
-				(void) free((void *) lp->oldcells);
-			if (lp->buffer != NULL)
-				(void) free((void *) lp->buffer);
-			if (lp->nextstate != NULL)
-				(void) free((void *) lp->nextstate);
-			free_stuff(MI_DISPLAY(mi), lp);
+			free_life1d(MI_DISPLAY(mi), lp);
 		}
 		(void) free((void *) life1ds);
 		life1ds = NULL;
@@ -841,9 +860,12 @@ refresh_life1d(ModeInfo * mi)
 	int         row, col, nrow;
 
 #if defined( USE_XPM ) || defined( USE_XPMINC )
-	/* This is needed when another program changes the colormap. */
-	free_stuff(MI_DISPLAY(mi), lp);
-	init_stuff(mi);
+        if (lp->graphics_format >= IS_XPM) {
+		/* This is needed when another program changes the colormap. */
+		free_life1d(MI_DISPLAY(mi), lp);
+		init_life1d(mi);
+		return;
+	}
 #endif
 
 	for (row = 0; row < lp->nrows; row++) {

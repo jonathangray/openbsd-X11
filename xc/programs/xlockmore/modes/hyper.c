@@ -796,10 +796,10 @@ move_number(ModeInfo * mi, int axis, char *string, int set, long color)
 	if (hp->normxor) {
 		XSetForeground(display, gc, color);
 		if (!hp->redrawing)
-			XDrawString(display, window, gc,
+			(void) XDrawString(display, window, gc,
 			hp->xpoints[!set][axis].x, hp->xpoints[!set][axis].y,
 				    string, strlen(string));
-		XDrawString(display, window, gc,
+		(void) XDrawString(display, window, gc,
 			  hp->xpoints[set][axis].x, hp->xpoints[set][axis].y,
 			    string, strlen(string));
 	} else {
@@ -808,11 +808,11 @@ move_number(ModeInfo * mi, int axis, char *string, int set, long color)
 				XSetForeground(display, gc, MI_NONE_COLOR(mi));
 			else
 				XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
-			XDrawString(display, window, gc,
+			(void) XDrawString(display, window, gc,
 			  hp->xpoints[set][axis].x, hp->xpoints[set][axis].y,
 				    string, strlen(string));
 			if (MI_IS_USE3D(mi))
-				XDrawString(display, window, gc,
+				(void) XDrawString(display, window, gc,
 					    hp->xpointsleft[set][axis].x, hp->xpointsleft[set][axis].y,
 					    string, strlen(string));
 		}
@@ -825,12 +825,12 @@ move_number(ModeInfo * mi, int axis, char *string, int set, long color)
 			XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
 		else
 			XSetForeground(display, gc, color);
-		XDrawString(display, window, gc,
+		(void) XDrawString(display, window, gc,
 			hp->xpoints[!set][axis].x, hp->xpoints[!set][axis].y,
 			    string, strlen(string));
 		if (MI_IS_USE3D(mi)) {
 			XSetForeground(display, gc, MI_RIGHT_COLOR(mi));
-			XDrawString(display, window, gc,
+			(void) XDrawString(display, window, gc,
 				    hp->xpointsleft[!set][axis].x, hp->xpointsleft[!set][axis].y,
 				    string, strlen(string));
 			if (MI_IS_INSTALL(mi)) {

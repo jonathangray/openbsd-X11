@@ -287,7 +287,7 @@ Select(
 		{
 		/* select a precision - be careful with this */
 		precision = pow(2.0,FLOATRAND(-9.0,-18.0));
-		/* printf("precision is %f\n",precision); */
+		/* (void) printf("precision is %f\n",precision); */
 		for (tries=0;tries<10000&&!found;tries++)
 			{
 			/* it eventually turned out that this inner loop doesn't always
@@ -343,12 +343,10 @@ Select(
 				/* this one looks interesting */
 				found = 1;
 				}
-			else
-				{
-				/* this doesn't look like a real good combination, so back up
-				** to the top of the loop to try another possibility
-				*/
-				}
+			/* else
+			*** this does not look like a real good combination, so back
+			*** up to the top of the loop to try another possibility
+			 */
 			}
 		}
 	}
@@ -455,7 +453,7 @@ pick_rgb(unsigned short bottom,unsigned short top,
 		/* going down */
 		por = ((float)(color_ind-ncolors/2)*2) / ncolors;
 	}
-	return bottom + (top - bottom)*por;
+	return ((unsigned short) (bottom + (top - bottom)*por));
 }
 #endif
 

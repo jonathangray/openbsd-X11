@@ -37,8 +37,8 @@
 		"Forest"		exec xlock -mode forest
 		"Hop"			exec xlock -mode hop -fullrandom
 		"IFS"			exec xlock -mode ifs
-		"Julia"			exec xlock -mode julia +mouse
-		"Juliaptr"		exec xlock -mode julia -mouse
+		"Julia"			exec xlock -mode julia +trackmouse
+		"Juliaptr"		exec xlock -mode julia -trackmouse
 		"Kumppa"		exec xlock -mode kumppa
 		"Lightning"		exec xlock -mode lightning
 		"Lyapunov"		exec xlock -mode lyaponov -install
@@ -72,6 +72,7 @@
 		"Sphere"		exec xlock -mode sphere
 		"Spiral"		exec xlock -mode spiral
 		"Spline"		exec xlock -mode spline
+		"Tik_Tak"		exec xlock -mode tik_tak
 		"Random Geometry"	DEFAULT exec xlock -mode random -modelist allgeometry -fullrandom
 	"Geometry" END
 	"Space" MENU
@@ -101,10 +102,11 @@
 		"Dclock"		exec xlock -mode dclock
 		"Decay"			exec xlock -mode decay
 		"Deco"			exec xlock -mode deco
-		"Eyes"			exec xlock -mode eyes +mouse
-		"Eyesptr"		exec xlock -mode eyes -mouse
+		"Eyes"			exec xlock -mode eyes +trackmouse
+		"Eyesptr"		exec xlock -mode eyes -trackmouse
 		"Goop"			exec xlock -mode goop
 		"Marquee"		exec xlock -mode marquee
+		"Matrix"		exec xlock -mode matrix
 		"Munch"			exec xlock -mode munch
 		"Nose"			exec xlock -mode nose
 		"Pacman"		exec xlock -mode pacman
@@ -114,8 +116,8 @@
 		"Rotor"			exec xlock -mode rotor
 		"Slip"			exec xlock -mode slip
 		"Starfish"		exec xlock -mode starfish -install
-		"Swarm"			exec xlock -mode swarm +mouse
-		"Swarmptr"		exec xlock -mode swarm -mouse
+		"Swarm"			exec xlock -mode swarm +trackmouse
+		"Swarmptr"		exec xlock -mode swarm -trackmouse
 		"Swirl"			exec xlock -mode swirl -install
 		"Tetris"		exec xlock -mode tetris
 		"Tube"			exec xlock -mode tube -install
@@ -176,7 +178,7 @@
 		"Random standard"	exec xlock -mode random -modelist all-allgl -fullrandom -neighbors 0
 		"Random all"	DEFAULT exec xlock -mode random -modelist all -fullrandom -neighbors 0
 		"Random 3d"		exec xlock -modelist all3d -use3d -fullrandom
-		"Random ptr"		exec xlock -modelist allmouse -mouse -fullrandom
+		"Random ptr"		exec xlock -modelist allmouse -trackmouse -fullrandom
 		"Random write"		exec xlock -modelist allwrite -fullrandom
 	"Special" END
 "Screenlock" END
@@ -211,8 +213,8 @@
 		"Forest"		exec xlock -nolock -mode forest
 		"Hop"			exec xlock -nolock -mode hop -fullrandom
 		"IFS"			exec xlock -nolock -mode ifs
-		"Julia"			exec xlock -nolock -mode julia +mouse
-		"Juliaptr"		exec xlock -nolock -mode julia -mouse
+		"Julia"			exec xlock -nolock -mode julia +trackmouse
+		"Juliaptr"		exec xlock -nolock -mode julia -trackmouse
 		"Kumppa"		exec xlock -nolock -mode kumppa
 		"Lightning"		exec xlock -nolock -mode lightning
 		"Lyapunov"		exec xlock -nolock -mode lyapunov -install
@@ -246,6 +248,7 @@
 		"Sphere"		exec xlock -nolock -mode sphere
 		"Spiral"		exec xlock -nolock -mode spiral
 		"Spline"		exec xlock -nolock -mode spline
+		"Tik_Tak"		exec xlock -nolock -mode tik_tak
 		"Random Geometry"	DEFAULT exec xlock -nolock -mode random -modelist allgeometry -fullrandom
 	"Geometry" END
 	"Space" MENU
@@ -275,10 +278,11 @@
 		"Dclock"		exec xlock -nolock -mode dclock
 		"Decay"			exec xlock -nolock -mode decay
 		"Deco"			exec xlock -nolock -mode deco
-		"Eyes"			exec xlock -nolock -mode eyes +mouse
-		"Eyesptr"		exec xlock -nolock -mode eyes -mouse
+		"Eyes"			exec xlock -nolock -mode eyes +trackmouse
+		"Eyesptr"		exec xlock -nolock -mode eyes -trackmouse
 		"Goop"			exec xlock -nolock -mode goop
 		"Marquee"		exec xlock -nolock -mode marquee
+		"Matrix"		exec xlock -nolock -mode matrix
 		"Munch"			exec xlock -nolock -mode munch
 		"Nose"			exec xlock -nolock -mode nose
 		"Pacman"		exec xlock -nolock -mode pacman
@@ -288,8 +292,8 @@
 		"Rotor"			exec xlock -nolock -mode rotor
 		"Slip"			exec xlock -nolock -mode slip
 		"Starfish"	exec xlock -nolock -mode starfish -install
-		"Swarm"			exec xlock -nolock -mode swarm +mouse
-		"Swarmptr"	exec xlock -nolock -mode swarm -mouse
+		"Swarm"			exec xlock -nolock -mode swarm +trackmouse
+		"Swarmptr"	exec xlock -nolock -mode swarm -trackmouse
 		"Swirl"			exec xlock -nolock -mode swirl -install
 		"Tetris"		exec xlock -nolock -mode tetris
 		"Tube"			exec xlock -nolock -mode tube -install
@@ -349,7 +353,7 @@
 		"Random standard"	exec xlock -nolock -mode random -modelist all-allgl -fullrandom -neighbors 0
 		"Random all"	DEFAULT exec xlock -nolock -mode random -modelist all -fullrandom -neighbors 0
 		"Random 3d"		exec xlock -nolock -modelist all3d -use3d -fullrandom
-		"Random ptr"		exec xlock -nolock -modelist allmouse -mouse -fullrandom
+		"Random ptr"		exec xlock -nolock -modelist allmouse -trackmouse -fullrandom
 		"Random write"		exec xlock -nolock -modelist allwrite -fullrandom
 	"Special" END
 "Screensaver" END

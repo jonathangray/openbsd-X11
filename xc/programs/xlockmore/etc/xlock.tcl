@@ -234,7 +234,10 @@ or are too small (size  must  be  greater than  0x0).   The  greatest  size  is
                 {inroot {turn on/off making xlock run in the root window}}\
                 {timeelapsed {turn on/off clock}}\
                 {install {whether to use private colormap if needed (yes/no)}}\
-                {sound {whether to use sound if configured for it (yes/no}}
+                {sound {whether to use sound if configured for it (yes/no}}\
+                {timeelapsed {turn on/off clock}}\
+                {usefirst {text string to use for Name prompt}}\
+                {trackmouse {turn on/off the mouse interaction}}
         button .help.ok -text OK -command "destroy .help"
   pack  .help.ok
 }
@@ -440,6 +443,11 @@ proc Affopts { device } {
   global usefirst
   global install
   global sound
+  global timeelapsed
+  global usefirst
+  global wireframe
+  global use3d
+  global trackmouse
 
   global fgcolor
   global bgcolor
@@ -479,8 +487,13 @@ proc Affopts { device } {
   if {$XLock_info!=""} {append linecommand "-info $XLock_info "}
 #check actions
   if { $XLock_mono == 1 } {append linecommand "-mono "}
-  if { $install == 1 } {append linecommand "+install "}
-  if { $sound == 1 } {append linecommand "+sound "}
+  if { $install == 1 } {append linecommand "-install "}
+  if { $sound == 1 } {append linecommand "-sound "}
+  if { $timeelapsed == 1 } {append linecommand "-timeelapsed "}
+  if { $usefirst == 1 } {append linecommand "-usefirst "}
+  if { $wireframe == 1 } {append linecommand "-wireframe "}
+  if { $use3d == 1 } {append linecommand "-use3d "}
+  if { $trackmouse == 1 } {append linecommand "-trackmouse "}
   if { $nolock == 1 } {append linecommand "-nolock "}
   if { $remote == 1 } {append linecommand "-remote "}
   if { $allowroot == 1 } {append linecommand "-allowroot "}
@@ -546,7 +559,7 @@ global remote
 global allowroot
 global enablesaver
 global allowaccess
-global grabmouses
+global grabmouse
 global echokeys
 global usefirst
 
@@ -582,6 +595,11 @@ $CHECK add check -label "echokeys" -variable echokeys
 $CHECK add check -label "usefirst" -variable usefirst
 $CHECK add check -label "install" -variable install
 $CHECK add check -label "sound" -variable sound
+$CHECK add check -label "timeelapsed" -variable timeelapsed
+$CHECK add check -label "usefirst" -variable usefirst
+$CHECK add check -label "wireframe" -variable wireframe
+$CHECK add check -label "use3d" -variable use3d
+$CHECK add check -label "trackmouse" -variable trackmouse
 
 menubutton .menu.button2 -text "options" -menu .menu.button2.options
 menu .menu.button2.options
@@ -685,6 +703,7 @@ loop\
 lyapunov\
 mandelbrot\
 marquee\
+matrix\
 maze\
 moebius\
 morph3d\
@@ -717,6 +736,7 @@ swarm\
 swirl\
 tetris\
 thornbird\
+tik_tak\
 triangle\
 tube\
 turtle\
@@ -743,4 +763,3 @@ button $BUTTON.quit -text Quit -command "exit"
 pack  $BUTTON.launch $BUTTON.launchinW $BUTTON.launchinR -side left
 pack $BUTTON.quit -side right
 pack $BUTTON -fill x -side bottom
-

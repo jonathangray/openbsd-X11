@@ -63,30 +63,31 @@ static const char sccsid[] = "@(#)life3d.c	4.07 98/01/18 xlockmore";
 #ifdef MODE_life3d
 
 #if 1
-#define DEF_RULE3D  "G"		/* All rules with gliders */
+#define DEF_RULE  "G"		/* All rules with gliders */
 #else
-#define DEF_RULE3D  "P"		/* All rules with known patterns */
-#define DEF_RULE3D  "S45/B5"	/* "B5/S45" */
-#define DEF_RULE3D  "S567/B6"	/* "B6/S567" */
+#define DEF_RULE  "P"		/* All rules with known patterns */
+#define DEF_RULE  "S45/B5"	/* "B5/S45" */
+#define DEF_RULE  "S567/B6"	/* "B6/S567" */
+/* There are no known gliders for S56/B5 or S67/B67 */
 #endif
 
-static char *rule3d;
-static char *life3dfile;
+static char *rule;
+static char *lifefile;
 
 static XrmOptionDescRec opts[] =
 {
-	{"-rule3d", ".life3d.rule3d", XrmoptionSepArg, (caddr_t) NULL},
-	{"-life3dfile", ".life3d.life3dfile", XrmoptionSepArg, (caddr_t) NULL}
+	{"-rule", ".life3d.rule", XrmoptionSepArg, (caddr_t) NULL},
+	{"-lifefile", ".life3d.lifefile", XrmoptionSepArg, (caddr_t) NULL}
 };
 static argtype vars[] =
 {
-	{(caddr_t *) & rule3d, "rule3d", "Rule3D", DEF_RULE3D, t_String},
-	{(caddr_t *) & life3dfile, "life3dfile", "Life3DFile", "", t_String}
+	{(caddr_t *) & rule, "rule", "Rule", DEF_RULE, t_String},
+	{(caddr_t *) & lifefile, "lifefile", "LifeFile", "", t_String}
 };
 static OptionStruct desc[] =
 {
-	{"-rule3d string", "S<survial_neighborhood>/B<birth_neighborhood> parameters"},
-	{"-life3dfile file", "life file"},
+	{"-rule string", "S<survial_neighborhood>/B<birth_neighborhood> parameters"},
+	{"-lifefile file", "life file"},
 };
 
 ModeSpecOpt life3d_opts =
@@ -1233,7 +1234,7 @@ printRule(paramstruct param)
 {
 	int         l;
 
-	(void) fprintf(stdout, "rule3d (Survival/Birth neighborhood): S");
+	(void) fprintf(stdout, "rule (Survival/Birth neighborhood): S");
 	for (l = 0; l <= MAXNEIGHBORS; l++) {
 		if (param.survival & (1 << l))
 			(void) fprintf(stdout, "%d", l);
@@ -1243,7 +1244,7 @@ printRule(paramstruct param)
 		if (param.birth & (1 << l))
 			(void) fprintf(stdout, "%d", l);
 	}
-	(void) fprintf(stdout, "\nbinary rule3d: Survival 0x%X, Birth 0x%X\n",
+	(void) fprintf(stdout, "\nbinary rule: Survival 0x%X, Birth 0x%X\n",
 		       param.survival, param.birth);
 }
 
@@ -1262,27 +1263,27 @@ parseRule(ModeInfo * mi)
 		return;
 
 	input_param.survival = input_param.birth = 0;
-	if (rule3d) {
+	if (rule) {
 		n = 0;
-		while (rule3d[n]) {
-			if (rule3d[n] == 'P') {
+		while (rule[n]) {
+			if (rule[n] == 'P') {
 				allPatterns = True;
 				found = True;
 				if (MI_IS_VERBOSE(mi))
-					(void) fprintf(stdout, "rule3d: All rules with known patterns\n");
+					(void) fprintf(stdout, "rule: All rules with known patterns\n");
 				return;
-			} else if (rule3d[n] == 'G') {
+			} else if (rule[n] == 'G') {
 				allGliders = True;
 				found = True;
 				if (MI_IS_VERBOSE(mi))
-					(void) fprintf(stdout, "rule3d: All rules with known gliders\n");
+					(void) fprintf(stdout, "rule: All rules with known gliders\n");
 				return;
-			} else if (rule3d[n] == 'S' || rule3d[n] == 'E' || rule3d[n] == 'L') {
+			} else if (rule[n] == 'S' || rule[n] == 'E' || rule[n] == 'L') {
 				serving = 'S';
-			} else if (rule3d[n] == 'B') {
+			} else if (rule[n] == 'B') {
 				serving = 'B';
 			} else {
-				l = rule3d[n] - '0';
+				l = rule[n] - '0';
 				if (l >= 0 && l <= 9 /*&& l <= MAXNEIGHBORS */ ) {	/* no 10..27 */
 					if (serving == 'S') {
 						found = True;
@@ -1301,7 +1302,7 @@ parseRule(ModeInfo * mi)
 		found = True;
 		if (MI_IS_VERBOSE(mi))
 			(void) fprintf(stdout,
-				       "rule3d: Defaulting to all rules with known gliders\n");
+				       "rule: Defaulting to all rules with known gliders\n");
 		return;
 	}
 	if (MI_IS_VERBOSE(mi))
@@ -1320,15 +1321,15 @@ parseFile(void)
 	if (done)
 		return;
 	done = True;
-	if (!life3dfile || !*life3dfile ||
-	    ((file = my_fopen(life3dfile, "r")) == NULL)) {
-		/*(void) fprintf(stderr, "could not read file \"%s\"\n", life3dfile); */
+	if (!lifefile || !*lifefile ||
+	    ((file = my_fopen(lifefile, "r")) == NULL)) {
+		/*(void) fprintf(stderr, "could not read file \"%s\"\n", lifefile); */
 		return;
 	}
 	for (;;) {
 		if (!fgets(line, 256, file)) {
 			(void) fprintf(stderr, "could not read header of file \"%s\"\n",
-				       life3dfile);
+				       lifefile);
 			(void) fclose(file);
 			return;
 		}
@@ -1343,7 +1344,7 @@ parseFile(void)
 	if (c == EOF || x <= -127 || y <= -127 || z <= -127 ||
 	    x >= 127 || y >= 127 || z >= 127) {
 		(void) fprintf(stderr, "corrupt file \"%s\" or file to large\n",
-			       life3dfile);
+			       lifefile);
 		(void) fclose(file);
 		return;
 	}

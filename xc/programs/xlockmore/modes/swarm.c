@@ -33,7 +33,7 @@ static const char sccsid[] = "@(#)swarm.c	4.07 97/11/24 xlockmore";
 #define swarm_opts xlockmore_opts
 #define DEFAULTS "*delay: 15000 \n" \
  "*count: 100 \n" \
- "*mouse: False \n"
+ "*trackmouse: False \n"
 #define BRIGHT_COLORS
 #define SMOOTH_COLORS
 #include "xlockmore.h"		/* from the xscreensaver distribution */
@@ -44,8 +44,29 @@ static const char sccsid[] = "@(#)swarm.c	4.07 97/11/24 xlockmore";
 
 #ifdef MODE_swarm
 
+#define DEF_TRACKMOUSE  "False"
+
+static Bool trackmouse;
+
+static XrmOptionDescRec opts[] =
+{
+        {"-trackmouse", ".swarm.trackmouse", XrmoptionNoArg, (caddr_t) "on"},
+        {"+trackmouse", ".swarm.trackmouse", XrmoptionNoArg, (caddr_t) "off"}
+};
+
+static argtype vars[] =
+{
+        {(caddr_t *) & trackmouse, "trackmouse", "TrackMouse", DEF_TRACKMOUSE, t_Bool}
+};
+
+static OptionStruct desc[] =
+{
+        {"-/+trackmouse", "turn on/off the tracking of the mouse"}
+};
+
 ModeSpecOpt swarm_opts =
-{0, NULL, 0, NULL, NULL};
+{sizeof opts / sizeof opts[0], opts, sizeof vars / sizeof vars[0], vars, desc};
+
 
 #ifdef USE_MODULES
 ModStruct   swarm_description =
@@ -136,7 +157,7 @@ init_swarm(ModeInfo * mi)
 	sp->height = MI_HEIGHT(mi);
 	sp->border = (sp->width + sp->height) / 50;
 
-	if (MI_IS_MOUSE(mi) && !sp->cursor) {	/* Create an invisible cursor */
+	if (trackmouse && !sp->cursor) {	/* Create an invisible cursor */
 		Pixmap      bit;
 		XColor      black;
 
@@ -196,7 +217,7 @@ draw_swarm(ModeInfo * mi)
 	GC          gc = MI_GC(mi);
 	swarmstruct *sp = &swarms[MI_SCREEN(mi)];
 	int         b;
-	Bool        track_p = MI_IS_MOUSE(mi);
+	Bool        track_p = trackmouse;
 	int         cx, cy;
 
 	MI_IS_DRAWN(mi) = True;

@@ -1,6 +1,9 @@
+#if !defined( lint ) && !defined( SABER )
+/* #ident        "@(#)ras.h      4.14 99/06/17 xlockmore" */
+ 
+#endif
+
 /*-
- * @(#)ras.h	3.9 96/05/25 xlockmore
- *
  * Utilities for Sun rasterfile processing
  *
  * Copyright (c) 1995 by Tobias Gloth

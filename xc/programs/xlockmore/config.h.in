@@ -14,10 +14,14 @@
  */
 
 /* Define to empty if the keyword does not work.  */
+#if !defined(_HPUX_SOURCE)
 #undef const
+#endif
 
 /* Define to empty if the keyword does not work.  */
+#if !defined(__cplusplus) && !defined(c_plusplus)
 #undef inline
+#endif
 
 /* Define to the type of elements in the array set by `getgroups'. Usually
    this is either `int' or `gid_t'.  */
@@ -52,6 +56,12 @@
 
 /* Define if gettimeofday requires two arguments.  */
 #undef GETTIMEOFDAY_TWO_ARGS
+
+/* Define if you have the tzset function.  */
+#undef HAVE_TZSET
+
+/* Define if you have the timelocal function.  */
+#undef HAVE_TIMELOCAL
 
 /* Define to `int' if <sys/types.h> doesn't define.  */
 #undef uid_t
@@ -112,6 +122,9 @@
 
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
+
+/* Define if you have the <sys/param.h> header file.  */
+#undef HAVE_SYS_PARAM_H
 
 /* Define if you have the shadow passwords (or elf).  */
 #undef HAVE_SHADOW
@@ -303,8 +316,5 @@
  */
 /* #define COMPLIANT_COLORMAP */
 
-/* Gtk Fontsel Widget */
-#undef HAVE_GTK_FONTSEL_WIDGET
-
-/* Gtk Fontsel Widget */
-#undef HAVE_GTK_FONTSEL_WIDGET
+/* Bad version of PAM  */
+/* #define BAD_PAM */

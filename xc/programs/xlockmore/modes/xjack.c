@@ -134,7 +134,10 @@ init_xjack(ModeInfo * mi)
 	jp->rows = (MI_HEIGHT(mi) - jp->vspace - jp->vspace) / jp->line_height;
 
 	jp->left = 0xFF & (NRAND((jp->columns / 2) + 1));
-	jp->right = jp->left + (0xFF & (NRAND(jp->columns - jp->left - 10) + 10));
+	if ( jp->columns - jp->left != 10 )
+		jp->right = jp->left + (0xFF & (NRAND(jp->columns - jp->left - 10) + 10));
+	else
+		jp->right = jp->left + 10;
 	jp->x = 0;
 	jp->y = 0;
 	jp->sentences = 0;
@@ -284,7 +287,7 @@ draw_xjack(ModeInfo * mi)
 				Bool overstrike;
 
 				do {
-					XDrawString (display, window, jp->gc,
+					(void) XDrawString (display, window, jp->gc,
 							(jp->x * jp->char_width) + jp->hspace + xshift,
 							(jp->y * jp->line_height) + jp->vspace + mode_font->ascent + yshift,
 							&c, 1);
@@ -391,7 +394,7 @@ draw_xjack(ModeInfo * mi)
 			const char *n2 = "NFS server overlook ok.";
 
 			while (*n1) {
-				XDrawString (display, window, jp->gc,
+				(void) XDrawString (display, window, jp->gc,
 									(jp->x * jp->char_width) + jp->hspace,
 									(jp->y * jp->line_height) + jp->vspace + mode_font->ascent,
 									n1, 1);
@@ -405,7 +408,7 @@ draw_xjack(ModeInfo * mi)
 			usleep (5000000);
 #endif
 			while (*n2) {
-				XDrawString (display, window, jp->gc,
+				(void) XDrawString (display, window, jp->gc,
 								(jp->x * jp->char_width) + jp->hspace,
 								(jp->y * jp->line_height) + jp->vspace + mode_font->ascent,
 								n2, 1);

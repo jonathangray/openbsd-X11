@@ -1,6 +1,20 @@
 #ifndef _FILE_H_
 #define _FILE_H_
 
+#if !defined( lint ) && !defined( SABER )
+/* #ident	"@(#)iostuff.h	4.14 99/06/17 xlockmore" */
+
+#endif
+
+/*-
+ * IO stuff
+ *
+ * See xlock.c for copying information.
+ *
+ * Revision History:
+ * 17-06-99: Started log. :)
+ */
+
 #ifdef STANDALONE
 #ifdef HAVE_XPM
 #define USE_XPM

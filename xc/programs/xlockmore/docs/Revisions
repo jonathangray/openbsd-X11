@@ -1,9 +1,5 @@
-xlockmore-4.14ALPHA09 as of 26 April 1999, the maintained version of xlock
+xlockmore-4.15 as of 8 November 1999, the maintained version of xlock
 Adapted from Patrick J. Naughton's original xlock
-
-I have significantly less time to maintain this but I try.
-If someone has some free time and wants to take over... let me know.
-(Help is always appreciated too ;) ).
 
 Primary site: ftp://ftp.tux.org/pub/tux/bagleyd/xlockmore
 Secondary site: ftp://ftp.x.org/contrib/applications
@@ -28,43 +24,141 @@ Adapted from Patrick J. Naughton's original xlock, with lots of help
 
 BUGS to fix and other stuff to do see docs/TODO.
 
-[
-Things I would like to see in the next full release version:
-   text3d: twisting inversely related to line length.
-     time stuff in text3d
-     maybe dclock and marquee could be combined too?
-     a separate -message3d for text3d
-   configure.in should be condensed.  Its getting out of hand.
-   loop needs a mechanism to realize when the picture is nolonger changing
-   More work should be done for the different visuals... I heard that
-     VisualDepthMask taken out of vis.c it seems to work better 
-     to get a PseudoColor visual one a root window of 24 bits.
-   Swirl needs to be refreshed quicker.
-   Problem with finding /usr/openwin/lib
-   Look into any way of not clearing the screen if cant get control of it
-     (2nd xlock running).
-   lyapunov needs to be speeded up.
-   swirl mode does not refresh well when colormap changes.
-]
+4.15
+  -install now works for tetris and kumppa using PseudoColor.
+  configure updates to allow use of Sun C++ if g++ is present thanks to
+    Tom Schmidt.
+  configure updates for g++ not to give warnings or errors about old
+    X11 include files thanks to Alexandre Oliva <oliva@lsd.ic.unicamp.br>.
+  star mode: more enterprises and drawing bug on enterprise fixed
+    (weirded out when at top or left edge on Solaris).
+  general cleanup: xmkmf fixes, gcc warning in text3d.cc removed, and
+    delinted
+  NetBSD patch for xlock.h thanks to Hubert Feyrer
+    <feyrer@smaug.fh-regensburg.de> 
+  dclock now has an led option
+  bug mode now has triangular bugs.  Well, they are still square but the
+    neighborhoods can now be 3 or 12.  Added some extra genes to make
+    odd and even locations independent for neighborhoods of 3 (could not
+    figure out neighborhood 9).
+  ant mode fixing neighborhood 12 (no neighborhood 9 as well).
+  #define BAD_PAM if your system (known to happen on a version of RedHat)
+    has a bad version of PAM with shadow passwords thanks to Lincoln Stein
+    <lstein@cshl.org>
+  xlock.c FD_SET now add one to get rid of a EBADF (Bad-file-descriptor)
+    error on VMS.  Not sure what the consequences are on UNIX... left alone
+    there, thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl>.
+  flag -bitmap core dumps fixed.
+  xpm modes: reinitializing just images and redrawing on a colormap
+    change is not good enough... I found one needs to reinitialize all the
+    variables to assure that the initial info is correct.  For instance, a
+    refresh for life mode would come up with a new bitmap where size of the
+    bitmap was all wrong.
+  Allow for -1 for configuring a button so a button logout can be chosen
+    (or not) by a user.  Still can be forced at compiletime.  Thanks to the
+    Michael Stone (Debian maintainer for xlock) <mstone@justice.loyola.edu>.
+  crystal fix for Solaris.  Lines needed to be drawn without xor or would
+    have drawing errors.
+  life shooters fixed up for -callahan and -andreen.  Gliders can come from
+    6 directions.  Also fixed a deadly core dump or infinite loop where a
+    shooter could write a cell out of bounds (in a small window like the
+    password window) possibly even for standard life as well (though you
+    would need a really small password window).
+  life with -fullrandom includes callahan and andreen rules
+  eyes on triangular and hexagonal ants, also fixed truchet for trianglular
+    and hexagonal (+sharpturn) ants.
+  config.sub fixed for linux/arm, also a fix for when USE_XLOCKRC nor
+    FALLBACK_XLOCKRC is defined.  Thanks to the Michael Stone (Debian
+    maintainer for xlock) <mstone@justice.loyola.edu>.
+  eyes grelb now has moving antennas too.  They are down when flying up and
+    up when falling.
+  text3d and bubble3d now protected from the pipe mode.  Using MesaGL a lot
+    of flashing was observed with these modes after the pipe mode was run.
+  tik_tak new mode from Jouk Jansen <joukj@hrem.stm.tudelft.nl>.
+  galaxy authorship for work done fixed.
+  life grelbs now have moving antennas.  Its subtle but it HAD to be done.
+    One can still bring in images and change the default grelb screen. 
+  fullrandom now uses xbm half the time for image, maze, and puzzle.
+  inline is left defined for C++ if using C++ and C for config.h.in and
+    xlock.h.  Trips up new SparcWorks C++ 6.1.  Help from Danny Zerkel
+    <dzerkel@cas.org>.
+  invert C++ compile errors for gcc-2.95.1 fixed by Jeremy Buhler
+    <jbuhler@cs.washington.edu>.
+  removed numerous warnings generated by gcc-2.95.1 -Wall.  Added statement
+    in README about using old X11 include files with g++-2.95.1  (you need
+    -fpermissive).
+  xlock.tcl update from Charles Vidal <vidalc@club-internet.fr>.
+  bat mode now shows the colored mono images half the time in fullrandom
+    thanks to Jouk Jansen.
+  dclock HIV adjustment thanks to Kenneth Stailey <kstailey@primark.com>.
+  xglock fixes for Gtk-1.2.3 thanks to Thomas Brupbacher <brp@cerberus.ch>.
+  matrix.c from Jeremy Buhler <jbuhler@cs.washington.edu>.  Password window
+   works much better along with other fixes, see comments in matrix.c .
+  configure.tcl update with make, make install, and view in real time thanks
+    to Charles Vidal <vidalc@club-internet.fr>.
+  SUNWspro 6.1 i_twojet.h compilation may be fixed.
+  imake patch (decay and unstable) thanks to
+     <Matthew_Clarke@mindlink.bc.ca>.
+  blank mode: logic was reversed for enablesaver thanks to Eirik Fuller
+    <eirik@netcom.com>.
+  Kerberos4 patch thanks to Mark Murray
+  FreeBSD patch for disabling FPE (there have been a few requests for this),
+    thanks to Thomas Gellekum <tg@zabagek.ihf.rwth-aachen.de>.
 
-4.14ALPHA09
-  -cpasswd will now work even if not configured with --enable-xlockrc .
-  More Purify errors noted in text3d.cc and flag.c thanks to Tom Schmidt
-    <tschmidt@micron.com>.
-  matrix mode thanks to Erik O'Shaughnessy <eriko@austin.ibm.com>.
-    Miscellaneous patches [less warnings, unexpected events, leaks
-    thanks to Tom Schmidt, Jouk Jansen and myself]
-    Mysteriously ... "change_matrix" does not use the erase modes.
-    The font seems to be in the public domain...
-  rubik.c now supports LxMxN cubes.
-    (nx2n 90 degree turns is yet another level of complication which I will
-    not attempt).  [LxMxN 180 degree face turns had a 50-50 chance of not
-    working... fixed.  -sizex, -sizey, -sizez options added.]
-  
-
+4.14
+  Peter Munster <peter@gmv.spm.univ-rennes1.fr> found a bug with -lockdelay
+    and +mousemotion.  Moving the mouse after the delay brought up the
+    password window.
+  Later, I will probably add "#ident" stuff for all .h files.
+    Started but commented out for now since it should be tested more.
+  Update matrix in menus, man page XLock.ad, and gui programs.
+  matrix: update to make it look more like the movie thanks to Joan Touzet
+    <joant@cadence.com>.
+  life: added a P88 oscillator to life.c from Paul Callahan
+    http://www.cs.jhu.edu/~callahan/patterns/p1/p1.html and a diagonal
+    sparker from Tim Coe
+    http://www.cs.jhu.edu/~callahan/patterns/dspark/dspark.html
+  thornbird: upgraded from author <Tim.Auckland@corp.sun.com>.
+  xjack: fix for little window thanks to Jouk Jansen.
+  text3d: -message "text" updates from Eric Lassauge and Jouk Jansen.
+    Purify errors noted in text3d.cc thanks to Tom Schmidt.
+    updates for fortunes from Jouk Jansen
+    initialization errors of GLTT library.  Thanks to Jouk Jansen and Scott
+    <mcmillan@cambridge.com>.
+  dclock: options y2k and millennium from Tom Schmidt <tschmidt@micron.com>.
+    It uses local timezone and description was cleaned up.  French
+    translations by Eric Lassauge <lassauge@sagem.fr> and Dutch translations
+    from Jouk Jansen.  Also Tom patched dclock up for NetBSD.
+  flag: descriptions and purify errors from Tom Schmidt <tschmidt@micron.com>.
+  -neighbors now a mode option.   -mouse changed to -trackmouse
+    -mousemotion was getting picked up instead.  -shift, tshift and -cycle
+    combined to -cycle for crystal, tetris, and starfish.
+  Multiple options use in modes now possible.  Set up only for -eyes for
+    ant and bug.  (Also another major test would be an option that passed
+    an integer in).  Code stolen from ParseCmd.c from X11R6.4 source and then
+    made so argc and argv are NOT updated.  Jouk Jansen fixed if for VMS.
+  Jouk Jansen cleaned up the erase modes.  New option -erasetime added which
+    will cause the erase to come to an abrupt end on a slow machine.  Default
+    set at 2 seconds.  Also made the erasing smoother...   Also fixed a
+    problem on starfish when size became 0.
+  Resurrected some old code in ant.c so now ant and bug have an -eyes switch.
+    (In the case of bug, it does not let the bug see any better, it just
+    shows the direction its facing).  So far its for neighbors = 4 or 8 only
+    in ant  ... (and bug also has neighbor = 6 setup).  The graphics leaves
+    some room for improvement.
+  bug now can have 4 or 8 neighbors and restarts if all bugs die (this did
+    not always work before).
+  -cpasswd will now work if system uses shadow passwords even if not
+    configured with --enable-xlockrc .
+  matrix mode thanks to Erik O'Shaughness <eriko@austin.ibm.com>.
+    Miscellaneous patches to this mode (less warnings, unexpected events,
+    leaks thanks to Tom Schmidt, Jouk Jansen and myself).  The font seems
+    is from X11.
+  rubik.c now supports LxMxN cubes where non-square faces turn 180 degrees.
+    (nx2n 90 degree turns or known more generally as "banded cubes" is yet
+    another level of complication which I will not attempt... yet).
   fizzle and spiral erase modes ported from xscreensaver thanks to
-    Jouk Jansen <joukj@hrem.stm.tudelft.nl>.  [fizzle and spiral are too
-    slow IMHO]
+    Jouk Jansen <joukj@hrem.stm.tudelft.nl>.
   showmodes.sh fixed... need nawk or gawk not awk
   loop now has a mechanism to realize when the lifeforms are dead.
     Still some futile life is not caught (i.e life that will eventually
@@ -85,7 +179,7 @@ Things I would like to see in the next full release version:
        of the exterior of the mandelbrot set.
     -dem  Instead of displaying 'escape times', display an estimate of the
         distance between the point to be coloured and the set.
-  xpm mdoes should refresh better now when the colormap changes.
+  xpm modes should refresh better now when the colormap changes.
   decay and lyapunov taken out of unstable category.
   lament changed for latest MesaGL version, text3d updates for fortunes
     thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl>
@@ -96,9 +190,11 @@ Things I would like to see in the next full release version:
     thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl>
   New space mode from <Vincent.Caron@ecl1999.ec-lyon.fr>.  Probably will
     combine the best features of star and space for a new star mode.
+    You must compile it in with --enable-unstable even though it seems
+    to be stable...
   Changed my e-mail address to bagleyd@tux.org... the old one will still
-    work (as long as the new one does). 
- 
+    work (as long as the new one does).
+
 4.13
   kumppa patch (kumppa wrote only to the right quarter of the screen) and
     make.com fix thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl>
@@ -134,7 +230,7 @@ Things I would like to see in the next full release version:
   Found bug in xjack.  When in small window a divide by zero would occur.
     Taken out of unstable. 
   Thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl> his new tetris mode.
-    It now extensively remodeled after altris.   Taken out of unstable.
+    It now extensively remodeled after altris.  Taken out of unstable.
   Thanks to Tom Schmidt <tschmidt@micron.com> various fixes and leaks to
     rubik, lament, invert, text3d, flow, decay, and tetris.
     Also found problems with gltt which hopefully will be handled by the
@@ -849,13 +945,13 @@ file: glider.3dlife (-rule S45/B5)
     clean.
   stderr is used for the VERBOSE stuff unless its informational stuff about
     the mode as in ant and life*.
-  tube nolonger changes fg and bg.  Should nolonger bomb out on TrueColor.
+  tube no longer changes fg and bg.  Should no longer bomb out on TrueColor.
   Can now use Makefile to adjust SYSLOG stuff.
   Found a bug in ant and galaxy fixed on the HP-UX 9.0.
   Got rid of some flashing of the grelb on eyes.
   Reinitialize qix lines on each init_qix call.  This gets rid of old lines
     reappearing.
-	Added -imagefile option for bitmaps in life, life1d, and maze.   eyes and
+  Added -imagefile option for bitmaps in life, life1d, and maze.   eyes and
     pacman will require more thought.  flag now can have a runtime message or
     use bitmaps.  Thanks to Jamie Zawinski.
 	Put random colors on the nose guy.

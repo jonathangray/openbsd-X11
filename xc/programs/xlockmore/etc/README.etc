@@ -46,3 +46,11 @@ xlockranddur.pl  use like "xlock random -duration `xlockranddur.pl`"
 Contributed by R. Cohen-Scali <remi.cohenscali@pobox.com>
 vtswitch	is a command line tool to disable/enable VT switching for Linux.
 		Do "chown root.bin vtswitch; chmod 4755 vtswitch"
+
+Contributed by Michael P. Duane <mduane@metapath.com>
+chkmbox: for those tired of typing in password just to see if you have
+  email.  chkmbox is a sample mailbox check program.  It has only been
+  run on Linux (2.0.27) workstation against a Solaris server with IMAP2.
+  For those using standard UNIX "mail -e" should work fine (Solaris
+  "/usr/ucb/mail -e" and AIX & HPUX "/usr/bin/mail -e")... see
+  xlock/XLock.ad .

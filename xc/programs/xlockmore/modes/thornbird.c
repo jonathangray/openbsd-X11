@@ -22,9 +22,10 @@ static const char sccsid[] = "@(#)discrete.c 4.10 98/04/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * "thornbird" shows a view of the "Bird in a Thornbush" fractal,
- * continuously varying the three free paramaters.
+ * continuously varying the three free parameters.
  *
  * Revision History:
+ * 04-Jun-99: 3D tumble added by Tim Auckland
  * 31-Jul-97: Adapted from discrete.c Copyright (c) 1996 by Tim Auckland
  */
 
@@ -51,11 +52,13 @@ ModeSpecOpt thornbird_opts =
 #ifdef USE_MODULES
 ModStruct   thornbird_description =
 {"thornbird", "init_thornbird", "draw_thornbird", "release_thornbird",
- "refresh_thornbird", NULL, NULL, &thornbird_opts,
+ "refresh_thornbird", "init_thornbird", NULL, &thornbird_opts,
  1000, 800, 16, 1, 64, 1.0, "",
  "Shows an animated Bird in a Thorn Bush fractal map", 0, NULL};
 
 #endif
+
+#define balance_rand(v)	((LRAND()/MAXRAND*(v))-((v)/2))	/* random around 0 */
 
 typedef struct {
 	int         maxx;
@@ -67,7 +70,17 @@ typedef struct {
 	double      e;
 	double      i;
 	double      j;		/* thornbird parameters */
-	int         inc;
+    struct {
+	  double  f1;
+	  double  f2;
+	}           liss;  
+    struct {
+	  double  theta;
+	  double  dtheta;
+	  double  phi;
+	  double  dphi;
+	}           tumble;
+    int         inc;
 	int         pix;
 	int         count;
 	int         nbuffers;
@@ -107,6 +120,16 @@ init_thornbird(ModeInfo * mi)
 	if (hp->pointBuffer[0] == NULL)
 		hp->pointBuffer[0] = (XPoint *) malloc(MI_COUNT(mi) * sizeof (XPoint));
 
+	/* select frequencies for parameter variation */
+	hp->liss.f1 = LRAND() % 5000;
+	hp->liss.f2 = LRAND() % 2000;
+
+	/* choose random 3D tumbling */
+	hp->tumble.theta = 0;
+	hp->tumble.phi = 0;
+	hp->tumble.dtheta = balance_rand(0.001);
+	hp->tumble.dphi = balance_rand(0.005);
+
 	/* Clear the background. */
 	MI_CLEARWINDOW(mi);
 
@@ -130,21 +153,26 @@ draw_thornbird(ModeInfo * mi)
 	int         erase = (hp->inc + 1) % MI_CYCLES(mi);
 	int         current = hp->inc % MI_CYCLES(mi);
 
+	double      sint, cost, sinp, cosp;
+
 	k = batchcount;
 
 
 	xp = hp->pointBuffer[current];
 
-	hp->a = 1.99 + 0.4 * sin((hp->inc / 2700.0)) * sin(hp->inc / 1700.0);
-	hp->c = 0.80 + 0.15 * cos((hp->inc / 2700.0)) * cos(hp->inc / 1700.0);
-#if 1
-	hp->c += 0.05 * cos(hp->inc / 600.0);
-	hp->a += 0.05 * sin(hp->inc / 600.0);
-#endif
-#if 0
-	hp->a = 1.99 + ((LRAND() / MAXRAND) * 2.0 - 1.0) * 0.2;
-	hp->c = 0.8 + ((LRAND() / MAXRAND) * 2.0 - 1.0) * 0.1;
-#endif
+	/* vary papameters */
+	hp->a = 1.99 + (0.4 * sin(hp->inc / hp->liss.f1) + 
+					0.05 * cos(hp->inc / hp->liss.f2));
+	hp->c = 0.80 + (0.15 * cos(hp->inc / hp->liss.f1) +
+					0.05 * sin(hp->inc / hp->liss.f2));
+
+	/* vary view */
+	hp->tumble.theta += hp->tumble.dtheta;
+	hp->tumble.phi += hp->tumble.dphi;
+	sint = sin(hp->tumble.theta);
+	cost = cos(hp->tumble.theta);
+	sinp = sin(hp->tumble.phi);
+	cosp = cos(hp->tumble.phi);
 
 	while (k--) {
 		oldj = hp->j;
@@ -154,8 +182,12 @@ draw_thornbird(ModeInfo * mi)
 		hp->i = (1 - hp->c) * cos(M_PI * hp->a * oldj) + hp->c * hp->b;
 		hp->b = oldj;
 
-		xp->x = (short) (hp->maxx / 2 * (1 + hp->i));
-		xp->y = (short) (hp->maxy / 2 * (1 - hp->j));
+		xp->x = (short)
+		  (hp->maxx / 2 * (1
+						   + sint*hp->j + cost*cosp*hp->i - cost*sinp*hp->b));
+		xp->y = (short)
+		  (hp->maxy / 2 * (1
+						   - cost*hp->j + sint*cosp*hp->i - sint*sinp*hp->b));
 		xp++;
 	}
 
@@ -171,10 +203,12 @@ draw_thornbird(ModeInfo * mi)
 	}
 	if (MI_NPIXELS(mi) > 2) {
 		XSetForeground(dsp, gc, MI_PIXEL(mi, hp->pix));
-		if (erase % 5 == 0)
+		if (erase == 0) /* change colours after "cycles" cycles */
 			if (++hp->pix >= MI_NPIXELS(mi))
 				hp->pix = 0;
-	}
+	} else
+		XSetForeground(dsp, gc, MI_WHITE_PIXEL(mi));
+
 	XDrawPoints(dsp, win, gc, hp->pointBuffer[current],
 		    batchcount, CoordModeOrigin);
 	hp->inc++;

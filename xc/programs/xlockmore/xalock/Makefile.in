@@ -149,7 +149,7 @@ html :
 hlp :
 
 clean :
-	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut xalock
+	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut xalock *.patch
 
 distclean : clean
 	$(RM) Makefile

@@ -146,7 +146,7 @@ LockStruct  LockProcs[] =
 	{"dclock", init_dclock, draw_dclock, release_dclock,
 	 refresh_dclock, init_dclock, NULL, &dclock_opts,
 	 10000, 1, 10000, 1, 64, 0.3, "",
-	 "Shows a floating digital clock", 0, NULL},
+	 "Shows a floating digital clock or message", 0, NULL},
 #endif
 #ifdef MODE_decay
 	{"decay", init_decay, draw_decay, release_decay,
@@ -378,9 +378,9 @@ LockStruct  LockProcs[] =
 #endif
 #ifdef MODE_matrix
 	{"matrix", init_matrix, draw_matrix, release_matrix,
-	 refresh_matrix, change_matrix, NULL, &marquee_opts,
-	 100, 1, 1, 1, 64, 1.0, "",
-	 "Shows the matrix", 0, NULL},
+	 refresh_matrix, change_matrix, NULL, &matrix_opts,
+	 1000, 1, 1, 1, 64, 1.0, "",
+	 "Shows the Matrix", 0, NULL},
 #endif
 #ifdef MODE_maze
 	{"maze", init_maze, draw_maze, release_maze,
@@ -575,9 +575,9 @@ LockStruct  LockProcs[] =
 #endif
 #ifdef MODE_tetris
 	{"tetris", init_tetris, draw_tetris, release_tetris,
-	 init_tetris, init_tetris, NULL, &tetris_opts,
+	 refresh_tetris, init_tetris, NULL, &tetris_opts,
 	 50000, 1, 1, 0, 64, 1.0, "",
-	 "Shows tetris", 0, NULL},
+	 "Shows an autoplaying tetris game", 0, NULL},
 #endif
 #ifdef MODE_text3d
 	{"text3d", init_text3d, draw_text3d, release_text3d,
@@ -587,9 +587,15 @@ LockStruct  LockProcs[] =
 #endif
 #ifdef MODE_thornbird
 	{"thornbird", init_thornbird, draw_thornbird, release_thornbird,
-	 refresh_thornbird, NULL, NULL, &thornbird_opts,
+	 refresh_thornbird, init_thornbird, NULL, &thornbird_opts,
 	 1000, 800, 16, 1, 64, 1.0, "",
 	 "Shows an animated bird in a thorn bush fractal map", 0, NULL},
+#endif
+#ifdef MODE_tik_tak
+  {"tik_tak", init_tik_tak, draw_tik_tak, release_tik_tak,
+   refresh_tik_tak, init_tik_tak, NULL, &tik_tak_opts,
+   60000, -20, 200, -1000, 64, 1.0, "",
+   "Shows rotating polygons", 0, NULL},
 #endif
 #ifdef MODE_triangle
 	{"triangle", init_triangle, draw_triangle, release_triangle,

@@ -260,7 +260,7 @@ parse_image_data(ModeInfo * mi)
 	lc->texture->data = (char *) malloc(xpm_image.height * bpl);
 
 	/* Parse the colors in the XPM into RGB values. */
-	for (i = 0; i < xpm_image.ncolors; i++)
+	for (i = 0; i < (int) xpm_image.ncolors; i++)
 		if (!XParseColor(MI_DISPLAY(mi), MI_COLORMAP(mi),
 				 xpm_image.colorTable[i].c_color,
 				 &colors[i])) {
@@ -282,13 +282,13 @@ parse_image_data(ModeInfo * mi)
 		else
 			rpos = 0, gpos = 8, bpos = 16, apos = 24;
 
-		for (y = 0; y < xpm_image.height; y++) {
+		for (y = 0; y < (int) xpm_image.height; y++) {
 			int         y2 = (xpm_image.height - 1 - y);	/* Texture maps are upside down. */
 
 			unsigned int *oline = (unsigned int *) (lc->texture->data + (y * bpl));
 			unsigned int *iline = (unsigned int *) (xpm_image.data + (y2 * wpl));
 
-			for (x = 0; x < xpm_image.width; x++) {
+			for (x = 0; x < (int) xpm_image.width; x++) {
 				XColor     *c = &colors[iline[x]];
 
 				/* pack it as RGBA */

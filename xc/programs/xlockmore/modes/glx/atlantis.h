@@ -1,8 +1,13 @@
-/* atlantis --- Shows moving 3D sea animals */
+#if !defined( lint ) && !defined( SABER )
+/* #ident	"@(#)atlantis.h	4.14 99/06/17 xlockmore" */
 
-/* Copyright (c) E. Lassauge, 1998. */
+#endif
 
-/*
+/*-
+ * atlantis stuff --- Shows moving 3D sea animals
+ *
+ * Copyright (c) E. Lassauge, 1998.
+ *
  * Permission to use, copy, modify, and distribute this software and its
  * documentation for any purpose and without fee is hereby granted,
  * provided that the above copyright notice appear in all copies and that
@@ -27,6 +32,7 @@
  *
  * My e-mail address is lassauge@sagem.fr
  *
+ * Revision History:
  * Eric Lassauge  (May-13-1998)
  *
  */

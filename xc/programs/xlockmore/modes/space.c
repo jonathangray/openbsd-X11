@@ -102,7 +102,6 @@ init_space(ModeInfo * mi)
 {
 	SpaceStruct *sp;
 	int         i;
-	double      originX, originY, zoom;
 
 	/* allocate a SpaceStruct for every screen */
 	if (spaces == NULL) {
@@ -111,10 +110,10 @@ init_space(ModeInfo * mi)
 	}
 	sp = &spaces[MI_SCREEN(mi)];
 	/* star density is linked to screen surface */
-	sp->nb = 150 + MI_WIDTH(mi) * MI_HEIGHT(mi) / 1100;
-	originX = sp->originX = MI_WIDTH(mi) / 2;
-	originY = sp->originY = MI_HEIGHT(mi) / 2;
-	zoom = sp->zoom = (double) MI_WIDTH(mi) * 0.54 + 40;
+	sp->nb = MI_COUNT(mi);
+	sp->originX = MI_WIDTH(mi) / 2;
+	sp->originY = MI_HEIGHT(mi) / 2;
+	sp->zoom = (double) MI_WIDTH(mi) * 0.54 + 40;
 	sp->ok = 0;
 
 	/* allocate stars buffers for current screen */

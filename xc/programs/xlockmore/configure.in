@@ -10,12 +10,33 @@ canonical=$host
 
 AC_PROG_CC
 dnl Check if C++ compiler is present. If not set CXX to the C-compiler used
-dnl for the other compilations. Check for g++ before c++ so that Purify works.
-AC_CHECK_PROGS(CXX, $CCC g++ c++ CC cxx cc++ xlC $CC, gcc)
+dnl for the other compilations.
+if test "$CC" = gcc; then  
+  AC_CHECK_PROGS(CXX, $CCC g++ CC C++ c++ cxx cc++ xlC $CC, gcc) 
+else 
+  AC_CHECK_PROGS(CXX, $CCC CC C++ g++ c++ cxx cc++ xlC $CC, gcc) 
+fi 
 AC_PROG_CXX
 if test "${CXX}" = "xlC" ; then
   CXXFLAGS="${CXXFLAGS} -+"
 fi
+
+dnl If you're using g++-2.95 or later and have old X11 includes, you may need
+dnl to use "g++ -fpermissive" in the Makefiles
+dnl if test "${CXX}" = "g++" ; then
+dnl   gpp_major_version=`g++ --version | cut -f1 -d.`
+dnl   if test "${gpp_major_version}" -gt "2" ; then
+dnl     AC_MSG_RESULT([enabling -fpermissive option for g++])
+dnl     CXXFLAGS="${CXXFLAGS} -fpermissive"
+dnl   fi
+dnl   if test "${gpp_major_version}" -eq "2" ; then
+dnl     gpp_minor_version=`g++ --version | cut -f2 -d.`
+dnl     if test "${gpp_minor_version}" -ge "95" ; then
+dnl       AC_MSG_RESULT([enabling -fpermissive option for g++])
+dnl       CXXFLAGS="${CXXFLAGS} -fpermissive"
+dnl     fi
+dnl   fi
+dnl fi
 
 dnl These 2 assume for now c++ exists....
 AC_DEFINE(HAVE_CXX)
@@ -79,7 +100,7 @@ dnl AC_HEADER_STDC /* If its not ansi, its not going to go */
 AC_ISC_POSIX
 dnl AC_HEADER_SYS_WAIT
 dnl AC_CHECK_HEADERS(poll.h sys/poll.h)
-AC_CHECK_HEADERS(fcntl.h limits.h sys/select.h sys/time.h syslog.h unistd.h memory.h)
+AC_CHECK_HEADERS(fcntl.h limits.h sys/select.h sys/time.h syslog.h unistd.h memory.h sys/param.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -285,6 +306,10 @@ if test "$no_x" = yes; then
 else
   if test -n "${x_includes}"; then
     XLOCKINC="-I${x_includes} ${XLOCKINC}"
+    if test "${CXX}" = "g++" ; then
+dnl    Do not warn me about anything here
+       XLOCKINC="-isystem ${x_includes} ${XLOCKINC}"
+    fi
     XMLOCKINC="-I${x_includes} ${XMLOCKINC}"
     XALOCKINC="-I${x_includes} ${XALOCKINC}"
   fi
@@ -3089,6 +3114,8 @@ else
   AC_MSG_RESULT(unknown)
 fi
  
+AC_CHECK_FUNCS(tzset timelocal)
+
 AC_C_INLINE
 
 srand=no
@@ -3362,7 +3389,7 @@ x|xyes*)
   AC_MSG_RESULT([defining option USE_BUTTON_LOGOUT = 10 minutes])
   AC_DEFINE(USE_BUTTON_LOGOUT,10)
   ;;
-x[[0-9]]*)
+x[[0-9]]*|x-[0-9]*)
   AC_MSG_RESULT([defining option USE_BUTTON_LOGOUT = $enableval minutes])
   AC_DEFINE_UNQUOTED(USE_BUTTON_LOGOUT,$enableval)
   ;;

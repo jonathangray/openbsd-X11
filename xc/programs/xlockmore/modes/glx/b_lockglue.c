@@ -150,6 +150,7 @@ draw_bubble3d(ModeInfo * mi)
 	if (!c->glx_context)
 		return;
 
+	glDrawBuffer(GL_BACK);
 	glXMakeCurrent(display, window, *(c->glx_context));
 
 	do_display(c);

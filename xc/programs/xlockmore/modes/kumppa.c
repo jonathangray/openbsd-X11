@@ -83,7 +83,6 @@ static Bool usedouble;
 #endif
 
 static Bool cosilines;
-static Bool mono_p;
 static float speed;
 
 static XrmOptionDescRec opts[] =
@@ -492,6 +491,7 @@ init_kumppa(ModeInfo * mi)
 			s->fgc[32] = XCreateGC(display, window, GCForeground | GCFunction, &xgcv);
 
 			n = 0;
+#if 0
 			if (mono_p) {
 				s->fgc[0] = s->fgc[32];
 				xgcv.foreground = MI_BLACK_PIXEL(mi);
@@ -501,6 +501,7 @@ init_kumppa(ModeInfo * mi)
 				for (i = 1; i < 32; i += 2)
 					s->fgc[i] = s->fgc[1];
 			} else
+#endif
 				for (i = 0; i < 32; i++) {
 					color.red = colors[n++] * 256;
 					color.green = colors[n++] * 256;
@@ -518,10 +519,6 @@ init_kumppa(ModeInfo * mi)
 		(void) memcpy(s->acosinus, acosinus, 24 * sizeof (float));
 		(void) memcpy(s->ocoords, ocoords, 8 * sizeof (int));
 	}
-	if (MI_NCOLORS(mi) <= 2)
-		mono_p = True;
-	else
-		mono_p = False;
 
 	if (MI_IS_FULLRANDOM(mi)) {
 		if (NRAND(2) == 1)
@@ -619,7 +616,10 @@ draw_kumppa(ModeInfo * mi)
 		}
 		for (a = 0; a < 4; a++) {
 			if (MI_IS_INSTALL(mi) && MI_NPIXELS(mi) > 2) {
+#if 0
 				gc = (mono_p) ? s->fgc[1] : s->fgc[((a << 2) + s->c) & 31];
+#endif
+				gc = s->fgc[((a << 2) + s->c) & 31];
 			} else {
 				gc = MI_GC(mi);
 				if (MI_NPIXELS(mi) <= 2)
@@ -645,8 +645,12 @@ draw_kumppa(ModeInfo * mi)
 				gc = s->fgc[a];
 			} else {
 				gc = MI_GC(mi);
-				if (MI_NPIXELS(mi) > 2)
+				if (a == 32)
+					XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
+				else if (MI_NPIXELS(mi) > 2)
 					XSetForeground(display, gc, MI_PIXEL(mi, (a * MI_NPIXELS(mi) / 32) % MI_NPIXELS(mi)));
+				else if (a == 0)
+					XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 				else
 					XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
 			}
@@ -657,10 +661,7 @@ draw_kumppa(ModeInfo * mi)
 		gc = s->fgc[32];
 	} else {
 		gc = MI_GC(mi);
-		if (MI_NPIXELS(mi) > 2)
-		XSetForeground(display, gc, MI_PIXEL(mi, s->c1));
-		else
-		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
+		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 	}
 	XFillRectangle(display, window, gc, s->midx - 2, s->midy - 2, 4, 4);
 	rotate(mi);
@@ -695,6 +696,8 @@ release_kumppa(ModeInfo * mi)
 			kumppastruct *s = &kumppas[screen];
 
 			if (MI_IS_INSTALL(mi) && MI_NPIXELS(mi) > 2) {
+				int i;
+
 				MI_WHITE_PIXEL(mi) = s->whitepixel;
 				MI_BLACK_PIXEL(mi) = s->blackpixel;
 #ifndef STANDALONE
@@ -703,16 +706,15 @@ release_kumppa(ModeInfo * mi)
 #endif
 				if (s->fgc[32])
 					XFreeGC(display, s->fgc[32]);
+#if 0
 				if (mono_p) {
 					if (s->fgc[1])
 						XFreeGC(display, s->fgc[1]);
-				} else {
-					int         i;
-
-					for (i = 0; i < 32; i++) {
-						if (s->fgc[i])
-							XFreeGC(display, s->fgc[i]);
-					}
+				} else
+#endif
+				for (i = 0; i < 32; i++) {
+					if (s->fgc[i])
+						XFreeGC(display, s->fgc[i]);
 				}
 				if (s->cgc)
 					XFreeGC(display, s->cgc);

@@ -1,3 +1,18 @@
+#ifndef _SPLINE_H_
+#define _SPLINE_H_
+
+#if !defined( lint ) && !defined( SABER )
+/* #ident  "@(#)spline.h      4.14 99/06/17 xlockmore" */
+
+#endif
+
+/*-
+ * Spline stuff
+ *
+ * Revision History:
+ * 17-06-99: Started log. :)
+ */
+
 /*
  * Copyright (c) 1987, 1988, 1989 Stanford University
  *
@@ -23,9 +38,6 @@
 /* This code came with the InterViews distribution, and was translated
    from C++ to C by Matthieu Devin <devin@lucid.com> some time in 1992.
  */
-
-#ifndef _SPLINE_H_
-#define _SPLINE_H_
 
 typedef struct {
 	/* input */

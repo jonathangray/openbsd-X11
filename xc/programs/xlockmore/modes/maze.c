@@ -273,7 +273,7 @@ enter_square(ModeInfo * mi, int n)
 }				/* end of enter_square() */
 
 static void
-free_maze(mazestruct * mp)
+free_path(mazestruct * mp)
 {
 	if (mp->maze) {
 		(void) free((void *) mp->maze);
@@ -300,7 +300,7 @@ set_maze_sizes(ModeInfo * mi)
 	int         size = MI_SIZE(mi);
 
 	if (size < -MINSIZE) {
-		free_maze(mp);
+		free_path(mp);
 		mp->ys = NRAND(MIN(-size, MAX(MINSIZE, (MIN(mp->width, mp->height) - 1) /
 				      MINGRIDSIZE)) - MINSIZE + 1) + MINSIZE;
 	} else if (size < MINSIZE) {
@@ -755,7 +755,25 @@ free_stuff(Display * display, mazestruct * mp)
 		mp->cmap = None;
 	} else
 		mp->backGC = None;
-	destroyImage(&mp->logo, &mp->graphics_format);
+}
+
+static void
+free_maze(Display * display, mazestruct * mp)
+{
+	free_path(mp);
+	if (mp->grayGC != NULL) {
+		XFreeGC(display, mp->grayGC);
+		mp->grayGC = NULL;
+	}
+	if (mp->graypix != None) {
+		XFreePixmap(display, mp->graypix);
+		mp->graypix = None;
+	}
+	free_stuff(display, mp);
+	if (mp->logo) {
+		destroyImage(&mp->logo, &mp->graphics_format);
+		mp->logo = NULL;
+	}
 }
 
 void
@@ -847,12 +865,7 @@ release_maze(ModeInfo * mi)
 			mazestruct *mp = &mazes[screen];
 			Display    *display = MI_DISPLAY(mi);
 
-			free_maze(mp);
-			if (mp->grayGC != NULL)
-				XFreeGC(display, mp->grayGC);
-			if (mp->graypix != None)
-				XFreePixmap(display, mp->graypix);
-			free_stuff(display, mp);
+			free_maze(display, mp);
 		}
 		(void) free((void *) mazes);
 		mazes = NULL;
@@ -864,12 +877,15 @@ refresh_maze(ModeInfo * mi)
 {
 	mazestruct *mp = &mazes[MI_SCREEN(mi)];
 
-	MI_CLEARWINDOWCOLORMAP(mi, mp->backGC, mp->black);
 #if defined( USE_XPM ) || defined( USE_XPMINC )
-	/* This is needed when another program changes the colormap. */
-	free_stuff(MI_DISPLAY(mi), mp);
-	init_stuff(mi);
+	if (mp->graphics_format >= IS_XPM) {
+		/* This is needed when another program changes the colormap. */
+		free_maze(MI_DISPLAY(mi), mp);
+		init_maze(mi);
+		return;
+	}
 #endif
+	MI_CLEARWINDOWCOLORMAP(mi, mp->backGC, mp->black);
 	XSetForeground(MI_DISPLAY(mi), mp->backGC, mp->color);
 	if (mp->stage >= 1) {
 		mp->stage = 3;

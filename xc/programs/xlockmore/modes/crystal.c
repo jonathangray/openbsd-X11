@@ -117,8 +117,8 @@ static XrmOptionDescRec opts[] =
 	{"+cell", ".crystal.cell", XrmoptionNoArg, (caddr_t) "off"},
 	{"-grid", ".crystal.grid", XrmoptionNoArg, (caddr_t) "on"},
 	{"+grid", ".crystal.grid", XrmoptionNoArg, (caddr_t) "off"},
-	{"-shift", ".crystal.shift", XrmoptionNoArg, (caddr_t) "on"},
-	{"+shift", ".crystal.shift", XrmoptionNoArg, (caddr_t) "off"}
+	{"-cycle", ".crystal.cycle", XrmoptionNoArg, (caddr_t) "on"},
+	{"+cycle", ".crystal.cycle", XrmoptionNoArg, (caddr_t) "off"}
 };
 
 static argtype vars[] =
@@ -129,7 +129,7 @@ static argtype vars[] =
 	{(caddr_t *) & maxsize, "maxsize", "Maxsize", DEF_MAXSIZE, t_Bool},
 	{(caddr_t *) & unit_cell, "cell", "Cell", DEF_CELL, t_Bool},
 	{(caddr_t *) & grid_cell, "grid", "Grid", DEF_GRID, t_Bool},
-	{(caddr_t *) & cycle_p, "shift", "Shift", DEF_CYCLE, t_Bool}
+	{(caddr_t *) & cycle_p, "cycle", "Cycle", DEF_CYCLE, t_Bool}
 };
 static OptionStruct desc[] =
 {
@@ -139,7 +139,7 @@ static OptionStruct desc[] =
 	{"-/+maxsize", "turn on/off use of maximum part of screen"},
 	{"-/+cell", "turn on/off drawing of unit cell"},
    {"-/+grid", "turn on/off drawing of grid of unit cells (if -cell is on)"},
-	{"-/+shift", "turn on/off colour cycling"}
+	{"-/+cycle", "turn on/off colour cycling"}
 };
 
 ModeSpecOpt crystal_opts =
@@ -627,7 +627,6 @@ refresh_crystal(ModeInfo * mi)
 	if (!cryst->painted)
 		return;
 	MI_CLEARWINDOW(mi);
-	XSetFunction(display, cryst->gc, GXxor);
 
 	if (cryst->unit_cell) {
 	   int y_coor1 , y_coor2;
@@ -769,6 +768,7 @@ refresh_crystal(ModeInfo * mi)
 				  y_coor2);
 		}
 	}
+	XSetFunction(display, cryst->gc, GXxor);
 	for (i = 0; i < cryst->num_atom; i++) {
 		crystalatom *atom0;
 
@@ -876,7 +876,6 @@ init_crystal(ModeInfo * mi)
 /* Clear Display */
 	MI_CLEARWINDOW(mi);
 	cryst->painted = False;
-	XSetFunction(display, cryst->gc, GXxor);
 
 
 /*Set up crystal data */
@@ -1157,6 +1156,7 @@ init_crystal(ModeInfo * mi)
 				  y_coor2);
 		}
 	}
+	XSetFunction(display, cryst->gc, GXxor);
 	if (MI_IS_INSTALL(mi) && MI_NPIXELS(mi) > 2) {
 /* Set up colour map */
 		if (cryst->colors && cryst->ncolors && !cryst->no_colors)

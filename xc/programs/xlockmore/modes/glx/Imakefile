@@ -24,12 +24,20 @@ OG = $(O)$(S)$(DOG)
 CM = $(C) $(DM)
 CU = $(C) $(DU)
 CG = $(C) $(DG)
+CXG = $(CX) $(DG)
 
 XCOMM  List of object files
 #ifdef GLLibrary
 #ifdef XpmLibrary
+XLOCKXPMGLOBJS = $(DOG)lament$(O)
+#endif
+#ifdef CPPCompiler
+XLOCKCPPGLOBJS = $(DOG)invert$(OG)i_figureeight$(OG)i_linkage$(O)$(S)\
+$(DOG)i_sphere$(OG)i_spline$(O)$(S)\
+$(DOG)i_threejet$(OG)i_threejetvec$(O)$(S)\
+$(DOG)i_twojet$(OG)i_twojetvec$(O)
 #ifdef Unstable
-XLOCKUNSTABLEGLOBJS = $(DOG)lament$(O)
+XLOCKUNSTABLETEXTGLOBJS = $(DOG)text3d$(O)
 #endif
 #endif
 XLOCKGLOBJS = $(DOG)cage$(OG)gears$(O)$(S)\
@@ -40,7 +48,8 @@ $(DOG)sproingies$(OG)sproingiewrap$(OG)s1_b$(O)$(S)\
 $(DOG)s1_1$(OG)s1_2$(OG)s1_3$(OG)s1_4$(OG)s1_5$(OG)s1_6$(O)$(S)\
 $(DOG)atlantis$(OG)dolphin$(OG)shark$(OG)swim$(OG)whale$(O)$(S)\
 $(DOG)bubble3d$(OG)b_draw$(OG)b_sphere$(OG)b_lockglue$(O)$(S)\
-$(XLOCKUNSTABLEGLOBJS)
+$(XLOCKXPMGLOBJS) $(XLOCKCPPGLOBJS) $(XLOCKUNSTABLETEXTGLOBJS)
+
 #endif
 
 XCOMM default target

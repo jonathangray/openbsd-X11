@@ -477,13 +477,14 @@ fullLock(void)
 	struct group *gp;
 	FILE       *fp;
 	char        buf[BUFSIZ];
+	extern int  logoutButton;
 
+	if (inwindow || inroot || nolock || logoutButton < 0 /*|| debug */ )
+		return (FULL_LOCK);	/* (mostly) harmless user */
 	uid = getuid();
 	/* Do not try to logout root! */
 	if (!uid)
 		return (FULL_LOCK);	/* root */
-	if (inwindow || inroot || nolock /*|| debug */ )
-		return (FULL_LOCK);	/* (mostly) harmless user */
 
 	pwp = getpwuid(uid);
 	if ((ngrps = getgroups(ngroups, mygidset)) == -1)

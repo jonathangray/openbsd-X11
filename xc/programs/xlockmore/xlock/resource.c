@@ -104,8 +104,6 @@ static const char sccsid[] = "@(#)resource.c	4.08 98/08/04 xlockmore";
 #define DECW$C_WS_DSP_TRANSPORT 2	/*  taken from wsdriver.lis */
 #define IO$M_WS_DISPLAY 0x00000040	/* taken from wsdriver */
 
-extern void checkResources(void);
-
 struct descriptor_t {		/* descriptor structure         */
 	unsigned short len;
 	unsigned char type;
@@ -143,6 +141,7 @@ static int  descr();
 #define DEF_SATURATION	"1.0"	/* color ramp saturation 0->1 */
 #define DEF_NICE	"10"	/* xlock process nicelevel */
 #define DEF_ERASEDELAY	"400"	/* Speed for screen erase modes */
+#define DEF_ERASETIME	"2"	/* Maximum number of seconds for erase */
 #define DEF_LOCKDELAY	"0"	/* secs until lock */
 #define DEF_TIMEOUT	"30"	/* secs until password entry times out */
 #ifndef DEF_FONT
@@ -217,6 +216,7 @@ static int  descr();
 #define DEF_VTLOCK              VTLOCKMODE_OFF
 #endif
 #define DEF_CLASSNAME	"XLock"
+#if 0
 /*-
   Grid     Number of Neigbors
   ----     ------------------
@@ -226,6 +226,7 @@ static int  descr();
 */
 #define DEF_NEIGHBORS  "0"	/* automata mode will choose best or random value */
 #define DEF_MOUSE   "False"
+#endif
 
 #ifdef USE_RPLAY
 #define DEF_LOCKSOUND	"thank-you"
@@ -301,11 +302,13 @@ extern char *messagefile;
 extern char *message;		/* flag as well here */
 extern char *messagefontname;
 
+#if 0
 /* For automata modes */
 extern int  neighbors;
 
 /* For eyes, julia, & swarm modes */
 Bool        mouse;
+#endif
 
 char        hostname[MAXHOSTNAMELEN];
 static char *mode;
@@ -331,6 +334,7 @@ static XrmOptionDescRec genTable[] =
 	{"-mode", ".mode", XrmoptionSepArg, (caddr_t) NULL},
 	{"-erasemode", ".erasemode", XrmoptionSepArg, (caddr_t) NULL},
 	{"-erasedelay", ".erasedelay", XrmoptionSepArg, (caddr_t) NULL},
+	{"-erasetime", ".erasetime", XrmoptionSepArg, (caddr_t) NULL},
 	{"-nolock", ".nolock", XrmoptionNoArg, (caddr_t) "on"},
 	{"+nolock", ".nolock", XrmoptionNoArg, (caddr_t) "off"},
 #ifdef USE_VTLOCK
@@ -416,11 +420,13 @@ static XrmOptionDescRec genTable[] =
 	{"-messagefile", ".messagefile", XrmoptionSepArg, (caddr_t) NULL},
 	{"-message", ".message", XrmoptionSepArg, (caddr_t) NULL},
 	{"-messagefont", ".messagefont", XrmoptionSepArg, (caddr_t) NULL},
+#if 0
     /* For automata modes */
 	{"-neighbors", ".neighbors", XrmoptionSepArg, (caddr_t) NULL},
-    /* For eyes and julia modes */
+    /* For eyes, julia, and swarm modes */
 	{"-mouse", ".mouse", XrmoptionNoArg, (caddr_t) "on"},
 	{"+mouse", ".mouse", XrmoptionNoArg, (caddr_t) "off"},
+#endif
 
 #if defined( USE_XLOCKRC ) || defined( FALLBACK_XLOCKRC )
 	{"-cpasswd", ".cpasswd", XrmoptionSepArg, (caddr_t) NULL},
@@ -552,6 +558,7 @@ static OptionStruct opDesc[] =
 #endif
 	{"-erasemode erase-modename", "Erase mode to use"},
 	{"-erasedelay num", "Erase delay for clear screen modes"},
+	{"-erasetime num", "Maximum time (sec) to be used by erase"},
 	{"-/+nolock", "turn on/off no password required"},
 	{"-/+inwindow", "turn on/off making xlock run in a window"},
 	{"-/+inroot", "turn on/off making xlock run in the root window"},
@@ -618,10 +625,12 @@ static OptionStruct opDesc[] =
 	{"-messagefile filename", "text file for mode"},
 	{"-message string", "text for mode"},
 	{"-messagefont fontname", "font for a specific mode"},
+#if 0
     /* For automata modes */
       {"-neighbors num", "squares 4 or 8, hexagons 6, triangles 3, 9 or 12"},
-    /* For eyes and julia modes */
+    /* For eyes, julia, and swarm modes */
 	{"-/+mouse", "turn on/off the grabbing the mouse"},
+#endif
 
 #if defined( USE_XLOCKRC ) || defined( FALLBACK_XLOCKRC )
 	{"-cpasswd crypted-password", "text string of encrypted password"},
@@ -676,7 +685,7 @@ char       *modulepath;
 
 static char *erasemodename;
 int         erasemode;
-int         erasedelay;
+int         erasedelay, erasetime;
 Bool        nolock;
 Bool        inwindow;
 Bool        inroot;
@@ -813,7 +822,8 @@ static argtype genvars[] =
 {
 	{(caddr_t *) & erasemodename, "erasemode", "EraseMode", "", t_String},
 	{(caddr_t *) & erasedelay, "erasedelay", "EraseDelay", DEF_ERASEDELAY, t_Int},
-    {(caddr_t *) & allowaccess, "allowaccess", "AllowAccess", "off", t_Bool},
+	{(caddr_t *) & erasetime, "erasetime", "EraseTime", DEF_ERASETIME, t_Int},
+	{(caddr_t *) & allowaccess, "allowaccess", "AllowAccess", "off", t_Bool},
 #ifndef ALWAYS_ALLOW_ROOT
 	{(caddr_t *) & allowroot, "allowroot", "AllowRoot", "off", t_Bool},
 #endif
@@ -876,8 +886,10 @@ static argtype genvars[] =
 	{(caddr_t *) & messagefile, "messagefile", "Messagefile", DEF_MESSAGEFILE, t_String},
 	{(caddr_t *) & message, "message", "Message", DEF_MESSAGE, t_String},
 	{(caddr_t *) & messagefontname, "messagefont", "MessageFont", DEF_MESSAGEFONT, t_String},
+#if 0
    {(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int},
 	{(caddr_t *) & mouse, "mouse", "Mouse", DEF_MOUSE, t_Bool},
+#endif
 
 #if defined( USE_XLOCKRC ) || defined( FALLBACK_XLOCKRC )
 	{(caddr_t *) & cpasswd, "cpasswd", "cpasswd", "", t_String},
@@ -1062,9 +1074,9 @@ checkSpecialArgs(int argc, char **argv)
 #ifdef CHECK_OLD_ARGS
 		{
 			static char *depreciated_args[] =
-			{"-v", "-imagefile", "-mfont"};
+			{"-v", "-imagefile", "-mfont", "-rule3d", "-life3dfile", "-mouse", "-shift", "-tshift"};
 			static char *current_args[] =
-			{"-verbose", "-bitmap", "-messagefont"};
+			{"-verbose", "-bitmap", "-messagefont", "-rule", "-lifefile", "-trackmouse", "-cycle", "-cycle"};
 			int         j;
 
 			for (j = 0; j < (int) ((sizeof current_args) / sizeof (*current_args)); j++)
@@ -1556,8 +1568,11 @@ printvar(char *className, argtype var)
 }
 
 static void
-getServerResources(Display * display, char *homeenv, char **custom,
-		   XrmDatabase * RDB, XrmDatabase * serverDB)
+getServerResources(Display * display, char *homeenv,
+#ifdef CUSTOMIZATION
+  char **custom,
+#endif
+  XrmDatabase * RDB, XrmDatabase * serverDB)
 {
 	char       *serverString;
 
@@ -1593,8 +1608,11 @@ getServerResources(Display * display, char *homeenv, char **custom,
 }
 
 static void
-getAppResources(char *homeenv, char **custom,
-	   XrmDatabase * RDB, XrmDatabase * serverDB, int *argc, char **argv)
+getAppResources(char *homeenv, char **custom, XrmDatabase * RDB,
+#ifdef CUSTOMIZATION
+	   XrmDatabase * serverDB,
+#endif
+	   int *argc, char **argv)
 {
 	char       *env;
 	char       *userpath;
@@ -1697,6 +1715,13 @@ getResources(Display ** displayp, int argc, char **argv)
 	int         i, j;
 	int         max_length;
 	extern char *getenv(const char *);
+extern void XlockrmParseCommand(
+    XrmDatabase		*pdb,		/* data base */
+    register XrmOptionDescList options, /* pointer to table of valid options */
+    int                 num_options,	/* number of options		     */
+    char               *prefix,		/* name to prefix resources with     */
+    int                *arg_c,		/* address of argument count 	     */
+    char              **arg_v);		/* argument list (command line)	     */
 
 #if defined( USE_AUTO_LOGOUT ) || defined( USE_BUTTON_LOGOUT )
 	extern int  fullLock();
@@ -1743,10 +1768,10 @@ getResources(Display ** displayp, int argc, char **argv)
 	checkDisplay();
 #else
 	custom = "";
-	getAppResources(homeenv, &custom, &RDB, &serverDB, &argc, argv);
+	getAppResources(homeenv, &custom, &RDB, &argc, argv);
 	openDisplay(displayp);
 	checkDisplay();
-	getServerResources(*displayp, homeenv, &custom, &RDB, &serverDB);
+	getServerResources(*displayp, homeenv, &RDB, &serverDB);
 #endif
 
 #ifdef USE_MODULES
@@ -1781,30 +1806,53 @@ getResources(Display ** displayp, int argc, char **argv)
 	XrmParseCommand(&modeDB, modeTable, modeEntries, ProgramName, &argc, argv);
 	(void) XrmMergeDatabases(modeDB, &RDB);
 
+
+
 	for (i = 0; i < numprocs; i++) {
+		/* if (!strcmp(mode, LockProcs[i].cmdline_arg)) */
 		XrmDatabase optDB = NULL;
 		ModeSpecOpt *ms = LockProcs[i].msopt;
 
 		if (!ms->numopts)
 			continue;
-		XrmParseCommand(&optDB, ms->opts, ms->numopts,
+		/* The problem was with XrmParseCommand is that it does not
+                   work for multiple use options.  Running it first with a
+                   corrupted version (that makes sure argc and argv do
+                   not change) to setup optDB then run the real 
+                   XrmParseCommand on a nullDB to set argv and argc.
+                 */
+		XlockrmParseCommand(&optDB, ms->opts, ms->numopts,
 				ProgramName, &argc, argv);
 /* PURIFY 4.0.1 on Solaris 2 reports an uninitialized memory read on the next
    * line.  PURIFY 4.0.1 on SunOS4 does not report this error. */
 		(void) XrmMergeDatabases(optDB, &RDB);
 	}
+	for (i = 0; i < numprocs; i++) {
+		/* if (!strcmp(mode, LockProcs[i].cmdline_arg)) */
+		XrmDatabase nullDB = NULL;
+		ModeSpecOpt *ms = LockProcs[i].msopt;
+
+		if (!ms->numopts)
+			continue;
+                 /*     Runnning real XrmParseCommand on a nullDB to set argv
+                        and argc.
+                 */
+		XrmParseCommand(&nullDB, ms->opts, ms->numopts,
+				ProgramName, &argc, argv);
+	}
 
 	/* the RDB is set, now query load the variables from the database */
 
-	for (i = 0; i < (int) NGENARGS; i++)
+	for (i = 0; i < (int) NGENARGS; i++) {
 		GetResource(RDB, ProgramName, classname,
 			    genvars[i].name, genvars[i].classname,
 			    genvars[i].type, genvars[i].def, genvars[i].var);
+	}
 
 #ifdef USE_VTLOCK
         /* Process the vtlock resource */
         if ( !vtlockres || !*vtlockres )
-          vtlock = False;
+        	vtlock = False;
         else {
 	    if (debug)
 		(void) fprintf(stderr,"vtlock: %s\n",vtlockres);
@@ -1887,9 +1935,11 @@ getResources(Display ** displayp, int argc, char **argv)
 		if (!ms->numvarsdesc)
 			continue;
 		v = ms->vars;
-		for (j = 0; j < ms->numvarsdesc; j++)
-			GetResource(RDB, modename, modeclassname, v[j].name, v[j].classname,
-				    v[j].type, v[j].def, v[j].var);
+		for (j = 0; j < ms->numvarsdesc; j++) {
+			GetResource(RDB, modename, modeclassname,
+				v[j].name, v[j].classname,
+				v[j].type, v[j].def, v[j].var);
+		}
 	}
 
 	/*XrmPutFileDatabase(RDB, "/tmp/xlock.rsrc.out"); */
@@ -1933,12 +1983,13 @@ getResources(Display ** displayp, int argc, char **argv)
 #endif
 #endif
 #ifdef USE_BUTTON_LOGOUT
-#if ( USE_BUTTON_LOGOUT > 0 )	/* Could be USER defined if 0 */
+#if ( USE_BUTTON_LOGOUT > 0 )	/* Could be USER defined if <= 0 */
 		if (logoutButton > USE_BUTTON_LOGOUT)
 			logoutButton = USE_BUTTON_LOGOUT;
 		else if (logoutButton <= 0)	/* Handle 0 as a special case */
 			logoutButton = USE_BUTTON_LOGOUT;
-#else
+#endif
+#if ( USE_BUTTON_LOGOUT == 0 )
 		if (logoutButton <= 0)	/* Handle 0 as a special case */
 			(void) sscanf(DEF_BUTTON_LOGOUT, "%d", &logoutButton);
 #endif

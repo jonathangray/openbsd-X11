@@ -122,13 +122,14 @@ find_x(const  char *path, const char *name, dev_t *pxdev )
     struct stat stbuf;
     char xpath[MAXPATHLEN+1]; 
 
-    sprintf( xpath, "%s/%s", path, name ); 
+    (void) sprintf( xpath, "%s/%s", path, name ); 
     if ( stat( xpath, &stbuf ) != -1 ) {
-        strcpy( xpath, name );
+        (void) strcpy( xpath, name );
         while ( S_ISLNK(stbuf.st_mode) ) {
             char buf[MAXPATHLEN+1];
 
-            if ( readlink( xpath, buf, MAXPATHLEN ) == -1 || ! *buf ) return( (ino_t) -1 );
+            if ( readlink( xpath, buf, MAXPATHLEN ) == -1 || ! *buf )
+                return( (ino_t) -1 );
 
             /* 
 	     * Let's try to know if the path is absolute or relative 
@@ -137,9 +138,9 @@ find_x(const  char *path, const char *name, dev_t *pxdev )
 	     * then we need to add the path given as argument
 	     */
             if ( buf[0] != '/' )
-              sprintf( xpath, "%s/%s", path, buf );
+              (void) sprintf( xpath, "%s/%s", path, buf );
             else
-              strcpy( xpath, buf );
+              (void) strcpy( xpath, buf );
             /* Stat linked file */
             if ( stat( xpath, &stbuf ) == -1 ) return( (ino_t) -1 );
         }
@@ -182,8 +183,8 @@ find_x_proc(int disp_nr, dev_t lxdev, ino_t lxino)
 
     /* These are the display string searched in X cmd running (e.g.: :1) */
     /* and the searched  value of the link (e.g.: "[0301]:286753") */
-    sprintf( xdisp, ":%d", disp_nr ); 
-    sprintf( xcmd_ref, "[%04x]:%ld", lxdev, lxino );
+    (void) sprintf( xdisp, ":%d", disp_nr ); 
+    (void) sprintf( xcmd_ref, "[%04x]:%ld", lxdev, lxino );
     lencmd = strlen(xcmd_ref);
     if ( stat( PROCDIR, &stbuf ) == -1 ) return( (pid_t)-1 );
     namelist = (struct dirent **) malloc(sizeof (struct dirent *));
@@ -196,7 +197,7 @@ find_x_proc(int disp_nr, dev_t lxdev, ino_t lxino)
         char pname[MAXPATHLEN+1];
         char buf[MAXPATHLEN+1]; 
 
-        sprintf( pname, PROCDIR "/%s/exe", namelist[curn]->d_name );
+        (void) sprintf( pname, PROCDIR "/%s/exe", namelist[curn]->d_name );
 	(void) memset((char *) buf, 0, sizeof (buf));
         if ( readlink( pname, buf, MAXPATHLEN ) <= 0 ) {
             /* This is unreadable, let's continue */
@@ -217,7 +218,7 @@ find_x_proc(int disp_nr, dev_t lxdev, ino_t lxino)
             char *p; 
 
             proc =(pid_t)atoi( namelist[curn]->d_name );
-            sprintf( cmdlinepath, PROCDIR "/%s/cmdline", namelist[curn]->d_name );
+            (void) sprintf( cmdlinepath, PROCDIR "/%s/cmdline", namelist[curn]->d_name );
             if ( ( cmdlinefd = open( cmdlinepath, O_RDONLY ) ) == -1 ) {
                 curn++; 
                 continue;
@@ -275,11 +276,11 @@ find_tty_inodes( struct inode_ref *inotab )
     char name[MAXPATHLEN+1];
 
     for ( ix = 1; ix < MAX_NR_CONSOLES; ix++ ) {
-        sprintf( name, BASEVTNAME, ix );
+        (void) sprintf( name, BASEVTNAME, ix );
         if ( stat( name, &stbuf ) == -1 )
           continue;
         inotab[ln_ttys].n = ix; 
-        sprintf( inotab[ln_ttys].ref, "[%04x]:%ld", stbuf.st_dev, stbuf.st_ino );
+        (void) sprintf( inotab[ln_ttys].ref, "[%04x]:%ld", stbuf.st_dev, stbuf.st_ino );
         ln_ttys++; 
     }
     return ln_ttys;
@@ -298,7 +299,7 @@ scan_x_fds( struct inode_ref *inotab, int ln_ttys, pid_t proc )
     struct dirent **namelist=NULL;
     int curn = 0;
 
-    sprintf( xfddir, PROCDIR "/%d/fd", proc );
+    (void) sprintf( xfddir, PROCDIR "/%d/fd", proc );
     namelist = (struct dirent **) malloc(sizeof (struct dirent *));
     if ( scan_dir( xfddir, &namelist, NULL, alphasort ) == -1 ) 
     {
@@ -311,7 +312,7 @@ scan_x_fds( struct inode_ref *inotab, int ln_ttys, pid_t proc )
         struct stat stbuf; 
         int ix; 
 
-        sprintf( linkname, "%s/%s", xfddir, namelist[curn]->d_name );
+        (void) sprintf( linkname, "%s/%s", xfddir, namelist[curn]->d_name );
         if ( stat( linkname, &stbuf ) == -1 ) {
             /* If cannot stat it, just discard it */
             curn++;

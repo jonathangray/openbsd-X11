@@ -28,19 +28,18 @@ _f_o_n_t_n_a_m_e ] [ -ppppllllaaaannnnffffoooonnnnt
 ]  [  -bbbbaaaacccckkkkggggrrrroooouuuunnnndddd  _c_o_l_o_r ] [ -ffffoooorrrreeeeggggrrrroooouuuunnnndddd _c_o_l_o_r ] [ -uuuusssseeeerrrrnnnnaaaammmmeeee
 _s_t_r_i_n_g ] [ -ppppaaaasssssssswwwwoooorrrrdddd _s_t_r_i_n_g ] [ -iiiinnnnffffoooo _s_t_r_i_n_g ]  [  -vvvvaaaalllliiiiddddaaaatttteeee
 _s_t_r_i_n_g   ]  [  -iiiinnnnvvvvaaaalllliiiidddd  _s_t_r_i_n_g  ]  [  -ggggeeeeoooommmmeeeettttrrrryyyy  _g_e_o_m  ]  [
--iiiiccccoooonnnnggggeeeeoooommmmeeeettttrrrryyyy _g_e_o_m ] [ -ggggllllggggeeeeoooommmmeeeettttrrrryyyy _g_e_o_m ] [ ----////++++ffffuuuullllllllrrrraaaannnnddddoooommmm  ]
-[  ----////++++wwwwiiiirrrreeeeffffrrrraaaammmmeeee  ] [ ----////++++uuuusssseeee3333dddd ] [ -ddddeeeellllttttaaaa3333dddd _v_a_l_u_e ] [ -nnnnoooonnnneeee3333dddd
-_c_o_l_o_r ] [ -rrrriiiigggghhhhtttt3333dddd _c_o_l_o_r ] [ -lllleeeefffftttt3333dddd _c_o_l_o_r ] [ -bbbbooootttthhhh3333dddd _c_o_l_o_r
-]  [  -pppprrrrooooggggrrrraaaammmm  _p_r_o_g_r_a_m_n_a_m_e  ]  [  -mmmmeeeessssssssaaaaggggeeeessssffffiiiilllleeee  _f_o_r_m_a_t_t_e_d-
-_f_i_l_e_n_a_m_e ] [ -mmmmeeeessssssssaaaaggggeeeeffffiiiilllleeee _f_i_l_e_n_a_m_e ] [ -mmmmeeeessssssssaaaaggggeeee _s_t_r_i_n_g  ]  [
--mmmmeeeessssssssaaaaggggeeeeffffoooonnnntttt  _f_o_n_t_n_a_m_e  ]  [ -bbbbiiiittttmmmmaaaapppp _f_i_l_e_n_a_m_e ] [ -nnnneeeeiiiigggghhhhbbbboooorrrrssss
-_n_u_m ] [ ----////++++mmmmoooouuuusssseeee ] [ -ccccppppaaaasssssssswwwwdddd _c_r_y_p_t_e_d-_p_a_s_s_w_o_r_d ] [ -ffffoooorrrrcccceeeeLLLLoooo----
-ggggoooouuuutttt  _m_i_n_u_t_e_s ] [ -llllooooggggoooouuuuttttBBBBuuuuttttttttoooonnnnLLLLaaaabbbbeeeellll _t_e_x_t_s_t_r_i_n_g ] [ -llllooooggggoooouuuutttt----
-2 BBBBuuuuttttttttoooonnnnHHHHeeeellllpppp _t_e_x_t_s_t_r_i_n_g ] [ -llllooooggggoooouuuuttttFFFFaaaaiiiilllleeeeddddSSSSttttrrrriiiinnnngggg _t_e_x_t_s_t_r_i_n_g ] [
-----////++++ddddttttssssaaaavvvveeeerrrr  ]  [  -mmmmoooodddduuuulllleeeeppppaaaatttthhhh _p_a_t_h ] [ -lllloooocccckkkkssssoooouuuunnnndddd _s_t_r_i_n_g ] [
--iiiinnnnffffoooossssoooouuuunnnndddd _s_t_r_i_n_g ] [ -vvvvaaaalllliiiiddddssssoooouuuunnnndddd _s_t_r_i_n_g ]  [  -iiiinnnnvvvvaaaalllliiiiddddssssoooouuuunnnndddd
-_s_t_r_i_n_g  ]  [  -ssssttttaaaarrrrttttCCCCmmmmdddd  _s_t_r_i_n_g  ]  [  -eeeennnnddddCCCCmmmmdddd  _s_t_r_i_n_g  ]  [
--llllooooggggoooouuuuttttCCCCmmmmdddd _s_t_r_i_n_g ]
+-iiiiccccoooonnnnggggeeeeoooommmmeeeettttrrrryyyy _g_e_o_m ] [ -ggggllllggggeeeeoooommmmeeeettttrrrryyyy _g_e_o_m ] [ ----////++++wwwwiiiirrrreeeeffffrrrraaaammmmeeee ] [
+----////++++uuuusssseeee3333dddd  ]  [ -ddddeeeellllttttaaaa3333dddd _v_a_l_u_e ] [ -nnnnoooonnnneeee3333dddd _c_o_l_o_r ] [ -rrrriiiigggghhhhtttt3333dddd
+_c_o_l_o_r ] [ -lllleeeefffftttt3333dddd _c_o_l_o_r ] [ -bbbbooootttthhhh3333dddd _c_o_l_o_r ] [ -pppprrrrooooggggrrrraaaammmm  _p_r_o_-
+_g_r_a_m_n_a_m_e  ] [ -mmmmeeeessssssssaaaaggggeeeessssffffiiiilllleeee _f_o_r_m_a_t_t_e_d-_f_i_l_e_n_a_m_e ] [ -mmmmeeeessssssssaaaaggggeeee----
+ffffiiiilllleeee _f_i_l_e_n_a_m_e ] [ -mmmmeeeessssssssaaaaggggeeee _s_t_r_i_n_g ] [ -mmmmeeeessssssssaaaaggggeeeeffffoooonnnntttt  _f_o_n_t_n_a_m_e
+] [ -bbbbiiiittttmmmmaaaapppp _f_i_l_e_n_a_m_e ] [ -ccccppppaaaasssssssswwwwdddd _c_r_y_p_t_e_d-_p_a_s_s_w_o_r_d ] [ -ffffoooorrrr----
+cccceeeeLLLLooooggggoooouuuutttt _m_i_n_u_t_e_s  ]  [  -llllooooggggoooouuuuttttBBBBuuuuttttttttoooonnnnLLLLaaaabbbbeeeellll  _t_e_x_t_s_t_r_i_n_g  ]  [
+-llllooooggggoooouuuuttttBBBBuuuuttttttttoooonnnnHHHHeeeellllpppp  _t_e_x_t_s_t_r_i_n_g  ] [ -llllooooggggoooouuuuttttFFFFaaaaiiiilllleeeeddddSSSSttttrrrriiiinnnngggg _t_e_x_t_-
+_s_t_r_i_n_g ] [ ----////++++ddddttttssssaaaavvvveeeerrrr ] [ -mmmmoooodddduuuulllleeeeppppaaaatttthhhh _p_a_t_h  ]  [  -lllloooocccckkkkssssoooouuuunnnndddd
+_s_t_r_i_n_g  ]  [  -iiiinnnnffffoooossssoooouuuunnnndddd  _s_t_r_i_n_g  ] [ -vvvvaaaalllliiiiddddssssoooouuuunnnndddd _s_t_r_i_n_g ] [
+-iiiinnnnvvvvaaaalllliiiiddddssssoooouuuunnnndddd _s_t_r_i_n_g ] [ -ssssttttaaaarrrrttttCCCCmmmmdddd _s_t_r_i_n_g ] [ -eeeennnnddddCCCCmmmmdddd _s_t_r_i_n_g
+] [ -llllooooggggoooouuuuttttCCCCmmmmdddd _s_t_r_i_n_g ]
 
 
 2 DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
@@ -58,6 +57,7 @@ password Control-U and Control-H  are  active  as  kill  and
 erase  respectively.   To return to the locked screen, click
 in the small icon version of the changing pattern.
 
+2 In  the  lower  part  of  the  password  screen  a  text  is
 
 
 
@@ -72,7 +72,6 @@ in the small icon version of the changing pattern.
 
 
 
-2 In  the  lower  part  of  the  password  screen  a  text  is
 displayed.  This message is taken from the first file of the
 following that exists:   $HOME/.xlocktext,  $HOME/.plan,  or
 $HOME/.signature.
@@ -124,6 +123,7 @@ the session in some manner.
      resources to configure xxxxlllloooocccckkkk.
 
 -mmmmooooddddeeee _m_o_d_e_n_a_m_e
+     As of this writing there  are  over  90  display  modes
 
 
 
@@ -138,8 +138,7 @@ the session in some manner.
 
 
 
-     As of this writing there are over 90 display modes sup-
-     ported  (plus  one  more for random selection of one of
+     supported (plus one more for random selection of one of
      these).
 
 aaaannnntttt     Shows Langton's and Turk's generalized ants.
@@ -180,7 +179,7 @@ ccccrrrryyyyssssttttaaaallll Shows polygons in 2D plane gro
 
 ddddaaaaiiiissssyyyy   Shows a meadow of daisies.
 
-ddddcccclllloooocccckkkk  Shows a floating digital clock.
+ddddcccclllloooocccckkkk  Shows a floating digital clock or message.
 
 ddddeeeeccccoooo    Shows art as ugly as sin.
 
@@ -190,6 +189,7 @@ ddddiiiilllleeeemmmmmmmmaaaa Shows Lloyd's Prisoner's Dilem
 
 ddddiiiissssccccrrrreeeetttteeee
         Shows various discrete maps.
+
 
 
 
@@ -215,7 +215,9 @@ eeeeyyyyeeeessss    Shows eyes following a bouncing grelb.
 ffffaaaaddddeeeeppppllllooootttt
         Shows a fading plot of sine squared.
 
-ffffllllaaaagggg    Shows a waving flag of your operating system.
+ffffllllaaaagggg    Shows a waving flag image.  This may be  text  or  a
+        graphic  image.   Default  text  is the hostname and
+        operating system.
 
 ffffllllaaaammmmeeee   Shows cosmic flame fractals.
 
@@ -254,8 +256,6 @@ llllaaaasssseeeerrrr   Shows spinning lasers.
 
 lllliiiiffffeeee    Shows Conway's game of life.
 
-lllliiiiffffeeee1111dddd  Shows Wolfram's game of 1D life.
-
 
 
 
@@ -269,6 +269,8 @@ lllliiiiffffeeee1111dddd  Shows Wolfram's game of 1D life.
 2 User Commands                                            XLOCK(1)
 
 
+
+lllliiiiffffeeee1111dddd  Shows Wolfram's game of 1D life.
 
 lllliiiiffffeeee3333dddd  Shows Bays' game of 3D life.
 
@@ -285,6 +287,8 @@ mmmmaaaannnnddddeeeellllbbbbrrrrooootttt
         Shows mandelbrot sets.
 
 mmmmaaaarrrrqqqquuuueeeeeeee Shows text.
+
+mmmmaaaattttrrrriiiixxxx  Shows the matrix.
 
 mmmmaaaazzzzeeee    Shows a random maze and a depth first  search  solu-
         tion.
@@ -319,10 +323,6 @@ ppppyyyyrrrroooo    Shows fireworks.
 
 qqqqiiiixxxx     Shows spinning lines a la Qix(tm).
 
-rrrroooollllllll    Shows a rolling ball.
-
-rrrroooottttoooorrrr   Shows Tom's Roto-Rooter.
-
 
 
 2 X11R6 Contrib        Last change: 8 Mar 1999                    5
@@ -335,6 +335,10 @@ rrrroooottttoooorrrr   Shows Tom's Roto-Rooter.
 2 User Commands                                            XLOCK(1)
 
 
+
+rrrroooollllllll    Shows a rolling ball.
+
+rrrroooottttoooorrrr   Shows Tom's Roto-Rooter.
 
 rrrruuuubbbbiiiikkkk   Shows an auto-solving  Rubik's  Cube.   May  not  be
         available depending on how it was configured.
@@ -375,19 +379,15 @@ sssswwwwaaaarrrrmmmm   Shows a swarm of bees following a wasp.
 
 sssswwwwiiiirrrrllll   Shows animated swirling patterns.
 
-tttteeeettttrrrriiiissss  Shows tetris.
+tttteeeettttrrrriiiissss  Shows an autoplaying tetris game.
 
 tttthhhhoooorrrrnnnnbbbbiiiirrrrdddd
         Shows an animated Bird in a Thorn Bush fractal map.
 
+ttttiiiikkkk____ttttaaaakkkk Shows rotating polygons.
+
 ttttrrrriiiiaaaannnngggglllleeee
         Shows a triangular mountain range.
-
-ttttuuuubbbbeeee    Shows an animated tube.
-
-ttttuuuurrrrttttlllleeee  Shows turtle fractals.
-
-vvvviiiinnnneeeessss   Shows fractal-like vines.
 
 
 
@@ -401,6 +401,12 @@ vvvviiiinnnneeeessss   Shows fractal-like vines.
 2 User Commands                                            XLOCK(1)
 
 
+
+ttttuuuubbbbeeee    Shows an animated tube.
+
+ttttuuuurrrrttttlllleeee  Shows turtle fractals.
+
+vvvviiiinnnneeeessss   Shows fractal-like vines.
 
 vvvvooootttteeeerrrrssss  Shows Dewdney's Voters.
 
@@ -448,12 +454,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      In ball mode it is the number of balls.
 
      In bat mode it is the number of  bats,  could  be  less
-     because of conflicts.
-
-     In blot mode this refers to the number of  pixels  ren-
-     dered in the same color.
-
-     In bouboule mode it is the number of stars.
 
 
 
@@ -467,6 +467,13 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 2 User Commands                                            XLOCK(1)
 
 
+
+     because of conflicts.
+
+     In blot mode this refers to the number of  pixels  ren-
+     dered in the same color.
+
+     In bouboule mode it is the number of stars.
 
      In bounce mode it is the number of balls, could be less
      because of conflicts.
@@ -514,13 +521,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
      In flag mode it means nothing.
 
-     In flame mode it is the number  of  levels  to  recurse
-     (larger = more complex).
-
-     In flow mode it is the number of bees.
-
-     In forest mode it is  the  number  trees  that  make  a
-
 
 
 2 X11R6 Contrib        Last change: 8 Mar 1999                    8
@@ -534,6 +534,12 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
 
 
+     In flame mode it is the number  of  levels  to  recurse
+     (larger = more complex).
+
+     In flow mode it is the number of bees.
+
+     In forest mode it is  the  number  trees  that  make  a
      forest.
 
      In galaxy mode it means the number of galaxies.
@@ -581,12 +587,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
      In loop mode it means nothing.
 
-     In mandelbrot mode it is the order.
-
-     In marquee mode it means nothing.
-
-     In maze mode it means nothing.
-
 
 
 2 X11R6 Contrib        Last change: 8 Mar 1999                    9
@@ -599,6 +599,14 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 2 User Commands                                            XLOCK(1)
 
 
+
+     In mandelbrot mode it is the order.
+
+     In marquee mode it means nothing.
+
+     In matrix mode it means nothing.
+
+     In maze mode it means nothing.
 
      In moebius mode it is means nothing.
 
@@ -645,14 +653,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
      In spline mode it is the number of points "splined".
 
-     In sproingies mode it is the number of sproingies.
-
-     In stairs mode it is means nothing.
-
-     In star mode it is the number of stars on the screen at
-     once.
-
-
 
 
 2 X11R6 Contrib        Last change: 8 Mar 1999                   10
@@ -665,6 +665,13 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 2 User Commands                                            XLOCK(1)
 
 
+
+     In sproingies mode it is the number of sproingies.
+
+     In stairs mode it is means nothing.
+
+     In star mode it is the number of stars on the screen at
+     once.
 
      In starfish mode it means nothing.
 
@@ -711,13 +718,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
 -bbbbaaaattttcccchhhhccccoooouuuunnnntttt _n_u_m
      The _b_a_t_c_h_c_o_u_n_t option is depreciated but  should  still
-     work as _c_o_u_n_t.
-
--ccccyyyycccclllleeeessss _n_u_m
-     The _c_y_c_l_e_s option sets the number of cycles until  time
-     out  for  ant, blot, braid, bug, clock, crystal, daisy,
-     deco,  demon,  dilemma,  discrete,  eyes,  flag,  flow,
-     forest,  galaxy,  helix,  hop, hyper, ico, laser, life,
 
 
 
@@ -732,6 +732,13 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
 
 
+     work as _c_o_u_n_t.
+
+-ccccyyyycccclllleeeessss _n_u_m
+     The _c_y_c_l_e_s option sets the number of cycles until  time
+     out  for  ant, blot, braid, bug, clock, crystal, daisy,
+     deco,  demon,  dilemma,  discrete,  eyes,  flag,  flow,
+     forest,  galaxy,  helix,  hop, hyper, ico, laser, life,
      life1d, life3d, lisa, lissie, loop,  mandelbrot,  moun-
      tain,  petal,  sierpinski, shape, spline +erase, thorn-
      bird, triangle, tube, voters,  wator,  and  wire.   For
@@ -754,18 +761,19 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      bouboule,  pyro  and  star,  size  of  ball in ball and
      bounce, size of bat in bat, maximum size of  bubble  in
      bubble, size of clock in clock, minimum size of rectan-
-     gles in deco, size of the polygon in crystal,  size  of
-     polyhedron  in  ico,  size of lissie in lissie, size of
-     dots of flag, for kaleid it is the symmetry,  width  of
-     maze  hallway,  size of side of penrose tile, radius of
-     loop in lisa, radius of ball in roll, number of corners
-     in  sierpinski,  size of tube in tube, width of worm in
-     worm, line width in rotor, size of cells in  ant,  bug,
-     dilemma,  life,  life1d, pacman, tetris, voters, wator,
-     and wire.  In pipes it is the maximum length of a  sys-
-     tem.   In atlantis it is the shark size.  In sproingies
-     it is the size of the screen.  A negative number allows
-     for randomness, similar to _c_o_u_n_t.
+     gles in deco, size  of  the  polygons  in  crystal  and
+     tik_tak,  size  of polyhedron in ico, size of lissie in
+     lissie, size of dots of flag, for kaleid it is the sym-
+     metry,  width  of maze hallway, size of side of penrose
+     tile, radius of loop in lisa, radius of ball  in  roll,
+     number  of corners in sierpinski, size of tube in tube,
+     width of worm in worm, line width  in  rotor,  size  of
+     cells  in  ant,  bug,  dilemma,  life,  life1d, pacman,
+     tetris, voters, wator, and wire.  In pipes  it  is  the
+     maximum  length  of  a  system.   In atlantis it is the
+     shark size.  In  sproingies  it  is  the  size  of  the
+     screen.  A negative number allows for randomness, simi-
+     lar to _c_o_u_n_t.
 
 -nnnnccccoooolllloooorrrrssss _n_u_m
      The _n_c_o_l_o_r_s option sets the maximum number of colors to
@@ -776,14 +784,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      used  to  _v_a_l_u_e  .  0  is  grayscale and 1 is very rich
      color.  0.4 is a nice pastel.
 
--eeeerrrraaaasssseeeemmmmooooddddeeee _m_o_d_e_n_a_m_e
-     As of this writing there are over 9  erase  modes  sup-
-     ported  (if  its  not  chosen its assumed random).  The
-     erase modes are random_lines, random_squares, venetian,
-     triple_wipe, quad_wipe, circle_wipe, three_circle_wipe,
-     squaretate, no_fade.
-
--eeeerrrraaaasssseeeeddddeeeellllaaaayyyy _u_s_e_c_s
 
 
 
@@ -798,6 +798,14 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
 
 
+-eeeerrrraaaasssseeeemmmmooooddddeeee _m_o_d_e_n_a_m_e
+     As of this writing there are over 9  erase  modes  sup-
+     ported  (if  its  not  chosen its assumed random).  The
+     erase modes are random_lines, random_squares, venetian,
+     triple_wipe, quad_wipe, circle_wipe, three_circle_wipe,
+     squaretate, no_fade.
+
+-eeeerrrraaaasssseeeeddddeeeellllaaaayyyy _u_s_e_c_s
      The _e_r_a_s_e_d_e_l_a_y option sets the number  of  microseconds
      for  steps  of  the  eeeerrrraaaasssseeeemmmmooooddddeeee  (a setting of 0 and the
      eeeerrrraaaasssseeeemmmmooooddddeeee is bypassed).
@@ -842,14 +850,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      which is locked for some reason...  When _a_l_l_o_w_a_c_c_e_s_s is
      true, the X11 server is left open for clients to attach
      and  thus  lowers  the  inherent  security of this lock
-     screen.  A side effect of using this option is that  if
-     xxxxlllloooocccckkkk  is  killed -KILL, the access control list is not
-     lost.
-
--vvvvttttlllloooocccckkkk _m_o_d_e_n_a_m_e
-     This option is used on a XFree86 system  to  manage  VT
-     switching in [off|noswitch|switch|restore] mode.
-
 
 
 
@@ -863,6 +863,14 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 2 User Commands                                            XLOCK(1)
 
 
+
+     screen.  A side effect of using this option is that  if
+     xxxxlllloooocccckkkk  is  killed -KILL, the access control list is not
+     lost.
+
+-vvvvttttlllloooocccckkkk _m_o_d_e_n_a_m_e
+     This option is used on a XFree86 system  to  manage  VT
+     switching in [off|noswitch|switch|restore] mode.
 
 _o_f_f       means no VT switch locking.
 
@@ -909,14 +917,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      By default xxxxlllloooocccckkkk will call XResetScreenSaver.  This may
      be undesirable with DPMS monitors.
 
-----////++++ggggrrrraaaabbbbmmmmoooouuuusssseeee
-     The _g_r_a_b_m_o_u_s_e option causes xxxxlllloooocccckkkk to grab the mouse and
-     keyboard,  this is the default.  xxxxlllloooocccckkkk can not lock the
-     screen without this.
-
-----////++++ggggrrrraaaabbbbsssseeeerrrrvvvveeeerrrr
-     The _g_r_a_b_s_e_r_v_e_r option causes xxxxlllloooocccckkkk to grab the  server.
-
 
 
 2 X11R6 Contrib        Last change: 8 Mar 1999                   14
@@ -930,6 +930,13 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 
 
+----////++++ggggrrrraaaabbbbmmmmoooouuuusssseeee
+     The _g_r_a_b_m_o_u_s_e option causes xxxxlllloooocccckkkk to grab the mouse and
+     keyboard,  this is the default.  xxxxlllloooocccckkkk can not lock the
+     screen without this.
+
+----////++++ggggrrrraaaabbbbsssseeeerrrrvvvveeeerrrr
+     The _g_r_a_b_s_e_r_v_e_r option causes xxxxlllloooocccckkkk to grab the  server.
      This  is not usually needed but some unsecure X servers
      can be defeated without this.
 
@@ -975,13 +982,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      the password screen will time out.
 
 -ffffoooonnnntttt _f_o_n_t_n_a_m_e
-     The _f_o_n_t option sets the font to be used on the  prompt
-     screen.
-
--ppppllllaaaannnnffffoooonnnntttt _f_o_n_t_n_a_m_e
-     option sets the font to be used for the  text  that  is
-     displayed in the lower part of the password screen.
-
 
 
 
@@ -995,6 +995,13 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 2 User Commands                                            XLOCK(1)
 
 
+
+     The _f_o_n_t option sets the font to be used on the  prompt
+     screen.
+
+-ppppllllaaaannnnffffoooonnnntttt _f_o_n_t_n_a_m_e
+     option sets the font to be used for the  text  that  is
+     displayed in the lower part of the password screen.
 
 -ffffgggg _c_o_l_o_r
      The _f_g option sets the color of the text on  the  pass-
@@ -1041,13 +1048,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      it is locked.  This should be used with  caution  since
      many of the modes will fail if the windows are far from
      square or are too small  (size  must  be  greater  than
-     0x0).   This  should  also be used with -enablesaver to
-     protect screen from phosphor burn.
-
--iiiiccccoooonnnnggggeeeeoooommmmeeeettttrrrryyyy _g_e_o_m
-     The _i_c_o_n_g_e_o_m_e_t_r_y option  sets  _g_e_o_m  the  size  of  the
-     iconic  screen  (normally 64x64) seen when entering the
-     password.  This should be used with caution since  many
 
 
 
@@ -1062,6 +1062,13 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 
 
+     0x0).   This  should  also be used with -enablesaver to
+     protect screen from phosphor burn.
+
+-iiiiccccoooonnnnggggeeeeoooommmmeeeettttrrrryyyy _g_e_o_m
+     The _i_c_o_n_g_e_o_m_e_t_r_y option  sets  _g_e_o_m  the  size  of  the
+     iconic  screen  (normally 64x64) seen when entering the
+     password.  This should be used with caution since  many
      of  the  modes  will  fail  if the windows are far from
      square or are too small  (size  must  be  greater  than
      0x0).   The  greatest size is 256x256.  There should be
@@ -1071,10 +1078,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 -ggggllllggggeeeeoooommmmeeeettttrrrryyyy _g_e_o_m
      The _g_l_g_e_o_m_e_t_r_y option sets _g_e_o_m the size of the  screen
      for gl modes.  Not normally available or needed.
-
-----////++++ffffuuuullllllllrrrraaaannnnddddoooommmm
-     Turn  on/off  randomness  options  within  modes.   Not
-     implemented on all mode options.
 
 ----////++++wwwwiiiirrrreeeeffffrrrraaaammmmeeee
      Turn on/off wireframe, available  on  atlantis,  daisy,
@@ -1111,9 +1114,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      fortune  generator.   The  first entry is the number of
      fortunes, the next line  contains  the  first  fortune.
      Fortunes  begin  with  a  "%%"  on  a  line  by itself.
-     Currently used only for marquee and nose modes.  If one
-     exists, it takes precedence over the fortune program.
-
 
 
 
@@ -1127,6 +1127,9 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 2 User Commands                                            XLOCK(1)
 
 
+
+     Currently used only for marquee and nose modes.  If one
+     exists, it takes precedence over the fortune program.
 
 -mmmmeeeessssssssaaaaggggeeeeffffiiiilllleeee _f_i_l_e_n_a_m_e
      The _m_e_s_s_a_g_e_f_i_l_e option sets the file whose contents are
@@ -1149,18 +1152,8 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      The _b_i_t_m_a_p option sets the xbm, xpm, or ras file to  be
      displayed with flag, image, life, life1d, maze, or puz-
      zle mode.  For eyes and  pacman  only  a  xbm  file  is
-     accepted.  Certain modes reject the bitmap if too big.
-
--nnnneeeeiiiigggghhhhbbbboooorrrrssss _n_u_m
-     The _n_e_i_g_h_b_o_r_s option sets the number of neighbors of  a
-     cell  to  3,  4,  6,  9 (may not have real mathematical
-     meaning), or 12 for several automata modes.  Setting it
-     to 0 typically randomizes this, except in life where it
-     is set to 8.
-
-----////++++mmmmoooouuuusssseeee
-     Turn on and off mouse interaction in _e_y_e_s,  _j_u_l_i_a,  _a_n_d
-     _s_w_a_r_m.
+     accepted.   Certain modes reject the bitmap if too big.
+     /
 
 
 2 MMMMOOOORRRREEEE OOOOPPPPTTTTIIIIOOOONNNNSSSS ((((tttthhhheeeesssseeee mmmmaaaayyyy nnnnooootttt bbbbeeee aaaavvvvaaaaiiiillllaaaabbbblllleeee))))
@@ -1181,6 +1174,13 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      the \"Logout\" button to log  out  current\n  user  and
      make workstation available."
 
+-llllooooggggoooouuuuttttFFFFaaaaiiiilllleeeeddddSSSSttttrrrriiiinnnngggg _s_t_r_i_n_g
+     Text _s_t_r_i_n_g  is  a  message  shown  when  a  logout  is
+     attempted  and  fails.   Defaults  to  "Logout  attempt
+     FAILED.\n  Current  user  could  not  be  automatically
+     logged out."
+
+
 
 
 2 X11R6 Contrib        Last change: 8 Mar 1999                   18
@@ -1193,12 +1193,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 2 User Commands                                            XLOCK(1)
 
 
-
--llllooooggggoooouuuuttttFFFFaaaaiiiilllleeeeddddSSSSttttrrrriiiinnnngggg _s_t_r_i_n_g
-     Text _s_t_r_i_n_g  is  a  message  shown  when  a  logout  is
-     attempted  and  fails.   Defaults  to  "Logout  attempt
-     FAILED.\n  Current  user  could  not  be  automatically
-     logged out."
 
 ----////++++ddddttttssssaaaavvvveeeerrrr
      Turn on/off CDE Saver Mode.  This option is only avail-
@@ -1247,6 +1241,12 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      the  user out (either via the autologout or by pressing
      the logout button).
 
+-mmmmaaaaiiiillllCCCCmmmmdddd _s_t_r_i_n_g
+     Text _s_t_r_i_n_g command to  execute  when  the  program  to
+     check mail.
+
+-mmmmaaaaiiiillllIIIIccccoooonnnn _s_t_r_i_n_g
+
 
 
 2 X11R6 Contrib        Last change: 8 Mar 1999                   19
@@ -1260,11 +1260,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 
 
--mmmmaaaaiiiillllCCCCmmmmdddd _s_t_r_i_n_g
-     Text _s_t_r_i_n_g command to  execute  when  the  program  to
-     check mail.
-
--mmmmaaaaiiiillllIIIIccccoooonnnn _s_t_r_i_n_g
      Text _s_t_r_i_n_g of file for the "mail arrived" bitmap.
 
 -nnnnoooommmmaaaaiiiillllIIIIccccoooonnnn _s_t_r_i_n_g
@@ -1299,19 +1294,24 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 
 2 SSSSPPPPEEEECCCCIIIIAAAALLLL MMMMOOOODDDDEEEE DDDDEEEEPPPPEEEENNNNDDDDEEEENNNNTTTT OOOOPPPPTTTTIIIIOOOONNNNSSSS
--wwwwhhhhaaaalllleeeessssppppeeeeeeeedddd _n_u_m
-     Allows one to set the speed of the whales  and  dolphin
-     in _a_t_l_a_n_t_i_s.
+-nnnneeeeiiiigggghhhhbbbboooorrrrssss _n_u_m
+     The _n_e_i_g_h_b_o_r_s option sets the number of neighbors of  a
+     cell  to  3,  4,  6,  9 (may not have real mathematical
+     meaning), or 12 for several automata modes  (_a_n_t,  _b_u_g,
+     _d_e_m_o_n,  _d_i_l_e_m_m_a, _l_i_f_e, _l_o_o_p, and _w_i_r_e) (_b_u_g _a_n_d _l_o_o_p do
+     not span this full range).  Setting it to  0  typically
+     randomizes   this,   except   where  bitmaps  are  used
+     (_d_i_l_e_m_m_a, _l_i_f_e, _v_o_t_e_r_s, and _w_a_t_o_r).
 
-----////++++ttttrrrruuuucccchhhheeeetttt
-     Turn on and off Truchet lines (trail) in _a_n_t.
+----////++++eeeeyyyyeeeessss
+     Turn on and off eyes for _a_n_t and _b_u_g.
 
-----////++++bbbbooooiiiillll
-     Turn on and off having the bubbles bubble up in _b_u_b_b_l_e.
+----////++++ccccyyyycccclllleeee
+     Turn on and off colour cycling  in  _c_r_y_s_t_a_l,  _s_t_a_r_f_i_s_h,
+     _t_e_t_r_i_s, and _t_i_k__t_a_k.
 
--nnnnxxxx _n_u_m
-     Allows one to set  the  number  of  unit  cells  in  x-
-     direction in _c_r_y_s_t_a_l.
+----////++++ttttrrrraaaacccckkkkmmmmoooouuuusssseeee
+     Turn on and off mouse interaction in _e_y_e_s,  _j_u_l_i_a,  and
 
 
 
@@ -1325,6 +1325,37 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 2 User Commands                                            XLOCK(1)
 
 
+
+     _s_w_a_r_m.
+
+-rrrruuuulllleeee _S<_n_e_i_g_h_b_o_r_h_o_o_d>/_B<_n_e_i_g_h_b_o_r_h_o_o_d>
+     Allows one to set the rule for _l_i_f_e and _l_i_f_e_3_d. Special
+     parameters:  P, picks a random rule from all rules that
+     have known patterns; G, picks a random  rule  from  all
+     rules that have known gliders.  For _l_i_f_e a good example
+     is Conway's rule which  is  S23/B3.   For  _l_i_f_e_3_d  good
+     examples  are  Bay's  rules  which are S45/B5, S567/B6,
+     S56/B5, and S67/B67.
+
+-lllliiiiffffeeeeffffiiiilllleeee _f_i_l_e_n_a_m_e
+     The _l_i_f_e_f_i_l_e option sets the _l_i_f_e and _l_i_f_e_3_d  lifeform.
+     Only  one format is currently supported, similar to the
+     #P xlife format.  For _l_i_f_e_3_d, 2 linefeeds in a row  are
+     assumed to advance the depth.
+
+-wwwwhhhhaaaalllleeeessssppppeeeeeeeedddd _n_u_m
+     Allows one to set the speed of the whales  and  dolphin
+     in _a_t_l_a_n_t_i_s.
+
+----////++++ttttrrrruuuucccchhhheeeetttt
+     Turn on and off Truchet lines (trail) in _a_n_t.
+
+----////++++bbbbooooiiiillll
+     Turn on and off having the bubbles bubble up in _b_u_b_b_l_e.
+
+-nnnnxxxx _n_u_m
+     Allows one to set  the  number  of  unit  cells  in  x-
+     direction in _c_r_y_s_t_a_l.
 
 -nnnnyyyy _n_u_m
      Allows one to set  the  number  of  unit  cells  in  y-
@@ -1343,23 +1374,51 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      Turn on and off the drwing of grid of  unit  cells  (if
      -cell is on) in _c_r_y_s_t_a_l.
 
-----////++++sssshhhhiiiifffftttt
-     Turn on and off colour cycling in _c_r_y_s_t_a_l.
+----////++++ggggaaaarrrrddddeeeennnn
+     Turn off and on garden look in _d_a_i_s_y.
+
+----////++++ppppooooppppeeeexxxx
+
+
+
+2 X11R6 Contrib        Last change: 8 Mar 1999                   21
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
+     Turn on and off the  population  explosion  counter  in
+     _d_c_l_o_c_k.
 
 ----////++++ffffoooorrrreeeesssstttt
      Turn on and off the tropical deforest  (hectares/acres)
      counter in _d_c_l_o_c_k.
 
-----////++++ppppooooppppeeeexxxx
-     Turn on and off the  population  explosion  counter  in
+----////++++hhhhiiiivvvv
+     Turn on and off the HIV infection counter in _d_c_l_o_c_k.
+
+----////++++llllaaaabbbb
+     Turn on and off the Animal Research counter in _d_c_l_o_c_k.
+
+----////++++vvvveeeegggg
+     Turn on and  off  the  Animal  Consumation  counter  in
      _d_c_l_o_c_k.
+
+----////++++yyyy2222kkkk
+     Turn on and off the Year 2000 countdown in _d_c_l_o_c_k.
+
+----////++++mmmmiiiilllllllleeeennnnnnnniiiiuuuummmm
+     Turn on and off the Second Millennium (January 1, 2001)
+     countdown in _d_c_l_o_c_k.
 
 -bbbboooonnnnuuuussss _v_a_l_u_e
      Allows one to set the bonus for cheating... between 1.0
      and 4.0 in _d_i_l_e_m_m_a.
-
-----////++++ggggaaaarrrrddddeeeennnn
-     Turn off and on garden look in _d_a_i_s_y.
 
 ----////++++ccccoooonnnnsssscccciiiioooouuuussss
      Turn off and on self-awareness in _d_i_l_e_m_m_a.
@@ -1378,10 +1437,17 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 ----////++++ssssoooolllliiiiddddmmmmooooeeeebbbbiiiiuuuussss
      Turn on and off solid Mobius strip in _m_o_e_b_i_u_s.
 
+----////++++iiiinnnnvvvveeeerrrrtttt
+     Turn on and off inverting of the _f_l_a_g.
+
+----////++++ttttrrrraaaacccckkkkssss
+     Turn on and off star tracks in _g_a_l_a_x_y.
+
+----////++++ddddeeeeccccaaaayyyy
 
 
 
-2 X11R6 Contrib        Last change: 8 Mar 1999                   21
+2 X11R6 Contrib        Last change: 8 Mar 1999                   22
 
 
 
@@ -1392,13 +1458,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 
 
-----////++++iiiinnnnvvvveeeerrrrtttt
-     Turn on and off inverting of the _f_l_a_g.
-
-----////++++ttttrrrraaaacccckkkkssss
-     Turn on and off star tracks in _g_a_l_a_x_y.
-
-----////++++ddddeeeeccccaaaayyyy
      Turn on and off decaying orbits for _g_r_a_v.
 
 ----////++++ttttrrrraaaaiiiillll
@@ -1444,72 +1503,13 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 ----////++++lllliiiinnnneeeeaaaarrrr
      Turn on and  off  Cartesian/Polar  coordinate  mode  in
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   22
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      _k_a_l_e_i_d.
-
--rrrruuuulllleeee _S<_n_e_i_g_h_b_o_r_h_o_o_d>/_B<_n_e_i_g_h_b_o_r_h_o_o_d>
-     Allows one to set _l_i_f_e survival and  birth  parameters.
-     For  example, Conway's rule is S23/B3.  Special parame-
-     ters: P, picks a random rule from all rules  that  have
-     known  patterns;  G, picks a random rule from all rules
-     that have known gliders.
-
--lllliiiiffffeeeeffffiiiilllleeee _f_i_l_e_n_a_m_e
-     The _l_i_f_e_f_i_l_e option sets the lifeform.  Only one format
-     is currently supported, the #P xlife format.
 
 ----////++++ccccaaaallllllllaaaahhhhaaaannnn
      Turn on and off  Paul  Callahan's  S2b34/B2a  hexagonal
      _l_i_f_e.
 
 ----////++++aaaannnnddddrrrreeeeeeeennnn
-     Turn on and off Bob Andreen's S2a2b4a/B2a3a4b hexagonal
-     _l_i_f_e.
-
-----////++++ttttoooottttaaaalllliiiissssttttiiiicccc
-     Turn on and off totalistic rules for _l_i_f_e_1_d. If this is
-     off  then  it  follows  rules  of  the LCAU collection.
-     These rules may not be symmetric and are more general.
-
--rrrruuuulllleeee3333dddd _S<_n_e_i_g_h_b_o_r_h_o_o_d>/_B<_n_e_i_g_h_b_o_r_h_o_o_d>
-     Allows one to set _l_i_f_e_3_d survival and birth parameters.
-     For  example,  Bay's  rules are S45/B5, S567/B6 S56/B5,
-     and S67/B67.  There is currently no  way  of  accessing
-     neighborhoods beyond 9.  Special parameters: P, picks a
-     random rule from all rules that have known patterns; G,
-     picks  a  random  rule  from  all rules that have known
-     gliders.
-
--lllliiiiffffeeee3333ddddffffiiiilllleeee _f_i_l_e_n_a_m_e
-     The _l_i_f_e_3_d_f_i_l_e option sets the lifeform.  Only one for-
-     mat  is  currently  supported,  similar to the #P xlife
-     format.  2 linefeeds in a row are  assumed  to  advance
-     the depth.
-
-----////++++aaaaddddddddiiiittttiiiivvvveeee
-     Turn on and off additive functions mode in _l_i_s_a.
-
-----////++++aaaammmmmmmmaaaannnnnnnn
-     Turn on and off lines for _p_e_n_r_o_s_e.
-
--iiiinnnnccccrrrreeeemmmmeeeennnntttt _v_a_l_u_e
-     Allows fine adjustments to order in _m_a_n_d_e_l_b_r_o_t.
-
-----////++++eeeerrrraaaasssseeee
-     Turn on and off erasing for _s_p_l_i_n_e. If this  option  is
 
 
 
@@ -1524,6 +1524,25 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 
 
+     Turn on and off Bob Andreen's S2a2b4a/B2a3a4b hexagonal
+     _l_i_f_e.
+
+----////++++ttttoooottttaaaalllliiiissssttttiiiicccc
+     Turn on and off totalistic rules for _l_i_f_e_1_d. If this is
+     off  then  it  follows  rules  of  the LCAU collection.
+     These rules may not be symmetric and are more general.
+
+----////++++aaaaddddddddiiiittttiiiivvvveeee
+     Turn on and off additive functions mode in _l_i_s_a.
+
+----////++++aaaammmmmmmmaaaannnnnnnn
+     Turn on and off lines for _p_e_n_r_o_s_e.
+
+-iiiinnnnccccrrrreeeemmmmeeeennnntttt _v_a_l_u_e
+     Allows fine adjustments to order in _m_a_n_d_e_l_b_r_o_t.
+
+----////++++eeeerrrraaaasssseeee
+     Turn on and off erasing for _s_p_l_i_n_e. If this  option  is
      on,  _c_y_c_l_e_s  is  divided by 64 to compute the number of
      lines, so as to be compatible when using -fullrandom.
 
@@ -1542,6 +1561,11 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 ----////++++ccccoooommmmpppplllleeeetttteeee
      Turn on or off complete graph morphing in _q_i_x.
 
+-ssssiiiizzzzeeee[[[[xxxxyyyyzzzz]]]] _n_u_m
+     Number represents the number of cubies on the x, y,  or
+     z  axis.   Negative  numbers offer randomness from 2 to
+     the absolute value of the number.  _s_t_a_r.
+
 ----////++++hhhhiiiiddddeeeesssshhhhuuuufffffffflllliiiinnnngggg
      Turn on or off hidden shuffle phase for _r_u_b_i_k.
 
@@ -1552,6 +1576,20 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      Turn on or off shadowing in _s_h_a_p_e.
 
 ----////++++_s_h_a_p_e
+
+
+
+2 X11R6 Contrib        Last change: 8 Mar 1999                   24
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
      Turn on or off stippling in _s_h_a_p_e.
 
 -ttttrrrreeeekkkk _n_u_m
@@ -1574,22 +1612,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 -tttthhhhiiiicccckkkknnnneeeessssssss _n_u_m
      Set thickness in _s_t_a_r_f_i_s_h.
 
-----////++++ccccyyyycccclllleeee
-     Turn on and off cycle for _s_t_a_r_f_i_s_h.
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   24
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
 ----////++++rrrroooocccckkkk
      Turn on and off blob for _s_t_a_r_f_i_s_h.
 
@@ -1600,6 +1622,10 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 -dddduuuurrrraaaattttiiiioooonnnn _s_e_c_o_n_d_s
      Allows one to set a duration  for  a  mode  in  _r_a_n_d_o_m.
      Duration of 0 is defined as infinite.
+
+----////++++ffffuuuullllllllrrrraaaannnnddddoooommmm
+     Turn on/off randomness options within modes in  _r_a_n_d_o_m.
+     Not implemented for all mode options.
 
 -mmmmooooddddeeeelllliiiisssstttt _t_e_x_t_s_t_r_i_n_g
      Allows one to pass a list of files to randomly  display
@@ -1615,10 +1641,24 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      writable colormaps (not including xpm).   "all3d"  will
      get all the modes that support this option.  "allmouse"
      will get all the modes that support mouse  interaction.
-     Similarly,  "allautomata" for automata modes, "allfrac-
-     tal" for  fractal  modes,  "allgeometry"  for  geometry
-     modes,  "allspace"  for  space  modes.  The random mode
-     itself can not be referenced.
+     Similarly,    "allautomata"    for    automata   modes,
+
+
+
+2 X11R6 Contrib        Last change: 8 Mar 1999                   25
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
+     "allfractal"  for  fractal  modes,  "allgeometry"   for
+     geometry modes, "allspace" for space modes.  The random
+     mode itself can not be referenced.
 
 ----////++++sssseeeeqqqquuuueeeennnnttttiiiiaaaallll
      Turn on non-random _r_a_n_d_o_m option.
@@ -1641,19 +1681,6 @@ cases  an  encrypted  password is expected (see makekey(8)).
 2 If neither is given, then xxxxlllloooocccckkkk will prompt for  a  password
 and  will  use that, also storing an encrypted version of it
 in $$$$HHHHOOOOMMMMEEEE////....xxxxlllloooocccckkkkrrrrcccc for future use.
-
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   25
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
 
 
 2 BBBBUUUUGGGGSSSS
@@ -1682,6 +1709,19 @@ and turn off TCP/IP access control.
 2 Maintained by:
      David Albert Bagley, <_b_a_g_l_e_y_d@_t_u_x._o_r_g>
 
+
+
+2 X11R6 Contrib        Last change: 8 Mar 1999                   26
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
 2 The latest version is currently at:
      _f_t_p://_f_t_p._t_u_x._o_r_g/_p_u_b/_t_u_x/_b_a_g_l_e_y_d/_x_l_o_c_k_m_o_r_e
      _f_t_p://_f_t_p._x._o_r_g/_c_o_n_t_r_i_b/_a_p_p_l_i_c_a_t_i_o_n_s
@@ -1708,48 +1748,8 @@ notice and this permission notice appear in supporting docu-
 mentation.
 2 The original BSD daemon is Copyright (C) 1988 Marshall  Kirk
 2 McKusick.  All Rights Reserved.
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   26
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
 2 DEC, HP, IBM, Linux, SCO, SGI,  and  Sun  icons  have  their
 respective copyrights.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

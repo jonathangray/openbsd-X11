@@ -1,3 +1,17 @@
+#if !defined( lint ) && !defined( SABER )
+/* #ident	"@(#)color.h 4.14 99/06/17 xlockmore" */
+
+#endif
+
+/*-
+ * Color stuff
+ *
+ * See xlock.c for copying information.
+ *
+ * Revision History:
+ * 17-06-99: Started log. :)
+ */
+
 extern unsigned long allocPixel(Display * display, Colormap cmap,
 				const char *name, const char *def);
 

@@ -24,7 +24,6 @@ invert_draw(spherestruct * gp)
   double du, dv;
   double time = 0.0;
   double corrstart, pushstart, twiststart, unpushstart, uncorrstart;
-  double bendtime;
   int binary = 0;
   int j, k;
 

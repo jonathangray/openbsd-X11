@@ -429,7 +429,24 @@ free_stuff(Display * display, puzzlestruct * pp)
 		pp->cmap = None;
 	} else
 		pp->backGC = None;
-	destroyImage(&pp->logo, &pp->graphics_format);
+}
+
+static void
+free_puzzle(Display * display, puzzlestruct * pp)
+{
+	if (pp->fixbuff != NULL) {
+		(void) free((void *) pp->fixbuff);
+		pp->fixbuff = NULL;
+	}
+	if (pp->bufferBox != None) {
+		XFreePixmap(display, pp->bufferBox);
+		pp->bufferBox = None;
+	}
+	free_stuff(display, pp);
+	if (pp->logo) {
+		destroyImage(&pp->logo, &pp->graphics_format);
+		pp->logo = NULL;
+	}
 }
 
 void
@@ -448,15 +465,17 @@ init_puzzle(ModeInfo * mi)
 	}
 	pp = &puzzs[MI_SCREEN(mi)];
 
-#if defined( USE_XPM ) || defined( USE_XPMINC )
-        /* This is needed when another program changes the colormap. */
-        free_stuff(MI_DISPLAY(mi), pp);
-#endif
-	init_stuff(mi);
 	if (pp->painted && pp->windowsize.x == MI_WIDTH(mi) &&
 	    pp->windowsize.y == MI_HEIGHT(mi))
 		return;		/* Debounce since refresh_puzzle is init_puzzle */
 
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+	if (pp->graphics_format >= IS_XPM) {
+        	/* This is needed when another program changes the colormap. */
+        	free_puzzle(MI_DISPLAY(mi), pp);
+	}
+#endif
+	init_stuff(mi);
 	pp->excount = MI_COUNT(mi);
 	if (pp->excount < 0) {
 		if (pp->fixbuff != NULL)
@@ -607,11 +626,7 @@ release_puzzle(ModeInfo * mi)
 		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
 			puzzlestruct *pp = &puzzs[screen];
 
-			if (pp->fixbuff != NULL)
-				(void) free((void *) pp->fixbuff);
-			if (pp->bufferBox != None)
-				XFreePixmap(MI_DISPLAY(mi), pp->bufferBox);
-			free_stuff(MI_DISPLAY(mi), pp);
+			free_puzzle(MI_DISPLAY(mi), pp);
 		}
 		(void) free((void *) puzzs);
 		puzzs = NULL;

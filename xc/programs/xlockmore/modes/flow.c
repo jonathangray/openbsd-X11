@@ -217,6 +217,7 @@ init_flow(ModeInfo * mi)
 		sp->view.depth = 10;
 		sp->view.height = 0.2;
 		beemult = 3;
+		/* fallthrough */
 	case 1:
 		sp->ODE = Lorentz;
 		sp->step = 0.02;
@@ -235,6 +236,7 @@ init_flow(ModeInfo * mi)
 		sp->view.depth = 10;
 		sp->view.height = 0.1;
 		beemult = 4;
+		/* fallthrough */
 	case 3:
 		sp->ODE = Rossler;
 		sp->step = 0.05;
@@ -253,6 +255,7 @@ init_flow(ModeInfo * mi)
 		sp->view.depth = 10;
 		sp->view.height = 0.1;
 		beemult = 3;
+		/* fallthrough */
 	case 5:
 		sp->ODE = RosslerCone;
 		sp->step = 0.05;
@@ -433,7 +436,7 @@ draw_flow(ModeInfo * mi)
 
 		/* Fill the segment lists. */
 
-		if(sp->view.depth) /* perspective view has special points */
+		if(sp->view.depth) { /* perspective view has special points */
 			if(b==0){ /* point of view */
 				sp->centre.x=X(0, b);
 				sp->centre.y=Y(0, b);
@@ -497,6 +500,7 @@ draw_flow(ModeInfo * mi)
 				Z(1, b)=Z(0, 0);
 #endif
 			}
+		}
 		
 		for(i=0; i<2; i++){
 			double x=X(i,b)-sp->centre.x;

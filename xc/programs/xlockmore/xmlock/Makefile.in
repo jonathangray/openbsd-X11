@@ -148,7 +148,7 @@ html :
 hlp :
 
 clean :
-	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut xmlock
+	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut xmlock *.patch
 
 distclean : clean
 	$(RM) Makefile
@@ -183,6 +183,7 @@ distdepend :
 
 ##############################################################################
 #
+# DO NOT DELETE: updated by make distdepend
 # DO NOT DELETE: updated by make distdepend
 
 xmlock.o: ../config.h

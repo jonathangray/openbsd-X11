@@ -1,5 +1,5 @@
 /* -*- Mode: C; tab-width: 4 -*- */
-/* flag --- a waving flag of your operating system */
+/* flag --- a waving flag image */
 
 #if !defined( lint ) && !defined( SABER )
 static const char sccsid[] = "@(#)flag.c	4.07 97/11/24 xlockmore";
@@ -113,7 +113,7 @@ ModStruct   flag_description =
 {"flag", "init_flag", "draw_flag", "release_flag",
  "refresh_flag", "init_flag", NULL, &flag_opts,
  50000, 1, 1000, -7, 64, 1.0, "",
- "Shows a waving flag of your operating system", 0, NULL};
+ "Shows a waving flag image", 0, NULL};
 
 #endif
 
@@ -148,7 +148,7 @@ ModStruct   flag_description =
 #define MAXINITSIZE 6
 #define MININITSIZE 2
 #define MINAMP 5
-#define MAXAMP 20
+#define MAXAMP 10
 #define MAXW(fp) (MAXSCALE * (fp)->image->width + 2 * MAXAMP + (fp)->pointsize + 2 * (fp)->sofs)
 #define MAXH(fp) (MAXSCALE * (fp)->image->height+ 2 * MAXAMP + (fp)->pointsize + 2 * (fp)->sofs)
 #define MINW(fp) (MINSCALE * (fp)->image->width + 2 * MINAMP + (fp)->pointsize)
@@ -414,7 +414,27 @@ free_stuff(Display * display, flagstruct * fp)
 		fp->cmap = None;
 	} else
 		fp->backGC = None;
-	destroyImage(&fp->logo, &fp->graphics_format);
+}
+
+static void
+free_flag(Display * display, flagstruct * fp)
+{
+	if (fp->cache != None) {
+		XFreePixmap(display, fp->cache);
+		fp->cache = None;
+	}
+	if (fp->image) {
+		if (fp->choice == IMAGE_FLAG)
+			XFree((caddr_t) fp->image); /* Do not destroy data */
+		else
+			(void) XDestroyImage(fp->image);
+		fp->image = NULL;
+	}
+	free_stuff(display, fp);
+	if (fp->logo) {
+		destroyImage(&fp->logo, &fp->graphics_format);
+		fp->logo = NULL;
+	}
 }
 
 void
@@ -437,8 +457,8 @@ init_flag(ModeInfo * mi)
 	fp->height = MI_HEIGHT(mi);
 
 	if (fp->image) {
-		if (fp->graphics_format == IS_XBM)
-			XFree(fp->image);
+		if (fp->choice == IMAGE_FLAG)
+			XFree((caddr_t) fp->image);	/* Do not destroy data */
 		else
 			(void) XDestroyImage(fp->image);
 		fp->image = NULL;
@@ -559,16 +579,7 @@ release_flag(ModeInfo * mi)
 			flagstruct *fp = &flags[screen];
 			Display    *display = MI_DISPLAY(mi);
 
-			if (fp->cache)
-				XFreePixmap(display, fp->cache);
-			if (fp->image) {
-				if (fp->choice == IMAGE_FLAG && (fp->graphics_format == IS_XBM ||
-					  fp->graphics_format == IS_XBMDONE))
-					XFree((caddr_t) fp->image);	/* Do not destroy data */
-				else
-					(void) XDestroyImage(fp->image);
-			}
-			free_stuff(display, fp);
+			free_flag(display, fp);
 		}
 		(void) free((void *) flags);
 		flags = NULL;
@@ -584,12 +595,12 @@ refresh_flag(ModeInfo * mi)
 {
 	flagstruct *fp = &flags[MI_SCREEN(mi)];
 
-	MI_CLEARWINDOWCOLORMAP(mi, fp->backGC, fp->black);
 #if defined( USE_XPM ) || defined( USE_XPMINC )
 	/* This is needed when another program changes the colormap. */
-	free_stuff(MI_DISPLAY(mi), fp);
-	init_stuff(mi);
+	free_flag(MI_DISPLAY(mi), fp);
+	init_flag(mi);
 #endif
+	MI_CLEARWINDOWCOLORMAP(mi, fp->backGC, fp->black);
 }
 
 #endif /* MODE_flag */

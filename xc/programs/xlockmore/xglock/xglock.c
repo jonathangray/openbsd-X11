@@ -883,14 +883,14 @@ create_font_selection_dialog(GtkWidget *w,
     cbs_ptr->entry = optentry->entry; 
     cbs_ptr->drawing_area =(GtkWidget *)NULL; 
 
-    cbs_ptr->fntcol_dialog = gtk_font_selection_new(NULL);
+    cbs_ptr->fntcol_dialog = gtk_font_selection_new();
     fontname = gtk_entry_get_text(GTK_ENTRY(optentry->entry));
     if ( fontname && strlen(fontname) )
       gtk_font_selection_set_font_name(GTK_FONT_SELECTION(cbs_ptr->fntcol_dialog), fontname); 
-    gtk_signal_connect(GTK_OBJECT(GTK_FONT_SELECTION(cbs_ptr->fntcol_dialog)->ok_button), "clicked",
+    gtk_signal_connect(GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(cbs_ptr->fntcol_dialog)->ok_button), "clicked",
                        GTK_SIGNAL_FUNC(font_select_ok_cb),
                        (gpointer) cbs_ptr);
-    gtk_signal_connect(GTK_OBJECT(GTK_FONT_SELECTION(cbs_ptr->fntcol_dialog)->cancel_button), "clicked",
+    gtk_signal_connect(GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(cbs_ptr->fntcol_dialog)->cancel_button), "clicked",
                        GTK_SIGNAL_FUNC(font_select_cancel_cb),
                        (gpointer) cbs_ptr);
     gtk_widget_show(cbs_ptr->fntcol_dialog);
@@ -1001,7 +1001,7 @@ create_font_selection_dialog(GtkWidget *w,
     
     list = gtk_list_new ();
     gtk_list_set_selection_mode(GTK_LIST(list), GTK_SELECTION_BROWSE);
-    gtk_container_add(GTK_CONTAINER(scrolled_win), list);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_win), list);
     gtk_container_set_focus_vadjustment (GTK_CONTAINER (list),
                                          gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled_win)));
     GTK_WIDGET_UNSET_FLAGS (GTK_SCROLLED_WINDOW (scrolled_win)->vscrollbar, GTK_CAN_FOCUS);
@@ -1199,17 +1199,19 @@ create_file_menu(GtkWidget *window)
 {
     GtkWidget           *menu;
     GtkWidget           *menu_item;
-    GtkAcceleratorTable *table; 
+    GtkAccelGroup       *group;
 
     menu = gtk_menu_new();
-    table = gtk_accelerator_table_new(); 
-    gtk_menu_set_accelerator_table (GTK_MENU (menu), table);
+    group = gtk_accel_group_new();
+    gtk_menu_set_accel_group (GTK_MENU (menu), group);
 
     menu_item = gtk_menu_item_new_with_label("Kill xlock");
     gtk_container_add( GTK_CONTAINER (menu), menu_item);
-    gtk_widget_install_accelerator(menu_item, table,
-                                   "activate", 'K',
-                                   0);
+    gtk_widget_add_accelerator(menu_item,
+			       "activate",
+			       group,
+			       'K',
+			       0, GTK_ACCEL_VISIBLE);
     gtk_signal_connect (GTK_OBJECT (menu_item), "activate",
                         (GtkSignalFunc) kill_xlock_cb,
                         (gpointer) window);
@@ -1217,9 +1219,11 @@ create_file_menu(GtkWidget *window)
     
     menu_item = gtk_menu_item_new_with_label("Quit");
     gtk_container_add( GTK_CONTAINER (menu), menu_item);
-    gtk_widget_install_accelerator(menu_item, table,
-                                   "activate", 'Q',
-                                   0);
+    gtk_widget_add_accelerator(menu_item,
+			       "activate",
+			       group,
+			       'Q',
+			       0, GTK_ACCEL_VISIBLE);
     gtk_signal_connect (GTK_OBJECT (menu_item), "activate",
                         (GtkSignalFunc) exit_xglock,
                         (gpointer) window);
@@ -1238,19 +1242,19 @@ create_help_menu(GtkWidget *window)
 {
     GtkWidget           *menu;
     GtkWidget           *menu_item;
-    GtkAcceleratorTable *table; 
+    GtkAccelGroup *group;
 
     menu = gtk_menu_new();
-    table = gtk_accelerator_table_new(); 
-    gtk_menu_set_accelerator_table (GTK_MENU (menu), table);
+    group = gtk_accel_group_new();
+    gtk_menu_set_accel_group (GTK_MENU (menu), group);
 
     menu_item = gtk_menu_item_new_with_label("Context help");
     gtk_container_add( GTK_CONTAINER (menu), menu_item);
-    gtk_widget_install_accelerator(menu_item,
-                                   table,
+    gtk_widget_add_accelerator(menu_item,
                                    "activate",
+			       group,
                                    'C',
-                                   0);
+			       0, GTK_ACCEL_VISIBLE);
     gtk_signal_connect (GTK_OBJECT (menu_item), "activate",
                         (GtkSignalFunc) contextual_help_dialog,
                         (gpointer) window);
@@ -1258,11 +1262,11 @@ create_help_menu(GtkWidget *window)
     
     menu_item = gtk_menu_item_new_with_label("Window help");
     gtk_container_add( GTK_CONTAINER (menu), menu_item);
-    gtk_widget_install_accelerator(menu_item,
-                                   table,
+    gtk_widget_add_accelerator(menu_item,
                                    "activate",
+			       group,
                                    'W',
-                                   0);
+			       0, GTK_ACCEL_VISIBLE);
     gtk_signal_connect (GTK_OBJECT (menu_item), "activate",
                         (GtkSignalFunc) window_help_dialog,
                         (gpointer) window);
@@ -1270,11 +1274,11 @@ create_help_menu(GtkWidget *window)
     
     menu_item = gtk_menu_item_new_with_label("Global help");
     gtk_container_add( GTK_CONTAINER (menu), menu_item);
-    gtk_widget_install_accelerator(menu_item,
-                                   table,
+    gtk_widget_add_accelerator(menu_item,
                                    "activate",
+			       group,
                                    'G',
-                                   0);
+			       0, GTK_ACCEL_VISIBLE);
     gtk_signal_connect (GTK_OBJECT (menu_item), "activate",
                         (GtkSignalFunc) global_help_dialog,
                         (gpointer) window);
@@ -1282,11 +1286,11 @@ create_help_menu(GtkWidget *window)
     
     menu_item = gtk_menu_item_new_with_label("About XgLock");
     gtk_container_add( GTK_CONTAINER (menu), menu_item);
-    gtk_widget_install_accelerator(menu_item,
-                                   table,
+    gtk_widget_add_accelerator(menu_item,
                                    "activate",
+			       group,
                                    'A',
-                                   0);
+			       0, GTK_ACCEL_VISIBLE);
     gtk_signal_connect (GTK_OBJECT (menu_item), "activate",
                         (GtkSignalFunc) about_dialog,
                         (gpointer) window);
@@ -1307,7 +1311,7 @@ create_help_menu(GtkWidget *window)
  * Create all entries for font and color options.
  */
 static void
-create_fntColorOptions_entries(GtkWidget *window)
+create_fntColorOptions_entries(GtkScrolledWindow *window)
 {
     gint         i;
     GtkWidget   *box0;
@@ -1323,7 +1327,7 @@ create_fntColorOptions_entries(GtkWidget *window)
     tooltips = gtk_tooltips_new();
 
     box0 = gtk_hbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(window), box0);
+    gtk_scrolled_window_add_with_viewport(window, box0);
     gtk_widget_show(box0);
 
     table = gtk_table_new(nb_fntColorOpt,6,0);
@@ -1452,7 +1456,7 @@ create_fntColorOptions_entries(GtkWidget *window)
  * Create all entries for general options (text fields).
  */
 static void
-create_genOptions_entries(GtkWidget *window)
+create_genOptions_entries(GtkScrolledWindow *window)
 {
     gint         i;
 /*     gint         j; */
@@ -1466,7 +1470,7 @@ create_genOptions_entries(GtkWidget *window)
     tooltips = gtk_tooltips_new();
 
     box0 = gtk_hbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(window), box0);
+    gtk_scrolled_window_add_with_viewport(window, box0);
     gtk_widget_show(box0);
 
     box1 = gtk_vbox_new(FALSE, 0);
@@ -1505,7 +1509,7 @@ create_genOptions_entries(GtkWidget *window)
  * Creates all toggles buttons for boolean options
  */
 static void
-create_boolOptions_buttons(GtkWidget *parent)
+create_boolOptions_buttons(GtkScrolledWindow *parent)
 {
     gint         i;
     GtkWidget   *box0;
@@ -1517,7 +1521,7 @@ create_boolOptions_buttons(GtkWidget *parent)
     tooltips = gtk_tooltips_new();
 
     box0 = gtk_hbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(parent), box0);
+    gtk_scrolled_window_add_with_viewport(parent, box0);
     gtk_widget_show(box0);
 
     box1 = gtk_vbox_new(FALSE, 0);
@@ -1664,7 +1668,7 @@ main(gint argc, gchar *argv[])
     
     list = gtk_list_new();
     gtk_list_set_selection_mode(GTK_LIST(list), GTK_SELECTION_SINGLE);
-    gtk_container_add(GTK_CONTAINER(scrolled_win), list);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_win), list);
     gtk_container_set_focus_vadjustment (GTK_CONTAINER (list),
                                          gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled_win)));
     GTK_WIDGET_UNSET_FLAGS (GTK_SCROLLED_WINDOW (scrolled_win)->vscrollbar, GTK_CAN_FOCUS);
@@ -1701,7 +1705,7 @@ main(gint argc, gchar *argv[])
     gtk_container_add(GTK_CONTAINER(frame), scrolled_win);
     gtk_widget_show(scrolled_win);
     
-    create_boolOptions_buttons(scrolled_win);
+    create_boolOptions_buttons(GTK_SCROLLED_WINDOW(scrolled_win));
     label = gtk_label_new("Options");
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), frame, label);
     /* General Options */
@@ -1717,7 +1721,7 @@ main(gint argc, gchar *argv[])
     gtk_container_add(GTK_CONTAINER(frame), scrolled_win);
     gtk_widget_show(scrolled_win);
     
-    create_genOptions_entries(scrolled_win);
+    create_genOptions_entries(GTK_SCROLLED_WINDOW(scrolled_win));
     label = gtk_label_new("General Options");
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), frame, label);
     /* Color Options */
@@ -1733,7 +1737,7 @@ main(gint argc, gchar *argv[])
     gtk_container_add(GTK_CONTAINER(frame), scrolled_win);
     gtk_widget_show(scrolled_win);
     
-    create_fntColorOptions_entries(scrolled_win);
+    create_fntColorOptions_entries(GTK_SCROLLED_WINDOW(scrolled_win));
     label = gtk_label_new("Font & Color Options");
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), frame, label);
     

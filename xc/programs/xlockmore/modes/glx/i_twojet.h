@@ -1,10 +1,18 @@
 #ifndef __TWOJET
 #define __TWOJET
+
+#ifdef STANDALONE
 #include <math.h>
+#else
+#include "xlock.h"
+#endif
+
+#if 0
 extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 }
+#endif
 
 class ThreeJet;
 class TwoJet D(const class ThreeJet x, int index);
@@ -20,11 +28,11 @@ class TwoJet {
   TwoJet(double d, double du, double dv, double duv)
    { f = d; fu = du; fv = dv; fuv = duv; }
   operator double() { return f; }
-  operator<(double d) { return f < d; }
-  operator>(double d) { return f > d; }
-  operator>(int d) { return f > d; }
-  operator<=(double d) { return f <= d; }
-  operator>=(double d) { return f >= d; }
+  Bool operator<(double d) { return f < d; }
+  Bool operator>(double d) { return f > d; }
+  Bool operator>(int d) { return f > d; }
+  Bool operator<=(double d) { return f <= d; }
+  Bool operator>=(double d) { return f >= d; }
   double df_du() { return fu; }
   double df_dv() { return fv; }
   double d2f_dudv() { return fuv; }

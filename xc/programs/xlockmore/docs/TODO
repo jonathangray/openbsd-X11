@@ -5,7 +5,7 @@ General problems:
    above).
 
   o xscreensaver compatibility
-    2 of the writeable modes: mandelbrot, tube-> get them to RUN (compile ok)
+    2 of the writable modes: mandelbrot, tube-> get them to RUN (compile OK)
     XPM  capability needs to be improved.
 
   o Add a way to get xlock to switch to "blank" mode after X minutes
@@ -13,6 +13,11 @@ General problems:
     being used when activity is detected.  This would be good for
     users using DPMS to power down the monitor without using precious cpu
     when the modes are not visible.
+
+  o configure.in should be condensed.  Its getting out of hand.
+
+  o Look into any way of not clearing the screen if can not get control of it
+     (2nd xlock running).
 
   o gentlerandom mode option.  Switching to next mode when mode completed
       what it was working on.
@@ -35,20 +40,12 @@ General problems:
   o some configurations of linux: swarm has noise when bees go beyond screen
     Sun Ultra5 PCI Bus 24 bit display: flow has some noise (usually red)
 
-  o A few unintialized memory reads and memory leaks were detected in some
+  o A few uninitialized memory reads and memory leaks were detected in some
    of the code.  grep for "PURIFY" in the source files to see where the
    remaining problems are.  Also see docs/Purify for more details. 
 
   o -mono does not work for XPM, especially cartoon (others use XBM when
    mono), also cage and stairs.
-
-  o Options within a mode can not be duplicated in other modes.  Temporary
-   solution is to have xlock modes like "-neighbor" that only a few of the
-   modes use.
-
-  o -use3d -install is messed up on Sun's PseudoColor.  Magenta boxes are
-   seen on the star mode.  In worm mode, worms might be red and magenta
-   instead of red blue (and depending on SunCC or SunOS).
 
   o Not all resources are listed in "xlock -resources", e.g. nolock.
    If xlock is renamed these resources are not picked up.
@@ -67,20 +64,15 @@ General problems:
    X11-keymapping, as these characters are composed with the right Alt-key
    on a German keyboard. 
 
-  o neighbors option for wator and voters... sometimes circles are not
-   drawn in the correct spot.  A -/+ wrap option would be nice also.
-
   o OpenGL and DT may be incompatible on PseudoColor.  (MesaGL should be
    OK.)  OpenGL frequently causes xlock to error out on non-default visuals.
 
-  o -visual DirectColor if used with any of the with the writeable modes
+  o -visual DirectColor if used with any of the with the writable modes
    (mandelbrot, swirl, or tube) may corrupt the dynamic allocation of memory.
 
   o Errors in modes, if any, should not break lock.
 
   o Compile-time option to allow running of separate processes.
-
-  o Fallback font if screen is small for marquee and nose... like bomb
 
   o make -n install prefix=/foo/bar does not work.
   
@@ -107,6 +99,8 @@ General problems:
    modes like "starfish" and "swirl" pick a PseudoColor visual if available,
    while modes like "cartoon" could prevent colormap flashing by picking a
    TrueColor visual.
+   I heard that VisualDepthMask taken out of vis.c it seems to work better
+   to get a PseudoColor visual one a root window of 24 bits.
 
   o modes from xscreensaver :) : bubbles, moire, LMorph, halo, ImsMap, BlitSpin
 
@@ -116,7 +110,9 @@ Mode specific problems:
   Various modes need better refresh capability.
   Various modes need more mouse capability like pacman and worm.
 
-  ant: round ants.  This would involve masking and images to do efficiently.:q
+  ant:
+    round ants.  This would involve masking and images to do efficiently.
+    3d version? may be hard to see interior though.
 
   ball: can it be updated to use a pixmap instead of a slow circle fill?
 
@@ -139,10 +135,9 @@ Mode specific problems:
     Different balls with different mass and size.
 
   bug:
-    -neighbors option
-    init_bug should be broken up so it can be interrupted
+    3d version?
 
-  dclock:  needs a -led [LED] option
+  dclock: needs a -led [LED] option
 
   ico:
     should have all the features of the original.
@@ -156,11 +151,8 @@ Mode specific problems:
 
   hop: center and size many of the hops.
 
-  kaleid: needs to be triangular.
-
   life:
     -find option to find new lifeforms.  (mail the results out :) ).
-    Allow more symmetric type rules as proposed by Dr. Andreen.
     When the bitmap is big it is rejected.  Probably could be handled
       better but if accepted then the screen could be blank because there
       are bitmaps that are off screen.
@@ -169,13 +161,21 @@ Mode specific problems:
     MS DOS code weeded this out, but it did not seem to port to X.
     Also see life.
 
+  lyapunov: needs to be speeded up
+
   marquee:
     "-messagefile filename" truncates a large file.
     "-message string" does not handle Control-H correctly.
+    fallback font if screen is small... like bomb
+
 
   mountain: -size # for mountain should do something.
 
-  nose: should handle Control-H better for underlining and accents.
+  nose:
+    should handle Control-H better for underlining and accents.
+    fallback font if screen is small... like bomb
+
+  pacman: add (varying but left/right symmetric) maze walls
 
   pyro: needs XDrawSegments code similar to swarm to give it depth.
 
@@ -188,6 +188,21 @@ Mode specific problems:
     fractal cracks when hit by rocks (with sound?)
     user defined ships (user defined pixmaps like eyes and pacman).
     stars should look more star-like "*"'s
+    combine space and star for a backwards and sideways motion
+
+  swirl:
+    needs to be refreshed quicker
+    does not refresh well when colormap changes
+
+  text3d:
+     time stuff in text3d
+     maybe dclock and marquee could be combined too?
+     a separate -message3d for text3d
+
+  voters and wator:
+    neighbors option bug ... sometimes circles are not
+      drawn in the correct spot.
+    A -/+ wrap option would be nice also.
 
   wire:  it needs a better circuit generator.
 
@@ -198,28 +213,33 @@ Mode specific problems:
 
 New mode ideas... (some may be very hard :) ):
 ---------------------------------------------
+  o "bsdworm" BSD worm game with computer (and later mouse control), also
+      have more than one worm
   o "dead" a Grateful Dead mode with dancing bears/skeletons/turtles.
       (Or maybe "nose" in a tie die?)
   o "floyd" a Pink Floyd mode from the cover of "Dark Side of the Moon"
-      with a turning  prism and rainbow effect.
+      with a turning prism and rainbow effect.
   o "graph" a random planar graph drawn ... filled in by a 5 (or 4 :) )
       coloring algorithm.
+  o "mail" show that one has mail (can also be an option on flag, image, etc.)
+      A spinning GL mailbox would be really cool.  Note that the password
+      screen can be setup to show if one has mail.
   o "minimal" a random minimal surface generator.
   o "snow" mode with a nice Winter scene picture background and snowflakes
       falling
   o "squig" mode from squig/xsquig (xsquig is too slow)
-  o A NT-like GL 3d Maze, where you are inside the maze
+  o A NT-like GL 3D Maze, where you are inside the maze
   o NT-like GL FlowerBox spring and Flying Objects
-  o A GL 4d ico where the 6 4D "platonic" objects "roll" around in 3d space.
+  o A GL 4D ico where the 6 4D "platonic" objects "roll" around in 3D space.
   o GL modes based on demos: isosurf, reflect, bounce, stex3d
   o KitCat (R) clock mode (based on X11 catclock, a version of xclock) where
      the cat clock floats around the screen like "dclock" mode does.  Colors
      of cat clock could be picked like nose-guy in "nose" mode.
   o Lottery with bouncing numbered balls like PowerBall.
-  o A simple set of 2d geometric shapes that morph into one another whilst
+  o A simple set of 2D geometric shapes that morph into one another whilst
      colour cycling. So say you start with a rectangle that morphs into a
      circle (leaving a small trail like Qix) that morphs into a triangle
-     that morphs into a polygon that morphs into a rectangle, etc. All the
+     that morphs into a polygon that morphs into a rectangle, etc.  All the
      while you have movement and colour cycling like Qix.  If the trail is to
      large then things could become messy, but if too short then you loose the
      history element.
@@ -227,9 +247,9 @@ New mode ideas... (some may be very hard :) ):
      ray-traced/rendered globe. The chess board is a series of black and
      white squares. Each black square is gold veined marble with the gold
      glinting. Each white square is a textured surface (like little bumps, or
-     ridges). The whole sceen is lit from two light sources (either fixed or
+     ridges). The whole screen is lit from two light sources (either fixed or
      moving). As the ball bounces it reflects like a mirror what is around it.
-  o A variant of the above whould be to hold that ball still in the centre of
+  o A variant of the above would be to hold that ball still in the centre of
      the screen and move a randomly chosen bitmap around the ball.
   o The above could also have embossed on standout lettering added (say a
      single word like Linux). The lettering could either be stationary or
@@ -240,25 +260,25 @@ New mode ideas... (some may be very hard :) ):
      point in space.
   o Make the little man in Nose seem to carve the letters of the message into
      rock, or paint them on the screen.
-  o Make marquee use 3d extruded text that can be texture mapped and seem to
-     zoom into and out of the screen with the zomm source point drifting
+  o Make marquee use 3D extruded text that can be texture mapped and seem to
+     zoom into and out of the screen with the zoom source point drifting
      around the screen at random
   o Make puzzle take the present desktop image, invert it and shuffle the
      pieces then put the whole things back. Once it has reassembled the
-     desktop you could have the image flip top over bottom as it receeds into
-     the screen,  only to have a new randomly shuffled version of the desktop
+     desktop you could have the image flip top over bottom as it reseeds into
+     the screen, only to have a new randomly shuffled version of the desktop
      flip back out.
-  o Use the spheres generated in sphere to draw molocules on the screen,
+  o Use the spheres generated in sphere to draw molecules on the screen,
      colour coding for the various types of atom present. A limit on the size
      of each sphere would be needed. The spheres could be joined by simple
-     white lines. If you are feeling adventurious you could make it seem to
-     rotate in space so all parts of the molocule could be seen.
+     white lines. If you are feeling adventurous you could make it seem to
+     rotate in space so all parts of the molecule could be seen.
   o In shape change things so that the shapes appear to be extruded from a
-     random point on the screen. You could aslo  have a number of shapes be
+     random point on the screen. You could also have a number of shapes be
      extruded, each from its own origin, only to shrink back into the screen
-     again.  Each time a shape  shrinks back into the screen the origin would
-     move and a new shape would be choosen.
-  o When the screensaver is started have curtains drawn accross the desktop
+     again.  Each time a shape shrinks back into the screen the origin would
+     move and a new shape would be chosen.
+  o When the screensaver is started have curtains drawn across the desktop
      at a medium pace, a second or twos pause then the curtain a pulled open
      quickly to reveal a bitmaped image in place of the desktop. This cycles
      with a different image each time.
@@ -271,13 +291,15 @@ PLEASE NOTE:
   I _REALLY_ hate to turn down contributions...  I will try to consider
    all submissions.  Some things on new modes that bother me are:
    Did not black out the screen when they start.  I do not like people
-     to see what I am doing. :^|
-   Did not work in the little window or buggy.
+     to see what I am doing. :^|  (This could be a non-default option...
+     see decay mode).
+   Did not work in the little window or buggy.  (I usually try to clean
+     it up).
    Is too similar mode to a mode that already exists. (Maybe an option could
      be added on an existing mode?).
    Many people complained about the mode.
    Just not enough randomness or is not interesting enough.
-   No multiscreen support.
+   No multiscreen support (I usually try to clean this up too).
   But I labor over them (in a haphazard fashion) and they usually are
    released eventually.  (If they are in assembler I would definitely need
    a working example and all the binaries and libraries to get it to run.)

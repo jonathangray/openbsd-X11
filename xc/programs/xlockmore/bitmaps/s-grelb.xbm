@@ -1,3 +1,4 @@
+#define XBM_GRELB
 #define image_width 30
 #define image_height 33
 static unsigned char image_bits[] = {

@@ -1,35 +1,44 @@
-#!/usr/X11/bin/wish -f
+#!/usr/bin/X11/wish -f
 #charles vidal 1998 <vidalc@club-internet.fr>
 # Thu Jul 30 06:21:57 MET DST 1998
 #Projet Wizard in french Assistant
 #http://www.chez.com/vidalc/assist/
-#
+#Sun Jul  4 01:35:05 MET DST 1999
+# Add filevents find in setup.tcl of the xap ( X Application Panel ) 
+# thank's to rasca, berlin 1999
 
+# the next line restart wish \
+exec wish "$0" "$@"
+
+# number total of screens
 set nbtotalecran 4
 
 # titre de l'assistant
 set titleassist "Wizard configure"
 
-# nombre total d'ecran
-#set nbtotalecran 6
-
 # Declaration des variables globales
 set nbwidget 0
 
-# numero de l'ecran courant
+# number of the current screen
 set nb_ecran 0
 
 set lang " "
 
+proc cont {w input} {
+       if [eof $input] {
+		close $input
+        } else {
+                gets $input line
+                $w insert end $line\n
+                $w see end
+        }
+}
 
-proc read_pipe { command } {
-set data ""
-set fileid [open |$command r]
-if  { $fileid != "" } {
-	set data [read $fileid]
-	close $fileid
-	}
-	return $data
+proc read_pipe { command w } {
+	$w delete 1.0 end
+        $w insert end "$command\n"
+	set fileid [open |$command r]
+        fileevent $fileid readable "cont $w $fileid"
 }
 
 proc action { } {
@@ -64,63 +73,36 @@ if { $nb_ecran == [expr $nbtotalecran -1 ]}  {
 	if {$soundprog!=""} {append commandline " --enable-def-play=$soundprog" } 
 	append commandline " $lang" 
 	if { [getyesno "Do you really want to launch configure"] == "yes" } {
+		set nb_ecran= [ expr $nb_ecran + 1 ]
 		puts $commandline
-		wm withdraw .
-		toplevel .config
-		frame .config.f 
-		frame .config.f2 
-		button .config.f2.make -text "Make" -command { set commandline "make"
-					.config.f configure -cursor watch
-					.config.f2 configure -cursor watch
-					.config.f2.exit configure -cursor watch
-					.config.f.t configure -cursor watch
-   		 		.config.f.t insert insert "Please wait..."
-					update
-					set toto [read_pipe $commandline]
-					.config.f configure -cursor arrow
-					.config.f.t configure -cursor xterm
-    			.config.f.t insert insert $toto
-					.config.f2 configure -cursor arrow
-					.config.f2.exit configure -cursor arrow
+#		wm withdraw .
+#		toplevel .config
+		pack forget .f$nb_ecran
+		frame .fconf
+		pack  .fconf
+		set w .fconf
+		button .f.make -text "Make" -command { set commandline "make"
+					read_pipe $commandline  .fconf.t
 			}
-			button .config.f2.install -text "Make Install" -command { set commandline "make install"
-					.config.f configure -cursor watch
-					.config.f2 configure -cursor watch
-					.config.f2.exit configure -cursor watch
-					.config.f.t configure -cursor watch
-   		 		.config.f.t insert insert "Please wait..."
-					update
-					set toto [read_pipe $commandline]
-					.config.f configure -cursor arrow
-					.config.f.t configure -cursor xterm
-    			.config.f.t insert insert $toto
-					.config.f2 configure -cursor arrow
-					.config.f2.exit configure -cursor arrow
-			}
-		button .config.f2.exit -text "Exit" -command exit
-		scrollbar .config.f.s -orient vertical -command {.config.f.t yview}
-		pack .config.f -side left  -expand yes  -fill y
-		pack .config.f.s -side right  -fill y
-		text .config.f.t -yscrollcommand {.config.f.s set} -wrap word -width 50 -height 10 \
-        	-setgrid 1
-		pack .config.f.t 
-		pack .config.f.t -expand yes -side right -fill both
-		pack .config.f -side top -expand yes -fill both
-		pack .config.f2 -side bottom
-	#	pack .config.f2.make  .config.f2.install  .config.f2.exit -side left
-		pack .config.f2.exit 
-		.config.f configure -cursor watch
-		.config.f2 configure -cursor watch
-		.config.f2.exit configure -cursor watch
-		.config.f.t configure -cursor watch
-    		.config.f.t insert insert "Please wait..."
+		button .f.install -text "Make Install"\
+				 -command { set commandline "make install"
+					read_pipe $commandline .fconf.t
+		}
+		button .f.exit -text "Exit" -command exit
+#		button $w.goback -text "Go back" -command goback
+		button $w.exit -text "Exit" -command exit
+		scrollbar $w.s -orient vertical -command {.fconf.t yview} 
+		pack $w.s -side right  -fill y
+		text $w.t -yscrollcommand {.fconf.s set} \
+			-wrap word -width 50 -height 10 \
+        		-setgrid 1
+		pack $w.t -expand yes -side right -fill both
+		pack $w -side top -expand yes -fill both
+		pack .f.make  .f.install .f.exit  -side left
+#		pack .f.goback .f.exit  -side left
+		pack forget .f.b1 .f.b2 .f.b3
 		update
-		set toto [read_pipe $commandline]
-		.config.f configure -cursor arrow
-		.config.f.t configure -cursor xterm
-    		.config.f.t insert insert $toto
-		.config.f2 configure -cursor arrow
-		.config.f2.exit configure -cursor arrow
+		read_pipe $commandline  $w.t
 	}
    } else  exit
 }
@@ -256,7 +238,7 @@ proc next_ecran { } {
 global nb_ecran
 global nbtotalecran
 if { $nb_ecran == [expr $nbtotalecran - 1 ]}  {
-		.f.b3 configure -text "Finish"
+		.f.b3 configure -text "Configure"
 		}
 if { $nb_ecran != [expr $nbtotalecran - 1 ]}  {
 		.f.b3 configure -text "Cancel"
@@ -422,9 +404,9 @@ mkecran 3 \
 {RADIO "German  " lang  " --with-lang=de" fgerman etc/gif/deflag.gif}\
 {}
 frame .f
-button .f.b1 -text "Previous" -command "prec_ecran"
-button .f.b2 -text "Next" -command "next_ecran"
+button .f.b1 -text "< Previous" -command "prec_ecran" -under 2
+button .f.b2 -text "Next >" -command "next_ecran" -under 0
 button .f.b3 -text "Cancel" -command "action"
-pack .f.b1 .f.b2 .f.b3 -side left
+pack .f.b1 .f.b2  .f.b3  -padx 2m -pady 2m -side left
 pack .f -side bottom
 pack .f0

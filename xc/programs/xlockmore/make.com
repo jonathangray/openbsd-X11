@@ -17,7 +17,9 @@ $! insert the correct directory instead of X11 or GL:
 $ xvmsutilsf="X11:XVMSUTILS.OLB"
 $ xpmf="X11:LIBXPM.OLB"
 $ glf="GL:LIBMESAGL.OLB"
+$ glf_share="GL:LIBMESAGL.EXE"
 $ gluf="GL:LIBMESAGLU.OLB"
+$ gluf_share="GL:LIBMESAGLU.EXE"
 $ ttff="SYS$LIBRARY:LIBTTF.OLB"
 $ glttf="SYS$LIBRARY:LIBGLTT.OLB"
 $!
@@ -71,7 +73,9 @@ $ defs=="VMS"
 $ dtsaver=f$search("SYS$LIBRARY:CDE$LIBDTSVC.EXE") .nes. ""
 $ xpm=f$search("''xpmf'") .nes. ""
 $ gl=f$search("''glf'") .nes. ""
+$ gl_share=f$search("''glf_share'") .nes. ""
 $ glu=f$search("''gluf'") .nes. ""
+$ glu_share=f$search("''gluf_share'") .nes. ""
 $ gltt=f$search("''glttf'") .nes. ""
 $ ttf=f$search("''ttff'") .nes. ""
 $ iscxx=f$search("SYS$SYSTEM:CXX$COMPILER.EXE") .nes. ""
@@ -100,7 +104,7 @@ $ if gltt then defs=="''defs',HAVE_GLTT"
 $ if iscxx .and. ttf .and. gltt then defs=="''defs',USE_TEXT" 
 $ if complmap then defs=="''defs',COMPLIANT_COLORMAP"
 $ if xpm then defs=="''defs',USE_XPM"
-$ if gl then defs=="''defs',USE_GL,HAVE_GLBINDTEXTURE"
+$ if gl .or. gl_share then defs=="''defs',USE_GL,HAVE_GLBINDTEXTURE"
 $ if dtsaver then defs=="''defs',USE_DTSAVER"
 $ if axp .and. sound then defs=="''defs',USE_VMSPLAY"
 $ if sys_maj .lt. 7
@@ -174,12 +178,14 @@ $ write sys$output "Linking Include Files"
 $ call make decay.xbm  "set file/enter=[]decay.xbm [.bitmaps]l-xlock.xbm" [.bitmaps]l-xlock.xbm
 $! call make eyes.xbm   "set file/enter=[]eyes.xbm [.bitmaps]m-dec.xbm"    [.bitmaps]m-dec.xbm
 $ call make eyes.xbm   "set file/enter=[]eyes.xbm [.bitmaps]m-grelb.xbm"  [.bitmaps]m-grelb.xbm
+$ call make eyes2.xbm   "set file/enter=[]eyes2.xbm [.bitmaps]m-grelb-2.xbm"  [.bitmaps]m-grelb-2.xbm
 $ call make flag.xbm   "set file/enter=[]flag.xbm [.bitmaps]m-dec.xbm"    [.bitmaps]m-dec.xbm
 $! call make ghost.xbm  "set file/enter=[]ghost.xbm [.bitmaps]m-dec.xbm"   [.bitmaps]m-dec.xbm
 $ call make ghost.xbm  "set file/enter=[]ghost.xbm [.bitmaps]m-ghost.xbm" [.bitmaps]m-ghost.xbm
 $ call make image.xbm  "set file/enter=[]image.xbm [.bitmaps]m-dec.xbm"   [.bitmaps]m-dec.xbm
 $ call make life.xbm   "set file/enter=[]life.xbm [.bitmaps]s-grelb.xbm"  [.bitmaps]s-grelb.xbm
 $! call make life.xbm   "set file/enter=[]life.xbm [.bitmaps]s-dec.xbm"    [.bitmaps]s-dec.xbm
+$ call make life2.xbm   "set file/enter=[]life2.xbm [.bitmaps]s-grelb-2.xbm"  [.bitmaps]s-grelb-2.xbm
 $ call make life1d.xbm "set file/enter=[]life1d.xbm [.bitmaps]t-x11.xbm"  [.bitmaps]t-x11.xbm
 $ call make maze.xbm   "set file/enter=[]maze.xbm [.bitmaps]l-dec.xbm"    [.bitmaps]l-dec.xbm
 $ call make puzzle.xbm "set file/enter=[]puzzle.xbm [.bitmaps]l-xlock.xbm"  [.bitmaps]l-xlock.xbm
@@ -199,6 +205,7 @@ $ write sys$output "''cc'"
 $ call make [.xlock]xlock.obj     "cc /object=[.xlock] [.xlock]xlock.c"     [.xlock]xlock.c [.xlock]xlock.h [.xlock]mode.h [.xlock]vroot.h
 $ call make [.xlock]passwd.obj    "cc /object=[.xlock] [.xlock]passwd.c"    [.xlock]passwd.c [.xlock]xlock.h
 $ call make [.xlock]resource.obj  "cc /object=[.xlock] [.xlock]resource.c"  [.xlock]resource.c [.xlock]xlock.h [.xlock]mode.h
+$ call make [.xlock]parsecmd.obj  "cc /object=[.xlock] [.xlock]parsecmd.c"  [.xlock]parsecmd.c
 $ call make [.xlock]util.obj      "cc /object=[.xlock] [.xlock]util.c"      [.xlock]util.c [.xlock]xlock.h [.xlock]util.h
 $ call make [.xlock]logout.obj    "cc /object=[.xlock] [.xlock]logout.c"    [.xlock]logout.c [.xlock]xlock.h
 $ call make [.xlock]mode.obj      "cc /object=[.xlock] [.xlock]mode.c"      [.xlock]mode.c [.xlock]xlock.h [.xlock]mode.h
@@ -210,7 +217,7 @@ $ call make [.xlock]random.obj    "cc /object=[.xlock] [.xlock]random.c"    [.xl
 $ call make [.xlock]iostuff.obj   "cc /object=[.xlock] [.xlock]iostuff.c"   [.xlock]iostuff.c [.xlock]xlock.h [.xlock]iostuff.h
 $ call make [.xlock]automata.obj  "cc /object=[.xlock] [.xlock]automata.c"  [.xlock]automata.c [.xlock]xlock.h [.xlock]automata.h
 $ call make [.xlock]spline.obj    "cc /object=[.xlock] [.xlock]spline.c"    [.xlock]spline.c [.xlock]xlock.h [.xlock]spline.h
-$ call make [.xlock]erase.obj    "cc /object=[.xlock] [.xlock]erase.c"    [.xlock]erase.c [.xlock]xlock.h
+$ call make [.xlock]erase.obj    "cc /object=[.xlock] [.xlock]erase.c"    [.xlock]erase.c [.xlock]xlock.h [.xlock]erase.h [.xlock]erase_debug.h [.xlock]erase_init.h
 $ if check
 $ then
 $   write sys$output "Compiling XLock Memory Check Caution: Experimental!"
@@ -299,6 +306,7 @@ $ call make [.modes]swarm.obj     "cc /object=[.modes] [.modes]swarm.c"     [.mo
 $ call make [.modes]swirl.obj     "cc /object=[.modes] [.modes]swirl.c"     [.modes]swirl.c [.xlock]xlock.h [.xlock]mode.h
 $   call make [.modes]tetris.obj     "cc /object=[.modes] [.modes]tetris.c"     [.modes]tetris.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]thornbird.obj "cc /object=[.modes] [.modes]thornbird.c"  [.modes]thornbird.c [.xlock]xlock.h [.xlock]mode.h
+$ call make [.modes]tik_tak.obj "cc /object=[.modes] [.modes]tik_tak.c"  [.modes]tik_tak.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]triangle.obj  "cc /object=[.modes] [.modes]triangle.c"  [.modes]triangle.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]tube.obj      "cc /object=[.modes] [.modes]tube.c"      [.modes]tube.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]turtle.obj    "cc /object=[.modes] [.modes]turtle.c"    [.modes]turtle.c [.xlock]xlock.h [.xlock]mode.h
@@ -317,7 +325,7 @@ $ if xpm
 $ then
 $   call make [.modes]cartoon.obj   "cc /object=[.modes] [.modes]cartoon.c"   [.modes]cartoon.c [.xlock]xlock.h [.xlock]mode.h
 $ endif
-$ if gl
+$ if gl .or. gl_share
 $ then
 $   call make [.modes.glx]cage.obj    "cc /object=[.modes.glx] [.modes.glx]cage.c"    [.modes.glx]cage.c [.xlock]xlock.h [.xlock]mode.h
 $   call make [.modes.glx]gears.obj     "cc /object=[.modes.glx] [.modes.glx]gears.c"     [.modes.glx]gears.c [.xlock]xlock.h [.xlock]mode.h
@@ -347,7 +355,7 @@ $   call make [.modes.glx]bubble3d.obj "cc /object=[.modes.glx] [.modes.glx]bubb
 $   call make [.modes.glx]b_draw.obj "cc /object=[.modes.glx] [.modes.glx]b_draw.c"     [.modes.glx]b_draw.c [.xlock]xlock.h [.xlock]mode.h
 $   call make [.modes.glx]b_lockglue.obj "cc /object=[.modes.glx] [.modes.glx]b_lockglue.c"     [.modes.glx]b_lockglue.c [.xlock]xlock.h [.xlock]mode.h
 $   call make [.modes.glx]b_sphere.obj "cc /object=[.modes.glx] [.modes.glx]b_sphere.c"     [.modes.glx]b_sphere.c [.xlock]xlock.h [.xlock]mode.h
-$   if unstable .and. xpm
+$   if xpm
 $   then
 $     call make [.modes.glx]lament.obj "cc /object=[.modes.glx] [.modes.glx]lament.c"     [.modes.glx]lament.c [.xlock]xlock.h [.xlock]mode.h
 $   endif
@@ -380,7 +388,9 @@ $ if gltt then write optf "''glttf'/lib"
 $ if ttf then write optf "''ttff'/lib"
 $ if xpm then write optf "''xpmf'/lib"
 $ if gl then write optf "''glf'/lib"
+$ if gl_share then write optf "''glf_share'/share"
 $ if glu then write optf "''gluf'/lib"
+$ if glu_share then write optf "''gluf_share'/share"
 $ if sys_maj .lt. 7
 $ then
 $   if xvmsutils then write optf "''xvmsutilsf'/lib"
@@ -439,10 +449,12 @@ $ delete/noconfirm [...]*.opt;*
 $ delete/noconfirm [...]*.map;*
 $ set file/remove decay.xbm;*
 $ set file/remove eyes.xbm;*
+$ set file/remove eyes2.xbm;*
 $ set file/remove flag.xbm;*
 $ set file/remove image.xbm;*
 $ set file/remove ghost.xbm;*
 $ set file/remove life.xbm;*
+$ set file/remove life2.xbm;*
 $ set file/remove life1d.xbm;*
 $ set file/remove maze.xbm;*
 $ set file/remove puzzle.xbm;*

@@ -29,9 +29,9 @@ static const char sccsid[] = "@(#)galaxy.c	4.07 97/11/24 xlockmore";
  * 10-May-97: Compatible with xscreensaver
  * 18-Apr-97: Memory leak fixed by Tom Schmidt <tschmidt@micron.com>
  * 07-Apr-97: Modified by Dave Mitchell <davem@magnet.com>
- * 23-Oct-94: Modified by David Bagley <bagleyd@tux.org>
  *            random star sizes
  *            colors change depending on velocity
+ * 23-Oct-94: Modified by David Bagley <bagleyd@tux.org>
  * 10-Oct-94: Add colors by Hubert Feyer
  * 30-Sep-94: Initial port by Hubert Feyer
  * 09-Mar-94: VMS can generate a random number 0.0 which results in a

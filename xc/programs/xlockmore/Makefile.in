@@ -77,7 +77,7 @@ hlp :
 	@$(MAKE_SUBDIR)
 
 clean :
-	$(RM) core *~ *% *.bak *.orig *.rej make.log MakeOut
+	$(RM) core *~ *% *.bak *.orig *.rej make.log MakeOut *.patch
 	@$(MAKE_SUBDIR)
 
 distclean :

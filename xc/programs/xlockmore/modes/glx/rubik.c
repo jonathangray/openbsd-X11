@@ -231,7 +231,7 @@ ModStruct   rubik_description =
 #define BOTTOM 2
 #define LEFT 3
 #define CW (MAXORIENT+1)
-#define CW2 (MAXORIENT+2) /* = CCW2 or half turn */
+#define HALF (MAXORIENT+2)
 #define CCW (2*MAXORIENT-1)
 
 #define TOP_FACE 0
@@ -486,23 +486,23 @@ pickcolor(int C, int mono)
 }
 
 static void
-faceSizes(rubikstruct * rp, int face, int * sizeOnAxis1, int * sizeOnAxis2)
+faceSizes(rubikstruct * rp, int face, int * sizeOfRow, int * sizeOfColumn)
 {
 	switch (face) {
 		case 0: /* TOP */
 		case 4: /* BOTTOM */
-			*sizeOnAxis1 = MAXSIZEX;
-			*sizeOnAxis2 = MAXSIZEZ;
+			*sizeOfRow = MAXSIZEX;
+			*sizeOfColumn = MAXSIZEZ;
 			break;
 		case 1: /* LEFT */
 		case 3: /* RIGHT */
-			*sizeOnAxis1 = MAXSIZEZ;
-			*sizeOnAxis2 = MAXSIZEY;
+			*sizeOfRow = MAXSIZEZ;
+			*sizeOfColumn = MAXSIZEY;
 			break;
 		case 2: /* FRONT */
 		case 5: /* BACK */
-			*sizeOnAxis1 = MAXSIZEX;
-			*sizeOnAxis2 = MAXSIZEY;
+			*sizeOfRow = MAXSIZEX;
+			*sizeOfColumn = MAXSIZEY;
 			break;
 	}
 }
@@ -510,10 +510,10 @@ faceSizes(rubikstruct * rp, int face, int * sizeOnAxis1, int * sizeOnAxis2)
 static Bool
 checkFaceSquare(rubikstruct * rp, int face)
 {
-	int sizeOnAxis1, sizeOnAxis2;
+	int sizeOfRow, sizeOfColumn;
 
-	faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
-	return (sizeOnAxis1 == sizeOnAxis2);
+	faceSizes(rp, face, &sizeOfRow, &sizeOfColumn);
+	return (sizeOfRow == sizeOfColumn);
 	/* Cubes can be made square with a 4x2 face where 90 degree turns
          * should be permitted but that is kind of complicated for me.
          * This can be done in 2 ways where the side of the cubies are
@@ -530,19 +530,19 @@ checkFaceSquare(rubikstruct * rp, int face)
 static int
 sizeFace(rubikstruct * rp, int face)
 {
-	int sizeOnAxis1, sizeOnAxis2;
+	int sizeOfRow, sizeOfColumn;
 
-	faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
-	return (sizeOnAxis1 * sizeOnAxis2);
+	faceSizes(rp, face, &sizeOfRow, &sizeOfColumn);
+	return (sizeOfRow * sizeOfColumn);
 }
 
 static int
-sizeColumn(rubikstruct * rp, int face)
+sizeRow(rubikstruct * rp, int face)
 {
-	int sizeOnAxis1, sizeOnAxis2;
+	int sizeOfRow, sizeOfColumn;
 
-	faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
-	return sizeOnAxis1;
+	faceSizes(rp, face, &sizeOfRow, &sizeOfColumn);
+	return sizeOfRow;
 }
 
 static void
@@ -785,27 +785,27 @@ static void
 convertMove(rubikstruct * rp, RubikMove move, RubikSlice * slice)
 {
 	RubikLoc    plane;
-	int         sizeOnAxis1, sizeOnAxis2;
+	int         sizeOfRow, sizeOfColumn;
 
 	plane = rotateSlice[(int) move.face][move.direction % 2];
 	(*slice).face = plane.face;
 	(*slice).rotation = plane.rotation;
 
-	faceSizes(rp, move.face, &sizeOnAxis1, &sizeOnAxis2);
+	faceSizes(rp, move.face, &sizeOfRow, &sizeOfColumn);
 	if (plane.face == 1 || /* VERTICAL */
 	    (plane.face == 2 && (move.face == 1 || move.face == 3))) {
 		if ((*slice).rotation == CW)
-			(*slice).depth = sizeOnAxis1 - 1 - move.position %
-				sizeOnAxis1;
+			(*slice).depth = sizeOfRow - 1 - move.position %
+				sizeOfRow;
 		else
-			(*slice).depth = move.position % sizeOnAxis1;
+			(*slice).depth = move.position % sizeOfRow;
 	} else { /* (plane.face == 0 ||  *//* HORIZONTAL *//*
 	             (plane.face == 2 && (move.face == 0 || move.face == 4))) */
 		if ((*slice).rotation == CW)
-			(*slice).depth = sizeOnAxis2 - 1 - move.position /
-				sizeOnAxis1;
+			(*slice).depth = sizeOfColumn - 1 - move.position /
+				sizeOfRow;
 		else
-			(*slice).depth = move.position / sizeOnAxis1;
+			(*slice).depth = move.position / sizeOfRow;
 	}
 	/* If (*slice).depth = 0 then face 0, face 1, or face 2 moves */
 	if (move.direction / 2)
@@ -1365,17 +1365,17 @@ draw_cube(ModeInfo * mi)
 static void
 readRC(rubikstruct * rp, int face, int dir, int h, int orient, int size)
 {
-	int         g, sizeC;
+	int         g, sizeOfRow;
 
-	sizeC = sizeColumn(rp, face);
+	sizeOfRow = sizeRow(rp, face);
 	if (dir == TOP || dir == BOTTOM)
 		for (g = 0; g < size; g++)
 			rp->rowLoc[orient][g] =
-				rp->cubeLoc[face][g * sizeC + h];
+				rp->cubeLoc[face][g * sizeOfRow + h];
 	else			/* dir == RIGHT || dir == LEFT */
 		for (g = 0; g < size; g++)
 			rp->rowLoc[orient][g] =
-				rp->cubeLoc[face][h * sizeC + g];
+				rp->cubeLoc[face][h * sizeOfRow + g];
 }
 
 static void
@@ -1404,18 +1404,18 @@ reverseRC(rubikstruct * rp, int orient, int size)
 static void
 writeRC(rubikstruct * rp, int face, int dir, int h, int orient, int size)
 {
-	int         g, position, sizeC;
+	int         g, position, sizeOfRow;
 
-	sizeC = sizeColumn(rp, face);
+	sizeOfRow = sizeRow(rp, face);
 	if (dir == TOP || dir == BOTTOM) {
 		for (g = 0; g < size; g++) {
-			position = g * sizeC + h;
+			position = g * sizeOfRow + h;
 			rp->cubeLoc[face][position] = rp->rowLoc[orient][g];
 			/* DrawSquare(face, position); */
 		}
 	} else {		/* dir == RIGHT || dir == LEFT */
 		for (g = 0; g < size; g++) {
-			position = h * sizeC + g;
+			position = h * sizeOfRow + g;
 			rp->cubeLoc[face][position] = rp->rowLoc[orient][g];
 			/* DrawSquare(face, position); */
 		}
@@ -1425,11 +1425,11 @@ writeRC(rubikstruct * rp, int face, int dir, int h, int orient, int size)
 static void
 rotateFace(rubikstruct * rp, int face, int direction)
 {
-	int         position, i, j, sizeOnAxis1, sizeOnAxis2, sizeOnPlane;
+	int         position, i, j, sizeOfRow, sizeOfColumn, sizeOnPlane;
 	RubikLoc   *faceLoc = NULL;
 
-	faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
-	sizeOnPlane = sizeOnAxis1 * sizeOnAxis2;
+	faceSizes(rp, face, &sizeOfRow, &sizeOfColumn);
+	sizeOnPlane = sizeOfRow * sizeOfColumn;
 	if ((faceLoc = (RubikLoc *) malloc(sizeOnPlane * sizeof (RubikLoc))) == NULL)
 		(void) fprintf(stderr,
 		 "Could not allocate memory for rubik face position info\n");
@@ -1438,17 +1438,17 @@ rotateFace(rubikstruct * rp, int face, int direction)
 		faceLoc[position] = rp->cubeLoc[face][position];
 	/* Write Face */
 	for (position = 0; position < sizeOnPlane; position++) {
-		i = position % sizeOnAxis1;
-		j = position / sizeOnAxis1;
+		i = position % sizeOfRow;
+		j = position / sizeOfRow;
 		if (direction == CW)
 			rp->cubeLoc[face][position] =
-				faceLoc[(sizeOnAxis1 - i - 1) * sizeOnAxis1 + j];
+				faceLoc[(sizeOfRow - i - 1) * sizeOfRow + j];
 		else if (direction == CCW)
 			rp->cubeLoc[face][position] =
-				faceLoc[i * sizeOnAxis1 + sizeOnAxis2 - j - 1];
-		else /* (direction == CW2) */
+				faceLoc[i * sizeOfRow + sizeOfColumn - j - 1];
+		else /* (direction == HALF) */
 			rp->cubeLoc[face][position] =
-				faceLoc[sizeOnAxis1 - i - 1 + (sizeOnAxis2 - j - 1) * sizeOnAxis1];
+				faceLoc[sizeOfRow - i - 1 + (sizeOfColumn - j - 1) * sizeOfRow];
 		rp->cubeLoc[face][position].rotation =
 			(rp->cubeLoc[face][position].rotation +
 				direction - MAXORIENT) % MAXORIENT;
@@ -1459,7 +1459,8 @@ rotateFace(rubikstruct * rp, int face, int direction)
 }
 
 /* Yeah this is big and ugly */
-slideRC(rubikstruct * rp, int face, int direction, int h, int sizeOnOppAxis,
+static void
+slideRC(int face, int direction, int h, int sizeOnOppAxis,
 	int *newFace, int *newDirection, int *newH,
 	int *rotate, Bool *reverse)
 {
@@ -1494,7 +1495,7 @@ slideRC(rubikstruct * rp, int face, int direction, int h, int sizeOnOppAxis,
 			}
 			break;
 		default:
-			(void) printf("slideRC: rotate %d\n", rotate);
+			(void) printf("slideRC: rotate %d\n", *rotate);
 	}
 }
 
@@ -1503,40 +1504,40 @@ moveRubik(rubikstruct * rp, int face, int direction, int position)
 {
 	int         newFace, newDirection, rotate, reverse = False;
 	int         h, k, newH = 0;
-	int         i, j, sizeOnAxis1, sizeOnAxis2, sizeOnAxis, sizeOnOppAxis;
+	int         i, j, sizeOfRow, sizeOfColumn, sizeOnAxis, sizeOnOppAxis;
 
-	faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
+	faceSizes(rp, face, &sizeOfRow, &sizeOfColumn);
 	if (direction == CW || direction == CCW) {
 		direction = (direction == CCW) ?
 			(rotateToRow[face].direction + 2) % MAXORIENT :
 			rotateToRow[face].direction;
 		if (rotateToRow[face].sideFace == RIGHT) {
-			i = j = sizeOnAxis2 - 1;
+			i = j = sizeOfColumn - 1;
 		} else if (rotateToRow[face].sideFace == BOTTOM) {
-			i = j = sizeOnAxis1 - 1;
+			i = j = sizeOfRow - 1;
 		} else {
 			i = j = 0;
 		}
 		face = rotateToRow[face].face;
-		position = j * sizeOnAxis1 + i;
+		position = j * sizeOfRow + i;
 	}
-	i = position % sizeOnAxis1;
-	j = position / sizeOnAxis1;
+	i = position % sizeOfRow;
+	j = position / sizeOfRow;
 	h = (direction == TOP || direction == BOTTOM) ? i : j;
 	if (direction == TOP || direction == BOTTOM) {
-		sizeOnAxis = sizeOnAxis2;
-		sizeOnOppAxis = sizeOnAxis1;
+		sizeOnAxis = sizeOfColumn;
+		sizeOnOppAxis = sizeOfRow;
 	} else {
-		sizeOnAxis = sizeOnAxis1;
-		sizeOnOppAxis = sizeOnAxis2;
+		sizeOnAxis = sizeOfRow;
+		sizeOnOppAxis = sizeOfColumn;
 	}
-	/* rotate sides CW or CCW or CW2 (half turn) */
+	/* rotate sides CW or CCW or HALF) */
 
 	if (h == sizeOnOppAxis - 1) {
 		newDirection = (direction == TOP || direction == BOTTOM) ?
 			TOP : RIGHT;
 		if (rp->degreeTurn == 180)
-			rotateFace(rp, rowToRotate[face][newDirection], CW2);
+			rotateFace(rp, rowToRotate[face][newDirection], HALF);
 		else if (direction == TOP || direction == RIGHT)
 			rotateFace(rp, rowToRotate[face][newDirection], CW);
 		else		/* direction == BOTTOM || direction == LEFT */
@@ -1546,7 +1547,7 @@ moveRubik(rubikstruct * rp, int face, int direction, int position)
 		newDirection = (direction == TOP || direction == BOTTOM) ?
 			BOTTOM : LEFT;
 		if (rp->degreeTurn == 180)
-			rotateFace(rp, rowToRotate[face][newDirection], CW2);
+			rotateFace(rp, rowToRotate[face][newDirection], HALF);
 		else if (direction == TOP || direction == RIGHT)
 			rotateFace(rp, rowToRotate[face][newDirection], CCW);
 		else		/* direction == BOTTOM  || direction == LEFT */
@@ -1557,7 +1558,7 @@ moveRubik(rubikstruct * rp, int face, int direction, int position)
 	if (rp->degreeTurn == 180) {
 		int sizeOnDepthAxis;
 
-		slideRC(rp, face, direction, h, sizeOnOppAxis,
+		slideRC(face, direction, h, sizeOnOppAxis,
 			&newFace, &newDirection, &newH, &rotate, &reverse);
 		sizeOnDepthAxis = sizeFace(rp, newFace) / sizeOnOppAxis;
 		readRC(rp, newFace, newDirection, newH, 1, sizeOnDepthAxis);
@@ -1568,7 +1569,7 @@ moveRubik(rubikstruct * rp, int face, int direction, int position)
 		direction = newDirection;
 		h = newH;
 		for (k = 2; k <= MAXORIENT + 1; k++) {
-			slideRC(rp, face, direction, h, sizeOnOppAxis,
+			slideRC(face, direction, h, sizeOnOppAxis,
 				&newFace, &newDirection, &newH, &rotate, &reverse);
 			if (k != MAXORIENT && k != MAXORIENT + 1)
 				readRC(rp, newFace, newDirection, newH, k,
@@ -1593,7 +1594,7 @@ moveRubik(rubikstruct * rp, int face, int direction, int position)
 		}
 	} else {
 		for (k = 1; k <= MAXORIENT; k++) {
-			slideRC(rp, face, direction, h, sizeOnOppAxis,
+			slideRC(face, direction, h, sizeOnOppAxis,
 				&newFace, &newDirection, &newH, &rotate, &reverse);
 			if (k != MAXORIENT)
 				readRC(rp, newFace, newDirection, newH, k, sizeOnAxis);
@@ -1612,14 +1613,14 @@ moveRubik(rubikstruct * rp, int face, int direction, int position)
 void
 printCube(rubikstruct * rp)
 {
-	int         face, position, sizeOnAxis1, sizeOnAxis2;
+	int         face, position, sizeOfRow, sizeOfColumn;
 
 	for (face = 0; face < MAXFACES; face++) {
-		faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
-		for (position = 0; position < sizeOnAxis1 * sizeOnAxis2; position++) {
+		faceSizes(rp, face, &sizeOfRow, &sizeOfColumn);
+		for (position = 0; position < sizeOfRow * sizeOfColumn; position++) {
 			(void) printf("%d %d  ", rp->cubeLoc[face][position].face,
 				      rp->cubeLoc[face][position].rotation);
-			if (!((position + 1) % sizeOnAxis1))
+			if (!((position + 1) % sizeOfRow))
 				(void) printf("\n");
 		}
 		(void) printf("\n");

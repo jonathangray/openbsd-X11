@@ -19,7 +19,6 @@ static const char sccsid[] = "@(#)automata.c	4.10 98/04/28 xlockmore";
 #include "utils.h"
 #else
 #include "xlock.h"
-int         neighbors;
 
 #endif
 #include "automata.h"

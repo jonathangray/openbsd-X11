@@ -42,7 +42,11 @@ void print_point (FILE *fp, TwoJetVec p, double ps, double pus, double pvs, doub
   }
 }
 
-void printMesh(FILE *fp, TwoJetVec p, int binary)
+void printMesh(
+#ifndef XLOCK
+    FILE *fp,
+#endif
+    TwoJetVec p)
 {
     double x= double(p.x) ;
     double y= double(p.y) ;
@@ -248,8 +252,8 @@ void printScene(
     }
   } 
   else {
-    int nu = kmax+1, nv = jmax+1;
 #ifndef XLOCK
+    int nu = kmax+1, nv = jmax+1;
     fprintf(fp, "{ NMESH%s\n", binary ? " BINARY" : "");
 
     if(binary) {
@@ -264,14 +268,14 @@ void printScene(
     for(j = 1; j <= jmax; j++) {
         glBegin(GL_QUAD_STRIP);
         for(k = 0; k <= kmax; k++) {
-	    printMesh(fp, values[j-1][k], binary);
-	    printMesh(fp, values[j][k], binary);
+	    printMesh(values[j-1][k]);
+	    printMesh(values[j][k]);
 	}
 	glEnd();
 #else
     for(j = 0; j <= jmax; j++) {
         for(k = 0; k <= kmax; k++)
-	    printMesh(fp, values[j][k], binary);
+	    printMesh(fp, values[j][k]);
 
 	if(!binary)
 	    fputc('\n', fp);
