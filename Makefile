@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.10 1998/09/19 01:02:48 todd Exp $
+#	$OpenBSD: Makefile,v 1.11 1998/09/19 01:20:26 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -95,3 +95,8 @@ clean:
 .if exists(contrib/Makefile)
 	cd contrib; ${MAKE} clean
 .endif
+
+distclean:
+	${MAKE} clean
+	find xc contrib -name Makefile -mindepth 2 -exec rm -f '{}' ';'
+	rm -f xc/xmakefile contrib/Makefile
