@@ -17,8 +17,8 @@
 
 set mseTypeList [concat $SupportedMouseTypes { Xqueue OSMouse } ]
 
-set msePatterns [list {tty[0-9A-Za-o]*} cua* *bm *mse* *mouse* \
-                      ps*x psm* m320 pms* com* gpmdata lms* kdmouse logi msm]
+set msePatterns [list {tty[0-9c]*} cua* *bm *mse* *mouse* \
+                      ps*x psm* m320 com* gpmdata lms* kdmouse logi msm]
 set mseDevices ""
 foreach pat $msePatterns {
 	if ![catch {glob /dev/$pat}] {
