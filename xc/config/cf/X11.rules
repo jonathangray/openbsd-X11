@@ -70,15 +70,17 @@ XCOMM $XFree86: xc/config/cf/X11.rules,v 1.1.1.1.2.4 1999/04/21 07:20:58 hohndel
 #endif
 #define LdPostLibs	LdPostLib XLdPostLibs
 
-#if ImportX11 
-# define TopXInclude	-I$(TOP)/imports/x11/include
-#elif !UseInstalledX11
-# define TopXInclude	-I$(TOP)/exports/include
-#else
-# ifdef X11ProjectRoot
-#  define TopXInclude	-I$(XPROJECTROOT)/include
+#ifndef TopXInclude
+# if ImportX11 
+#  define TopXInclude	-I$(TOP)/imports/x11/include
+# elif !UseInstalledX11
+#  define TopXInclude	-I$(TOP)/exports/include
 # else
-#  define TopXInclude	/**/
+#  ifdef X11ProjectRoot
+#   define TopXInclude	-I$(XPROJECTROOT)/include
+#  else
+#   define TopXInclude	/**/
+#  endif
 # endif
 #endif
 #ifdef TopIncludes
