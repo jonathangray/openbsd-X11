@@ -130,18 +130,14 @@ InstallLinkKitMultipleDestFlags($(INSTFILES),$(LINKKITDIR)/config/cf,$(INSTDATFL
 
 #ifdef InstallEmptyHostDef
 install::
-	@(TMP=/tmp/tmp.$$$$; \
-	RemoveFile($${TMP}); \
-	echo "" > $${TMP}; \
+	@(TMP=`mktemp /tmp/tmp.XXXXXXXX` || exit 2; \
 	$(INSTALL) $(INSTALLFLAGS) $(INSTDATFLAGS) $${TMP} \
 		$(DESTDIR)$(CONFIGDIR)/host.def; \
 	RemoveFile($${TMP}))
 
 #ifdef XFree86Version
 install.linkkit::
-	@(TMP=/tmp/tmp.$$$$; \
-	RemoveFile($${TMP}); \
-	echo "" > $${TMP}; \
+	@(TMP=`mktemp /tmp/tmp.XXXXXXXX` || exit 2; \
 	$(INSTALL) $(INSTALLFLAGS) $(INSTDATFLAGS) $${TMP} \
 		$(DESTDIR)$(LINKKITDIR)/config/cf/host.def; \
 	RemoveFile($${TMP}))
