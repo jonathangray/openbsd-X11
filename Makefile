@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.17 1999/10/06 08:21:35 todd Exp $
+#	$OpenBSD: Makefile,v 1.18 1999/10/15 22:36:54 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -58,10 +58,7 @@ release:
 	fi
 	@${MKDIR} -p ${DESTDIR}/usr/X11R6
 	@${MKDIR} -p ${DESTDIR}/var/X11
-	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/usr/X11R6
-	ls -al ${DESTDIR}/usr/X11R6/
-	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/var/X11
-	ls -al ${DESTDIR}/var/X11
+	${MAKE} perms
 	@${MAKE} install
 .if defined(MACHINE) && ${MACHINE} == hp300
 	@${CP} ${XHP} ${DESTDIR}/usr/X11R6/bin
@@ -71,7 +68,19 @@ release:
 .endif
 	@${MAKE} dist
 
+perms:
+	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/.
+	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/usr
+	ls -ld ${DESTDIR}/. ${DESTDIR}/usr
+	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/usr/X11R6
+	ls -al ${DESTDIR}/usr/X11R6/
+	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/var
+	ls -ld ${DESTDIR}/var
+	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/var/X11
+	ls -al ${DESTDIR}/var/X11
+
 dist:
+	${MAKE} perms
 	cd distrib/sets && ./maketars ${OSrev} && ./checkflist
 
 install: install-xc install-contrib install-linkkit install-distrib
