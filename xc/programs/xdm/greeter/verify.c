@@ -107,7 +107,8 @@ char	*user, *home, *shell;
     env = setEnv (env, "PATH", useSystemPath ? d->systemPath : d->userPath);
     env = setEnv (env, "SHELL", shell);
 #ifdef KERBEROS
-    env = setEnv (env, "KRBTKFILE", krbtkfile);
+    if (krbtkfile[0] != '\0')
+        env = setEnv (env, "KRBTKFILE", krbtkfile);
 #endif
     for (envvar = envvars; *envvar; envvar++)
     {
@@ -206,15 +207,14 @@ struct verify_info	*verify;
 		char *q;
 		int ret;
 	    
-		sprintf(krbtkfile, "%s.%s", TKT_ROOT, d->name);
-		krb_set_tkt_string(krbtkfile);
-		unlink(krbtkfile);
-           
-           
 		if(krb_get_lrealm(realm, 1)){
 			Debug ("Can't get Kerberos realm.\n");
 		} else {
 
+		    sprintf(krbtkfile, "%s.%s", TKT_ROOT, d->name);
+		    krb_set_tkt_string(krbtkfile);
+		    unlink(krbtkfile);
+           
 		    ret = krb_verify_user(greet->name, "", realm, 
 				      greet->password, 0, "rcmd");
            
@@ -235,6 +235,7 @@ struct verify_info	*verify;
 			    /* failure */
 			    Debug("kerberos verify failure %d\n", ret);
 			    bzero(greet->password, strlen(greet->password));
+			    krbtkfile[0] = '\0';
 			    return 0;
 		    }
 		}
