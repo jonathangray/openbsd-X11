@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.7 1998/06/09 07:05:38 todd Exp $
+#	$OpenBSD: Makefile,v 1.8 1998/06/26 01:36:33 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -85,4 +85,6 @@ install-distrib:
 
 clean:
 	cd xc; ${MAKE} clean
+.if exists(contrib/Makefile)
 	cd contrib; ${MAKE} clean
+.endif
