@@ -249,6 +249,12 @@ install.man:: 								@@\
  */
 #ifdef i386Architecture
 
+/*
+ * For safety reasons, don't install the X server setuid on OpenBSD
+ * use xdm instead
+ */
+# define InstallXserverSetUID	NO
+
 # define BuildDynamicLoading	YES
 # include <xfree86.cf>
 
