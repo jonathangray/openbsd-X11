@@ -1,6 +1,6 @@
 /* x11-ssh-askpass.c:  A generic X11-based password dialog for OpenSSH.
  * created 1999-Nov-17 03:40 Jim Knoble <jmknoble@jmknoble.cx>
- * autodate: 2000-Nov-07 06:11
+ * autodate: 2000-Nov-08 23:14
  * 
  * by Jim Knoble <jmknoble@jmknoble.cx>
  * Copyright (C) 1999,2000 Jim Knoble
@@ -140,29 +140,32 @@ unsigned int getUnsignedIntegerResource(AppInfo *app, char *instanceName,
       /* Skip whitespace. */
       cp++;
    }
-   if ('0' == cp[0]) {
-      if (('x' == cp[1]) || ('X' == cp[1])) {
-	 /* Hex */
-	 n = sscanf(cp + 2, "%x %c", &value, &c);
+   if (*cp) {
+      if (('0' == cp[0]) && cp[1]) {
+	 if (('x' == cp[1]) || ('X' == cp[1])) {
+	    /* Hex */
+	    n = sscanf(cp + 2, "%x %c", &value, &c);
+	 } else {
+	    /* Octal */
+	    n = sscanf(cp + 1, "%o %c", &value, &c);
+	 }
+	 if (1 == n) {
+	    free(s);
+	    return(value);
+	 }
       } else {
-	 /* Octal */
-	 n = sscanf(cp + 1, "%o %c", &value, &c);
-      }
-      if (1 == n) {
-	 free(s);
-	 return(value);
-      }
-   } else {
-      /* Unsigned Decimal */
-      n = sscanf(cp, "%u %c", &value, &c);
-      if (1 == n) {
-	 free(s);
-	 return(value);
+	 /* Unsigned Decimal */
+	 n = sscanf(cp, "%u %c", &value, &c);
+	 if (1 == n) {
+	    free(s);
+	    return(value);
+	 }
       }
    }
    /* If we get here, no conversion succeeded. */
    fprintf(stderr, "%s[%ld]: invalid value '%s' for %s.\n",
 	   app->appName, (long) app->pid, s, instanceName);
+   free(s);
    return(defaultValue);
 }
 
