@@ -1,0 +1,19 @@
+/*
+ * Imakefile for fvwm 2.0 -- sample.fvwmrc
+ */
+
+FVWM_SRCDIR = ..
+#include "../Fvwm.tmpl"
+
+NullMake()
+
+#if InstallSample
+/* FreeBSD ports -- maybe a bug(typo?). reported. */
+InstallNonExecFile(system$(FVWMRC),$(FVWMDIR))
+/* FreeBSD ports */
+/* FreeBSD ports -- More informations are welcomed :-) */
+InstallNonExecFile(decor_examples,$(FVWMDIR))
+InstallNonExecFile(system.fvwm2rc-sample-1,$(FVWMDIR))
+InstallNonExecFile(system.fvwm2rc-sample-2,$(FVWMDIR))
+/* FreeBSD ports */
+#endif
