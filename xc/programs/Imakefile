@@ -32,6 +32,9 @@ SCREENSAVESRCDIR = beforelight
 #if BuildLBX
   LBXPROXYSRCDIR = lbxproxy
 #endif
+#if HasKrbIV
+        KXSRCDIR = kx
+#endif
   PROXYMGRSRCDIR = proxymngr
     RSTARTSRCDIR = rstart
    SMPROXYSRCDIR = smproxy
@@ -54,7 +57,7 @@ SUBDIRS = $(XSSRCDIR)
 SUBDIRS = \
 	appres bdftopcf bitmap $(SCREENSAVESRCDIR) editres fsinfo \
 	fslsfonts fstobdf \
-	iceauth mkfontdir oclock $(PROXYMGRSRCDIR) \
+	iceauth  $(KXSRCDIR) mkfontdir oclock $(PROXYMGRSRCDIR) \
 	$(RGBSRCDIR) $(RSTARTSRCDIR) $(SMPROXYSRCDIR) $(TWMSRCDIR) x11perf \
 	xauth xclipboard xclock xcmsdb $(XCONSOLESRCDIR) $(XDMSRCDIR) \
 	$(XF86DGASRCDIR) xfd $(XFSSRCDIR) $(XFINDPROXYSRCDIR) \
