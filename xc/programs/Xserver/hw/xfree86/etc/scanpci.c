@@ -24,7 +24,7 @@
  *
  */
 
-/* $XFree86: xc/programs/Xserver/hw/xfree86/etc/scanpci.c,v 3.34.2.31 1999/08/17 07:39:32 hohndel Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/etc/scanpci.c,v 3.34.2.32 1999/08/26 05:38:44 hohndel Exp $ */
 
 /*
  * Copyright 1995 by Robin Cutshaw <robin@XFree86.Org>
@@ -643,7 +643,7 @@ extern void print_pcibridge(struct pci_config_reg *);
 extern void enable_os_io();
 extern void disable_os_io();
 
-#define MAX_DEV_PER_VENDOR_CFG1 32
+#define MAX_DEV_PER_VENDOR_CFG1 48
 #define MAX_DEV_PER_VENDOR_CFG2 16
 #define MAX_PCI_DEVICES         64
 #define NF ((void (*)())NULL)
