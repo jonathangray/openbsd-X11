@@ -23,6 +23,10 @@ XKBUILIBDIR = xkbui
 THRSTUBLIB = XThrStub
 #endif
 
+#if BuildXpmLibrary
+XPMLIBDIR = Xpm
+#endif
+
 #if BuildScreenSaverLibrary
 SSLIB = Xss
 #endif
@@ -61,7 +65,7 @@ FONTSUBDIR = font
 
 #if !BuildServersOnly
 LINTSUBDIRS = Xau Xdmcp $(THRSTUBLIB) X11 oldX ICE SM Xext Xt \
-	     $(SSLIB) $(XF86MISCLIB) $(XF86VMLIB) $(XF86DGALIB) \
+	     $(XPMLIBDIR) $(SSLIB) $(XF86MISCLIB) $(XF86VMLIB) $(XF86DGALIB) \
 	     Xmu Xaw XIE Xi Xtst FS \
 	     PEX5 $(XKBLIBDIR) $(XKBUILIBDIR) $(LBXUTILDIR) $(XALIBDIR) \
 	     $(XDPMSLIBDIR) \
