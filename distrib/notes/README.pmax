@@ -26,4 +26,4 @@ c) link the correct X-server to X.
    in /etc/rc.conf.  You may need to disable the console getty in /etc/ttys.
 
 If you encounter a problem, you can browse the entire documentation at
-http://www.xfree86.org/XFree86/3.3.5/
+http://www.xfree86.org/XFree86/3.3.6/

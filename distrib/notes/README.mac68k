@@ -12,4 +12,4 @@ Post-installation instructions for XFree86 on OpenBSD/mac68k
    in /etc/rc.conf.  You may need to disable the console getty in /etc/ttys.
 
 If you encounter a problem, you can browse the entire documentation at
-http://www.xfree86.org/XFree86/3.3.5/
+http://www.xfree86.org/XFree86/3.3.6/
