@@ -16,6 +16,9 @@ HAS_DES_AUTH=HasXdmAuth
 #if HasXpm
 XPM_DEFINES=-DXPM -DBITMAPDIR=$(XDMDIR)/pixmaps
 #endif
+#ifdef Hp300Architecture
+XPM_DEFINES+=-DHp300Architecture
+#endif
 
 CppFileTarget(Xservers.ws,Xserv.ws.cpp,-DBINDIR=$(BINDIR) -DDEFAULTVT=$(DEFAULTVT),NullParameter)
 CppFileTarget(xdm-config,xdm-conf.cpp,-DXDMDIR=$(XDMDIR) -DHAS_DES_AUTH=$(HAS_DES_AUTH),NullParameter)
