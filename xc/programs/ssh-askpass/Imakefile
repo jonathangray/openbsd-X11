@@ -1,88 +1,25 @@
-BINDIR		= /usr/local/lib/ssh
+XCOMM $OpenBSD: Imakefile,v 1.2 1999/11/27 09:58:16 matthieu Exp $
 
-AWK		= awk
-CAT		= cat
-CHMOD		= chmod -c
-CP		= cp -df
-GREP		= grep
-GZIP		= gzip
-LN		= ln -sf
-MKDIR		= mkdir -p
-MV		= mv -f
-RM		= rm -f
-TAR		= tar
+           SRCS = drawing.c dynlist.c resources.c x11-ssh-askpass.c
+           OBJS = drawing.o dynlist.o resources.o x11-ssh-askpass.o
+        DEPLIBS = $(DEPXTOOLLIB) $(DEPXLIB)
+LOCAL_LIBRARIES = $(XTOOLLIB) $(XLIB)
 
-PROJECT		= x11-ssh-askpass
-TARBALL_DIR	= $(PROJECT)
-TARBALL		= $(PROJECT).tar.gz
+          CLASS = SshAskpass
+   APP_DEFAULTS = $(CLASS)-default.ad
 
-CLASS		= SshAskpass
-
-HDRS = \@@\
- drawing.h \@@\
- dynlist.h \@@\
- resources.h \@@\
- utils.h \@@\
- x11-ssh-askpass.h
-
-SRCS = \@@\
- drawing.c \@@\
- dynlist.c \@@\
- resources.c \@@\
- x11-ssh-askpass.c
-
-OBJS = \@@\
- drawing.o \@@\
- dynlist.o \@@\
- resources.o \@@\
- x11-ssh-askpass.o
-
-EXTRAS = \@@\
- Imakefile \@@\
- README \@@\
- $(CLASS)-1337.ad \@@\
- $(CLASS)-NeXTish.ad \@@\
- $(CLASS)-green.ad \@@\
- $(CLASS)-motif.ad \@@\
- $(CLASS)-default.ad
- 
-APP_DEFAULTS	= $(CLASS)-default.ad
-
-LOCAL_LIBRARIES	= -lXt -lX11 -lSM -lICE
-
-ComplexProgramTarget(ssh-askpass)
-InstallNamedNonExec($(CLASS).ad,$(CLASS),$(XAPPLOADDIR))
-
-.PHONY: depends realclean spotless tar
-
-depends: depend
-
-includes:: $(CLASS)_ad.h
+$(CLASS)_ad.h: $(CLASS).ad
+	cat $(CLASS).ad | grep -v '^[ 	]*$$' |\
+	  awk '/^[ 	]*!/ { sub("^[ 	]*![ ]?","", $$0); printf("/* %s */\n", $$0); next } ! /^[ 	]*!/ { printf("\"%s\",\n", $$0) }' \
+	  >$@
 
 $(CLASS).ad:
 	$(LN) $(APP_DEFAULTS) $(CLASS).ad
 
-$(CLASS)_ad.h: $(CLASS).ad
-	$(CAT) $< |$(GREP) -v '^[ 	]*$$' |\
-	  $(AWK) '/^[ 	]*!/ { s = gensub("^[ 	]*![ ]?","", 1, $$0); printf("/* %s */\n", s) } !/^[ 	]*!/ { printf("\"%s\",\n", $$0) }' \
-	  >$@
+includes:: $(CLASS)_ad.h
 
 clean::
-	-$(RM) $(CLASS)_ad.h
+	$(RM) -f $(CLASS)_ad.h $(CLASS).ad
 
-realclean: clean
-	-$(RM) $(CLASS).ad
-
-spotless: realclean
-	-$(RM) Makefile Makefile.bak
-
-tar:
-	-$(RM) -r $(TARBALL_DIR)
-	$(MKDIR) $(TARBALL_DIR)
-	$(CP) $(EXTRAS) $(SRCS) $(HDRS) $(TARBALL_DIR)/
-	$(CHMOD) -R u+rwX,go+rX,go-w $(TARBALL_DIR)
-	-$(RM) $(TARBALL).bak
-	-$(MV) $(TARBALL) $(TARBALL).bak
-	$(TAR) -cvf - $(TARBALL_DIR) |$(GZIP) -9 -c >$(TARBALL)
-	-$(RM) -r $(TARBALL_DIR)
-
+ComplexProgramTargetNoMan(ssh-askpass)
+InstallAppDefaults(SshAskpass)
