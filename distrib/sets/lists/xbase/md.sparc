@@ -1,3 +1,4 @@
+./usr/X11R6/bin/constype
 ./usr/X11R6/bin/kbd_mode
 ./usr/X11R6/bin/setxkbmap
 ./usr/X11R6/bin/showrgb
@@ -8,6 +9,7 @@
 ./usr/X11R6/bin/xkbprint
 ./usr/X11R6/bin/xkbvleds
 ./usr/X11R6/bin/xkbwatch
+./usr/X11R6/bin/xsetmode
 ./usr/X11R6/include/X11/extensions/XKBbells.h
 ./usr/X11R6/include/X11/extensions/XKBconfig.h
 ./usr/X11R6/include/X11/extensions/XKBfile.h
@@ -19,6 +21,7 @@
 ./usr/X11R6/lib/X11/fonts/PEX/Roman.phont
 ./usr/X11R6/lib/X11/fonts/PEX/Roman_M.phont
 ./usr/X11R6/lib/X11/rgb.txt
+./usr/X11R6/lib/X11/xdm/libXdmGreet.so.1.0
 ./usr/X11R6/lib/X11/xkb
 ./usr/X11R6/lib/X11/xkb/compat
 ./usr/X11R6/lib/X11/xkb/compat.dir
@@ -211,3 +214,4 @@
 ./usr/X11R6/man/cat1/xkbcomp.0
 ./usr/X11R6/man/cat1/xkbevd.0
 ./usr/X11R6/man/cat1/xkbprint.0
+./usr/X11R6/man/cat1/xsetmode.0
