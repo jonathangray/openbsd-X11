@@ -64,6 +64,9 @@ InstallNamedProgNoClobber(Startup_0,Startup_0,$(XDMDIR))
 #  define PixmapInstall InstallNonExecFileNoClobber
 # endif
 
+# ifdef Xdm_15bpp_Pixmap
+PixmapInstall(Xdm_15bpp_Pixmap,$(XDMDIR)/pixmaps)
+# endif
 # ifdef Xdm_8bpp_Pixmap
 PixmapInstall(Xdm_8bpp_Pixmap,$(XDMDIR)/pixmaps)
 # endif

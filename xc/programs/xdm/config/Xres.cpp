@@ -13,7 +13,11 @@ xlogin*namePrompt: login:\040
 xlogin*greeting: Welcome to CLIENTHOST
 xlogin*namePrompt: \040\040\040\040\040\040\040Login:
 #endif /* XPM */
+/**/#if WIDTH < 1024
+xlogin*fail: Login incorrect\040\040\040\040\040\040\040\040\040\040\040\040
+/**/#else
 xlogin*fail: Login incorrect
+/**/#endif
 #ifdef XPM
 /**/#if WIDTH > 800
 xlogin*greetFont: -adobe-helvetica-bold-o-normal--24-240-75-75-p-138-iso8859-1
@@ -61,7 +65,11 @@ xlogin*Background: white
 xlogin*logoFileName: BITMAPDIR/**//OpenBSD_1bpp.xpm
 /**/#else
 /**/#if PLANES > 4
+/**/#if PLANES > 8
+xlogin*logoFileName: BITMAPDIR/**//OpenBSD_15bpp.xpm
+/**/#else
 xlogin*logoFileName: BITMAPDIR/**//OpenBSD_8bpp.xpm
+/**/#endif
 /**/#else /* PLANES > 4 */
 xlogin*logoFileName: BITMAPDIR/**//OpenBSD_4bpp.xpm
 /**/#endif /* PLANES > 4 */

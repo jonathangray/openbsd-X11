@@ -1936,6 +1936,7 @@
 ./var/X11/xdm/Xsetup
 ./var/X11/xdm/Xsetup_0
 ./var/X11/xdm/pixmaps
+./var/X11/xdm/pixmaps/OpenBSD_15bpp.xpm
 ./var/X11/xdm/pixmaps/OpenBSD_1bpp.xpm
 ./var/X11/xdm/pixmaps/OpenBSD_4bpp.xpm
 ./var/X11/xdm/pixmaps/OpenBSD_8bpp.xpm
