@@ -1,0 +1,439 @@
+diff -r -c /usr/src/local/X11R5/contrib/clients/xautolock.pl10/Imakefile ./Imakefile
+*** /usr/src/local/X11R5/contrib/clients/xautolock.pl10/Imakefile	Tue Feb 21 14:25:29 1995
+--- ./Imakefile	Fri Feb 24 02:03:24 1995
+***************
+*** 6,29 ****
+   *  cleaner. Notice that when compiled with Xidle,  xautolock will still
+   *  work properly when used against a server which doesn't have xidle.
+   */
+! 
+  #ifdef HPArchitecture
+        CCOPTIONS = -Ae
+  #endif
+  
+! #ifdef HasPrototypes
+       PROTOTYPES = -DHasPrototypes 
+  #endif
+  
+! #ifdef HasVFork
+            VFORK = -DHasVFork
+  #endif 
+  
+! #ifdef HasXidle
+            XIDLE = -DHasXidle
+  #endif 
+  
+! #ifdef HasVoidSignalReturn
+       VOIDSIGNAL = -DHasVoidSignalReturn
+  #endif 
+  
+--- 6,29 ----
+   *  cleaner. Notice that when compiled with Xidle,  xautolock will still
+   *  work properly when used against a server which doesn't have xidle.
+   */
+!   
+  #ifdef HPArchitecture
+        CCOPTIONS = -Ae
+  #endif
+  
+! #if HasPrototypes
+       PROTOTYPES = -DHasPrototypes 
+  #endif
+  
+! #if HasVFork
+            VFORK = -DHasVFork
+  #endif 
+  
+! #if HasXidle
+            XIDLE = -DHasXidle
+  #endif 
+  
+! #if HasVoidSignalReturn
+       VOIDSIGNAL = -DHasVoidSignalReturn
+  #endif 
+  
+***************
+*** 37,43 ****
+  
+  LOCAL_LIBRARIES = $(XLIB)
+         DEP_LIBS = $(DEPXLIB)
+!         DEFINES = $(PROTOTYPES) $(VOIDSIGNAL) $(VFORK) $(XIDLE)
+  
+! SimpleProgramTarget(xautolock)
+  
+--- 37,46 ----
+  
+  LOCAL_LIBRARIES = $(XLIB)
+         DEP_LIBS = $(DEPXLIB)
+!         DEFINES = $(PROTOTYPES) $(VOIDSIGNAL) $(VFORK) $(XIDLE) 
+  
+!            SRCS = xautolock.c idlefile.c
+!            OBJS = xautolock.o idlefile.o
+! 
+! ComplexProgramTarget(xautolock)
+  
+Only in .: Makefile
+Only in .: RCS
+Only in .: README.idlefile
+Only in .: idlefile.c
+diff -r -c /usr/src/local/X11R5/contrib/clients/xautolock.pl10/xautolock.c ./xautolock.c
+*** /usr/src/local/X11R5/contrib/clients/xautolock.pl10/xautolock.c	Tue Feb 21 14:23:04 1995
+--- ./xautolock.c	Fri Feb 24 02:03:28 1995
+***************
+*** 228,233 ****
+--- 228,237 ----
+  #include <sys/m_wait.h>
+  #endif /* AIXV3 */
+  
++ #ifdef __osf__
++ #undef BSD4_3
++ #endif
++ 
+  #if !defined (news1800) && !defined (sun386)
+  
+  #if !defined (NOSTDHDRS)
+***************
+*** 422,427 ****
+--- 426,432 ----
+  static Boolean  TimeAction            PP((Display*, String));
+  static Boolean  NotifierAction        PP((Display*, String));
+  static Boolean  LockerAction          PP((Display*, String));
++ static Boolean  IdleFileAction        PP((Display*, String));
+  static Boolean  CornersAction         PP((Display*, String));
+  static Boolean  CornerSizeAction      PP((Display*, String));
+  static Boolean  CornerDelayAction     PP((Display*, String));
+***************
+*** 498,503 ****
+--- 503,511 ----
+                         {"locker"       , XrmoptionSepArg    ,
+                          (Caddrt) NULL  , LockerAction       ,
+                          LockerChecker                       },
++                        {"idlefile"     , XrmoptionSepArg    ,
++                         (Caddrt) NULL  , IdleFileAction       ,
++                         (OptChecker) NULL                   },
+                         {"corners"      , XrmoptionSepArg    ,
+                          (Caddrt) NULL  , CornersAction      ,
+                          (OptChecker) NULL                   },
+***************
+*** 771,781 ****
+  String    arg;  /* argument value  */
+  
+  {
+!   locker = arg;
+    return TRUE;
+  }
+  
+  
+  /*ARGSUSED*/
+  static Boolean  CornersAction (d, arg)
+  Display*  d;    /* display pointer */
+--- 779,808 ----
+  String    arg;  /* argument value  */
+  
+  {
+!   if (strcmp(arg, "NONE") == 0)
+! 	locker = NULL;
+!   else
+! 	locker = arg;
+    return TRUE;
+  }
+  
++ /*ARGSUSED*/
++ static Boolean  IdleFileAction (d, arg)
++ Display*  d;    /* display pointer */
++ String    arg;  /* argument value  */
+  
++ {
++   if (strcmp(arg, "NONE") == 0)
++     return TRUE;
++ 
++   if (IdleFileInit(arg) < 0) {
++     Error0 ("Could not access idlefile.\n");
++     exit (PROBLEMS);
++   }
++   return TRUE;
++ }
++ 
++ 
+  /*ARGSUSED*/
+  static Boolean  CornersAction (d, arg)
+  Display*  d;    /* display pointer */
+***************
+*** 877,884 ****
+    *  Let's manipulate the locker command a bit
+    *  in order to reduce resource usage. 
+    */
+!   sprintf (tmp = NewArray (Char, strlen (locker) + 6), "exec %s", locker);
+!   locker = tmp;
+  #endif /* VMS */
+  }
+  
+--- 904,913 ----
+    *  Let's manipulate the locker command a bit
+    *  in order to reduce resource usage. 
+    */
+!   if (locker) {
+!     sprintf (tmp = NewArray (Char, strlen (locker) + 6), "exec %s", locker);
+!     locker = tmp;
+!   }
+  #endif /* VMS */
+  }
+  
+***************
+*** 1018,1024 ****
+    Error0 (blanks);
+    Error0 ("[-cornersize pixels][-noclose][-nocloseout][-nocloseerr]\n");
+    Error0 (blanks);
+!   Error0 ("[-enable][-disable][-toggle]\n");
+  
+    Error0 ("\n");
+    Error0 (" -help               : print this message and exit.\n");
+--- 1047,1053 ----
+    Error0 (blanks);
+    Error0 ("[-cornersize pixels][-noclose][-nocloseout][-nocloseerr]\n");
+    Error0 (blanks);
+!   Error0 ("[-enable][-disable][-toggle][-idlefile path]\n");
+  
+    Error0 ("\n");
+    Error0 (" -help               : print this message and exit.\n");
+***************
+*** 1025,1031 ****
+    Error0 (" -version            : print version number and exit.\n");
+    Error2 (" -time mins          : time to lock screen [%ld <= mins <= %ld].\n",
+                                    MIN_MINUTES, MAX_MINUTES);
+!   Error0 (" -locker locker      : program used to lock.\n");
+    Error0 (" -notify margin      : notify this many seconds before locking.\n");
+    Error0 (" -notifier notifier  : program used to notify.\n");
+    Error0 (" -bell percent       : loudness of notification beeps.\n");
+--- 1054,1060 ----
+    Error0 (" -version            : print version number and exit.\n");
+    Error2 (" -time mins          : time to lock screen [%ld <= mins <= %ld].\n",
+                                    MIN_MINUTES, MAX_MINUTES);
+!   Error0 (" -locker locker      : program used to lock (`NONE' to skip locking).\n");
+    Error0 (" -notify margin      : notify this many seconds before locking.\n");
+    Error0 (" -notifier notifier  : program used to notify.\n");
+    Error0 (" -bell percent       : loudness of notification beeps.\n");
+***************
+*** 1040,1045 ****
+--- 1069,1075 ----
+    Error0 (" -enable             : enable a running xautolock.\n");
+    Error0 (" -disable            : disable a running xautolock.\n");
+    Error0 (" -toggle             : toggle a running xautolock.\n");
++   Error0 (" -idlefile path      : set file to stamp with idle time, or `NONE'\n");
+  
+    Error0 ("\n");
+    Error0 ("Defaults :\n");
+***************
+*** 1345,1350 ****
+--- 1375,1381 ----
+  
+  {
+    XEvent  event;  /* as it says */
++   Boolean had_events = FALSE;
+  
+  
+   /*
+***************
+*** 1374,1382 ****
+--- 1405,1416 ----
+         )
+      {
+        SetTrigger (time_limit);
++       had_events = TRUE;
+      }
+    }
+  
++   if (had_events)
++     IdleFileStamp();
+  
+   /*
+    *  Check the window queue for entries that are older than
+***************
+*** 1404,1409 ****
+--- 1438,1445 ----
+    if (idle_time < 1000)  
+    {
+      SetTrigger (time_limit);
++     if (use_idlefile)
++       IdleFileStamp();
+    }
+  #endif /* HasXidle */
+  }
+***************
+*** 1523,1528 ****
+--- 1559,1565 ----
+  
+          case DONT_LOCK :
+            SetTrigger (time_limit);
++ 	  IdleFileStamp();
+        }
+      }
+    }
+***************
+*** 1533,1538 ****
+--- 1570,1576 ----
+      prev_root_y = root_y;
+      prev_mask = mask;
+      SetTrigger (time_limit);
++     IdleFileStamp();
+    }
+  }
+  
+***************
+*** 1587,1597 ****
+  #else /* VMS */
+    if (locker_pid)
+    {
+! #if !defined (UTEKV) && !defined (SYSV) && !defined(SVR4)
+      union wait  status;  /* childs process status */
+! #else /* !UTEKV && !SYSV && !SVR4 */
+      int         status;  /* childs process status */
+! #endif /* !UTEKV && !SYSV && !SVR4 */
+  
+  
+  #if !defined (UTEKV) && !defined (SYSV) && !defined(SVR4)
+--- 1625,1635 ----
+  #else /* VMS */
+    if (locker_pid)
+    {
+! #if !defined (UTEKV) && !defined (SYSV) && !defined(SVR4) && !defined(__osf__)
+      union wait  status;  /* childs process status */
+! #else /* !UTEKV && !SYSV && !SVR4 && !__osf__ */
+      int         status;  /* childs process status */
+! #endif /* !UTEKV && !SYSV && !SVR4 && !__osf__ */
+  
+  
+  #if !defined (UTEKV) && !defined (SYSV) && !defined(SVR4)
+***************
+*** 2015,2021 ****
+  
+    ProcessOpts (d, argc, argv);
+  
+!   CheckConnectionAndSendSignal (d);
+  
+    if (close_out) fclose (stdout);
+    if (close_err) fclose (stderr);
+--- 2053,2064 ----
+  
+    ProcessOpts (d, argc, argv);
+  
+!   /*
+!    * Unless we are running only as an idle timestamp generator
+!    * make sure we are the only xautolock running
+!    */
+!   if (locker)
+!     CheckConnectionAndSendSignal (d);
+  
+    if (close_out) fclose (stdout);
+    if (close_err) fclose (stderr);
+***************
+*** 2076,2082 ****
+      }
+  
+      QueryPointer (d);  /* Overkill if xidle is present, but it works. */
+!     EvaluateCounter (d);
+  
+  
+     /*
+--- 2119,2127 ----
+      }
+  
+      QueryPointer (d);  /* Overkill if xidle is present, but it works. */
+! 
+!     if (locker)
+!       EvaluateCounter (d);
+  
+  
+     /*
+diff -r -c /usr/src/local/X11R5/contrib/clients/xautolock.pl10/xautolock.man ./xautolock.man
+*** /usr/src/local/X11R5/contrib/clients/xautolock.pl10/xautolock.man	Tue Feb 21 14:10:08 1995
+--- ./xautolock.man	Fri Feb 24 02:03:30 1995
+***************
+*** 1,10 ****
+! .TH xautolock l "February 21, 1995"
+  
+  .SH NAME
+  xautolock \- fire up programs in case of user inactivity under X
+  
+  .SH VERSION
+! This man page applies to xautolock patchlevel 10.
+  
+  .SH SYNOPSIS 
+  .TP 10
+--- 1,11 ----
+! .TH xautolock l "January 24, 1995"
+  
+  .SH NAME
+  xautolock \- fire up programs in case of user inactivity under X
+  
+  .SH VERSION
+! This man page applies to xautolock patchlevel 10 with local
+! modifications (-idlefile option).
+  
+  .SH SYNOPSIS 
+  .TP 10
+***************
+*** 19,24 ****
+--- 20,26 ----
+  [\fB\-cornersize\fR \fIpixels\fR]
+  [\fB\-nocloseout\fR] [\fB\-nocloseerr\fR] [\fB\-noclose\fR]
+  [\fB\-disable\fR] [\fB\-enable\fR] [\fB\-toggle\fR]
++ [\fB\-idlefile\fR \fIstampfile\fR]
+  
+  .SH DESCRIPTION 
+  Xautolock monitors the user activity on an X Window display. If none is
+***************
+*** 30,35 ****
+--- 32,40 ----
+  to take the appropriate actions if the default screen saver is to be 
+  disabled.  The only real assumption made by xautolock is that a new
+  countdown starts as soon as the \fIlocker\fR exits.
++ A \fIlocker\fR value of ``NONE'' suppresses the locking action,
++ which is typically used in conjunction with the \fB\-idlefile\fR
++ feature (described below).
+  
+  In the presence of the \fB\-notify\fR option, a warning signal will be 
+  issued \fImargin\fR seconds before starting the \fIlocker\fR. Warning 
+***************
+*** 71,77 ****
+  if the mouse is sitting in a `+' corner and has not been moved since the 
+  previous \fIlocker\fR exited.
+  
+! A running xautolock process can been also be disabled, in wich case it will
+  not attempt to start the \fIlocker\fR. To disable an already running xautolock
+  process, use the \fB\-disable\fR option. To re-enable it, use \fB\-enable\fR.
+  To toggle it between both states, use \fB\-toggle\fR. Using this method is
+--- 76,82 ----
+  if the mouse is sitting in a `+' corner and has not been moved since the 
+  previous \fIlocker\fR exited.
+  
+! A running xautolock process can been also be disabled, in which case it will
+  not attempt to start the \fIlocker\fR. To disable an already running xautolock
+  process, use the \fB\-disable\fR option. To re-enable it, use \fB\-enable\fR.
+  To toggle it between both states, use \fB\-toggle\fR. Using this method is
+***************
+*** 78,83 ****
+--- 83,96 ----
+  preferable to using sending it SIGSTOP and SIGCONT signals, because while
+  disabled xautolock will still be emptying its event queue. 
+  
++ The \fB\-idlefile\fR option can be used to pass the (approximate) time
++ of the last X input event on to other programs.  xautolock must be able to
++ create the specified \fIstampfile\fP, or it must be writable by the
++ invoking user.  xautolock will record the time of last input
++ (keyboard or mouse) as the `last access' time of \fIstampfile\fP.
++ The idlefile function can be explicitly disabled by giving ``NONE`` as
++ the \fIstampfile\fP.
++ 
+  By default xautolock closes stdout and stderr. This prevents the \fIlocker\fR
+  from writing error messages to these files in case you manually lock your
+  display.  The \fB\-nocloseout\fR, \fB\-nocloseerr\fR and \fB\-noclose\fR
+***************
+*** 282,284 ****
+--- 295,300 ----
+  
+  .SH SPECIAL\ THANKS\ TO
+  Kris Croes               croes@imec.be
++ 
++ .SH LOCAL\ MODS
++ Andreas Stolcke		stolcke@icsi.berkeley.edu

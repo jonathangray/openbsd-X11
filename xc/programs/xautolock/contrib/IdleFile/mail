@@ -1,0 +1,22 @@
+xautolock is a great program which I use all the time. I recently
+added some functionality which makes ist even more useful as a general
+Unix tool.  Maybe you find it useful as well and can integrate it into
+the general distribution.
+
+The basic problem I was trying to solve is that many workstation operating
+systems don't provide a way to make the time of last input (keyboard or
+mouse) available to programs.  This makes it impossible for 
+progams like 'finger' to report correct idle times.  Another use of this is
+in our locally developed load balancing system which needs to know how
+long a machine has been 'unused' by the interactive user.
+Some system, notably Sun, make this info available (through the /dev/kbd
+and /dev/mouse devices), but on most (DEC, SGI, etc.) there seems to
+be no way to do it.
+
+xautolock was the obvious candidate for doing this sort of thing.
+The patch you find below is a fairly trivial one that allows you
+to monitor the last input time by way of the access time of a file
+of your choosing.  See README.idlefile for more information.
+PATCH.idlefile contains changes to Imakefile, xautolock.c and
+xautolock.man.
+

@@ -1,0 +1,26 @@
+
+This is a modified version of xautolock (pl10) that optionally
+makes the (approximate) time of the last input event available to
+other programs.  This is done by setting the last access time on
+a file of the user's choosing, analogous to the way UNIX terminal
+devices traditionally record the time of last input.
+The syntax for this is
+
+	xautolock -idlefile /tmp/xidle
+
+where /tmp/xidle is the (dummy) file being used for timestamping.
+The filename given can be any file for which the users as permissions,
+but it is typically used on the console device,
+
+	xautolock -idlefile /dev/console
+
+which causes xautolock to update the idle time that programs like
+`finger' report for the workstation user.
+
+The traditional locker function can be suppressed with
+xautolock -locker NONE.  This is obviously useful in combination
+with -idlefile to run xautolock as an 'idle time daemon.'
+
+Andreas Stolcke
+stolcke@icsi.berkeley.edu
+2/1/95
