@@ -90,6 +90,9 @@ from the X Consortium.
 #  define SYSMANPATH "/usr/share/man:/usr/contrib/man:/usr/contrib/isode/man:/usr/local/man"
 #endif /* __bsdi__ */
 #ifdef __OpenBSD__
+# ifdef SYSMANPATH
+#  undef SYSMANPATH
+# endif
 #  define SYSMANPATH "/usr/share/man:/usr/local/man:/usr/X11R6/man"
 #endif /* __OpenBSD__ */
 
