@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.26 1998/04/18 07:46:34 todd Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.27 1998/04/18 08:37:46 niklas Exp $
 XCOMM
 
 #ifndef OSName
@@ -401,6 +401,10 @@ install:: fonts.alias							@@\
 #  define XamigaGfxCardSupport	YES
 # endif
 
+# ifndef XamigaRetinaZ2Support
+#  define XamigaRetinaZ2Support	NO
+# endif
+
 # ifndef XamigaRetinaZ3Support
 #  define XamigaRetinaZ3Support	YES
 # endif
@@ -415,10 +419,10 @@ install:: fonts.alias							@@\
 
 /*
  * You need XamigaGfxCardSupport if you enable XamigaCl5426Server,
- * XamigaRetinaZ3Support or XamigaCV64Support and you can't use XamigaCCmono
- * if you enable XamigaCCcolor.
+ * XamigaRetinaZ2Support, XamigaRetinaZ3Support or XamigaCV64Support
+ * and you can't use XamigaCCmono if you enable XamigaCCcolor.
  * Don't change the next 8 lines !!!!!!!!!  */
-# if (XamigaCl5426Server || XamigaCV64Support || XamigaRetinaZ3Support) && !XamigaGfxCardSupport
+# if (XamigaCl5426Server || XamigaCV64Support || XamigaRetinaZ3Support || XamigaRetinaZ2Support) && !XamigaGfxCardSupport
 #  undef XamigaGfxCardSupport
 #  define XamigaGfxCardSupport	YES
 # endif
