@@ -1,5 +1,3 @@
-./usr/X11R6/bin/constype
-./usr/X11R6/bin/kbd_mode
 ./usr/X11R6/bin/setxkbmap
 ./usr/X11R6/bin/showrgb
 ./usr/X11R6/bin/xdpyinfo
@@ -10,6 +8,7 @@
 ./usr/X11R6/bin/xkbvleds
 ./usr/X11R6/bin/xkbwatch
 ./usr/X11R6/bin/xsetmode
+./usr/X11R6/bin/xsetpointer
 ./usr/X11R6/include/X11/extensions/XKBbells.h
 ./usr/X11R6/include/X11/extensions/XKBconfig.h
 ./usr/X11R6/include/X11/extensions/XKBfile.h
@@ -17,9 +16,6 @@
 ./usr/X11R6/include/X11/extensions/XKBui.h
 ./usr/X11R6/include/X11/extensions/XKM.h
 ./usr/X11R6/include/X11/extensions/XKMformat.h
-./usr/X11R6/lib/X11/fonts/PEX
-./usr/X11R6/lib/X11/fonts/PEX/Roman.phont
-./usr/X11R6/lib/X11/fonts/PEX/Roman_M.phont
 ./usr/X11R6/lib/X11/rgb.txt
 ./usr/X11R6/lib/X11/xdm/libXdmGreet.so.1.0
 ./usr/X11R6/lib/X11/xkb
@@ -64,8 +60,8 @@
 ./usr/X11R6/lib/X11/xkb/geometry/sony
 ./usr/X11R6/lib/X11/xkb/geometry/sun
 ./usr/X11R6/lib/X11/xkb/geometry/winbook
-./usr/X11R6/lib/X11/xkb/keycodes.dir
 ./usr/X11R6/lib/X11/xkb/keycodes
+./usr/X11R6/lib/X11/xkb/keycodes.dir
 ./usr/X11R6/lib/X11/xkb/keycodes/amiga
 ./usr/X11R6/lib/X11/xkb/keycodes/ataritt
 ./usr/X11R6/lib/X11/xkb/keycodes/digital
@@ -82,8 +78,8 @@
 ./usr/X11R6/lib/X11/xkb/keycodes/sun
 ./usr/X11R6/lib/X11/xkb/keycodes/xfree86
 ./usr/X11R6/lib/X11/xkb/keycodes/xfree98
-./usr/X11R6/lib/X11/xkb/keymap.dir
 ./usr/X11R6/lib/X11/xkb/keymap
+./usr/X11R6/lib/X11/xkb/keymap.dir
 ./usr/X11R6/lib/X11/xkb/keymap/amiga
 ./usr/X11R6/lib/X11/xkb/keymap/ataritt
 ./usr/X11R6/lib/X11/xkb/keymap/digital
@@ -130,8 +126,8 @@
 ./usr/X11R6/lib/X11/xkb/semantics/complete
 ./usr/X11R6/lib/X11/xkb/semantics/default
 ./usr/X11R6/lib/X11/xkb/semantics/xtest
-./usr/X11R6/lib/X11/xkb/symbols.dir
 ./usr/X11R6/lib/X11/xkb/symbols
+./usr/X11R6/lib/X11/xkb/symbols.dir
 ./usr/X11R6/lib/X11/xkb/symbols/amiga
 ./usr/X11R6/lib/X11/xkb/symbols/ataritt
 ./usr/X11R6/lib/X11/xkb/symbols/be
@@ -180,8 +176,8 @@
 ./usr/X11R6/lib/X11/xkb/symbols/sun/us
 ./usr/X11R6/lib/X11/xkb/symbols/th
 ./usr/X11R6/lib/X11/xkb/symbols/us
-./usr/X11R6/lib/X11/xkb/types.dir
 ./usr/X11R6/lib/X11/xkb/types
+./usr/X11R6/lib/X11/xkb/types.dir
 ./usr/X11R6/lib/X11/xkb/types/basic
 ./usr/X11R6/lib/X11/xkb/types/cancel
 ./usr/X11R6/lib/X11/xkb/types/complete
@@ -205,7 +201,8 @@
 ./usr/X11R6/lib/libXt.so.6.0
 ./usr/X11R6/lib/libXtst.so.6.1
 ./usr/X11R6/lib/liboldX.so.6.0
-./usr/X11R6/man/cat1/kbd_mode.0
+./usr/X11R6/lib/libxkbfile.a
+./usr/X11R6/lib/libxkbui.a
 ./usr/X11R6/man/cat1/setxkbmap.0
 ./usr/X11R6/man/cat1/showrgb.0
 ./usr/X11R6/man/cat1/xdpyinfo.0
@@ -213,3 +210,4 @@
 ./usr/X11R6/man/cat1/xkbevd.0
 ./usr/X11R6/man/cat1/xkbprint.0
 ./usr/X11R6/man/cat1/xsetmode.0
+./usr/X11R6/man/cat1/xsetpointer.0
