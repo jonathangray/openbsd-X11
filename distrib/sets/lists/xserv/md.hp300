@@ -1,5 +1,5 @@
 ./usr/X11R6/bin/X
-./usr/X11R6/bin/Xhp
+./usr/X11R6/bin/XhpBSD
 ./usr/X11R6/bin/Xnest
 ./usr/X11R6/bin/Xprt
 ./usr/X11R6/bin/Xvfb
