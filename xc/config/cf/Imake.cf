@@ -101,7 +101,7 @@ XCOMM $XFree86: xc/config/cf/Imake.cf,v 3.34.2.3 1997/07/27 02:41:02 dawes Exp $
 #   undef hp300
 #  endif
 #  if defined(mac68k)
-#    define Mac68kArchitecture
+#    define mac68kArchitecture
 #    undef mac68k
 #  endif
 #  if defined(mvme68k)
