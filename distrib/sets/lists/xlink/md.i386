@@ -98,6 +98,7 @@
 ./usr/X11R6/lib/Server/config/cf/osfLib.rules
 ./usr/X11R6/lib/Server/config/cf/osfLib.tmpl
 ./usr/X11R6/lib/Server/config/cf/pegasus.cf
+./usr/X11R6/lib/Server/config/cf/ports.cf
 ./usr/X11R6/lib/Server/config/cf/sco.cf
 ./usr/X11R6/lib/Server/config/cf/sco5.cf
 ./usr/X11R6/lib/Server/config/cf/scoLib.rules
