@@ -599,7 +599,10 @@ static void _XFlushInt (dpy, cv)
 	register char *bufindex;
 	_XExtension *ext;
 
-	if (dpy->flags & XlibDisplayIOError) return;
+       if (dpy->flags & XlibDisplayIOError) {
+            dpy->bufptr = dpy->buffer;  /* reset to avoid buffer overflows */
+            return;
+       }
 #ifdef XTHREADS
 	while (dpy->flags & XlibDisplayWriting) {
 	    ConditionWait(dpy, dpy->lock->writers);
