@@ -12,9 +12,7 @@ extern int select(int, fd_set *, fd_set *, fd_set *, struct timeval *);
 extern size_t strlen(char *);
 #endif
 
-#ifndef __OpenBSD__
 extern void bzero(char *, int);
-#endif
 extern int gethostname (char *, int);
 /**************************************************************************/
 
