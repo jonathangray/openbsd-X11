@@ -25,6 +25,7 @@ LinuxDocReadmeTarget(Mach)
 #endif
 #if defined(LinuxArchitecture) || BuildAllDocs
 LinuxDocReadmeTarget(Linux)
+LinuxDocReadmeTarget(fbdev)
 #endif
 #if defined(LynxOSArchitecture) || BuildAllDocs
 LinuxDocReadmeTarget(LynxOS)
@@ -88,7 +89,6 @@ LinuxDocReadmeTarget(rendition)
 LinuxDocReadmeTarget(3DLabs)
 LinuxDocReadmeTarget(trident)
 LinuxDocReadmeTarget(tseng)
-LinuxDocReadmeTarget(fbdev)
 LinuxDocReadmeTarget(i740)
 
 /* Main docs */
