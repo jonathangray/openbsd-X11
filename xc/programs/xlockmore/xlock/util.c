@@ -28,7 +28,7 @@ static const char sccsid[] = "@(#)util.c	4.10 98/04/23 xlockmore";
  * 10-Jun-94: patch for BSD from Victor Langeveld <vic@mbfys.kun.nl>
  * 02-May-94: patch for Linux, got ideas from Darren Senn's xlock
  *            <sinster@scintilla.capitola.ca.us>
- * 21-Mar-94: patch fix for HP from <R.K.Lloyd@csc.liv.ac.uk> 
+ * 21-Mar-94: patch fix for HP from <R.K.Lloyd@csc.liv.ac.uk>
  * 01-Dec-93: added patch for HP
  *
  * Changes of Patrick J. Naughton

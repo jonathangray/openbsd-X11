@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)crystal.c	4.12 98/09/10 xlockmore";
  * other special, indirect and consequential damages.
  *
  * The author should like to be notified if changes have been made to the
- * routine.  Response will only be guaranteed when a VMS version of the 
+ * routine.  Response will only be guaranteed when a VMS version of the
  * program is available.
  *
  * A moving polygon-mode. The polygons obey 2D-planegroup symmetry.
@@ -40,7 +40,7 @@ static const char sccsid[] = "@(#)crystal.c	4.12 98/09/10 xlockmore";
  *              the screen to be used
  *            added option maxsize which forces the dimensions to be chasen
  *              in such ua way that the largest possible part of the screen is
- *              used 
+ *              used
  *            When only one unit cell is drawn, it is chosen at random
  * 18-Feb-98: added support for negative numbers with -nx and -ny meaning
  *            "random" choice with given maximum
@@ -630,7 +630,7 @@ refresh_crystal(ModeInfo * mi)
 
 	if (cryst->unit_cell) {
 	   int y_coor1 , y_coor2;
-	   
+
 		if (MI_NPIXELS(mi) > 2)
 			XSetForeground(display, cryst->gc, MI_PIXEL(mi, NRAND(MI_NPIXELS(mi))));
 		else
@@ -805,6 +805,7 @@ release_crystal(ModeInfo * mi)
 					free_colors(display, cryst->cmap, cryst->colors, cryst->ncolors);
 				if (cryst->colors)
 					(void) free((void *) cryst->colors);
+                                if (cryst->cmap)
 				XFreeColormap(display, cryst->cmap);
 			}
 			if (cryst->gc != NULL)
@@ -1018,7 +1019,7 @@ init_crystal(ModeInfo * mi)
 	cryst->b = cryst->b / cryst->ny;
 	if (cryst->unit_cell) {
 	   int y_coor1 , y_coor2;
-	   
+
 		if (MI_NPIXELS(mi) > 2)
 			XSetForeground(display, cryst->gc, MI_PIXEL(mi, NRAND(MI_NPIXELS(mi))));
 		else

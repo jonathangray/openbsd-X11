@@ -19,12 +19,28 @@
 # xlock-show-modes Copyright (C)  1998 Andrea Arcangeli
 # 		by Andrea Arcangeli <arcangeli@mbox.queen.it>
 #
-# awk fails on Solaris but nawk is OK
+# Revision History:
+# 00-Jan-23  erase-modename threw it off, an extra space did the trick
+#            Also works on Sun now.  David Bagley
 
+# awk fails on Solaris but nawk is OK
+if [ `uname` == "SunOS" ] ; then
+	AWK="nawk"
+else
+	AWK="awk"
+fi
+#    gsub(/.*\] \[-mode/, ""); gsub(/\| /, ""); gsub("^ +", ""); \
+# --help is a deliberate mistype...
 function listmodes
 {
-	xlock --help 2>&1 | \
-	awk '{ if (!true && match ($0,"-mode")) { gsub(/.*-mode/, ""); gsub(/\| /, ""); gsub("^ +", ""); printf("%s ", $0); true = 1 } else { if (true && /\|/) { gsub(/\| /, ""); gsub("^ +", ""); gsub("\]$", ""); printf("%s ", $0) } } }'
+  xlock --help 2>&1 | $AWK '{ \
+    if (!true && match ($0,"-mode ")) { \
+      gsub(/.*-mode /, ""); gsub(/\| /, ""); gsub("^ +", ""); \
+      printf("%s ", $0); true = 1 \
+    } else { if (true && /\|/) { \
+      gsub(/\| /, ""); gsub("^ +", ""); gsub("\]$", ""); \
+      printf("%s ", $0) } \
+    } \
+  }'
 }
-
 for i in `listmodes`; do echo Trying mode $i; xlock -nolock -mode $i; done

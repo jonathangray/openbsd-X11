@@ -92,7 +92,7 @@ ModStruct   random_description =
 {"random", "init_random", "draw_random", "release_random",
  "refresh_random", "change_random", NULL, &random_opts,
  1, 1, 1, 1, 64, 1.0, "",
-#ifdef USE_BOMB
+#ifdef MODE_bomb
  "Shows a random mode from above except blank and bomb", 0, NULL};
 
 #else
@@ -100,12 +100,6 @@ ModStruct   random_description =
 
 #endif
 
-#endif
-
-#ifdef USE_BOMB
-#define NUMSPECIAL	3	/* bomb, blank, random */
-#else
-#define NUMSPECIAL	2	/* blank, random */
 #endif
 
 #define GC_SAVE_VALUES (GCFunction|GCLineWidth|GCLineStyle|GCCapStyle|GCJoinStyle|GCGraphicsExposures|GCFont|GCSubwindowMode)
@@ -120,6 +114,16 @@ extern float saturation;
 extern char *bitmap;
 
 #define MAXMODECHARS 14
+
+static char special_modes[][MAXMODECHARS] =
+{
+#ifdef MODE_bomb
+	"bomb",
+#endif
+	"blank", "random"
+};
+
+#define NUMSPECIAL (int) (sizeof (special_modes) / sizeof (special_modes[0]))
 
 #ifdef USE_GL
 static char gl_modes[][MAXMODECHARS] =
@@ -137,31 +141,31 @@ static char gl_modes[][MAXMODECHARS] =
   "gears",
 #endif
 #ifdef MODE_invert
-	"invert", 
+	"invert",
 #endif
 #ifdef MODE_lament
-	"lament", 
+	"lament",
 #endif
 #ifdef MODE_moebius
-	"moebius", 
+	"moebius",
 #endif
 #ifdef MODE_morph3d
-	"morph3d", 
+	"morph3d",
 #endif
 #ifdef MODE_pipes
-	"pipes", 
+	"pipes",
 #endif
 #ifdef MODE_rubik
-	"rubik", 
+	"rubik",
 #endif
 #ifdef MODE_sproingies
-	"sproingies", 
+	"sproingies",
 #endif
 #ifdef MODE_stairs
-	"stairs", 
+	"stairs",
 #endif
 #ifdef MODE_superquadrics
-	"superquadrics", 
+	"superquadrics",
 #endif
 #ifdef MODE_text3d
 	"text3d"
@@ -222,6 +226,9 @@ static char write_modes[][MAXMODECHARS] =
 #endif
 #ifdef MODE_tetris
 	"tetris",
+#endif
+#ifdef MODE_tik_tak
+	"tik_tak",
 #endif
 #ifdef MODE_tube
 	"tube"
@@ -347,6 +354,9 @@ static char nice_modes[][MAXMODECHARS] =
 #ifdef MODE_sierpinski
 	"sierpinski",
 #endif
+#ifdef MODE_solitare
+	"spline",
+#endif
 #ifdef MODE_spline
 	"spline",
 #endif
@@ -378,7 +388,7 @@ static char nice_modes[][MAXMODECHARS] =
 	"world",
 #endif
 #ifdef MODE_worm
-	"worm", 
+	"worm",
 #endif
 #ifdef MODE_xjack
 	"xjack"
@@ -415,6 +425,9 @@ static char mouse_modes[][MAXMODECHARS] =
 #endif
 #ifdef MODE_julia
 	"julia",
+#endif
+#ifdef MODE_solitare
+	"solitare",
 #endif
 #ifdef MODE_swarm
 	"swarm"
@@ -723,7 +736,7 @@ strpmtok(int *sign, char *str)
 static void
 parsemodelist(ModeInfo * mi)
 {
-	int         i, sign = 1, j;
+	int         i, sign = 1, j, found;
 	char       *p;
 
 	modes = (int *) calloc(numprocs - 1, sizeof (int));
@@ -732,55 +745,63 @@ parsemodelist(ModeInfo * mi)
 
 	while (p) {
 		if (!strcmp(p, "all")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
-				modes[i] = (sign > 0);
+			for (i = 0; i < numprocs; i++) {
+				found = 0;
+				for (j = 0; j < NUMSPECIAL; j++)
+					if (!strcmp(special_modes[j], LockProcs[i].cmdline_arg)) {
+						found = 1; /* if found do not want on list nomatter sign */
+			      break;
+					}
+				if (!found)
+					modes[i] = (sign > 0);
+			}
 		} else if (!strcmp(p, "allgl")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
+			for (i = 0; i < numprocs; i++)
 				for (j = 0; j < NUMGL; j++)
 					if (!strcmp(gl_modes[j], LockProcs[i].cmdline_arg))
 						modes[i] = (sign > 0);
 		} else if (!strcmp(p, "allxpm")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
+			for (i = 0; i < numprocs; i++)
 				for (j = 0; j < NUMXPM; j++)
 					if (!strcmp(xpm_modes[j], LockProcs[i].cmdline_arg))
 						modes[i] = (sign > 0);
 		} else if (!strcmp(p, "allwrite")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
+			for (i = 0; i < numprocs; i++)
 				for (j = 0; j < NUMWRITE; j++)
 					if (!strcmp(write_modes[j], LockProcs[i].cmdline_arg))
 						modes[i] = (sign > 0);
 		} else if (!strcmp(p, "allnice")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
+			for (i = 0; i < numprocs; i++)
 				for (j = 0; j < NUMNICE; j++)
 					if (!strcmp(nice_modes[j], LockProcs[i].cmdline_arg))
 						modes[i] = (sign > 0);
 		} else if (!strcmp(p, "all3d")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
+			for (i = 0; i < numprocs; i++)
 				for (j = 0; j < NUMUSE3D; j++)
 					if (!strcmp(use3d_modes[j], LockProcs[i].cmdline_arg))
 						modes[i] = (sign > 0);
 		} else if (!strcmp(p, "allmouse")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
+			for (i = 0; i < numprocs; i++)
 				for (j = 0; j < NUMMOUSE; j++)
 					if (!strcmp(mouse_modes[j], LockProcs[i].cmdline_arg))
 						modes[i] = (sign > 0);
 		} else if (!strcmp(p, "allautomata")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
+			for (i = 0; i < numprocs; i++)
 				for (j = 0; j < NUMAUTOMATA; j++)
 					if (!strcmp(automata_modes[j], LockProcs[i].cmdline_arg))
 						modes[i] = (sign > 0);
 		} else if (!strcmp(p, "allfractal")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
+			for (i = 0; i < numprocs; i++)
 				for (j = 0; j < NUMFRACTAL; j++)
 					if (!strcmp(fractal_modes[j], LockProcs[i].cmdline_arg))
 						modes[i] = (sign > 0);
 		} else if (!strcmp(p, "allgeometry")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
+			for (i = 0; i < numprocs; i++)
 				for (j = 0; j < NUMGEOMETRY; j++)
 					if (!strcmp(geometry_modes[j], LockProcs[i].cmdline_arg))
 						modes[i] = (sign > 0);
 		} else if (!strcmp(p, "allspace")) {
-			for (i = 0; i < numprocs - NUMSPECIAL; i++)
+			for (i = 0; i < numprocs; i++)
 				for (j = 0; j < NUMSPACE; j++)
 					if (!strcmp(space_modes[j], LockProcs[i].cmdline_arg))
 						modes[i] = (sign > 0);
@@ -801,9 +822,17 @@ parsemodelist(ModeInfo * mi)
 		if (modes[i])
 			modes[nmodes++] = i;
 	if (!nmodes) {		/* empty list */
-		for (i = 0; i < numprocs - NUMSPECIAL; i++)
-			modes[i] = i;
-		nmodes = i;
+		for (i = 0; i < numprocs; i++) {
+			found = 0;
+			for (j = 0; j < NUMSPECIAL; j++)
+				if (!strcmp(special_modes[j], LockProcs[i].cmdline_arg)) {
+					found = 1;
+		      break;
+				}
+			if (!found)
+				modes[i] = i;
+		}
+		nmodes = numprocs - NUMSPECIAL;
 	}
 	if (MI_IS_DEBUG(mi)) {
 		(void) fprintf(stderr, "%d mode%s: ", nmodes, ((nmodes == 1) ? "" : "s"));
@@ -839,7 +868,7 @@ setMode(ModeInfo * mi, int newmode)
 		randoms[i].fix = True;
 	}
 	if (MI_IS_VERBOSE(mi))
-		(void) fprintf(stderr, "mode: %s\n", LockProcs[currentmode].cmdline_arg);
+		(void) fprintf(stderr, "mode %d: %s\n", currentmode, LockProcs[currentmode].cmdline_arg);
 }
 
 void

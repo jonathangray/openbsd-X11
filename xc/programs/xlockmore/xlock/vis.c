@@ -129,7 +129,7 @@ nameOfVisualClass(int visualclass)
 	return ("[Unknown Visual Class]");
 }
 
-/*- 
+/*-
  * setupColormap
  *
  * Create a read/write colourmap to use
@@ -327,7 +327,7 @@ FreeAllGL(ModeInfo * mi)
 
 extern Bool mono;
 
-/*- 
+/*-
  * default_visual_info
  *
  * Gets a XVisualInfo structure that refers to a given visual or the default
@@ -472,7 +472,7 @@ defaultVisualInfo(Display * display, int screen)
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  */
 Bool
@@ -492,5 +492,5 @@ has_writable_cells(ModeInfo * mi)
 		default:
 			abort();
 	}
-	return False;	
+	return False;
 }

@@ -4,7 +4,7 @@
 # use -me to use current terminal emulator window (works in ddterm).
 # use -id <windowid> to display to a specific window.
 # Otherwise select the target window with the cross-hair cursor.
-# 
+#
 # All other arguments are passed to xlock.
 
 case $1 in

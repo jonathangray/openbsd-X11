@@ -64,19 +64,10 @@ ModeSpecOpt bubble3d_opts =
 
 #ifdef USE_MODULES
 ModStruct   bubbles3d_description =
-{"bubbles3d",
- "init_bubble3d",
- "draw_bubble3d",
- "release_bubble3d",
- "change_bubble3d",
- "init_bubble3d",
- NULL,
- &bubble3d_opts,
+{"bubbles3d", "init_bubble3d", "draw_bubble3d", "release_bubble3d",
+ "draw_bubble3d", "change_bubble3d", NULL, &bubble3d_opts,
  1000, 1, 2, 1, 64, 1.0, "",
- "Richard Jones's GL bubbles",
- 0,
- NULL
-};
+ "Richard Jones's GL bubbles", 0, NULL };
 
 #endif /* USE_MODULES */
 

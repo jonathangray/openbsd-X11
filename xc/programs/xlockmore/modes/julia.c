@@ -6,7 +6,7 @@ static const char sccsid[] = "@(#)julia.c	4.07 97/11/24 xlockmore";
 
 #endif
 
-/*- 
+/*-
  * Copyright (c) 1995 Sean McCullough <bankshot@mailhost.nmt.edu>.
  *
  * Permission to use, copy, modify, and distribute this software and its
@@ -28,8 +28,8 @@ static const char sccsid[] = "@(#)julia.c	4.07 97/11/24 xlockmore";
  * 28-May-97: jwz@jwz.org: added interactive frobbing with the mouse.
  * 10-May-97: jwz@jwz.org: turned into a standalone program.
  * 02-Dec-95: snagged boilerplate from hop.c
- *           used ifs {w0 = sqrt(x-c), w1 = -sqrt(x-c)} with random iteration 
- *           to plot the julia set, and sinusoidially varied parameter for set 
+ *           used ifs {w0 = sqrt(x-c), w1 = -sqrt(x-c)} with random iteration
+ *           to plot the julia set, and sinusoidially varied parameter for set
  *           and plotted parameter with a circle.
  */
 

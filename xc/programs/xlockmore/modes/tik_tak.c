@@ -23,16 +23,16 @@ static const char sccsid[] = "@(#)tik_tak.c	4.15 99/09/10 xlockmore";
  * other special, indirect and consequential damages.
  *
  * The author should like to be notified if changes have been made to the
- * routine.  Response will only be guaranteed when a VMS version of the 
+ * routine.  Response will only be guaranteed when a VMS version of the
  * program is available.
  *
- * A rotating polygon-mode. This mode is inspired (but different) by some 
+ * A rotating polygon-mode. This mode is inspired (but different) by some
  * parts of the Belgium television program, TIKTAK, intended for babies.
  *
  * Revision History:
  * 08-Sep-99: Created
  * 16-Sep-99: Added shells and stars
- * 
+ *
  * TODO list :
  *   -make the objects move hormonically around the centre
  *   -Create run-time options
@@ -134,7 +134,7 @@ tik_tak_setupobject( ModeInfo * mi , tik_takobject * object0)
      }
    for (i = 0; i < object0->num_point; i++)
      {
-	object0->size_ob *= object0->size_mult;
+	object0->size_ob = (int) (object0->size_ob * object0->size_mult);
 	object0->size_mult = 1.0 / object0->size_mult;
 	curangle = object0->angle + i * 360.0 * PI_RAD /
 	  (float) object0->num_point;
@@ -158,7 +158,7 @@ tik_tak_setupobject( ModeInfo * mi , tik_takobject * object0)
 
 	for (i = 0; i < object0->num_point1; i++)
 	  {
-	     object0->size_ob1 *= object0->size_mult1;
+	     object0->size_ob1 = (int) (object0->size_ob1 * object0->size_mult1);
 	     object0->size_mult1 = 1.0 / object0->size_mult1;
 	     curangle = object0->angle1 + i * 360.0 * PI_RAD /
 	       (float) object0->num_point1;
@@ -180,13 +180,13 @@ static void
 tik_tak_reset_object( tik_takobject * object0)
 {
    int i;
-   
+
    for (i = 0; i <= object0->num_point; i++)
      {
 	object0->xy[i].x = object0->xy[object0->num_point+1].x;
 	object0->xy[i].y = object0->xy[object0->num_point+1].y;
      }
- 
+
    if ( object0->inner )
      {
 	for (i = 0; i <= object0->num_point1; i++)
@@ -303,18 +303,19 @@ release_tik_tak(ModeInfo * mi)
 					free_colors(display, tiktak->cmap, tiktak->colors, tiktak->ncolors);
 				if (tiktak->colors)
 					(void) free((void *) tiktak->colors);
-				XFreeColormap(display, tiktak->cmap);
+				if (tiktak->cmap)
+				  XFreeColormap(display, tiktak->cmap);
 			}
 			if (tiktak->gc != NULL)
 				XFreeGC(display, tiktak->gc);
 			if (tiktak->object != NULL)
 		     {
 			int i;
-			
+
 			for ( i=0 ; i<tiktak->num_object ; i++ )
 			  {
 			     tik_takobject *object0;
-			     
+
 			     object0 = &tiktak->object[i];
 			     if ( object0->xy1 != NULL )
 			       free( object0->xy1 );

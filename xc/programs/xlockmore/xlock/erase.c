@@ -188,7 +188,7 @@ triple_wipe(Display * dpy, Window window, GC gc,
 	for (i = 0; i < height / 2; i++)
 		lines[i + width / 2] = i * 2;
 	for (i = 0; i < width / 2; i++)
-		lines[i + width / 2 + height / 2] = width - i * 2 - (width % 2 ? 
+		lines[i + width / 2 + height / 2] = width - i * 2 - (width % 2 ?
 0 : 1) + height;
 
 /*	granularity /= 6;*/
@@ -316,26 +316,26 @@ three_circle_wipe(Display * dpy, Window window, GC gc,
         int         actual_delay = delay * inc / q;
 
 #include "erase_init.h"
-   
+
 	for (i = 0; i < q; i += inc) {
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad,
 rad * 2, rad * 2,
 			 (start + i) % full, inc);
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad,
 rad * 2, rad * 2,
 			 (start - i) % full, -inc);
 
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad,
 rad * 2, rad * 2,
 			 (start + q2 + i) % full, inc);
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad,
 rad * 2, rad * 2,
 			 (start + q2 - i) % full, -inc);
 
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad,
 rad * 2, rad * 2,
 			 (start + q2 + q2 + i) % full, inc);
-		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad, 
+		XFillArc(dpy, window, gc, (width / 2) - rad, (height / 2) - rad,
 rad * 2, rad * 2,
 			 (start + q2 + q2 - i) % full, -inc);
 
@@ -356,11 +356,11 @@ squaretate(Display * dpy, Window window, GC gc,
 {
 #define ERASEMODE "squaretate"
 #ifdef FAST_CPU
-	int         steps = (((width > height ? width : width) * 2) / 
+	int         steps = (((width > height ? width : width) * 2) /
 granularity);
 
 #else
-	int         steps = (((width > height ? width : width)) / (4 * 
+	int         steps = (((width > height ? width : width)) / (4 *
 granularity));
 
 #endif
@@ -450,7 +450,7 @@ fizzle (Display *dpy, Window window, GC gc,
     for( i = 0; i < SIZE; i++ ) {
       array[i] = -1;
       indices[i] = i;
-    } 
+    }
 
     for( i = 0; i < SIZE; i++ ) {
       j = LRAND()%(SIZE-i);
@@ -562,7 +562,7 @@ SPIRAL_ERASE_ARC_COUNT)
       for (angle = 0.0; angle < SPIRAL_ERASE_PI_2;
            angle += SPIRAL_ERASE_ANGLE_INCREMENT)
         {
-          arc_length = length_base + ((length_step * angle) /
+          arc_length = length_base + (int) ((length_step * angle) /
                                       SPIRAL_ERASE_PI_2);
           points [1].x = points [2].x;
           points [1].y = points [2].y;

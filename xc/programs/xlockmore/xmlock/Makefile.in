@@ -73,7 +73,7 @@ LINT = lint
 DEPEND = @DEPEND@
 DEPEND_FLAGS = @DEPEND_FLAGS@
 DEPEND_DEFINES = @DEPEND_DEFINES@
- 
+
 LN_S = @LN_S@
 RM = rm -f
 RM_S = $(RM)
@@ -135,6 +135,18 @@ uninstall-man :
 uninstall-ad :
 	$(RM) $(xapploaddir)/XmLock
 
+install.program : install-program
+
+install.man : install-man
+
+install.ad : install-ad
+
+uninstall.program : uninstall-program
+
+uninstall.man : uninstall-man
+
+uninstall.ad : uninstall-ad
+
 lint :
 	$(LINT) -ax -DLINT $(DEFS) $(XMLOCKINC) $(XMLOCKSRCS)
 
@@ -183,7 +195,6 @@ distdepend :
 
 ##############################################################################
 #
-# DO NOT DELETE: updated by make distdepend
 # DO NOT DELETE: updated by make distdepend
 
 xmlock.o: ../config.h

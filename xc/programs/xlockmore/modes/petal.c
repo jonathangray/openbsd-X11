@@ -23,7 +23,7 @@ static const char sccsid[] = "@(#)petal.c	4.07 97/11/24 xlockmore";
  * 10-May-97: Compatible with xscreensaver
  * 12-Aug-95: xlock version
  * Jan-95: xscreensaver version (Jamie Zawinski <jwz@jwz.org>)
- * 24-Jun-94: X11 version (Dale Moore  <Dale.Moore@cs.cmu.edu>)  
+ * 24-Jun-94: X11 version (Dale Moore  <Dale.Moore@cs.cmu.edu>)
  *            Based on a program for some old PDP-11 Graphics
  *            Display Processors at CMU.
  */

@@ -12,11 +12,11 @@ TwoJetVec FigureEight(
     height = height*-1 + 4;
   height = height*0.6;
   h = h + bend*(height*height*(1/64.));
-  return 
+  return
     w*Sin (v*2) + (h) * (Interpolate((Cos (v) + -1) * (-2), height, form))
   ;
 }
-  
+
 TwoJetVec AddFigureEight(ThreeJetVec p, ThreeJet u, TwoJet v, ThreeJet form, ThreeJet scale)
 {
   ThreeJet size = form*scale;

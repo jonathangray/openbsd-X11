@@ -23,7 +23,7 @@
 	t_prev = tp.tv_usec;
 	t1_prev = tp.tv_sec;
         t0 = tp.tv_sec;
-       
+
 #ifdef DEBUG
 	t_0 = tp.tv_sec * 1000 + tp.tv_usec / 1000;
 #endif

@@ -298,7 +298,7 @@ extern double hypot(double, double);
 
 #endif
 
-static  void 
+static  void
 computePupil(int num, TPoint mouse, TPoint *ret)
 {
 	double      cx, cy;
@@ -1027,7 +1027,7 @@ draw_eyes(ModeInfo * mi)
 /* ---------------------------------------------------------------------- */
 
 /*-
- *    The display is being taken away from us.  Free up malloc'ed 
+ *    The display is being taken away from us.  Free up malloc'ed
  *      memory and X resources that we've alloc'ed.  Only called
  *      once, we must zap everything for every screen.
  */

@@ -28,7 +28,7 @@ static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
  *            hiv one due to Kenneth Stailey <kstailey@disclosure.com>
  * 10-Aug-98: Population Explosion and Tropical Forest Countdown stuff
  *            I tried to get precise numbers but they may be off a few percent.
- *            Whether or not, its still pretty scary IMHO. 
+ *            Whether or not, its still pretty scary IMHO.
  *            Although I am a US citizen... I have the default for area in
  *            metric.  David Bagley <bagleyd@tux.org>
  * 10-May-97: Compatible with xscreensaver
@@ -63,13 +63,14 @@ static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
  *    (1,616,559,000 acres)
  *  247 hectares a minute lost forever (1 hectare = 2.47 acres)
  *
- *  HIV Infection Counter Saver (hiv)
- *  -130,824,786 cases (figured by extrapolation) 1 Jan 1970
- *  (hmmm...)
- *  36,503,000 3 Dec 1998 (from http://www.vers.com/aidsclock/INDEXA.HTM)
- *  11 cases/min
- *
- *  365.25 * 24 * 60 =  525960 minutes in a year
+ *  HIV Infection Counter Saver (hiv) (stats from http://www.unaids.org/)
+ *  33,600,000 31 Dec 1999 living w/HIV
+ *  16,300,000 31 Dec 1999 dead
+ *  49,900,000 31 Dec 1999 total infections
+ *   5,600,000 new infections in 1999
+ *  10.6545 infections/min
+ *  -118,195,407 virtual cases (figured by extrapolation) 1 Jan 1970
+ *   (this is a result of applying linear tracking to a non-linear event)
  *
  *  Animal Research Counter Saver (lab)
  *  Approximately 17-22 million animals are used in research each year.
@@ -124,8 +125,8 @@ static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
 #endif
 #define PEOPLE_MIN 160.70344
 #define PEOPLE_TIME_START 3535369000.0
-#define HIV_MIN 11.0
-#define HIV_TIME_START -130824786.0
+#define HIV_MIN 10.6545
+#define HIV_TIME_START -118195407.0
 #define LAB_MIN 32.32184957
 #define LAB_TIME_START 0
 #define VEG_MIN 9506.426344209
@@ -181,7 +182,7 @@ static unsigned char digits[][MAX_LEDS]=
   {1, 0, 0, 1, 1, 1, 1},  /* E */
   {1, 0, 0, 0, 1, 1, 1}   /* F */
 #define MAX_DIGITS 16
-#else  
+#else
 #define MAX_DIGITS 10
 #endif
 };
@@ -257,7 +258,7 @@ ModeSpecOpt dclock_opts =
 ModStruct   dclock_description =
 {"dclock", "init_dclock", "draw_dclock", "release_dclock",
  "refresh_dclock", "init_dclock", NULL, &dclock_opts,
- 10000, 1, 10000, 1, 0.3, 64, "",
+ 10000, 1, 10000, 1, 64, 0.3, "",
  "Shows a floating digital clock or message", 0, NULL};
 
 #endif
@@ -461,9 +462,9 @@ drawaled(ModeInfo * mi, int startx, int starty, int led)
 	dclockstruct *dp = &dclocks[MI_SCREEN(mi)];
  	int x_1, y_1, x_2, y_2;
 
-	int offset = LED_WIDTH; 
-	int offset2 = LED_WIDTH / 2.0; 
-	int leanoffset = offset2 * LED_LEAN; 
+	int offset = (int) LED_WIDTH;
+	int offset2 = (int) (LED_WIDTH / 2.0);
+	int leanoffset = (int) (offset2 * LED_LEAN);
 
 	switch (led) {
 		case 0: /* a */
@@ -532,7 +533,7 @@ drawaled(ModeInfo * mi, int startx, int starty, int led)
 			x_1 = x_1 + offset;
 			XDrawLine(display, dp->pixmap, dp->fgGC,
 				x_1, y_1, x_2, y_2);
-			
+
 	}
 }
 
@@ -543,22 +544,22 @@ drawacolon(ModeInfo * mi, int startx, int starty)
 	dclockstruct *dp = &dclocks[MI_SCREEN(mi)];
  	int x_1, y_1, x_2, y_2;
 
-	int offset2 = LED_WIDTH / 2.0; 
-	int leanoffset = offset2 * LED_LEAN; 
+	int offset2 = (int) (LED_WIDTH / 2.0);
+	int leanoffset = (int) (offset2 * LED_LEAN);
 
 	x_1 = startx + dp->parallelogram[0].x +
-		dp->parallelogram[2].x / 2 - 2.0 * leanoffset;
+		(int) (dp->parallelogram[2].x / 2 - 2.0 * leanoffset);
 	y_1 = starty + dp->parallelogram[0].y + dp->parallelogram[2].y / 2 +
-		2.0 * offset2;
-	x_2 = x_1 - 2.0 * leanoffset;
-	y_2 = y_1 + 2.0 * offset2;
+		(int) (2.0 * offset2);
+	x_2 = x_1 - (int) (2.0 * leanoffset);
+	y_2 = y_1 + (int) (2.0 * offset2);
 	XDrawLine(display, dp->pixmap, dp->fgGC, x_1, y_1, x_2, y_2);
 	x_1 = startx + dp->parallelogram[0].x +
-		dp->parallelogram[2].x / 2 + 2.0 * leanoffset;
+		dp->parallelogram[2].x / 2 + (int) (2.0 * leanoffset);
 	y_1 = starty + dp->parallelogram[0].y + dp->parallelogram[2].y / 2 -
-		2.0 * offset2;
-	x_2 = x_1 + 2.0 * leanoffset;
-	y_2 = y_1 - 2.0 * offset2;
+		(int) (2.0 * offset2);
+	x_2 = x_1 + (int) (2.0 * leanoffset);
+	y_2 = y_1 - (int) (2.0 * offset2);
 	XDrawLine(display, dp->pixmap, dp->fgGC, x_1, y_1, x_2, y_2);
 }
 
@@ -761,23 +762,23 @@ drawDclock(ModeInfo * mi)
 	XFillRectangle(display, dp->pixmap, dp->bgGC, 0, 0, dp->pixw, dp->pixh);
 
 	if (dp->led) {
-		int startx = LED_WIDTH / 2;
-		int starty = LED_WIDTH / 2;
+		int startx = (int) (LED_WIDTH / 2.0);
+		int starty = (int) (LED_WIDTH / 2.0);
 
 		drawanumber(mi, startx, starty, dp->str[11] - '0');
-		startx += LED_XS + LED_WIDTH + LED_INC;
+		startx += (int) (LED_XS + LED_WIDTH + LED_INC);
 		drawanumber(mi, startx, starty, dp->str[12] - '0');
-		startx += LED_XS + LED_WIDTH + LED_INC;
+		startx += (int) (LED_XS + LED_WIDTH + LED_INC);
 		drawacolon(mi, startx, starty);
-		startx += LED_WIDTH + LED_INC;
+		startx += (int) (LED_WIDTH + LED_INC);
 		drawanumber(mi, startx, starty, dp->str[14] - '0');
-		startx += LED_XS + LED_WIDTH + LED_INC;
+		startx += (int) (LED_XS + LED_WIDTH + LED_INC);
 		drawanumber(mi, startx, starty, dp->str[15] - '0');
-		startx += LED_XS + LED_WIDTH + LED_INC;
+		startx += (int) (LED_XS + LED_WIDTH + LED_INC);
 		drawacolon(mi, startx, starty);
-		startx += LED_WIDTH + LED_INC;
+		startx += (int) (LED_WIDTH + LED_INC);
 		drawanumber(mi, startx, starty, dp->str[17] - '0');
-		startx += LED_XS + LED_WIDTH + LED_INC;
+		startx += (int) (LED_XS + LED_WIDTH + LED_INC);
 		drawanumber(mi, startx, starty, dp->str[18] - '0');
 	} else {
 		(void) XDrawString(display, dp->pixmap, dp->fgGC,
@@ -838,32 +839,54 @@ init_dclock(ModeInfo * mi)
 	dp->veg = False;
 	dp->y2k = False;
 	dp->millennium = False;
+#if defined(MODE_dclock_y2k) && defined(MODE_dclock_millennium)
+#define NUM_DCLOCK_MODES 9
+#endif
+#if defined(MODE_dclock_y2k) && !defined(MODE_dclock_millennium)
+#define NUM_DCLOCK_MODES 8
+#endif
+#if !defined(MODE_dclock_y2k) && defined(MODE_dclock_millennium)
+#define NUM_DCLOCK_MODES 8
+#endif
+#if !defined(MODE_dclock_y2k) && !defined(MODE_dclock_millennium)
+#define NUM_DCLOCK_MODES 7
+#endif
 	if (MI_IS_FULLRANDOM(mi)) {
-		switch (NRAND(9)) {
+		switch (NRAND(NUM_DCLOCK_MODES)) {
 			case 0:
-				dp->led = True;
 				break;
 			case 1:
-				dp->popex = True;
+				dp->led = True;
 				break;
 			case 2:
-				dp->forest = True;
+				dp->popex = True;
 				break;
 			case 3:
-				dp->hiv = True;
+				dp->forest = True;
 				break;
 			case 4:
-				dp->lab = True;
+				dp->hiv = True;
 				break;
 			case 5:
-				dp->veg = True;
+				dp->lab = True;
 				break;
 			case 6:
-				dp->y2k = True;
+				dp->veg = True;
 				break;
+#if defined(MODE_dclock_y2k) || defined(MODE_dclock_millennium)
 			case 7:
+#ifdef MODE_dclock_y2k
+				dp->y2k = True;
+#else
+				dp->millennium = True;
+#endif
+				break;
+#if defined(MODE_dclock_y2k) && defined(MODE_dclock_millennium)
+			case 8:
 				dp->millennium = True;
 				break;
+#endif
+#endif
 			default:
 				break;
 		}
@@ -913,23 +936,23 @@ init_dclock(ModeInfo * mi)
 		dp->text_ascent = 0;
 		for (i = 0; i < 4; i++) {
 			if (parallelogramUnit[i].x == 1)
-				dp->parallelogram[i].x = (LED_XS * LED_LEAN);
+				dp->parallelogram[i].x = (short) (LED_XS * LED_LEAN);
 			else if (parallelogramUnit[i].x == 2)
-				dp->parallelogram[i].x = LED_XS;
+				dp->parallelogram[i].x = (short) LED_XS;
 			else if (parallelogramUnit[i].x == -1)
-				dp->parallelogram[i].x = (-LED_XS * LED_LEAN);
+				dp->parallelogram[i].x = (short) (-LED_XS * LED_LEAN);
 			else if (parallelogramUnit[i].x == -2)
-				dp->parallelogram[i].x = -LED_XS;
+				dp->parallelogram[i].x = (short) (-LED_XS);
 			else
 				dp->parallelogram[i].x = 0;
-			dp->parallelogram[i].y = LED_YS * parallelogramUnit[i].y;
+			dp->parallelogram[i].y = (short) (LED_YS * parallelogramUnit[i].y);
 		}
 
-		dp->parallelogram[0].x = (LED_XS * LED_LEAN) + LED_INC;
-		dp->parallelogram[0].y = 0 + LED_INC;
-		dp->text_width = 6 * (LED_XS + LED_WIDTH + LED_INC) +
-		  2 * (LED_WIDTH + LED_INC) + LED_XS * LED_LEAN - LED_INC;
-		dp->text_height = LED_YS + LED_WIDTH + LED_INC;
+		dp->parallelogram[0].x = (short) ((LED_XS * LED_LEAN) + LED_INC);
+		dp->parallelogram[0].y = (short) LED_INC;
+		dp->text_width = (short) (6 * (LED_XS + LED_WIDTH + LED_INC) +
+		  2 * (LED_WIDTH + LED_INC) + LED_XS * LED_LEAN - LED_INC);
+		dp->text_height = (short) (LED_YS + LED_WIDTH + LED_INC);
 		dp->maxy = dp->height - dp->text_height;
 		if (dp->maxy == 0)
 			dp->clocky = 0;

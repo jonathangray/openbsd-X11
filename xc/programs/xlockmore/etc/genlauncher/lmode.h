@@ -193,13 +193,16 @@ LockStruct  LockProcs[] =
 	 1000, 1, 1, 1, 64, 1.0, "",
 	 "Shows a modified iterated function system", 0, NULL, NULL},
 	{"image",
-	 2000000, -10, 1, 1, 64, 1.0, "",
+	 3000000, -20, 1, 1, 64, 1.0, "",
 	 "Shows randomly appearing logos", 0, NULL, NULL},
 #if defined( USE_GL ) && defined( HAVE_CXX )
 	{"invert",
 	 100, 1, 1, 1, 64, 1.0, "",
-	 "Shows a sphere inverted without wrinkles", 0, NULL, NULL},
+	 "Shows a sphere inverted without wrinkles", 0, NULL, "#if defined( USE_GL ) && defined( HAVE_CXX )"},
 #endif
+        {"juggle",
+         2000, 30, 30, 1, 32, 1.0, "",
+         "Shows a Juggler, juggling", 0, NULL, NULL},
 	{"julia",
 	 10000, 1000, 20, 1, 64, 1.0, "",
 	 "Shows the Julia set", 0, NULL, NULL},
@@ -297,7 +300,7 @@ LockStruct  LockProcs[] =
 	 100000, 25, 1, -64, 64, 0.6, "",
 	 "Shows a rolling ball", 0, NULL, NULL},
 	{"rotor",
-	 10000, 4, 20, -6, 64, 0.3, "",
+	 500, 4, 100, -6, 64, 0.3, "",
 	 "Shows Tom's Roto-Rooter", 0, NULL, NULL},
 #ifdef USE_GL
 	{"rubik",
@@ -313,6 +316,16 @@ LockStruct  LockProcs[] =
 	{"slip",
 	 50000, 35, 50, 1, 64, 1.0, "",
 	 "Shows slipping blits", 0, NULL, NULL},
+#ifdef HAVE_CXX
+	{"solitare",
+	 2000000, 1, 1, 1, 64, 1.0, "",
+	 "Shows Klondike's game of solitare", 0, NULL, "#ifdef HAVE_CXX"},
+#endif
+#ifdef USE_UNSTABLE
+	{"space",
+	 10000, 100, 1, 15, 64, 1.0, "",
+	 "Shows a journey into deep space", 0, NULL, "#ifdef USE_UNSTABLE"},
+#endif
 	{"sphere",
 	 5000, 1, 20, 0, 64, 1.0, "",
 	 "Shows a bunch of shaded spheres", 0, NULL, NULL},
@@ -350,9 +363,17 @@ LockStruct  LockProcs[] =
 	{"swirl",
 	 5000, 5, 1, 1, 64, 1.0, "",
 	 "Shows animated swirling patterns", 0, NULL, NULL},
+  {"t3d",
+   250000, 1000, 60000, 0, 64, 1.0, "",
+   "Shows a Flying Balls Clock Demo", 0, NULL, NULL},
 	{"tetris",
 	 50000, 1, 1, 0, 64, 1.0, "",
 	 "Shows an autoplaying tetris game", 0, NULL, NULL},
+#if defined(USE_GL) & defined(HAVE_CXX) && defined( HAVE_TTF ) && defined( HAVE_GLTT ) && defined( USE_UNSTABLE )
+	{"text3d",
+	 100000, 1, 1, 1, 64, 1.0, "",
+	 "Shows 3D text", 0, NULL, "#if defined(USE_GL) & defined(HAVE_CXX) && defined( HAVE_TTF ) && defined( HAVE_GLTT ) && defined( USE_UNSTABLE )"},
+#endif
 	{"thornbird",
 	 1000, 800, 16, 1, 64, 1.0, "",
 	 "Shows an animated bird in a thorn bush fractal map", 0, NULL, NULL},

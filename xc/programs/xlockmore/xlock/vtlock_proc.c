@@ -53,16 +53,16 @@ static const char sccsid[] = "@(#)vtlock_proc.c	1.1	98/10/08 xlockmore";
 
 /* This struct contains the vt tty refs used for comparison */
 struct inode_ref {
-    unsigned short n; 
-    char	   ref[MAXPATHLEN+1]; 
-}; 
+    unsigned short n;
+    char	   ref[MAXPATHLEN+1];
+};
 
 /* Static variables used to keep X device, inode and process */
-static dev_t xdev =(dev_t)-1; 
+static dev_t xdev =(dev_t)-1;
 static ino_t xino =(ino_t)-1;
 static pid_t xproc =(pid_t)-1;
-static unsigned short xvt =(unsigned short)0; 
-static unsigned short othervt =(unsigned short)0; 
+static unsigned short xvt =(unsigned short)0;
+static unsigned short othervt =(unsigned short)0;
 
 /* Static variables to keep vt devices */
 static int n_ttys = -1;
@@ -109,6 +109,9 @@ get_active_vt(void)
     return vtstat.v_active;
 }
 
+extern int readlink(const char *path, char *buf, size_t len);
+/* extern int alphasort(const void *a, const void *b); */
+
 /*
  * find_x
  * ------
@@ -120,21 +123,21 @@ static ino_t
 find_x(const  char *path, const char *name, dev_t *pxdev )
 {
     struct stat stbuf;
-    char xpath[MAXPATHLEN+1]; 
+    char xpath[MAXPATHLEN+1];
 
-    (void) sprintf( xpath, "%s/%s", path, name ); 
+    (void) sprintf( xpath, "%s/%s", path, name );
     if ( stat( xpath, &stbuf ) != -1 ) {
         (void) strcpy( xpath, name );
         while ( S_ISLNK(stbuf.st_mode) ) {
             char buf[MAXPATHLEN+1];
 
-            if ( readlink( xpath, buf, MAXPATHLEN ) == -1 || ! *buf )
+            if (readlink(xpath, buf, MAXPATHLEN ) == -1 || ! *buf)
                 return( (ino_t) -1 );
 
-            /* 
-	     * Let's try to know if the path is absolute or relative 
+            /*
+	     * Let's try to know if the path is absolute or relative
              * It is absolute if it begin with '/',
-             * else is relative , 
+             * else is relative ,
 	     * then we need to add the path given as argument
 	     */
             if ( buf[0] != '/' )
@@ -147,8 +150,8 @@ find_x(const  char *path, const char *name, dev_t *pxdev )
     }
     else
       return( (ino_t) -1 );
-    if ( pxdev ) *pxdev = stbuf.st_dev; 
-    return stbuf.st_ino;  
+    if ( pxdev ) *pxdev = stbuf.st_dev;
+    return stbuf.st_ino;
 }
 
 /*
@@ -161,7 +164,7 @@ find_x(const  char *path, const char *name, dev_t *pxdev )
 static int
 proc_dir_select( const struct dirent *entry )
 {
-    return( entry->d_name[0] >= '0' && entry->d_name[0] <= '9' ); 
+    return( entry->d_name[0] >= '0' && entry->d_name[0] <= '9' );
 }
 
 /*
@@ -173,54 +176,54 @@ proc_dir_select( const struct dirent *entry )
 static pid_t
 find_x_proc(int disp_nr, dev_t lxdev, ino_t lxino)
 {
-    /*static*/ char xdisp[10]; 
-    /*static*/ char xcmd_ref[MAXPATHLEN+1]; 
-    struct stat stbuf; 
+    /*static*/ char xdisp[10];
+    /*static*/ char xcmd_ref[MAXPATHLEN+1];
+    struct stat stbuf;
     pid_t proc = -1;
     struct dirent **namelist = NULL;
-    int curn = 0,names = 0; 
+    int curn = 0,names = 0;
     int lencmd ;
 
     /* These are the display string searched in X cmd running (e.g.: :1) */
     /* and the searched  value of the link (e.g.: "[0301]:286753") */
-    (void) sprintf( xdisp, ":%d", disp_nr ); 
+    (void) sprintf( xdisp, ":%d", disp_nr );
     (void) sprintf( xcmd_ref, "[%04x]:%ld", lxdev, lxino );
     lencmd = strlen(xcmd_ref);
     if ( stat( PROCDIR, &stbuf ) == -1 ) return( (pid_t)-1 );
     namelist = (struct dirent **) malloc(sizeof (struct dirent *));
-    if ( (names=scan_dir( PROCDIR, &namelist, proc_dir_select, alphasort)) == -1 )
+    if ((names = scan_dir(PROCDIR, &namelist, proc_dir_select, alphasort)) == -1 )
     {
       (void) free((void *) namelist);
       return( (pid_t)-1 );
     }
     while ( curn < names ) {
         char pname[MAXPATHLEN+1];
-        char buf[MAXPATHLEN+1]; 
+        char buf[MAXPATHLEN+1];
 
         (void) sprintf( pname, PROCDIR "/%s/exe", namelist[curn]->d_name );
-	(void) memset((char *) buf, 0, sizeof (buf));
+        (void) memset((char *) buf, 0, sizeof (buf));
         if ( readlink( pname, buf, MAXPATHLEN ) <= 0 ) {
             /* This is unreadable, let's continue */
-            curn++; 
+            curn++;
             continue;
         }
-        /* 
-	 * If the strings are equals, we found an X process, but is it the one
-         * managing the wanted display ? 
+        /*
+         * If the strings are equals, we found an X process, but is it the one
+         * managing the wanted display ?
          * We are going to try to know it by reading the command line used to
          * invoke the server.
-	 */
+	       */
         if ( !strncmp( buf, xcmd_ref, lencmd ) ) {
             char cmdlinepath[MAXPATHLEN+1];
             char cmdlinebuf[1024];	/* 1k should be enough */
             int cmdlinefd;
-            off_t cmdlinesz; 
-            char *p; 
+            off_t cmdlinesz;
+            char *p;
 
             proc =(pid_t)atoi( namelist[curn]->d_name );
             (void) sprintf( cmdlinepath, PROCDIR "/%s/cmdline", namelist[curn]->d_name );
             if ( ( cmdlinefd = open( cmdlinepath, O_RDONLY ) ) == -1 ) {
-                curn++; 
+                curn++;
                 continue;
             }
             /* Ask the kernel what it was (actually do ps)
@@ -228,18 +231,18 @@ find_x_proc(int disp_nr, dev_t lxdev, ino_t lxino)
              * No means to dynamically allocate buffer !
 	     */
             if ( ( cmdlinesz = read( cmdlinefd, cmdlinebuf, 1023 ) ) == -1) {
-                close( cmdlinefd ); 
-                curn++; 
+                close( cmdlinefd );
+                curn++;
                 continue;
             }
             /*
-	     * The command line proc file contains all command line args 
-	     * separated by NULL characters. We are going to replace all ^@ 
-	     * with a space, then we'll searched for the display string 
-	     * (:0, :1, ..., :N). If a match is found, then we got the good 
-	     * process. If no match is found, then we can assume this is the 
+	     * The command line proc file contains all command line args
+	     * separated by NULL characters. We are going to replace all ^@
+	     * with a space, then we'll searched for the display string
+	     * (:0, :1, ..., :N). If a match is found, then we got the good
+	     * process. If no match is found, then we can assume this is the
 	     * good process only if we are searching for the display #0 manager
-	     * (the default display). In other case the process is discarded. 
+	     * (the default display). In other case the process is discarded.
 	     */
             p = cmdlinebuf;
             while ( p < cmdlinebuf+cmdlinesz ) {
@@ -251,12 +254,12 @@ find_x_proc(int disp_nr, dev_t lxdev, ino_t lxino)
             else if ( !disp_nr )
               break;
             else
-              proc =(pid_t)-1; 
+              proc =(pid_t)-1;
         }
-        curn++; 
+        curn++;
     }
     (void) free((void *) namelist);
-    return proc; 
+    return proc;
 }
 
 /*
@@ -279,9 +282,9 @@ find_tty_inodes( struct inode_ref *inotab )
         (void) sprintf( name, BASEVTNAME, ix );
         if ( stat( name, &stbuf ) == -1 )
           continue;
-        inotab[ln_ttys].n = ix; 
+        inotab[ln_ttys].n = ix;
         (void) sprintf( inotab[ln_ttys].ref, "[%04x]:%ld", stbuf.st_dev, stbuf.st_ino );
-        ln_ttys++; 
+        ln_ttys++;
     }
     return ln_ttys;
 }
@@ -295,22 +298,21 @@ find_tty_inodes( struct inode_ref *inotab )
 static int
 scan_x_fds( struct inode_ref *inotab, int ln_ttys, pid_t proc )
 {
-    char xfddir[MAXPATHLEN+1]; 
+    char xfddir[MAXPATHLEN+1];
     struct dirent **namelist=NULL;
     int curn = 0;
 
-    (void) sprintf( xfddir, PROCDIR "/%d/fd", proc );
+    (void) sprintf(xfddir, PROCDIR "/%d/fd", proc);
     namelist = (struct dirent **) malloc(sizeof (struct dirent *));
-    if ( scan_dir( xfddir, &namelist, NULL, alphasort ) == -1 ) 
-    {
+    if (scan_dir(xfddir, &namelist, NULL, alphasort) == -1) {
         (void) free((void *) namelist);
         return 0;
     }
     while ( namelist[curn] ) {
         char linkname[MAXPATHLEN+1];
         char linkref[MAXPATHLEN+1];
-        struct stat stbuf; 
-        int ix; 
+        struct stat stbuf;
+        int ix;
 
         (void) sprintf( linkname, "%s/%s", xfddir, namelist[curn]->d_name );
         if ( stat( linkname, &stbuf ) == -1 ) {
@@ -320,8 +322,8 @@ scan_x_fds( struct inode_ref *inotab, int ln_ttys, pid_t proc )
         }
         if ( !S_ISDIR(stbuf.st_mode) ) {
             /*
-	     * Let's read the link to get the file device and inode 
-	     * (e.g.: [0301]:6203) 
+	     * Let's read the link to get the file device and inode
+	     * (e.g.: [0301]:6203)
 	     */
 	    (void) memset((char *) linkref, 0, sizeof (linkref));
             if ( readlink( linkname, linkref, MAXPATHLEN ) <= 0 ) {
@@ -340,52 +342,50 @@ scan_x_fds( struct inode_ref *inotab, int ln_ttys, pid_t proc )
         curn++;
     }
     (void) free((void *) namelist);
-    return 0; 
-}    
+    return 0;
+}
 
 /*
  * is_x_vt_active
  * --------------
  * This function is the one called from vtlock.c and which tells
- * if the X vt is active or not. 
+ * if the X vt is active or not.
  * If the X vt is active it returns 1 else 0.
  * -1 is returned in case of errno or if cannot stat.
  */
 int
 is_x_vt_active(int display_nr)
 {
-    int active_vt = 0; 
+    int active_vt = 0;
     char *path = getenv( "PATH" );
     char *envtokenizer =(char *)NULL;
-    struct stat stbuf; 
+    struct stat stbuf;
 
     /* The active VT */
     active_vt = get_active_vt();
-/* ERROR ???  comparison between unsigned long and negative */
-    if ( xino == -1 )
+    if ( xino == (ino_t)-1 )
       if (stat( XPATH, &stbuf ) == -1 ||
           (xino = find_x( XPATH, XNAME, &xdev )) == (ino_t)-1 ) {
           /* No executable at the default location */
           /* Let's try with $PATH */
-          if ( !path ) return -1; 
+          if ( !path ) return -1;
           envtokenizer = strtok( path, ":" );
           while ( envtokenizer ) {
               if ( stat( envtokenizer, &stbuf ) != -1 )
-/* ERROR ???  comparison between unsigned long and negative */
-                if ( ( xino = find_x( envtokenizer, XNAME, &xdev ) ) != -1 )
-                  break; 
+                if ( ( xino = find_x( envtokenizer, XNAME, &xdev ) ) != (ino_t)-1 )
+                  break;
               envtokenizer = strtok( (char *)NULL, ":" );
           }
-          if ( !envtokenizer ) return -1; 
+          if ( !envtokenizer ) return -1;
       }
     if ((xproc ==(pid_t)-1 ) &&
-        (xproc = find_x_proc(display_nr, xdev, xino)) == -1)
-      return -1; 
+        (xproc = find_x_proc(display_nr, xdev, xino)) == (pid_t)-1)
+      return -1;
     if ((n_ttys == -1) &&
         (n_ttys = find_tty_inodes(ttyinodes))== 0)
-      return -1; 
-    if ( ! xvt && ( xvt = scan_x_fds( ttyinodes, n_ttys, xproc ) ) == 0 ) return -1; 
-    return(active_vt == xvt); 
+      return -1;
+    if ( ! xvt && ( xvt = scan_x_fds( ttyinodes, n_ttys, xproc ) ) == 0 ) return -1;
+    return(active_vt == xvt);
 }
 
 /*
@@ -398,9 +398,9 @@ int
 set_x_vt_active(int display_nr)
 {
     int fd = -1;
-    
-    if ( !othervt ) othervt = get_active_vt(); 
-    if ( !xvt ) (void)is_x_vt_active( display_nr ); 
+
+    if ( !othervt ) othervt = get_active_vt();
+    if ( !xvt ) (void)is_x_vt_active( display_nr );
     fd = open( CONSOLE, O_RDONLY );
     if ( fd == -1 ) return( -1 );
     if ( ioctl( fd, VT_ACTIVATE, xvt ) == -1 ) {
@@ -412,7 +412,7 @@ set_x_vt_active(int display_nr)
         return( -1 );
     }
     close( fd );
-    return 0; 
+    return 0;
 }
 
 /*
@@ -425,7 +425,7 @@ int
 restore_vt_active(void)
 {
     int fd = -1;
-    
+
     if ( !othervt ) return 0;
     fd = open( CONSOLE, O_RDONLY );
     if ( fd == -1 ) return( -1 );
@@ -435,12 +435,12 @@ restore_vt_active(void)
     }
     if ( ioctl( fd, VT_WAITACTIVE, xvt ) == -1 ) {
         /* We can achieve that vt has switched */
-        othervt =(unsigned short)0; 
+        othervt =(unsigned short)0;
         close( fd );
         return( -1 );
     }
-    othervt =(unsigned short)0; 
+    othervt =(unsigned short)0;
     close( fd );
-    return 0; 
+    return 0;
 }
 #endif

@@ -4,7 +4,7 @@
 #Projet Wizard in french Assistant
 #http://www.chez.com/vidalc/assist/
 #Sun Jul  4 01:35:05 MET DST 1999
-# Add filevents find in setup.tcl of the xap ( X Application Panel ) 
+# Add filevents find in setup.tcl of the xap ( X Application Panel )
 # thank's to rasca, berlin 1999
 
 # the next line restart wish \
@@ -43,7 +43,7 @@ proc read_pipe { command w } {
 
 proc action { } {
 global bitmapdir
-global pixmapdir 
+global pixmapdir
 global incdir
 global libdir
 global soundprog
@@ -66,12 +66,12 @@ global lang
 if { $nb_ecran == [expr $nbtotalecran -1 ]}  {
 	set commandline "./configure"
 	append commandline $wgcc $wpurify $wmotif $weditres $wxpm $wopengl $wmesagl $wdtsaver $esyslog $emuluser $emulroot $eunstable
-	if {$bitmapdir!=""} { append commandline " --enable-bitmapdir=$bitmapdir" } 
-	if {$pixmapdir!=""} { append commandline " --enable-pixmapdir=$pixmapdir" } 
-	if {$incdir!=""} {append commandline " --x-includes=$incdir" } 
-	if {$libdir!=""} {append commandline " --x-libraries=$libdir" } 
-	if {$soundprog!=""} {append commandline " --enable-def-play=$soundprog" } 
-	append commandline " $lang" 
+	if {$bitmapdir!=""} { append commandline " --enable-bitmapdir=$bitmapdir" }
+	if {$pixmapdir!=""} { append commandline " --enable-pixmapdir=$pixmapdir" }
+	if {$incdir!=""} {append commandline " --x-includes=$incdir" }
+	if {$libdir!=""} {append commandline " --x-libraries=$libdir" }
+	if {$soundprog!=""} {append commandline " --enable-def-play=$soundprog" }
+	append commandline " $lang"
 	if { [getyesno "Do you really want to launch configure"] == "yes" } {
 		set nb_ecran= [ expr $nb_ecran + 1 ]
 		puts $commandline
@@ -91,7 +91,7 @@ if { $nb_ecran == [expr $nbtotalecran -1 ]}  {
 		button .f.exit -text "Exit" -command exit
 #		button $w.goback -text "Go back" -command goback
 		button $w.exit -text "Exit" -command exit
-		scrollbar $w.s -orient vertical -command {.fconf.t yview} 
+		scrollbar $w.s -orient vertical -command {.fconf.t yview}
 		pack $w.s -side right  -fill y
 		text $w.t -yscrollcommand {.fconf.s set} \
 			-wrap word -width 50 -height 10 \
@@ -112,19 +112,19 @@ if { $nb_ecran == [expr $nbtotalecran -1 ]}  {
 proc getyesno { text  } {
 return [ tk_messageBox -parent . -title {Launch Configure} -type yesno\
 	-icon warning \
-	-message $text ] 
+	-message $text ]
 }
 
-proc OutputEcran { n } { 
-global nomuser 
-global nomreel 
-global homedir 
- switch  $n { 
+proc OutputEcran { n } {
+global nomuser
+global nomreel
+global homedir
+ switch  $n {
 	}
 }
 
 proc InputEcran { n } {
-global nomuser 
+global nomuser
 global homedir
  switch  $n {
 	}
@@ -149,32 +149,32 @@ set nb_ecran 0
 proc openfont { var } {
 upvar $var toto
 global tmpfnt
-     toplevel .font 
+     toplevel .font
      set Fnt .font
 	wm title $Fnt "Font Options"
-	label  $Fnt.label -text "ABCDEFGH\nIJKabedfg\nhijkmnopq" 
+	label  $Fnt.label -text "ABCDEFGH\nIJKabedfg\nhijkmnopq"
 
-    frame $Fnt.frame -borderwidth 10 
+    frame $Fnt.frame -borderwidth 10
     frame $Fnt.frame2 -borderwidth 10
     set w $Fnt.frame
-    label $w.msg0   -text "Font Options" 
+    label $w.msg0   -text "Font Options"
     pack $w.msg0 -side top
     eval exec "xlsfonts \> /tmp/xlsfont.tmp"
     set f [open "/tmp/xlsfont.tmp"]
     listbox $Fnt.frame.names -yscrollcommand ".font.frame.scroll set" \
 	-xscrollcommand "$Fnt.scroll2 set"  -setgrid 1 \
-         -exportselection false 
+         -exportselection false
     bind $Fnt.frame.names <Double-1> {
             .font.test configure -font [.font.frame.names get [.font.frame.names curselection]]
     set tmpfnt  [.font.frame.names get [.font.frame.names curselection]]
     }
-    scrollbar $Fnt.frame.scroll -orient vertical -command ".font.frame.names 
+    scrollbar $Fnt.frame.scroll -orient vertical -command ".font.frame.names
 yview" \
             -relief sunken -borderwidth 2
     scrollbar $Fnt.scroll2 -orient horizontal -command "$Fnt.frame.names xview" \
             -relief sunken -borderwidth 2
     while {[gets $f line] >= 0} {
-            $Fnt.frame.names insert end $line 
+            $Fnt.frame.names insert end $line
     }
     close $f
 
@@ -183,7 +183,7 @@ yview" \
     pack $Fnt.frame.scroll -side right -fill both
     pack $Fnt.frame  -fill x
     pack $Fnt.scroll2 -fill both
-	label  $Fnt.test -text "ABCDEFGHIJKabedfghijkmnopq12345" 
+	label  $Fnt.test -text "ABCDEFGHIJKabedfghijkmnopq12345"
         pack $Fnt.test
 
     button $Fnt.frame2.cancel -text Cancel -command "destroy $Fnt"
@@ -201,16 +201,16 @@ upvar $var toto
 set toto [ tk_getOpenFile -parent .]
 }
 
-proc OutputEcran { n } { 
-global nomuser 
-global nomreel 
-global homedir 
- switch  $n { 
+proc OutputEcran { n } {
+global nomuser
+global nomreel
+global homedir
+ switch  $n {
 	}
 }
 
 proc InputEcran { n } {
-global nomuser 
+global nomuser
 global homedir
  switch  $n {
 	}
@@ -226,7 +226,7 @@ if { $tmp > -1} {
 		pack forget .f$nb_ecran
 		set nb_ecran [expr $nb_ecran - 1]
 		InputEcran $nb_ecran
-		pack .f$nb_ecran 
+		pack .f$nb_ecran
 		}
 if { $nb_ecran != [expr $nbtotalecran - 1 ]}  {
 		.f.b3 configure -text "Cancel"
@@ -249,7 +249,7 @@ if { $tmp < $nbtotalecran} {
 		pack forget .f$nb_ecran
 		set nb_ecran [expr $nb_ecran + 1]
 		InputEcran $nb_ecran
-		pack .f$nb_ecran 
+		pack .f$nb_ecran
 		}
 }
 
@@ -263,7 +263,7 @@ image create bitmap  image$n -file bitmaps/$icon
 label .f$n.lt$n -text $title -font -Adobe-Courier-Bold-R-Normal-*-140-*
 label .f$n.li$n -image image$n
 pack .f$n.lt$n  .f$n.li$n
-frame .f$n.fdesc 
+frame .f$n.fdesc
 message  .f$n.mesg -text $desc -width 25c
 pack .f$n.mesg -fill x
 pack .f$n.fdesc
@@ -278,7 +278,7 @@ proc creationentry { n nbf  text variable value} {
 	label .f$n.fr$nbf.lab1 -text $text
 	entry .f$n.fr$nbf.e1 -textvariable  $variable
 	.f$n.fr$nbf.e1 insert 0 $value
-	pack .f$n.fr$nbf 
+	pack .f$n.fr$nbf
 	pack .f$n.fr$nbf.e1  -side right
 	pack .f$n.fr$nbf.lab1  -side left
 }
@@ -289,79 +289,79 @@ proc mkecran { n args } {
   set w  .f$n
   foreach i $args {
 		switch -regexp  [lindex $i 0] {
-				LIST { listbox  $w.list$nbwidget 
-					pack  $w.list$nbwidget 
+				LIST { listbox  $w.list$nbwidget
+					pack  $w.list$nbwidget
 					}
-				ENTRY { 
-					creationentry  $n $nbwidget [lindex $i 1] [lindex $i 2] [lindex $i 3] 
+				ENTRY {
+					creationentry  $n $nbwidget [lindex $i 1] [lindex $i 2] [lindex $i 3]
 					}
 				LABEL { label  $w.label$nbwidget -text  [lindex $i 1]
 					pack  $w.label$nbwidget
 					}
 				CHECK { checkbutton  $w.check$nbwidget -text  [lindex $i 1] -variable  [lindex $i 2] -onvalue  [lindex $i 3] \
 -offvalue [lindex $i 4]
-					pack  $w.check$nbwidget 
+					pack  $w.check$nbwidget
 					}
-				RADIO { 
-						frame $w.fr$nbwidget 
-						image create photo   [lindex $i 4] -file [lindex $i 5] 
+				RADIO {
+						frame $w.fr$nbwidget
+						image create photo   [lindex $i 4] -file [lindex $i 5]
 						label  $w.fr$nbwidget.labrad  -image [lindex $i 4]
-						radiobutton  $w.fr$nbwidget.radio$nbwidget -text  [lindex $i 1] -variable  [lindex $i 2] -value [lindex $i 3] 
+						radiobutton  $w.fr$nbwidget.radio$nbwidget -text  [lindex $i 1] -variable  [lindex $i 2] -value [lindex $i 3]
 					pack   $w.fr$nbwidget.labrad  $w.fr$nbwidget.radio$nbwidget -side left
 					pack   $w.fr$nbwidget
 					}
 				BUTTON { button  $w.button$nbwidget -text  [lindex $i 1]
-					pack  $w.button$nbwidget 
+					pack  $w.button$nbwidget
 					}
-				SCALE { scale  $w.scale$nbwidget -from [lindex $i 1] -to [lindex $i 2]  -orient 
-horizontal 
-					pack  $w.scale$nbwidget 
+				SCALE { scale  $w.scale$nbwidget -from [lindex $i 1] -to [lindex $i 2]  -orient
+horizontal
+					pack  $w.scale$nbwidget
 					}
-				FILE { 
+				FILE {
         				frame   $w.frame$nbwidget
         				set  wf $w.frame$nbwidget
         				label   $wf.label  -text [lindex $i 1]
         				entry   $wf.entry  -textvariable [lindex $i 2 ]
-	 				$wf.entry insert 0 [lindex $i 3] 
-        				button $wf.button -text "File" -command 
+	 				$wf.entry insert 0 [lindex $i 3]
+        				button $wf.button -text "File" -command
 "openfilesel [lindex $i 2]"
         				pack $wf
-        				pack  $wf.label $wf.entry $wf.button  
+        				pack  $wf.label $wf.entry $wf.button
 -side left
 					}
-				COLOR { 
+				COLOR {
         				frame   $w.frame$nbwidget
         				set  wf $w.frame$nbwidget
-					if { [lindex $i 4] !="" } then { label $wf.label  -text [lindex $i 1] -foreground [lindex 
-$i 4] 
+					if { [lindex $i 4] !="" } then { label $wf.label  -text [lindex $i 1] -foreground [lindex
+$i 4]
 					} else { label $wf.label  -text [lindex $i 1] }
         				entry   $wf.entry  -textvariable [lindex $i 2 ]
-	 				$wf.entry insert 0 [lindex $i 4] 
-        				button $wf.button -text "Color" -command "opencolorsel [lindex $i 3] [lindex $i 
+	 				$wf.entry insert 0 [lindex $i 4]
+        				button $wf.button -text "Color" -command "opencolorsel [lindex $i 3] [lindex $i
 2] $wf"
         				pack $wf
         				pack  $wf.label $wf.entry $wf.button  -side left
 					}
-				FONT { 
+				FONT {
         				frame   $w.frame$nbwidget
         				set  wf $w.frame$nbwidget
         				label   $wf.label  -text [lindex $i 1]
         				entry   $wf.entry  -textvariable [lindex $i 2 ]
-	 				$wf.entry insert 0 [lindex $i 3] 
-        				button $wf.button -text "Font" -command 
+	 				$wf.entry insert 0 [lindex $i 3]
+        				button $wf.button -text "Font" -command
 "openfont [lindex $i 2] "
         				pack $wf
-        				pack  $wf.label $wf.entry $wf.button  
+        				pack  $wf.label $wf.entry $wf.button
 -side left
 					}
 				}
 	set nbwidget [expr $nbwidget + 1]
 		}
 }
-# 
-# 
+#
+#
 # --with-lang=lang        use a foreign language (de/fr/nl)
-creationscreennb  0 "wizard configure xlockmore" "This should help you to 
+creationscreennb  0 "wizard configure xlockmore" "This should help you to
 build xlockmore" m-xlock.xbm
 mkecran 0 \
 {CHECK "without gcc    " wgcc     " --without-gcc" "" }\
@@ -373,7 +373,7 @@ mkecran 0 \
 {CHECK "without mesagl " wmesagl  " --without-mesagl" "" }\
 {CHECK "without dtsaver" wdtsaver " --without-dtsaver" "" }\
 {CHECK "without dpms   " wdpms    " --without-dpms" "" }\
- { }  
+ { }
 creationscreennb  1 "Wizard configure image path" "please enter the image path"  m-xlock.xbm
 mkecran 1 \
 {ENTRY  "Bitmap dir" bitmapdir }\
@@ -383,7 +383,7 @@ mkecran 1 \
 {CHECK "enable multiple users      " emuluser  " --enable-multiple-user" "" }\
 {CHECK "enable multiple root users " emulroot  " --enable-multiple-root" "" }\
 {CHECK "enable unstable            " eunstable " --enable-unstable" "" }\
- { }  
+ { }
 creationscreennb  2 "Wizard configure include and library path" "Please enter the path"  m-x11.xbm
 mkecran 2 \
 {ENTRY "path of X include          " incdir   }\
@@ -395,7 +395,7 @@ mkecran 2 \
 {ENTRY "info documentation in      " infodir }\
 {ENTRY "man documentation in       " mandir }\
 {ENTRY "find the sources in        " srcdir }\
- { }  
+ { }
 creationscreennb  3 "Wizard configure language" "Please choice your language "  m-xlock.xbm
 mkecran 3 \
 {RADIO "Dutch   " lang  " --with-lang=nl" fdutch etc/gif/nlflag.gif}\

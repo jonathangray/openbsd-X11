@@ -10,7 +10,7 @@
  *
  *  At the bottom, there are a few things commented out that are not
  *  automatically detected (past "NOT AUTOMATICALLY DETECTED YET").
- * 
+ *
  */
 
 /* Define to empty if the keyword does not work.  */
@@ -86,9 +86,12 @@
 #undef HAVE_NANOSLEEP
 
 /* If left undefined will default to internal Random Number Generator */
-#undef SRAND
-#undef LRAND
-#undef MAXRAND
+/* #undef SRAND */
+/* #undef LRAND */
+/* #undef MAXRAND */
+#undef HAVE_RAND48
+#undef HAVE_RANDOM
+#undef HAVE_RAND
 
 /* Enable use of matherr function */
 #undef USE_MATHERR
@@ -131,6 +134,9 @@
 
 /* Define if you have the sigset_t structure.  */
 #undef HAVE_STRUCT_SIGSET_T
+
+/* Define if you have libesd (Enlightenment Sound Daemon) */
+#undef HAVE_LIBESD
 
 /* Various system defines.  */
 #undef SYSV
@@ -183,6 +189,7 @@
 #undef USE_NAS
 #undef USE_VMSPLAY
 #undef DEF_PLAY
+#undef USE_ESOUND
 
 /* Allows xlock to run in root window (some window managers have problems) */
 #undef USE_VROOT
@@ -270,6 +277,9 @@
 /* XResource customization, drawback -display option may not work  */
 #undef CUSTOMIZATION
 
+/* New Dynamic Linking */
+#undef USE_MODULES
+
 /* reporting language customization */
 #undef NL
 #undef FR
@@ -280,9 +290,6 @@
 
 /* Virtual Terminal Lock for XFree86 users  */
 #undef USE_VTLOCK
-
-/* Gtk Fontsel Widget */
-#undef HAVE_GTK_FONTSEL_WIDGET
 
 /* The FOLLOWING are NOT AUTOMATICALLY DETECTED YET */
 
@@ -318,3 +325,9 @@
 
 /* Bad version of PAM  */
 /* #define BAD_PAM */
+
+/* Anybody with a password can unlock, good to use with HAVE_SYSLOG_H */
+/* #define GLOBAL_UNLOCK */
+
+/* I use this when I am working on something */
+/* #define UNDER_DEVELOPMENT */

@@ -27,7 +27,7 @@ static const char sccsid[] = "@(#)star.c	4.07 97/11/24 xlockmore";
  *            Combined with features from star by Heath Rice
  *            <rice@asl.dl.nec.com>.
  *            The Enterprise flys by from a few different views.
- *            Also have one view of a Romulan ship. 
+ *            Also have one view of a Romulan ship.
  *  7-Sep-96:  Fixed problems with 3d mode <theiling@coli.uni-sb.de>
  * 8-May-96: Blue on left instead of green for 3d.  It seems more common
  *           than green.  Use "-left3d Green" if you have the other kind.
@@ -151,7 +151,7 @@ static BitmapType trekie[] =
 #define DIRECTION_CHANGE_RATE 60
 #define MAX_DEP_SPEED 5		/* Maximum speed for movement */
 #define MOVE_STYLE 0		/* Only 0 and 1. Distinguishes the fact that
-				   these are the stars that are moving (1) 
+				   these are the stars that are moving (1)
 				   or the stars source (0). */
 
 #define GETZDIFF(z) \
@@ -365,7 +365,7 @@ draw_trek(ModeInfo * mi)
 			XSetTSOrigin(display, sp->stippledGC, sp->trek.loc.x, sp->trek.loc.y);
 			XSetStipple(display, sp->stippledGC, sp->trekPixmaps[sp->current_trek]);
 			XSetFillStyle(display, sp->stippledGC, FillOpaqueStippled);
-		
+
 			trekx = sp->trek.loc.x;
 			treky = sp->trek.loc.y,
 			trekwidth = sp->trek.size.x;

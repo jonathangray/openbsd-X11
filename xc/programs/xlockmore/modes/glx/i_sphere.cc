@@ -81,13 +81,13 @@ ThreeJetVec Stage1(ThreeJet u, ThreeJet v) {
 ThreeJetVec Stage2(ThreeJet u, ThreeJet v) {
   return InterpolateVec(
     Arc(Param1(u), v, 0.9, 0.9, -1),
-    Arc(Param2(u), v, 1, 1, 0.5), 
+    Arc(Param2(u), v, 1, 1, 0.5),
     UInterp(u));
 }
 
 ThreeJetVec Stage3(ThreeJet u, ThreeJet v) {
   return InterpolateVec(
-    Arc(Param1(u), v,-0.9,-0.9,-1), 
+    Arc(Param1(u), v,-0.9,-0.9,-1),
     Arc(Param2(u), v,-1, 1,-0.5),
     UInterp(u));
 }

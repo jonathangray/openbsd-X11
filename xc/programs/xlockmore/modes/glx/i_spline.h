@@ -12,6 +12,6 @@ void printScene(
   double umin, double umax, double du,
   double vmin, double vmax, double dv,
   double t, int binary
-);        
+);
 void impossible(char *msg);
 #endif

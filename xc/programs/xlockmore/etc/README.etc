@@ -6,17 +6,17 @@ descrip.mms is no longer maintained since I can no longer check it on my
 fortune.dat is for those who do not have fortune.
 play.sh is a hack to get sound.
 rplay* are ideas for setting up a more sophisticated sound package.
-system.*wm*rc.xlock files are for fvwm2, fvwm, WindowMaker, openwin 
-  (olwm & olvwm) and motif (mwm and dtwm) window managers.  
-  By default they include all modes which may not be available depending 
-  on your system.  The openwin file can be referenced directly, the others 
+system.*wm*rc.xlock files are for fvwm2, fvwm, WindowMaker, openwin
+  (olwm & olvwm) and motif (mwm and dtwm) window managers.
+  By default they include all modes which may not be available depending
+  on your system.  The openwin file can be referenced directly, the others
   need to be placed in menu files.
 xlock*life.pl stuff is for adding life patterns to life.c not all formats
   are handled.  However, the major format that is not handled here is close
   to the format I use already in life.c.
 glider.life and glider.hlife are simple examples of files that can be read
   into the life mode like:
-     "-lifefile glider.life" (which works with "-neighbors 8 -rule S23/B3") 
+     "-lifefile glider.life" (which works with "-neighbors 8 -rule S23/B3")
      "-lifefile glider.hlife" (which works with "-callahan" or
              "-neighbors 6 -rule S2b34/B2a")
   There is a limit of 128 initial live cells set by NUMFILEPTS in life.c.

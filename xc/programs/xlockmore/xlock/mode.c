@@ -3,7 +3,7 @@ static const char sccsid[] = "@(#)mode.c	4.07 97/11/24 xlockmore";
 
 #endif
 /*-
- * mode.c - Modes for xlock. 
+ * mode.c - Modes for xlock.
  *
  * See xlock.c for copying information.
  *
@@ -16,14 +16,8 @@ static const char sccsid[] = "@(#)mode.c	4.07 97/11/24 xlockmore";
  *
  */
 
-#ifdef USE_MODULES
-#include <sys/stat.h>
-#include <pwd.h>
-#include <dlfcn.h>
-#include <errno.h>
-#endif
-
 #include "xlock.h"
+
 
 /* -------------------------------------------------------------------- */
 
@@ -63,6 +57,12 @@ LockStruct  LockProcs[] =
 	 refresh_bat, init_bat, NULL, &bat_opts,
 	 100000, -8, 1, 0, 64, 1.0, "",
 	 "Shows bouncing flying bats", 0, NULL},
+#endif
+#ifdef MODE_billiards
+	{"billiards", init_billiards, draw_billiards, release_billiards,
+	 refresh_billiards, init_billiards, NULL, &billiards_opts,
+	 200000, 6, 30, 1, 64, 0.3, "",
+	 "Shows billiards", 0, NULL},
 #endif
 #ifdef MODE_blot
 	{"blot", init_blot, draw_blot, release_blot,
@@ -277,7 +277,7 @@ LockStruct  LockProcs[] =
 #ifdef MODE_image
 	{"image", init_image, draw_image, release_image,
 	 refresh_image, init_image, NULL, &image_opts,
-	 2000000, -10, 1, 1, 64, 1.0, "",
+	 3000000, -20, 1, 1, 64, 1.0, "",
 	 "Shows randomly appearing logos", 0, NULL},
 #endif
 #ifdef MODE_invert
@@ -285,6 +285,12 @@ LockStruct  LockProcs[] =
 	 draw_invert, init_invert, NULL, &invert_opts,
 	 100, 1, 1, 1, 64, 1.0, "",
 	 "Shows a sphere inverted without wrinkles", 0, NULL},
+#endif
+#ifdef MODE_juggle
+	{"juggle", init_juggle, draw_juggle, release_juggle,
+	 draw_juggle, init_juggle, NULL, &juggle_opts,
+	 2000, 30, 30, 1, 64, 1.0, "",
+	 "Shows a Juggler, juggling", 0, NULL},
 #endif
 #ifdef MODE_julia
 	{"julia", init_julia, draw_julia, release_julia,
@@ -474,7 +480,7 @@ LockStruct  LockProcs[] =
 #ifdef MODE_rotor
 	{"rotor", init_rotor, draw_rotor, release_rotor,
 	 refresh_rotor, init_rotor, NULL, &rotor_opts,
-	 10000, 4, 20, -6, 64, 0.3, "",
+	 500, 4, 100, -6, 64, 0.3, "",
 	 "Shows Tom's Roto-Rooter", 0, NULL},
 #endif
 #ifdef MODE_rubik
@@ -500,6 +506,12 @@ LockStruct  LockProcs[] =
 	 init_slip, init_slip, NULL, &slip_opts,
 	 50000, 35, 50, 1, 64, 1.0, "",
 	 "Shows slipping blits", 0, NULL},
+#endif
+#ifdef MODE_solitare
+	{"solitare", init_solitare, draw_solitare, release_solitare,
+	 refresh_solitare, init_solitare, NULL, &solitare_opts,
+	 2000000, 1, 1, 1, 64, 1.0, "",
+	 "Shows Klondike's game of solitare", 0, NULL},
 #endif
 #ifdef MODE_space
 	{"space", init_space, draw_space, release_space,
@@ -572,6 +584,12 @@ LockStruct  LockProcs[] =
 	 refresh_swirl, init_swirl, NULL, &swirl_opts,
 	 5000, 5, 1, 1, 64, 1.0, "",
 	 "Shows animated swirling patterns", 0, NULL},
+#endif
+#ifdef MODE_t3d
+	{"t3d", init_t3d, draw_t3d, release_t3d,
+	 refresh_t3d, init_t3d, NULL, &t3d_opts,
+	 250000, 1, 60000, 1, 64, 1.0, "",
+	 "Shows a Flying Balls Clock Demo", 0, NULL},
 #endif
 #ifdef MODE_tetris
 	{"tetris", init_tetris, draw_tetris, release_tetris,
@@ -663,7 +681,7 @@ LockStruct  LockProcs[] =
 	 refresh_blank, init_blank, NULL, &blank_opts,
 	 3000000, 1, 1, 1, 64, 1.0, "",
 	 "Shows nothing but a black screen", 0, NULL},
-#ifdef MODE_bomb 
+#ifdef MODE_bomb
 	{"bomb", init_bomb, draw_bomb, release_bomb,
 	 refresh_bomb, change_bomb, NULL, &bomb_opts,
 	 100000, 10, 20, 1, 64, 1.0, "",
@@ -684,12 +702,17 @@ int         numprocs = sizeof (LockProcs) / sizeof (LockProcs[0]);
 
 #else /* #ifndef USE_MODULES */
 
+#include <sys/stat.h>
+#include <pwd.h>
+#include <dlfcn.h>
+#include <errno.h>
+
 LockStruct *LockProcs = NULL;
 void      **LoadedModules = NULL;	/* save module handles to unload them later */
 int         numprocs = 0;
 
 /*-
- * I use a stack to save information about each module until they're
+ * I use a stack to save information about each module until they are
  * all loaded because I can not allocate LockProcs until I know how many
  * modules there are.
  */
@@ -794,8 +817,8 @@ ExpandPath(char *path)
 
 #define nextone (void) fprintf(stderr, "LoadModule: %s: %s\n", cpath, dlerror()); \
 (void) dlclose(mp); \
-(void) free((void *) new->lock); \
-(void) free((void *) new); \
+(void) free((void *) newstack->lock); \
+(void) free((void *) newstack); \
 continue
 
 void
@@ -805,17 +828,24 @@ LoadModules(char *path)
 	struct stat st;
 	struct dirent *ent;
 	char        cpath[128], *p, *thisp;
-	stack      *new, *head = NULL;
+	stack      *newstack, *head = NULL;
 	int         count = 0;
 
-	p = (char *) malloc(strlen(path) + 1);
-	(void) strcpy(p, path);
+	if (path) {
+		p = (char *) malloc(strlen(path) + 1);
+		(void) strcpy(p, path);
+	} else {
+		p = (char *) malloc(1);
+		p[0] = '\0';
+		(void) fprintf(stderr, "%s: LoadModules: modulepath is null\n",
+			       ProgramName);
+	}
 	for (thisp = strtok(p, ": \t"); thisp != NULL; thisp = strtok(NULL, ": \t")) {
 		char       *ep;
 
 		ep = ExpandPath(thisp);
 		if (ep == NULL) {
-			(void) fprintf(stderr, "%s: LoadModules: Can't expand path - '%s'\n",
+			(void) fprintf(stderr, "%s: LoadModules: Can not expand path - '%s'\n",
 				       ProgramName, thisp);
 			continue;
 		} else
@@ -861,60 +891,78 @@ LoadModules(char *path)
 
 				/*
 				 * The name of the description structure is formed by concatenating
-				 * the name of the module minus the .xlt suffix, and the string
+				 * the name of the module minus the .xlk suffix, and the string
 				 * "_description".
 				 */
 				(void) sprintf(descsym, "%.*s_description", len - 4, ent->d_name);
-				desc = dlsym(mp, descsym);
+				desc = (ModStruct *) dlsym(mp, descsym);
 				if (desc == NULL) {
 					(void) fprintf(stderr, "LoadModule: %s: %s\n", descsym, dlerror());
 					(void) dlclose(mp);
 					continue;
 				}
 				/* save information about module on stack. */
-				new = (stack *) malloc(sizeof (stack));
-				new->mod = mp;
-				new->lock = (LockStruct *) malloc(sizeof (LockStruct));
-				new->lock->cmdline_arg = desc->cmdline_arg;
+				newstack = (stack *) malloc(sizeof (stack));
+				newstack->mod = mp;
+				newstack->lock = (LockStruct *) malloc(sizeof (LockStruct));
+				newstack->lock->cmdline_arg = desc->cmdline_arg;
 
-				new->lock->init_hook = (ModeHook *) dlsym(mp, (char *) desc->init_name);
-				if (new->lock->init_hook == NULL) {
-					nextone;
-				}
-				new->lock->callback_hook = (ModeHook *) dlsym(mp, desc->callback_name);
-				if (new->lock->callback_hook == NULL) {
-					nextone;
-				}
-				new->lock->release_hook = (ModeHook *) dlsym(mp, desc->release_name);
-				if (new->lock->release_hook == NULL) {
-					nextone;
-				}
-				new->lock->refresh_hook = (ModeHook *) dlsym(mp, desc->refresh_name);
-				if (new->lock->refresh_hook == NULL) {
-					nextone;
-				}
-				new->lock->change_hook = (ModeHook *) dlsym(mp, desc->change_name);
-				if (new->lock->change_hook == NULL) {
-					nextone;
-				}
-				new->lock->unused_hook = (ModeHook *) dlsym(mp, desc->unused_name);
-				if (new->lock->unused_hook == NULL) {
-					nextone;
-				}
-				new->lock->msopt = desc->msopt;
-				new->lock->def_delay = desc->def_delay;
-				new->lock->def_count = desc->def_count;
-				new->lock->def_cycles = desc->def_cycles;
-				new->lock->def_size = desc->def_size;
-				new->lock->def_ncolors = desc->def_ncolors;
-				new->lock->def_saturation = desc->def_saturation;
-				new->lock->def_bitmap = desc->def_bitmap;
-				new->lock->desc = desc->desc;
-				new->lock->flags = desc->flags;
-				new->lock->userdata = desc->userdata;
+				if (desc->init_name != NULL) {
+					newstack->lock->init_hook = (ModeHook *) dlsym(mp, (char *) desc->init_name);
+					if (newstack->lock->init_hook == NULL) {
+						nextone;
+					}
+				} else
+					newstack->lock->init_hook = NULL;
+				if (desc->callback_name != NULL) {
+					newstack->lock->callback_hook = (ModeHook *) dlsym(mp, desc->callback_name);
+					if (newstack->lock->callback_hook == NULL) {
+						nextone;
+					}
+				} else
+					newstack->lock->callback_hook = NULL;
+				if (desc->release_name != NULL) {
+					newstack->lock->release_hook = (ModeHook *) dlsym(mp, desc->release_name);
+					if (newstack->lock->release_hook == NULL) {
+						nextone;
+					}
+				} else
+					newstack->lock->refresh_hook = NULL;
+				if (desc->refresh_name != NULL) {
+					newstack->lock->refresh_hook = (ModeHook *) dlsym(mp, desc->refresh_name);
+					if (newstack->lock->refresh_hook == NULL) {
+						nextone;
+					}
+				} else
+					newstack->lock->refresh_hook = NULL;
+				if (desc->change_name != NULL) {
+					newstack->lock->change_hook = (ModeHook *) dlsym(mp, desc->change_name);
+					if (newstack->lock->change_hook == NULL) {
+						nextone;
+					}
+				} else
+					newstack->lock->change_hook = NULL;
+				if (desc->unused_name != NULL) {
+					newstack->lock->unused_hook = (ModeHook *) dlsym(mp, desc->unused_name);
+					if (newstack->lock->unused_hook == NULL) {
+						nextone;
+					}
+				} else
+					newstack->lock->unused_hook = NULL;
+				newstack->lock->msopt = desc->msopt;
+				newstack->lock->def_delay = desc->def_delay;
+				newstack->lock->def_count = desc->def_count;
+				newstack->lock->def_cycles = desc->def_cycles;
+				newstack->lock->def_size = desc->def_size;
+				newstack->lock->def_ncolors = desc->def_ncolors;
+				newstack->lock->def_saturation = desc->def_saturation;
+				newstack->lock->def_bitmap = desc->def_bitmap;
+				newstack->lock->desc = desc->desc;
+				newstack->lock->flags = desc->flags;
+				newstack->lock->userdata = desc->userdata;
 
-				new->next = head;
-				head = new;
+				newstack->next = head;
+				head = newstack;
 				count++;
 			}	/* if (mp == NULL) .. else */
 		}		/* while ((ent = ...) */
@@ -928,7 +976,7 @@ LoadModules(char *path)
 		stack      *discard;
 		LockStruct **locks;
 
-		LoadedModules = malloc(count * sizeof (void *));
+		LoadedModules = (void **) malloc(count * sizeof (void *));
 
 		LockProcs = (LockStruct *) malloc(count * sizeof (LockStruct));
 		locks = (LockStruct **) malloc(count * sizeof (LockStruct *));

@@ -15,9 +15,10 @@
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
- * My e-mail address is lassauge@sagem.fr
+ * My e-mail address changed to lassauge@mail.dotcom.fr
+ * Web site at http://perso.libertysurf.fr/lassauge/
  *
- * Eric Lassauge  (August-18-1998)
+ * Eric Lassauge  (October-28-1999)
  *
  */
 
@@ -27,10 +28,11 @@ extern      "C" {
 } typedef struct {
 
 	/* global Parameters */
-	int         wire, counter;
+	int         wire, counter, animation;
 	float       extrusion;
 	float       rampl;
 	float       rfreq;
+	int 	    direction;
 	char       *words, *words_start;
 	/* per Screen variables */
 	GLint       WinH, WinW;
@@ -38,4 +40,7 @@ extern      "C" {
 	FTFace     *face;
 	float       center_x, center_y, center_z;
 	float       phi, theta, radius;
+	double      camera_dist;
+	double      ref_camera_dist;
+
 } text3dstruct;

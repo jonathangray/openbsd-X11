@@ -78,7 +78,7 @@ class TwoJet {
    double s = cos(f), c = -sin(f);
    f = s; fu = fu*c; fv = fv*c; fuv = c*fuv - s*fu*fv;
   }
-  
+
   friend TwoJet operator+(const TwoJet x, const TwoJet y);
   friend TwoJet operator*(const TwoJet x, const TwoJet y);
   friend TwoJet operator+(const TwoJet x, double d);

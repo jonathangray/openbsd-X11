@@ -2,10 +2,10 @@
 
 #charles vidal 1998 <vidalc@club-intenet.fr>
 # update Sun Oct 18 1998
-# Add the menu file with load resources 
-# and the exit button 
-# Add the load_process procedure loading 
-# the ressource file ~/XLock 
+# Add the menu file with load resources
+# and the exit button
+# Add the load_process procedure loading
+# the ressource file ~/XLock
 #
 
 #function find in demo: mkStyles.tcl
@@ -30,7 +30,7 @@ set icogeometrie ""
 set XLock_info ""
 set indxhelp ""
 set messagesfile ""
-set messagefile "" 
+set messagefile ""
 set bitmap ""
 
 proc openfilesel { var  } {
@@ -187,7 +187,7 @@ and restricts you to locking only a local server such\
 as  unix::00,,  localhost::00,,  or  ::00  unless you set the\
      -remote option.} 0 }\
     {"-name" {is used instead of XLock  when  looking for resources to configure xlock.} 1 }
-    {"-mode" {As  of  this  writing there are 80+ display modes supported (plus one more for random selection of one  of the 80+).} 1 }
+    {"-mode" {As  of  this  writing there are 100+ display modes supported (plus one more for random selection of one  of the 100+).} 1 }
     {"-delay"  {It simply sets the number  of  microseconds to  delay
 between  batches  of animations.  In blank mode, it is important to set this to
 some small  number  of  microseconds,  because the keyboard and mouse are only checked after each delay, so you cannot set  the delay  too high, but a delay of
@@ -242,14 +242,14 @@ or are too small (size  must  be  greater than  0x0).   The  greatest  size  is
   pack  .help.ok
 }
 
-# Create toplevel Author and Maintener.
+# Create toplevel Author and Maintainer.
 proc mkAuthor {} {
   toplevel .author
-  wm title .author "Author and Maintener of xlock"
+  wm title .author "Author and Maintainer of xlock"
   frame .author.frame -borderwidth 10
   set w .author.frame
 
-  label $w.msg0   -text "Author and Maintener of xlock"
+  label $w.msg0   -text "Author and Maintainer of xlock"
   label $w.msg1   -text "Maintained by: David A. Bagley (bagleyd@tux.org)"
   label $w.msg2   -text "Original Author: Patrick J. Naughton (naughton@eng.sun.com)"
   label $w.msg3   -text "Mailstop 21-14 Sun Microsystems Laboratories,"
@@ -279,7 +279,7 @@ proc mkFileDialog { nom titre args }  {
   pack $w.msg0 -side top
   foreach i $args {
     set nbf [ expr $nbf +1 ]
-    frame $w4.f$nbf 
+    frame $w4.f$nbf
     label $w4.f$nbf.l$nbf -text [lindex $i 0]
     entry $w4.f$nbf.e$nbf -textvariable [lindex $i 1]
     button $w4.f$nbf.b$nbf -text "..." -command "openfilesel [lindex $i 1]"
@@ -352,7 +352,7 @@ proc mkFileOption {} {
   mkFileDialog fileoption {Files Options} \
   {"messagesfile" messagesfile} \
   {"messagefile" messagefile} \
-  {"bitmap" bitmap} 
+  {"bitmap" bitmap}
 }
 
 proc whichfont { which } {
@@ -462,9 +462,9 @@ proc Affopts { device } {
   global geometrie
   global icogeometrie
   global XLock_info
-  global messagesfile 
-  global messagefile  
-  global bitmap 
+  global messagesfile
+  global messagefile
+  global bitmap
 
   set linecommand "xlock "
 
@@ -647,7 +647,8 @@ listbox $LISTSCROL.list -yscroll  "$LISTSCROL.scroll set"
 #insert all modes in list
 #---------------------------
 $LISTSCROL.list  insert 0 \
-$%LISTTCL
+$%LISTTCLbomb\
+random
 
 pack $LISTSCROL.scroll -side right -fill y
 pack $LISTSCROL.list -side left -expand yes -fill both

@@ -77,7 +77,7 @@ LINT = lint
 DEPEND = @DEPEND@
 DEPEND_FLAGS = @DEPEND_FLAGS@
 DEPEND_DEFINES = @DEPEND_DEFINES@
- 
+
 LN_S = @LN_S@
 RM = rm -f
 RM_S = $(RM)
@@ -136,6 +136,18 @@ uninstall-program :
 uninstall-man :
 
 uninstall-ad :
+
+install.program : install-program
+
+install.man : install-man
+
+install.ad : install-ad
+
+uninstall.program : uninstall-program
+
+uninstall.man : uninstall-man
+
+uninstall.ad : uninstall-ad
 
 lint :
 	$(LINT) -ax -DLINT $(DEFINES) $(XALOCKINC) $(XALOCKSRCS)

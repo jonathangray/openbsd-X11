@@ -24,7 +24,7 @@ static const char sccsid[] = "@(#)lisa.c	4.07 97/11/24 xlockmore";
  * Revision History:
  * 10-May-97: Compatible with xscreensaver
  *
- * The inspiration for this program, Lasp, was written by Adam B. Roach 
+ * The inspiration for this program, Lasp, was written by Adam B. Roach
  * in 1990, assisted by me, Caleb Cullen.  It was written first in C, then
  * in assembly, and used pre-calculated data tables to graph lisajous
  * figures on 386 machines and lower.  This version bears only superficial

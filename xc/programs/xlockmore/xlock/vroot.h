@@ -41,7 +41,7 @@
  * window managers.
  * The function implementing the virtual root lookup remembers the result of
  * its last invocation to avoid overhead in the case of repeated calls
- * on the same display and screen arguments. 
+ * on the same display and screen arguments.
  * The lookup code itself is taken from Tom LaStrange's ssetroot program.
  *
  * Most simple root window changing X programs can be converted to using

@@ -577,7 +577,7 @@ refresh_bat(ModeInfo * mi)
 
 	MI_CLEARWINDOWCOLORMAP(mi, bp->backGC, bp->black);
 #if defined( USE_XPM ) || defined( USE_XPMINC )
-	/* This is needed when another program changes the colormap. */ 
+	/* This is needed when another program changes the colormap. */
 	free_stuff(MI_DISPLAY(mi), bp);
 	init_stuff(mi);
 #endif

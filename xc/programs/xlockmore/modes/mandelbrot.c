@@ -23,12 +23,12 @@ static const char sccsid[] = "@(#)mandelbrot.c 4.13 98/12/21 xlockmore";
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
- * See  A.K. Dewdney's "Computer Recreations", Scientific American 
+ * See  A.K. Dewdney's "Computer Recreations", Scientific American
  * Magazine" Aug 1985 for more info.  Also A.K. Dewdney's "Computer
  * Recreations", Scientific American Magazine" Jul 1989, has some neat
  * extensions besides z^n + c (n small but >= 2) some of these are:
  *   z^z + z^n + c
- *   sin(z) + e^z + c 
+ *   sin(z) + e^z + c
  *   sin(z) + z^n + c
  * These were first explored by a colleague of Mandelbrot, Clifford A.
  * Pickover.  These would make nice additions to add.
@@ -211,7 +211,7 @@ static mandelstruct *mandels = NULL;
 /* do the iterations
  * if binary is true, check halfplane of last iteration.
  * if demrange is non zero, estimate lower bound of dist(c, M)
- * Loosely based on  Peitgen & Saupe's "The Science of Fractal Images" 
+ * Loosely based on  Peitgen & Saupe's "The Science of Fractal Images"
  */
 static int
 reps(complex c, double p, int r, Bool binary, double demrange)
@@ -219,8 +219,8 @@ reps(complex c, double p, int r, Bool binary, double demrange)
 	int         rep;
 	int         escaped = 0;
 	complex     t;
-	int escape = (demrange == 0) ? ESCAPE :
-		ESCAPE*ESCAPE*ESCAPE*ESCAPE; /* 2 more iterations */
+	int escape = (int) ((demrange == 0) ? ESCAPE :
+		ESCAPE*ESCAPE*ESCAPE*ESCAPE); /* 2 more iterations */
 	complex     t1;
 	complex     dt;
 
@@ -228,20 +228,20 @@ reps(complex c, double p, int r, Bool binary, double demrange)
 	dt.real = 1; dt.imag = 0;
 	for (rep = 0; rep < r; rep++) {
 	    t1 = t;
-		ipow(&t, p);
+		ipow(&t, (int) p);
 		add(&t, c);
 		if (t.real * t.real + t.imag * t.imag >= escape) {
 			escaped = 1;
 			break;
 		}
 		if (demrange){
-			/* compute dt/dc 
+			/* compute dt/dc
 			 *               p-1
 			 * dt    =  p * t  * dt + 1
 			 *   k+1         k     k
 			 */
 			dt.real *= p; dt.imag *= p;
-			if(p > 2) ipow(&t1, p - 1);
+			if(p > 2) ipow(&t1, (int) (p - 1));
 			mult(&dt, t1);
 			dt.real += 1;
 			if (dt.real * dt.real + dt.imag * dt.imag >= 1e300) {
@@ -256,7 +256,7 @@ reps(complex c, double p, int r, Bool binary, double demrange)
 			 /* distance estimate */
 			double dist = 0.5 * mt * log(mt) /
 				sqrt(dt.real * dt.real + dt.imag * dt.imag);
-			rep = (int) 1 + 10*r*dist/demrange; /* scale for viewing */
+			rep = (int) (1 + 10*r*dist/demrange); /* scale for viewing */
 			if(rep > r-1) rep = r-1; /* chop into color range */
 		} else {
 			if(binary && t.imag > 0)
@@ -316,10 +316,10 @@ Select(
 					{
 					int r;
 					temp.imag = selected_ul->imag +
-						(selected_ul->imag - selected_lr->imag) * 
+						(selected_ul->imag - selected_lr->imag) *
 						(((double)row)/sample_step);
-					temp.real = selected_ul->real + 
-						(selected_ul->real - selected_lr->real) * 
+					temp.real = selected_ul->real +
+						(selected_ul->real - selected_lr->real) *
 						(((double)column)/sample_step);
 					r = reps(temp,power,top,0,0);
 					/* Here, we just want to see if the point is in the set,
@@ -433,7 +433,7 @@ init_mandelbrot(ModeInfo * mi)
 	}
 	Select(&mp->extreme_ul,&mp->extreme_lr,
 		mp->screen_width,mp->screen_height,
-		mp->power,mp->reptop,
+		(int) mp->power,mp->reptop,
 		&mp->ul,&mp->lr);
 
 #endif /* !STANDALONE */
@@ -564,7 +564,7 @@ draw_mandelbrot(ModeInfo * mi)
 		/* select a new region! */
 		Select(&mp->extreme_ul,&mp->extreme_lr,
 			mp->screen_width,mp->screen_height,
-			mp->power,mp->reptop,
+			(int) mp->power,mp->reptop,
 			&mp->ul,&mp->lr);
 	} else if (mp->column >= mp->screen_width) {
 		/* delay a while */
@@ -580,9 +580,9 @@ draw_mandelbrot(ModeInfo * mi)
 
 		/* c.real = 1.3 - (double) mp->column / mp->screen_width * 3.4; */
 		/* c.imag = -1.6 + (double) h / mp->screen_height * 3.2; */
-		c.real = mp->ul.real + 
+		c.real = mp->ul.real +
 			(mp->ul.real-mp->lr.real)*(((double)(mp->column))/mp->screen_width);
-		c.imag = mp->ul.imag + 
+		c.imag = mp->ul.imag +
 			(mp->ul.imag - mp->lr.imag)*(((double) h) / mp->screen_height);
 		result = reps(c, mp->power, mp->reptop, mp->binary, demrange);
 		if (result == 0 || result == mp->reptop)

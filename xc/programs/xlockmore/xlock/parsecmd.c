@@ -35,13 +35,13 @@ Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts.
 
                         All Rights Reserved
 
-Permission to use, copy, modify, and distribute this software and its 
-documentation for any purpose and without fee is hereby granted, 
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
 provided that the above copyright notice appear in all copies and that
-both that copyright notice and this permission notice appear in 
+both that copyright notice and this permission notice appear in
 supporting documentation, and that the name of Digital not be
 used in advertising or publicity pertaining to distribution of the
-software without specific, written prior permission.  
+software without specific, written prior permission.
 
 DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
 ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
@@ -105,7 +105,7 @@ XlockrmParseCommand(
     XrmQPutStringResource(pdb, bindings, quarks, value_str);    \
     } /* PutCommandResource */
 
-    myargc = (*arg_c); 
+    myargc = (*arg_c);
 #if 0
     argend = arg_v + myargc;
     argsave = ++arg_v;
@@ -171,7 +171,7 @@ XlockrmParseCommand(
 #endif
 		    PutCommandResource(options[i].value);
 		    break;
-			    
+
 		case XrmoptionIsArg:
 #if 0
 		    --(*arg_c);
@@ -199,7 +199,7 @@ XlockrmParseCommand(
 			(*argsave++) = (*arg_v);
 #endif
 		    break;
-		
+
 		case XrmoptionResArg:
 		    if (myargc > 1) {
 			++arg_v; --myargc;
@@ -213,7 +213,7 @@ XlockrmParseCommand(
 			(*argsave++) = (*arg_v);
 #endif
 		    break;
-		
+
 		case XrmoptionSkipArg:
 		    if (myargc > 1) {
 			--myargc;
@@ -222,7 +222,7 @@ XlockrmParseCommand(
 #endif
 		    }
 #if 0
-		    (*argsave++) = (*arg_v); 
+		    (*argsave++) = (*arg_v);
 #endif
 		    break;
 
@@ -256,7 +256,7 @@ XlockrmParseCommand(
 	}
 #if 0
 	else
-	    (*argsave++) = (*arg_v);  /*compress arglist*/ 
+	    (*argsave++) = (*arg_v);  /*compress arglist*/
 #endif
     }
 
@@ -264,5 +264,5 @@ XlockrmParseCommand(
     if (argsave < argend)
 	(*argsave)=NULL; /* put NULL terminator on compressed arg_v */
 #endif
-   (*arg_v) = (*argsave);  /*return unmotified arglist*/ 
+   (*arg_v) = (*argsave);  /*return unmotified arglist*/
 }

@@ -19,7 +19,7 @@ static const char sccsid[] = "@(#)pipes.c	4.07 97/11/24 xlockmore";
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
- * This program was inspired on a WindowsNT(R)'s screen saver. It was written 
+ * This program was inspired on a WindowsNT(R)'s screen saver. It was written
  * from scratch and it was not based on any other source code.
  *
  * ==========================================================================

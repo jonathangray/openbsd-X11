@@ -17,7 +17,7 @@
 *  Created: 28-MAR-1996
 *
 *  Change History:
-*  22-JUL-96   D.Hansen    Fixed some bugs and added length check.   
+*  22-JUL-96   D.Hansen    Fixed some bugs and added length check.
 *  01-AUG-96   D.Hansen    Added Usage dump on SIGHUP
 *  17-JUL-97   D.Hansen    Removed dependencies for use with xlock
 *
@@ -28,10 +28,10 @@
 *****************************************************************************/
 
 /*-
-   It's still a little crude, but it works.  So the next thing I need to do is 
+   It's still a little crude, but it works.  So the next thing I need to do is
    add some more refinement.  First on my list is to figure out a way to
    translate the caller's address into something useful, like a symbol.
-   Currently you have to be in gdb and use something like: 
+   Currently you have to be in gdb and use something like:
 
    gdb> x <addr>
 
@@ -51,10 +51,10 @@
    memory.
 
    Also, the method for determining the caller's address is probably specific
-   to Intel machines since I use a trick that is based on the way the frame is 
+   to Intel machines since I use a trick that is based on the way the frame is
    stacked.  It may work on Sun with a little playing around with the
-   reference variable, like the last variable in the parameter list instead of 
-   the first, or maybe by changing the reference to add 1 long word instead of 
+   reference variable, like the last variable in the parameter list instead of
+   the first, or maybe by changing the reference to add 1 long word instead of
    subtract 1 long word.  If you look at the variable caller_addr, you'll see
    what I'm talking about.  It all depends on things like whether the stack
    grows up or down, etc.  I would try it first without changing anything and
@@ -66,7 +66,7 @@
    that runs xlock randomly through all the modes on a given interval and at
    the same interval issues SIGHUPs to the process to take a snapshot of the
    used memory.  Then after letting it iterate through all the modes several
-   times, another script can post-process the output looking for memory growth 
+   times, another script can post-process the output looking for memory growth
    and bad memory users.  (gdb> handle SIGHUP print pass nostop) (ifndebug
    around the SIGHUP handler in xlock.c).
 

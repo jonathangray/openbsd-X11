@@ -13,7 +13,7 @@ static const char sccsid[] = "@(#)xjack.c	4.13 98/10/10 xlockmore";
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  *
  * Wendy, let me explain something to you.  Whenever you come in here and
@@ -341,7 +341,7 @@ draw_xjack(ModeInfo * mi)
 
 			if (LRAND() & 1) {         /* re-pick margins */
 				if (jp->columns < 3)
-					jp->columns = 3;	
+					jp->columns = 3;
 				jp->left = 0xFF & (NRAND(jp->columns / 3));
 				jp->right = jp->columns - (0xFF & (NRAND(jp->columns / 3)));
 
@@ -379,7 +379,7 @@ draw_xjack(ModeInfo * mi)
 		if (jp->break_para)
 			usleep(0xFFFFFF & ((NRAND(delay * 15)) + 1));
 	}
-#endif 
+#endif
 
 #ifdef NFS_COMPLAINTS
 	if (jp->paras > 5 && (!NRAND(1000)) && jp->y < jp->rows-5) {

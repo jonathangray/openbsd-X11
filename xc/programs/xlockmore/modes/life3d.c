@@ -29,7 +29,7 @@ static const char sccsid[] = "@(#)life3d.c	4.07 98/01/18 xlockmore";
  * 07-Dec-94: used life.c and a DOS version of 3dlife
  * Copyright 1993 Anthony Wesley awesley@canb.auug.org.au found at
  * life.anu.edu.au /pub/complex_systems/alife/3DLIFE.ZIP
- * There is some flashing that was not in the original.  This is because 
+ * There is some flashing that was not in the original.  This is because
  * the direct video memory access garbage collection was not portable.
  *
  *
@@ -1540,7 +1540,7 @@ ClearMem(life3dstruct * lp)
 
 /*-
  * This routine increments the values stored in the 27 cells centred on
- * (x,y,z) Note that the offset() macro implements wrapping - the world is a 
+ * (x,y,z) Note that the offset() macro implements wrapping - the world is a
  * torus.
  */
 static void
@@ -1889,9 +1889,9 @@ DrawFace(ModeInfo * mi, int color, XPoint * cubepts,
 	}
 	if (lp->wireframe) {
 		XSetForeground(display, gc, lp->color[color]);
-	} else if (color == BLACK)
+	} else if (color == BLACK || MI_NPIXELS(mi) <= 2) {
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
-	else
+	} else
 		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
 	XDrawLines(display, MI_WINDOW(mi), gc, facepts, 5, CoordModeOrigin);
 }

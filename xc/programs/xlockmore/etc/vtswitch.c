@@ -29,17 +29,17 @@
 #define CONSOLE "/dev/console"
 
 static char *progname = NULL;
-static char errmsg[1024]; 
+static char errmsg[1024];
 
 static void usage( int verb )
 {
     fprintf( stderr, "%s: usage: %s [-h] <on/off>\n", progname, progname );
     if ( verb )
     {
-        fprintf( stderr, "    Allows to enable/disable to VT switching ability\n" ); 
-        fprintf( stderr, "      -- %s on -- enable VT switching\n", progname ); 
+        fprintf( stderr, "    Allows to enable/disable to VT switching ability\n" );
+        fprintf( stderr, "      -- %s on -- enable VT switching\n", progname );
         fprintf( stderr, "      -- %s off -- disable VT switching\n", progname );
-        fprintf( stderr, "    Option -h display this message\n" ); 
+        fprintf( stderr, "    Option -h display this message\n" );
     }
     fprintf( stderr, "\n", progname, progname );
 }
@@ -49,10 +49,10 @@ main( int argc, char **argv )
     char *cmd = argv[1];
     int allow = 0, consfd = -1;
     uid_t uid = -1;
-    struct stat consstat; 
+    struct stat consstat;
 
     /* Program name */
-    progname =( progname = strrchr( argv[0], '/' ) ) ? progname +1 : argv[0]; 
+    progname =( progname = strrchr( argv[0], '/' ) ) ? progname +1 : argv[0];
 
     /* Check args */
     if ( argc != 2 && argc != 3 )
@@ -65,7 +65,7 @@ main( int argc, char **argv )
     if ( !strcmp( cmd, "-h" ) || !strcmp( cmd, "--help" ) )
     {
         usage( 1 );
-        cmd = argv[2]; 
+        cmd = argv[2];
         if ( argc == 2 ) exit( 0 );
     }
 
@@ -81,7 +81,7 @@ main( int argc, char **argv )
     uid = getuid();
     if ( stat( CONSOLE, &consstat ) == -1 )
     {
-        sprintf( errmsg, "%s: Cannot stat " CONSOLE, progname ); 
+        sprintf( errmsg, "%s: Cannot stat " CONSOLE, progname );
         perror( errmsg );
         exit( 1 );
     }
@@ -94,29 +94,29 @@ main( int argc, char **argv )
                 allow ? "un" : "" );
         exit( 1 );
     }
-    seteuid( 0 ); 
+    seteuid( 0 );
 
     /* Open console */
     if ( ( consfd = open( CONSOLE, O_RDWR ) ) == -1 )
     {
-        sprintf( errmsg, "%s: Cannot open " CONSOLE, progname ); 
+        sprintf( errmsg, "%s: Cannot open " CONSOLE, progname );
         perror( errmsg );
-        seteuid( uid ); 
+        seteuid( uid );
         exit( 1 );
     }
 
     /* Do it */
     if ( ioctl( consfd, allow?VT_UNLOCKSWITCH:VT_LOCKSWITCH ) == -1 )
     {
-        sprintf( errmsg, "%s: Cannot %slock VT switching for " CONSOLE, progname, allow ? "un" : "" ); 
+        sprintf( errmsg, "%s: Cannot %slock VT switching for " CONSOLE, progname, allow ? "un" : "" );
         perror( errmsg );
-        seteuid( uid ); 
+        seteuid( uid );
         exit( 1 );
     }
 
     /* Terminate */
     close( consfd );
-    fprintf( stdout, "VT switching %s\n", allow ? "enabled" : "disabled" ); 
-    seteuid( uid ); 
+    fprintf( stdout, "VT switching %s\n", allow ? "enabled" : "disabled" );
+    seteuid( uid );
     exit( 0 );
 }

@@ -7,7 +7,7 @@ static const char sccsid[] = "@(#)kaleid.c  4.11 98/06/01 xlockmore";
 #endif
 
 /*-
- * 
+ *
  *  kaleid.c - Brewster's Kaleidoscope  (Sir David Brewster invented the
  *     kaleidoscope in 1816 and patented it in 1817.)
  *
@@ -44,11 +44,11 @@ static const char sccsid[] = "@(#)kaleid.c  4.11 98/06/01 xlockmore";
  *  -/+quad           turn on/off quad mirrored/rotated mode similar
  *                       to size 4, works with alternate
  *
- *  -/+oct            turn on/off oct mirrored/rotated moded similar 
+ *  -/+oct            turn on/off oct mirrored/rotated moded similar
  *                       to size 8, works with alternate
  *
  *  -/+linear         select Cartesian/Polar coordinate mode. Cartesian
- *                       uses straight lines similar to -oct and -quad 
+ *                       uses straight lines similar to -oct and -quad
  *                       mode instead of the curved lines of Polar mode.
  *                       [default off]
  *

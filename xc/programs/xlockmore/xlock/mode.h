@@ -52,7 +52,7 @@
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  *
  * The definitions in this file make it possible to compile an xlockmore
@@ -269,7 +269,7 @@ typedef struct {
 	unsigned long none_pixel, both_pixel;
 	XWindowChanges fullsizeconfigure;
 	mboxInfo    mb;
-	Pixmap	    root_pixmap;	
+	Pixmap	    root_pixmap;
 } ScreenInfo;
 
 typedef struct {
@@ -481,21 +481,26 @@ extern void release_last_mode(ModeInfo *);
 
 /* comment out following defines to remove modes */
 #ifdef USE_GL
-#define MODE_atlantis
 #define MODE_cage
 #define MODE_gears
 #define MODE_moebius
 #define MODE_morph3d
-#define MODE_pipes
 #define MODE_rubik
-#define MODE_sproingies
 #define MODE_stairs
 #define MODE_superquadrics
+#define MODE_sproingies
 #ifdef HAVE_CXX
-#define MODE_bubble3d
-#define MODE_invert
 #if defined( HAVE_TTF ) && defined( HAVE_GLTT ) && defined( USE_UNSTABLE )
 #define MODE_text3d
+#endif
+#endif
+#ifndef USE_MODULES
+#define MODE_atlantis
+#define MODE_bubble3d
+#define MODE_pipes
+#define MODE_sproingies
+#ifdef HAVE_CXX
+#define MODE_invert
 #endif
 #endif
 #if defined( USE_XPM ) || defined( USE_XPMINC )
@@ -505,8 +510,16 @@ extern void release_last_mode(ModeInfo *);
 #if defined( USE_XPM ) || defined( USE_XPMINC )
 #define MODE_cartoon
 #endif
+#ifdef HAVE_CXX
+#define MODE_solitare
+#endif
 #ifdef USE_UNSTABLE
 #define MODE_space
+#ifdef HAVE_CXX
+#ifdef UNDER_DEVELOPMENT
+#define MODE_billiards
+#endif
+#endif
 #endif
 #define MODE_ant
 #define MODE_ball
@@ -523,6 +536,13 @@ extern void release_last_mode(ModeInfo *);
 #define MODE_daisy
 #define MODE_decay
 #define MODE_dclock
+/*-
+ * Comment out dclock sub-modes to disable them from random selection.
+ * Useful for disabling y2k and millennium after those countdown dates
+ * have already gone by.
+ */
+/* #define MODE_dclock_y2k */
+#define MODE_dclock_millennium
 #define MODE_deco
 #define MODE_demon
 #define MODE_dilemma
@@ -543,6 +563,7 @@ extern void release_last_mode(ModeInfo *);
 #define MODE_ico
 #define MODE_ifs
 #define MODE_image
+#define MODE_juggle
 #define MODE_julia
 #define MODE_kaleid
 #define MODE_kumppa
@@ -581,6 +602,7 @@ extern void release_last_mode(ModeInfo *);
 #define MODE_strange
 #define MODE_swarm
 #define MODE_swirl
+#define MODE_t3d
 #define MODE_tetris
 #define MODE_thornbird
 #define MODE_tik_tak
@@ -595,7 +617,7 @@ extern void release_last_mode(ModeInfo *);
 #define MODE_worm
 #define MODE_xjack
 
-#if USE_BOMB
+#ifdef USE_BOMB
 #define MODE_bomb
 #endif
 
@@ -632,6 +654,14 @@ extern ModeHook draw_bat;
 extern ModeHook release_bat;
 extern ModeHook refresh_bat;
 extern ModeSpecOpt bat_opts;
+#endif
+
+#ifdef MODE_billiards
+extern ModeHook init_billiards;
+extern ModeHook draw_billiards;
+extern ModeHook release_billiards;
+extern ModeHook refresh_billiards;
+extern ModeSpecOpt billiards_opts;
 #endif
 
 #ifdef MODE_blot
@@ -929,6 +959,14 @@ extern ModeHook release_invert;
 extern ModeSpecOpt invert_opts;
 #endif
 
+
+#ifdef MODE_juggle
+extern ModeHook init_juggle;
+extern ModeHook draw_juggle;
+extern ModeHook release_juggle;
+extern ModeSpecOpt juggle_opts;
+#endif
+ 
 #ifdef MODE_julia
 extern ModeHook init_julia;
 extern ModeHook draw_julia;
@@ -1221,6 +1259,14 @@ extern ModeHook refresh_slip;	/* Probably not practical */
 extern ModeSpecOpt slip_opts;
 #endif
 
+#ifdef MODE_solitare
+extern ModeHook init_solitare;
+extern ModeHook draw_solitare;
+extern ModeHook release_solitare;
+extern ModeHook refresh_solitare;
+extern ModeSpecOpt solitare_opts;
+#endif
+
 #ifdef MODE_space
 extern ModeHook init_space;
 extern ModeHook draw_space;
@@ -1315,6 +1361,14 @@ extern ModeHook draw_swirl;
 extern ModeHook release_swirl;
 extern ModeHook refresh_swirl;
 extern ModeSpecOpt swirl_opts;
+#endif
+
+#ifdef MODE_t3d
+extern ModeHook init_t3d;
+extern ModeHook draw_t3d;
+extern ModeHook release_t3d;
+extern ModeHook refresh_t3d;
+extern ModeSpecOpt t3d_opts;
 #endif
 
 #ifdef MODE_tetris

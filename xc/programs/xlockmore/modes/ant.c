@@ -75,8 +75,7 @@ static const char sccsid[] = "@(#)ant.c	4.11 98/06/18 xlockmore";
 #ifdef MODE_ant
 
 /*-
- * neighbors of 0 randomizes it between 3, 4, 6, 8, and 12 are available
- * also but not recommended.
+ * neighbors of 0 randomizes it for 3, 4, 6, 8, 12 (last 2 are less likely)
  */
 
 #define DEF_NEIGHBORS  "0"      /* choose random value */
@@ -187,7 +186,8 @@ static char plots[] =
 #endif
  12};
 
-#define NEIGHBORKINDS (long) (sizeof plots / sizeof *plots)
+#define NEIGHBORKINDS ((long) (sizeof plots / sizeof *plots))
+#define GOODNEIGHBORKINDS 3
 
 /* Relative ant moves */
 #define FS 0			/* Step */
@@ -319,41 +319,17 @@ position_of_neighbor(antfarmstruct * ap, int dir, int *pcol, int *prow)
 				(void) fprintf(stderr, "wrong direction %d\n", dir);
 		}
 	} else {		/* TRI */
-		switch (dir) {
-			case 0:
-				col = (col + 1 == ap->ncols) ? 0 : col + 1;
-				break;
-			case 20:
-			case 30:
-			case 40:
-				col = (col + 1 == ap->ncols) ? 0 : col + 1;
-				row = (!row) ? ap->nrows - 1 : row - 1;
-				break;
-			case 60:
-				if ((col + row) % 2) {  /* right */
+		if ((col + row) % 2) {	/* right */
+			switch (dir) {
+				case 0:
+					col = (!col) ? ap->ncols - 1 : col - 1;
+					break;
+				case 30:
+				case 40:
+					col = (!col) ? ap->ncols - 1 : col - 1;
 					row = (!row) ? ap->nrows - 1 : row - 1;
-				} else { /* left */
-					col = (col + 1 == ap->ncols) ? 0 : col + 1;
-					if (!row)
-						row = ap->nrows - 2;
-					else if (row == 1)
-						row = ap->nrows - 1;
-					else
-						row = row - 2;
-				}
-				break;
-			case 80:
-			case 90:
-			case 100:
-				if (!row)
-					row = ap->nrows - 2;
-				else if (row == 1)
-					row = ap->nrows - 1;
-				else
-					row = row - 2;
-				break;
-			case 120:
-				if ((col + row) % 2) {  /* right */
+					break;
+				case 60:
 					col = (!col) ? ap->ncols - 1 : col - 1;
 					if (!row)
 						row = ap->nrows - 2;
@@ -361,27 +337,45 @@ position_of_neighbor(antfarmstruct * ap, int dir, int *pcol, int *prow)
 						row = ap->nrows - 1;
 					else
 						row = row - 2;
-				} else { /* left */
+					break;
+				case 80:
+				case 90:
+					if (!row)
+						row = ap->nrows - 2;
+					else if (!(row - 1))
+						row = ap->nrows - 1;
+					else
+						row = row - 2;
+					break;
+				case 120:
 					row = (!row) ? ap->nrows - 1 : row - 1;
-				}
-				break;
-			case 140:
-			case 150:
-			case 160:
-				col = (!col) ? ap->ncols - 1 : col - 1;
-				row = (!row) ? ap->nrows - 1 : row - 1;
-				break;
-			case 180:
-				col = (!col) ? ap->ncols - 1 : col - 1;
-				break;
-			case 200:
-			case 210:
-			case 220:
-				col = (!col) ? ap->ncols - 1 : col - 1;
-				row = (row + 1 == ap->nrows) ? 0 : row + 1;
-				break;
-			case 240:
-				if ((col + row) % 2) {  /* right */
+					break;
+				case 150:
+				case 160:
+					col = (col + 1 == ap->ncols) ? 0 : col + 1;
+					row = (!row) ? ap->nrows - 1 : row - 1;
+					break;
+				case 180:
+					col = (col + 1 == ap->ncols) ? 0 : col + 1;
+					break;
+				case 200:
+				case 210:
+					col = (col + 1 == ap->ncols) ? 0 : col + 1;
+					row = (row + 1 == ap->nrows) ? 0 : row + 1;
+					break;
+				case 240:
+					row = (row + 1 == ap->nrows) ? 0 : row + 1;
+					break;
+				case 270:
+				case 280:
+					if (row + 1 == ap->nrows)
+						row = 1;
+					else if (row + 2 == ap->nrows)
+						row = 0;
+					else
+						row = row + 2;
+					break;
+				case 300:
 					col = (!col) ? ap->ncols - 1 : col - 1;
 					if (row + 1 == ap->nrows)
 						row = 1;
@@ -389,24 +383,26 @@ position_of_neighbor(antfarmstruct * ap, int dir, int *pcol, int *prow)
 						row = 0;
 					else
 						row = row + 2;
-				} else { /* left */
+					break;
+				case 320:
+				case 330:
+					col = (!col) ? ap->ncols - 1 : col - 1;
 					row = (row + 1 == ap->nrows) ? 0 : row + 1;
-				}
-				break;
-			case 260:
-			case 270:
-			case 280:
-				if (row + 1 == ap->nrows)
-					row = 1;
-				else if (row + 2 == ap->nrows)
-					row = 0;
-				else
-					row = row + 2;
-				break;
-			case 300:
-				if ((col + row) % 2) {  /* right */
+					break;
+				default:
+					(void) fprintf(stderr, "wrong direction %d\n", dir);
+			}
+		} else {	/* left */
+			switch (dir) {
+				case 0:
+					col = (col + 1 == ap->ncols) ? 0 : col + 1;
+					break;
+				case 30:
+				case 40:
+					col = (col + 1 == ap->ncols) ? 0 : col + 1;
 					row = (row + 1 == ap->nrows) ? 0 : row + 1;
-				} else { /* left */
+					break;
+				case 60:
 					col = (col + 1 == ap->ncols) ? 0 : col + 1;
 					if (row + 1 == ap->nrows)
 						row = 1;
@@ -414,16 +410,61 @@ position_of_neighbor(antfarmstruct * ap, int dir, int *pcol, int *prow)
 						row = 0;
 					else
 						row = row + 2;
-				}
-				break;
-			case 320:
-			case 330:
-			case 340:
-				col = (col + 1 == ap->ncols) ? 0 : col + 1;
-				row = (row + 1 == ap->nrows) ? 0 : row + 1;
-				break;
-			default:
-				(void) fprintf(stderr, "wrong direction %d\n", dir);
+					break;
+				case 80:
+				case 90:
+					if (row + 1 == ap->nrows)
+						row = 1;
+					else if (row + 2 == ap->nrows)
+						row = 0;
+					else
+						row = row + 2;
+					break;
+				case 120:
+					row = (row + 1 == ap->nrows) ? 0 : row + 1;
+					break;
+				case 150:
+				case 160:
+					col = (!col) ? ap->ncols - 1 : col - 1;
+					row = (row + 1 == ap->nrows) ? 0 : row + 1;
+					break;
+				case 180:
+					col = (!col) ? ap->ncols - 1 : col - 1;
+					break;
+				case 200:
+				case 210:
+					col = (!col) ? ap->ncols - 1 : col - 1;
+					row = (!row) ? ap->nrows - 1 : row - 1;
+					break;
+				case 240:
+					row = (!row) ? ap->nrows - 1 : row - 1;
+					break;
+				case 270:
+				case 280:
+					if (!row)
+						row = ap->nrows - 2;
+					else if (row == 1)
+						row = ap->nrows - 1;
+					else
+						row = row - 2;
+					break;
+				case 300:
+					col = (col + 1 == ap->ncols) ? 0 : col + 1;
+					if (!row)
+						row = ap->nrows - 2;
+					else if (row == 1)
+						row = ap->nrows - 1;
+					else
+						row = row - 2;
+					break;
+				case 320:
+				case 330:
+					col = (col + 1 == ap->ncols) ? 0 : col + 1;
+					row = (!row) ? ap->nrows - 1 : row - 1;
+					break;
+				default:
+					(void) fprintf(stderr, "wrong direction %d\n", dir);
+			}
 		}
 	}
 	*pcol = col;
@@ -508,16 +549,16 @@ truchetcell(ModeInfo * mi, int col, int row, int truchetstate)
 				hex2.y = hex.y + ap->shape.hexagon[side + 1].y / 2 + 1;
 				/* Lots of fudging here */
 				if (side == 1) {
-					hex2.x += ap->xs * 0.1 + 1;
-					hex2.y += ap->ys * 0.1 - ((ap->ys > 5) ? 1 : 0);
+					hex2.x += (short) (ap->xs * 0.1 + 1);
+					hex2.y += (short) (ap->ys * 0.1 - ((ap->ys > 5) ? 1 : 0));
 				} else if (side == 2) {
-					hex2.x += ap->xs * 0.1;
+					hex2.x += (short) (ap->xs * 0.1);
 				} else if (side == 4) {
-					hex2.x += ap->xs * 0.1;
-					hex2.y += ap->ys * 0.1 - 1;
+					hex2.x += (short) (ap->xs * 0.1);
+					hex2.y += (short) (ap->ys * 0.1 - 1);
 				} else if (side == 5) {
-					hex2.x += ap->xs * 0.5;
-					hex2.y += -ap->ys * 0.3 + 1;
+					hex2.x += (short) (ap->xs * 0.5);
+					hex2.y += (short) (-ap->ys * 0.3 + 1);
 				}
 				if (truchetstate == side % 3)
 					/* Crude approx of 120 deg, so it will not cause drawing errors. */
@@ -576,8 +617,10 @@ truchetcell(ModeInfo * mi, int col, int row, int truchetstate)
 				else
 					ang = (690 - side * 120) % 360;		/* Left */
 				XDrawArc(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
-				  tri.x - ap->xs * fudge2 / 2, tri.y - 3 * ap->ys * fudge2 / 4,
-					 ap->xs * fudge2, 3 * ap->ys * fudge2 / 2,
+				  (int) (tri.x - ap->xs * fudge2 / 2),
+          (int) (tri.y - 3 * ap->ys * fudge2 / 4),
+				  (unsigned int) (ap->xs * fudge2),
+          (unsigned int) (3 * ap->ys * fudge2 / 2),
 				  (ang + fudge) * 64, (60 - 2 * fudge) * 64);
 			}
 		}
@@ -651,10 +694,10 @@ draw_anant(ModeInfo * mi, int direction, int col, int row)
 					hex.x -= ap->shape.hexagon[side].x / 2;
 					hex.y += ap->shape.hexagon[side].y / 2;
 				}
-				if (side == (ap->neighbors + ang - 2) % ap->neighbors) 
-					XDrawPoint(display, window, MI_GC(mi), hex.x, hex.y);	
-				if (side == (ap->neighbors + ang - 1) % ap->neighbors) 
-					XDrawPoint(display, window, MI_GC(mi), hex.x, hex.y);	
+				if (side == (ap->neighbors + ang - 2) % ap->neighbors)
+					XDrawPoint(display, window, MI_GC(mi), hex.x, hex.y);
+				if (side == (ap->neighbors + ang - 1) % ap->neighbors)
+					XDrawPoint(display, window, MI_GC(mi), hex.x, hex.y);
 			}
 		} else if (ap->neighbors == 4 || ap->neighbors == 8) {
 			if (!(ap->xs > 3 && ap->ys > 3))
@@ -749,7 +792,7 @@ draw_anant(ModeInfo * mi, int direction, int col, int row)
 			ap->neighbors == 12) {
 #ifdef UNDER_CONSTRUCTION
 				/* Not sure why this does not work */
-				ang = ((ang + ap->neighbors / 6) / (ap->neighbors / 3)) % 3; 
+				ang = ((ang + ap->neighbors / 6) / (ap->neighbors / 3)) % 3;
 #else
 				return;
 #endif
@@ -762,12 +805,12 @@ draw_anant(ModeInfo * mi, int direction, int col, int row)
 				/* Either you have the eyes in back or one eye in front */
 #if 0
 				if (side == ang)
-					XDrawPoint(display, window, MI_GC(mi), tri.x, tri.y);	
+					XDrawPoint(display, window, MI_GC(mi), tri.x, tri.y);
 #else
-				if (side == (ang + 2) % 3) 
-					XDrawPoint(display, window, MI_GC(mi), tri.x, tri.y);	
-				if (side == (ang + 1) % 3) 
-					XDrawPoint(display, window, MI_GC(mi), tri.x, tri.y);	
+				if (side == (ang + 2) % 3)
+					XDrawPoint(display, window, MI_GC(mi), tri.x, tri.y);
+				if (side == (ang + 1) % 3)
+					XDrawPoint(display, window, MI_GC(mi), tri.x, tri.y);
 #endif
 			}
 		}
@@ -966,24 +1009,21 @@ init_ant(ModeInfo * mi)
 	ap->width = MI_WIDTH(mi);
 	ap->height = MI_HEIGHT(mi);
 
-	if (neighbors == 8
-#ifdef NUMBER_9
-/* Not sure if this makes any sense at all... I am so confused. */
-	|| neighbors == 9
-#endif
-	|| neighbors == 12)
-		ap->neighbors = neighbors;	/* Discourage but not deny use... */
-	else
-		for (i = 0; i < NEIGHBORKINDS; i++) {
-			if (neighbors == plots[i]) {
-				ap->neighbors = plots[i];
-				break;
-			}
-			if (i == NEIGHBORKINDS - 1) {
-				ap->neighbors = plots[NRAND(NEIGHBORKINDS)];
-				break;
-			}
+	for (i = 0; i < NEIGHBORKINDS; i++) {
+		if (neighbors == plots[i]) {
+			ap->neighbors = plots[i];
+			break;
 		}
+		if (i == NEIGHBORKINDS - 1) {
+			if (!NRAND(10)) {
+				/* Make above 6 rare */
+				ap->neighbors = plots[NRAND(NEIGHBORKINDS)];
+			} else {
+				ap->neighbors = plots[NRAND(GOODNEIGHBORKINDS)];
+			}
+			break;
+		}
+	}
 
 	if (ap->neighbors == 6) {
 		int         nccols, ncrows;
@@ -1181,33 +1221,15 @@ draw_ant(ModeInfo * mi)
 				a = ((a && !b) || (b && !a));
 				drawtruchet(mi, anant->col, anant->row, status->color, a);
 			} else if (ap->neighbors == 3) {
-				a = (1 + (chg_dir == 240) + anant->direction / 120) % 3;
+				if (chg_dir == 240)
+					a = (2 + anant->direction / 120) % 3;
+				else
+					a = (1 + anant->direction / 120) % 3;
 				drawtruchet(mi, anant->col, anant->row, status->color, a);
 			}
 			ap->truchet_state[tape_pos] = a + 1;
 		}
 		anant->state = status->next;
-		if (ap->neighbors == 3) {
-			/* No sense of forward... force it to be logical */
-			/* This is probably not correct in general */
-			if ((anant->col + anant->row) & 1)
-			  old_dir = (3 * ANGLES / 2 - old_dir) % ANGLES;
-			else
-			  old_dir = (ANGLES - old_dir) % ANGLES;
-		}
-#ifdef NUMBER_9
-		else if (ap->neighbors == 9) {
-			/* No sense of forward... force it to be logical */
-			/* This is probably not correct in general */
-			if ((anant->col + anant->row) & 1)
-				old_dir = (old_dir + ANGLES - ANGLES / (ap->neighbors * 2)) % ANGLES;
-			else
-				old_dir = (old_dir + ANGLES / (ap->neighbors * 2)) % ANGLES;
-		} else if (ap->neighbors % 2) {
-			if (!(anant->direction % 60))
-				anant->direction = (anant->direction + ANGLES - ANGLES / (ap->neighbors * 2)) % ANGLES;
-		}
-#endif
 
 		/* Allow step first and turn */
 		old_dir = ((status->direction < ANGLES) ? anant->direction : old_dir);

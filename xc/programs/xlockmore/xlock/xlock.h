@@ -7,7 +7,7 @@
 #endif
 
 /*-
- * @(#)xlock.h	4.00 97/01/01 xlockmore 
+ * @(#)xlock.h	4.00 97/01/01 xlockmore
  *
  * External interfaces for new modes and SYSV OS defines.
  *
@@ -60,7 +60,7 @@
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  *
  * The definitions in this file make it possible to compile an xlockmore
@@ -141,10 +141,18 @@ XrmOptionDescRec options[100];
 #else /* !__NetBSD__ */
 #include <sys/signal.h>
 #endif /* __NetBSD__ */
+#if defined( VMS ) && defined( __cplusplus )
+/* Xlib.h for VMS is not (yet) compatible with C++ *
+ * The resulting warnings are switched off here    */
+#pragma message disable nosimpint
+#endif
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xresource.h>
+#if defined( VMS ) && defined( __cplusplus )
+#pragma message enable nosimpint
+#endif
 #include <math.h>
 
 #ifdef HAVE_CONFIG_H
@@ -489,7 +497,7 @@ extern void error(const char *buf);
 #define SYSLOG_INFO LOG_INFO
 #endif
 
-#if (defined( USE_RPLAY ) || defined( USE_NAS ) || defined( USE_VMSPLAY ) || defined( DEF_PLAY ))
+#if (defined( USE_RPLAY ) || defined( USE_NAS ) || defined( USE_VMSPLAY ) || defined( DEF_PLAY ) || defined( USE_ESOUND ))
 #define USE_SOUND
 #endif
 

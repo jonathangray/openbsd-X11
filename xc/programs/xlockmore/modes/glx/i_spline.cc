@@ -59,7 +59,7 @@ void printMesh(
 #ifdef XLOCK
     glNormal3d(nx*s, ny*s, nz*s);
     glVertex3d(x, y, z);
-#else    
+#else
     fprintf(fp, "%f %f %f    %f %f %f\n", x, y, z, nx*s, ny*s, nz*s);
 #endif
 }
@@ -73,22 +73,22 @@ void printSpline(FILE *fp, TwoJetVec v00, TwoJetVec v01,
     print_point(fp, v00, 1, us, 0, 0, binary);
     print_point(fp, v10, 1,-us, 0, 0, binary);
     print_point(fp, v10, 1, 0, 0, 0, binary);
-  
+
     print_point(fp, v00, 1, 0, vs, 0, binary);
     print_point(fp, v00, 1, us, vs, us*vs, binary);
     print_point(fp, v10, 1,-us, vs,-us*vs, binary);
     print_point(fp, v10, 1, 0, vs, 0, binary);
-  
+
     print_point(fp, v01, 1, 0,-vs, 0, binary);
     print_point(fp, v01, 1, us,-vs,-us*vs, binary);
     print_point(fp, v11, 1,-us,-vs, us*vs, binary);
     print_point(fp, v11, 1, 0,-vs, 0, binary);
-  
+
     print_point(fp, v01, 1, 0, 0, 0, binary);
     print_point(fp, v01, 1, us, 0, 0, binary);
     print_point(fp, v11, 1,-us, 0, 0, binary);
     print_point(fp, v11, 1, 0, 0, 0, binary);
-  
+
     if (binary) {
       float sts[8] = {s0,t0, s1,t0, s0,t1, s1,t1};
       fwrite(&sts, sizeof(float), 8, fp);
@@ -168,8 +168,8 @@ void printScene(
 		double umin, double umax, double adu,
 		double vmin, double vmax, double adv,
 		double t, int binary
-		) 
-     
+		)
+
 {
   static TwoJetVec **values;
   int j, k;
@@ -250,7 +250,7 @@ void printScene(
 		  umin+j*du, umin+(j+1)*du,  vmin+k*dv, vmin+(k+1)*dv, binary);
       }
     }
-  } 
+  }
   else {
 #ifndef XLOCK
     int nu = kmax+1, nv = jmax+1;

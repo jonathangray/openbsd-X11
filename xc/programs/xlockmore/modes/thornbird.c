@@ -73,7 +73,7 @@ typedef struct {
     struct {
 	  double  f1;
 	  double  f2;
-	}           liss;  
+	}           liss;
     struct {
 	  double  theta;
 	  double  dtheta;
@@ -161,7 +161,7 @@ draw_thornbird(ModeInfo * mi)
 	xp = hp->pointBuffer[current];
 
 	/* vary papameters */
-	hp->a = 1.99 + (0.4 * sin(hp->inc / hp->liss.f1) + 
+	hp->a = 1.99 + (0.4 * sin(hp->inc / hp->liss.f1) +
 					0.05 * cos(hp->inc / hp->liss.f2));
 	hp->c = 0.80 + (0.15 * cos(hp->inc / hp->liss.f1) +
 					0.05 * sin(hp->inc / hp->liss.f2));

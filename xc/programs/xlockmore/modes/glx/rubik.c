@@ -181,7 +181,7 @@ ModeSpecOpt rubik_opts =
 ModStruct   rubik_description =
 {"rubik", "init_rubik", "draw_rubik", "release_rubik",
  "draw_rubik", "change_rubik", NULL, &rubik_opts,
- 10000, -30, 5, -6, 4, 1.0, "",
+ 10000, -30, 5, -6, 64, 1.0, "",
  "Shows an auto-solving Rubik's Cube", 0, NULL};
 
 #endif
@@ -352,7 +352,7 @@ static int  rowToRotate[MAXFACES][MAXORIENT] =
 	{3, 0, 1, 4}
 };
 
-/* 
+/*
  * This translates a clockwise move to something more manageable
  */
 static RubikRowNext rotateToRow[MAXFACES] =	/*CW to min face */
@@ -1756,7 +1756,8 @@ shuffle(ModeInfo * mi)
 			move.face = NRAND(6);
 			move.direction = NRAND(4);	/* Exclude CW and CCW, its ok */
 			move.position = NRAND(sizeFace(rp, move.face));
-
+ 		    rp->degreeTurn = (checkFaceSquare(rp,
+				rowToRotate[move.face][move.direction])) ? 90 : 180;
 			condition = 1;
 			if (i > 0) {	/* avoid immediate undoing moves */
 				if (compare_moves(rp, move, rp->moves[i - 1], True))
@@ -1852,7 +1853,9 @@ init_rubik(ModeInfo * mi)
 	if ((rp->glx_context = init_GL(mi)) != NULL) {
 
 		reshape(mi, MI_WIDTH(mi), MI_HEIGHT(mi));
-		objects = glGenLists(1);
+        glDrawBuffer(GL_BACK);
+        if (!glIsList(objects))
+		  objects = glGenLists(1);
 		pinit(mi);
 	} else {
 		MI_CLEARWINDOW(mi);
@@ -1873,7 +1876,6 @@ draw_rubik(ModeInfo * mi)
 	if (!rp->glx_context)
 		return;
 
-	glDrawBuffer(GL_BACK);
 	glXMakeCurrent(display, window, *(rp->glx_context));
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -29,8 +29,8 @@ static const char sccsid[] = "@(#)dilemma.c	4.07 97/11/24 xlockmore";
 
 /*-
  *                      Opponent's Strategy
- *                   
- *                      Cooperate     Defect                    
+ *
+ *                      Cooperate     Defect
  *                     -----------------------
  *                    |           |           |
  *          Cooperate |     1     |     0     |
@@ -40,9 +40,9 @@ static const char sccsid[] = "@(#)dilemma.c	4.07 97/11/24 xlockmore";
  *          Defect    |     b     |     0     |
  *                    |           |           |
  *                     -----------------------
- *  
+ *
  *                        The Payoff Matrix
- *  
+ *
  * An interesting value of "b" for a 8 neighbor grid is 1.85
  * What does b stand for?  "bonus"?
  * Cells get 1 if they and their opponent cooperates.
@@ -56,7 +56,7 @@ static const char sccsid[] = "@(#)dilemma.c	4.07 97/11/24 xlockmore";
  *
  * I have noticed round off errors  I have not as yet tracked them down.
  * Try
- * -bonus 1.99 -neighbors 12  -size 10 
+ * -bonus 1.99 -neighbors 12  -size 10
  * -bonus 241 -neighbors 6  -size 8
  * -bonus 1.71 -neighbors 4  -size 4
  */

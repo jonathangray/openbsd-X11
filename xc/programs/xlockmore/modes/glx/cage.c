@@ -22,17 +22,17 @@ static const char sccsid[] = "@(#)cage.c	4.07 98/01/04 xlockmore";
  * other special, indirect and consequential damages.
  *
  * The RotateAroundU() routine was adapted from the book
- *    "Computer Graphics Principles and Practice 
+ *    "Computer Graphics Principles and Practice
  *     Foley - vanDam - Feiner - Hughes
  *     Second Edition" Pag. 227, exercise 5.15.
- * 
+ *
  * This mode shows some interesting scenes that are impossible OR very
  * wierd to build in the real universe. Much of the scenes are inspirated
  * on Mauritz Cornelis Escher's works which derivated the mode's name.
  * M.C. Escher (1898-1972) was a dutch artist and many people prefer to
  * say he was a mathematician.
  *
- * Thanks goes to Brian Paul for making it possible and inexpensive to use 
+ * Thanks goes to Brian Paul for making it possible and inexpensive to use
  * OpenGL at home.
  *
  * Since I'm not a native English speaker, my apologies for any grammatical
@@ -48,7 +48,7 @@ static const char sccsid[] = "@(#)cage.c	4.07 98/01/04 xlockmore";
  * 08-Jun-97: New scene implemented: "Impossible Cage" based in a M.C. Escher's
  *            painting with the same name (quite similar). The first GL mode
  *            to use texture mapping.
- *            The "Impossible Cage" scene doesn't use DEPTH BUFFER, the 
+ *            The "Impossible Cage" scene doesn't use DEPTH BUFFER, the
  *            wood planks are drawn consistently using GL_CULL_FACE, and
  *            the painter's algorithm is used to sort the planks.
  *            Marcelo F. Vianna.
@@ -386,7 +386,6 @@ void
 draw_cage(ModeInfo * mi)
 {
 	cagestruct *cp = &cage[MI_SCREEN(mi)];
-
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
 

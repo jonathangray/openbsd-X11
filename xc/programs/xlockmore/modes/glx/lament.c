@@ -13,7 +13,7 @@ static const char sccsid[] = "@(#)lament.c       4.12 98/09/15 xlockmore";
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  */
 
@@ -35,7 +35,7 @@ static const char sccsid[] = "@(#)lament.c       4.12 98/09/15 xlockmore";
    the images so that the edges may be symmetrical.
 
    *  I want the gold leaf to seem to be raised up from the surface, but I
-   think this isn't possible with OpenGL.  Supposedly, OpenGL only 
+   think this isn't possible with OpenGL.  Supposedly, OpenGL only
    supports Gouraud shading (interpolating edge normals from face normals,
    and shading smoothly) but bump-maps only work with Phong shading
    (computing a normal for each rendered pixel.)
@@ -49,11 +49,11 @@ static const char sccsid[] = "@(#)lament.c       4.12 98/09/15 xlockmore";
 
    But apparently there are tricky ways around this:
    http://reality.sgi.com/opengl/tips/rts/
-   I think these techniques require GLUT, however, which isn't 
+   I think these techniques require GLUT, however, which isn't
    (currently) required by any other xscreensaver hacks.
 
    *  There should be strange lighting effects playing across the surface:
-   electric sparks, or little glittery blobs of light.  
+   electric sparks, or little glittery blobs of light.
    http://reality.sgi.com/opengl/tips/lensflare/ might provide guidance.
 
    *  Need to add some more modes, to effect the transition from the cube
@@ -65,7 +65,7 @@ static const char sccsid[] = "@(#)lament.c       4.12 98/09/15 xlockmore";
    simply be rotated along the axis to which one cannot point.)
 
    The other hard thing about this is that the "leviathan" shapes contain
-   a much larger number of facets, and I modelled this whole thing by 
+   a much larger number of facets, and I modelled this whole thing by
    hand, since I don't have any 3d-object-editing tools that I know how
    to use (or that look like they would take any less than several months
    to become even marginally proficient with...)
@@ -130,6 +130,14 @@ static OptionStruct desc[] =
 ModeSpecOpt lament_opts =
 {sizeof opts / sizeof opts[0], opts, sizeof vars / sizeof vars[0], vars, desc};
 
+#ifdef USE_MODULES
+ModStruct   lament_description =
+{"lament", "init_lament", "draw_lament", "release_lament",
+ "draw_lament", "change_lament", NULL, &lament_opts,
+ 10000, 1, 1, 1, 4, 1.0, "",
+ "Shows Lemarchand's Box", 0, NULL};
+
+#endif
 
 #if USE_XPMINC
 #include <xpm.h>
@@ -2317,7 +2325,7 @@ gl_init(ModeInfo * mi)
 		 * I added a glBindTexture and the same glTexParameteri
 		 * as for the specific textures. Now it does'nt core
 		 * anymore.
-		 * 
+		 *
 		 * 22-mar-99 for latest version of Mesa this codes wipes
 		 * out the structure on the sides of the cube. Leaving the code
 		 * out did not crash the mode on my VMS system.

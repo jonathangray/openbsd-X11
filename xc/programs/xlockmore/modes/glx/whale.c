@@ -1,7 +1,7 @@
 /* atlantis --- Shows moving 3D sea animals */
 
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)whale.c	1.3 98/06/18 xlockmore";
+static const char sccsid[] = "@(#)whale.c	1.4 2000/01/28 xlockmore";
 
 #endif
 
@@ -22,15 +22,15 @@ static const char sccsid[] = "@(#)whale.c	1.3 98/06/18 xlockmore";
  *
  * The original code for this mode was written by Mark J. Kilgard
  * as a demo for openGL programming.
- * 
- * Porting it to xlock  was possible by comparing the original Mesa's morph3d 
- * demo with it's ported version to xlock, so thanks for Marcelo F. Vianna 
+ *
+ * Porting it to xlock  was possible by comparing the original Mesa's morph3d
+ * demo with it's ported version to xlock, so thanks for Marcelo F. Vianna
  * (look at morph3d.c) for his indirect help.
  *
  * Thanks goes also to Brian Paul for making it possible and inexpensive
  * to use OpenGL at home.
  *
- * My e-mail address is lassauge@sagem.fr
+ * My e-mail address is lassauge@mail.dotcom.fr
  *
  * Eric Lassauge  (May-13-1998)
  *

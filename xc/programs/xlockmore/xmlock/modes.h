@@ -5,7 +5,7 @@ typedef struct LockStruct_s
 	/* Should read in XLock as well to set defaults */
 	char *desc;                 /* text description of mode */
 } LockStruct;
-		
+
 static LockStruct LockProcs[] =
 {
 {"ant","Shows Langton's and Turk's generalized ants"},
@@ -58,7 +58,10 @@ static LockStruct LockProcs[] =
 {"ico","Shows a bouncing polyhedron"},
 {"ifs","Shows a modified iterated function system"},
 {"image","Shows randomly appearing logos"},
+#if defined( USE_GL ) && defined( HAVE_CXX )
 {"invert","Shows a sphere inverted without wrinkles"},
+#endif
+{"juggle","Shows a Juggler, juggling"},
 {"julia","Shows the Julia set"},
 {"kaleid","Shows a kaleidoscope"},
 {"kumppa","Shows kumppa"},
@@ -104,6 +107,12 @@ static LockStruct LockProcs[] =
 {"shape","Shows stippled rectangles, ellipses, and triangles"},
 {"sierpinski","Shows Sierpinski's triangle"},
 {"slip","Shows slipping blits"},
+#ifdef HAVE_CXX
+{"solitare","Shows Klondike's game of solitare"},
+#endif
+#ifdef USE_UNSTABLE
+{"space","Shows a journey into deep space"},
+#endif
 {"sphere","Shows a bunch of shaded spheres"},
 {"spiral","Shows a helical locus of points"},
 {"spline","Shows colorful moving splines"},
@@ -121,6 +130,7 @@ static LockStruct LockProcs[] =
 #endif
 {"swarm","Shows a swarm of bees following a wasp"},
 {"swirl","Shows animated swirling patterns"},
+{"t3d","Shows a Flying Balls Clock Demo"},
 {"tetris","Shows an autoplaying tetris game"},
 {"thornbird","Shows an animated bird in a thorn bush fractal map"},
 {"tik_tak","Shows rotating polygons"},
@@ -135,14 +145,12 @@ static LockStruct LockProcs[] =
 {"worm","Shows wiggly worms"},
 {"xjack","Shows Jack having one of those days"},
 {"blank","Shows nothing but a black screen"},
- 
 #ifdef USE_BOMB
-  {"bomb", "Shows a bomb and will autologout after a time"},
-  {"random", "Shows a random mode (except blank and bomb)"}
-  #else
-  {"random", "Shows a random mode (except blank)"}
+{"bomb", "Shows a bomb and will autologout after a time"},
+{"random", "Shows a random mode (except blank and bomb)"}
+#else
+{"random", "Shows a random mode (except blank)"}
 #endif
 };
 
-
-static int  numprocs = sizeof (LockProcs) / sizeof (LockProcs[0]);
+#define numprocs (sizeof(LockProcs) /sizeof(LockProcs[0]))

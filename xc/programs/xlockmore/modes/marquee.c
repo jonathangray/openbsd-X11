@@ -54,7 +54,7 @@ ModeSpecOpt marquee_opts =
 #ifdef USE_MODULES
 ModStruct   marquee_description =
 {"marquee", "init_marquee", "draw_marquee", "release_marquee",
- "refresh_marquee", "init_marquee", NULL, &marquee_opts,
+ "init_marquee", "init_marquee", NULL, &marquee_opts,
  100000, 1, 1, 1, 64, 1.0, "",
  "Shows messages", 0, NULL};
 

@@ -150,11 +150,11 @@ static int  local_neighbors = 0;
 #define HEX_ADAM_LOOPX (2*HEX_ADAM_SIZE+1)
 #define HEX_ADAM_LOOPY (2*HEX_ADAM_SIZE+1)
 #else
-#define HEX_ADAM_LOOPX 3 
+#define HEX_ADAM_LOOPX 3
 #define HEX_ADAM_LOOPY 7
 #endif
 #define HEX_MINGRIDSIZE (6*HEX_ADAM_LOOPX)
-#define MINSIZE 1
+#define MINSIZE ((MI_NPIXELS(mi)>=COLORS)?1:(2+(local_neighbors==6)))
 #define NEIGHBORKINDS 2
 #define ANGLES 360
 #define MAXNEIGHBORS 6
@@ -410,7 +410,7 @@ static unsigned int hex_transition_table[] =
     020102022, 020202112,
 
     000000012, 000000122, 000000212,
-    010002121, 
+    010002121,
     020001122, 020002112, 020011122,
 
 
@@ -457,7 +457,7 @@ static unsigned int hex_transition_table[] =
 
     020040422,
     040002022,
-    
+
     010224224, 010222424, 010202424,
     020142022, 020202412,
     020011722, 020112072, 020172072, 020142072,
@@ -465,7 +465,7 @@ static unsigned int hex_transition_table[] =
 
 
     000210225, 000022015, 000022522,
-    011225521, 
+    011225521,
     020120525, 020020152, 020005122, 020214255, 020021152,
     020255242,
     050215222, 050225121,
@@ -501,7 +501,7 @@ static unsigned int hex_transition_table[] =
     020021552,
     012252277,
     050002521,
-    020005725,     
+    020005725,
 
     050011022,
     000000155,
@@ -559,7 +559,7 @@ static unsigned int hex_transition_table[] =
     020521122,
     020025022,
     020025522,
-    020020522, 
+    020020522,
 
     020202222,
     020212222,
@@ -1008,7 +1008,7 @@ init_adam(ModeInfo * mi)
 			case 1:
 				start.x = (lp->bncols - (HEX_ADAM_LOOPX + HEX_ADAM_LOOPY) / 2) / 2;
 				start.y = (lp->bnrows - HEX_ADAM_LOOPX + HEX_ADAM_LOOPY) / 2;
-				lp->mincol = start.x - 1;
+				lp->mincol = start.x - 2;
 				lp->minrow = start.y - HEX_ADAM_LOOPX;
 				lp->maxcol = start.x + (HEX_ADAM_LOOPX + HEX_ADAM_LOOPY) / 2 + 1;
 				lp->maxrow = start.y + HEX_ADAM_LOOPY + 1;
@@ -1039,8 +1039,10 @@ init_adam(ModeInfo * mi)
 			case 3:
 				start.x = (lp->bncols - HEX_ADAM_LOOPX / 2) / 2;
 				start.y = (lp->bnrows - HEX_ADAM_LOOPY) / 2;
-				lp->mincol = start.x - 1, lp->minrow = start.y - 1;
-				lp->maxcol = start.x + HEX_ADAM_LOOPX + 1, lp->maxrow = start.y + HEX_ADAM_LOOPY + 1;
+				lp->mincol = start.x - 2;
+				lp->minrow = start.y - 1;
+				lp->maxcol = start.x + HEX_ADAM_LOOPX + 1;
+				lp->maxrow = start.y + HEX_ADAM_LOOPY + 1;
 				for (j = 0; j < HEX_ADAM_LOOPY; j++) {
 					for (i = 0; i < HEX_ADAM_LOOPX; i++) {
 						k = (((lp->bnrows / 2 + HEX_ADAM_LOOPY / 2) % 2) ? -j / 2 : -(j + 1) / 2);
@@ -1052,7 +1054,7 @@ init_adam(ModeInfo * mi)
 			case 4:
 				start.x = (lp->bncols - (HEX_ADAM_LOOPX + HEX_ADAM_LOOPY) / 2) / 2;
 				start.y = (lp->bnrows - HEX_ADAM_LOOPX + HEX_ADAM_LOOPY) / 2;
-				lp->mincol = start.x - 1;
+				lp->mincol = start.x - 2;
 				lp->minrow = start.y - HEX_ADAM_LOOPX;
 				lp->maxcol = start.x + (HEX_ADAM_LOOPX + HEX_ADAM_LOOPY) / 2 + 1;
 				lp->maxrow = start.y + HEX_ADAM_LOOPY + 1;
@@ -1311,11 +1313,11 @@ init_loop(ModeInfo * mi)
       lp->ys = MIN(size, MAX(MINSIZE, MIN(lp->width, lp->height) /
                  HEX_MINGRIDSIZE));
     lp->xs = lp->ys;
-		nccols = MAX(lp->width / lp->xs - 2, HEX_ADAM_LOOPX + 1);
-		ncrows = MAX(lp->height / lp->ys - 1, HEX_ADAM_LOOPY + 1);
+    nccols = MAX(lp->width / lp->xs - 2, HEX_MINGRIDSIZE);
+    ncrows = MAX(lp->height / lp->ys - 1, HEX_MINGRIDSIZE);
     lp->ncols = nccols / 2;
     lp->nrows = ncrows / 2;
-		lp->nrows -= !(lp->nrows & 1);  /* Must be odd */
+    lp->nrows -= !(lp->nrows & 1);  /* Must be odd */
     lp->xb = (lp->width - lp->xs * nccols) / 2 + lp->xs;
     lp->yb = (lp->height - lp->ys * ncrows) / 2 + lp->ys;
     for (i = 0; i < 6; i++) {
@@ -1350,7 +1352,7 @@ init_loop(ModeInfo * mi)
 	if (lp->oldcells != NULL) {
 		(void) free((void *) lp->oldcells);
 		lp->oldcells = NULL;
-	}	
+	}
 	if ((lp->oldcells = (unsigned char *) calloc(lp->bncols * lp->bnrows, sizeof (unsigned char))) == NULL) {
 		release_loop(mi);
 		return;

@@ -2,10 +2,9 @@
 /* ico --- bouncing polyhedra */
 
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)ico.c	4.07 97/11/24 xlockmore";
+static const char sccsid[] = "@(#)ico.c	4.16 2000/03/27 xlockmore";
 
 #endif
-
 /*-
  * Copyright (c) 1987  X Consortium
  *
@@ -22,8 +21,9 @@ static const char sccsid[] = "@(#)ico.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 10-May-97: Compatible with xscreensaver
- * 25-Mar-97:  David Bagley <bagleyd@tux.org>
+ * 27-Mar-2000: Added double buffering for faces
+ * 10-May-1997: Compatible with xscreensaver
+ * 25-Mar-1997:  David Bagley <bagleyd@tux.org>
  *             Took ico from the X11R6 distribution.  Stripped out
  *             anything complicated... to be added back in later.
  *             added dodecahedron, tetrahedron, and star octahedron.
@@ -58,13 +58,13 @@ Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts.
 
                         All Rights Reserved
 
-Permission to use, copy, modify, and distribute this software and its 
-documentation for any purpose and without fee is hereby granted, 
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
 provided that the above copyright notice appear in all copies and that
-both that copyright notice and this permission notice appear in 
+both that copyright notice and this permission notice appear in
 supporting documentation, and that the name of Digital not be
 used in advertising or publicity pertaining to distribution of the
-software without specific, written prior permission.  
+software without specific, written prior permission.
 
 DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
 ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
@@ -117,8 +117,8 @@ static XrmOptionDescRec opts[] =
 {
 	{"-faces", ".ico.faces", XrmoptionNoArg, (caddr_t) "on"},
 	{"+faces", ".ico.faces", XrmoptionNoArg, (caddr_t) "off"},
-	{"-edges", ".ico.trail", XrmoptionNoArg, (caddr_t) "on"},
-	{"+edges", ".ico.trail", XrmoptionNoArg, (caddr_t) "off"}
+	{"-edges", ".ico.edges", XrmoptionNoArg, (caddr_t) "on"},
+	{"+edges", ".ico.edges", XrmoptionNoArg, (caddr_t) "off"}
 };
 static argtype vars[] =
 {
@@ -499,6 +499,9 @@ typedef struct {
 	Transform3D xform;
 	Point3D     xv[2][MAXNV];
 	double      wo2, ho2;
+	Pixmap      dbuf;
+	GC          dbuf_gc;
+	int         color_offset;
 } icostruct;
 
 static icostruct *icos = NULL;
@@ -621,7 +624,7 @@ ConcatMat(register Transform3D l, register Transform3D r,
 /* Set up points, transforms, etc.  */
 
 static void
-initPoly(ModeInfo * mi, Polyinfo * poly, int icoW, int icoH)
+initPoly(ModeInfo * mi, Polyinfo * poly, int polyW, int polyH)
 {
 	icostruct  *ip = &icos[MI_SCREEN(mi)];
 	Point3D    *vertices = poly->v;
@@ -635,8 +638,8 @@ initPoly(ModeInfo * mi, Polyinfo * poly, int icoW, int icoH)
 
 	(void) memcpy((char *) ip->xv[0], (char *) vertices, NV * sizeof (Point3D));
 	ip->xv_buffer = 0;
-	ip->wo2 = icoW / 2.0;
-	ip->ho2 = icoH / 2.0;
+	ip->wo2 = polyW / 2.0;
+	ip->ho2 = polyH / 2.0;
 }
 
 /******************************************************************************
@@ -676,14 +679,14 @@ PartialNonHomTransform(int n, register Transform3D m,
  * Input
  *	poly		the polyhedron to draw
  *	gc		X11 graphics context to be used for drawing
- *	icoX, icoY	position of upper left of bounding-box
- *	icoW, icoH	size of bounding-box
+ *	currX, currY	position of upper left of bounding-box
+ *	polyW, polyH	size of bounding-box
  *	prevX, prevY	position of previous bounding-box
  *****************************************************************************/
 
 static void
 drawPoly(ModeInfo * mi, Polyinfo * poly, GC gc,
-	 int icoX, int icoY, int icoW, int icoH, int prevX, int prevY)
+	 int currX, int currY, int polyW, int polyH, int prevX, int prevY)
 {
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
@@ -720,8 +723,8 @@ drawPoly(ModeInfo * mi, Polyinfo * poly, GC gc,
 	pxv = ip->xv[ip->xv_buffer];
 	pv2 = v2;
 	for (i = NV - 1; i >= 0; --i) {
-		pv2->x = (int) ((pxv->x + 1.0) * ip->wo2) + icoX;
-		pv2->y = (int) ((pxv->y + 1.0) * ip->ho2) + icoY;
+		pv2->x = (int) ((pxv->x + 1.0) * ip->wo2) + currX;
+		pv2->y = (int) ((pxv->y + 1.0) * ip->ho2) + currY;
 		++pxv;
 		++pv2;
 	}
@@ -735,9 +738,10 @@ drawPoly(ModeInfo * mi, Polyinfo * poly, GC gc,
 	pe = edge_segs;
 	(void) memset(ip->drawn, 0, sizeof (ip->drawn));
 
-	/* for faces, need to clear before FillPoly */
-	if (ip->faces) {	/* multibuf uses update background */
-		icoClearArea(mi, prevX, prevY, icoW + 1, icoH + 1);
+	if (ip->dbuf && ip->faces) {
+		XSetForeground(display, ip->dbuf_gc, MI_BLACK_PIXEL(mi));
+		XFillRectangle(display, ip->dbuf, ip->dbuf_gc, 0, 0,
+			polyW, polyH);
 	}
 	for (i = NF - 1; i >= 0; --i, pf += pcount) {
 
@@ -753,22 +757,34 @@ drawPoly(ModeInfo * mi, Polyinfo * poly, GC gc,
 			continue;
 
 		if (ip->faces) {
-			if (MI_NPIXELS(mi) > 2)
-				facecolor = i % (MI_NPIXELS(mi)) + 1;
-			else
-				facecolor = 1;
-
 			for (j = 0; j < pcount; j++) {
 				p0 = pf[j];
 				ppts[j].x = pv2[p0].x;
 				ppts[j].y = pv2[p0].y;
+				if (ip->dbuf) {
+					ppts[j].x -= currX;
+					ppts[j].y -= currY;
+				}
 			}
-			if (MI_NPIXELS(mi) <= 2)
-				XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
-			else
-				XSetForeground(display, gc, MI_PIXEL(mi, facecolor));
-			XFillPolygon(display, window, gc, ppts, pcount,
+			if (ip->dbuf) {
+				if (MI_NPIXELS(mi) > 2) {
+					facecolor = (i * MI_NPIXELS(mi) / NF + ip->color_offset) % MI_NPIXELS(mi);
+					XSetForeground(display, ip->dbuf_gc, MI_PIXEL(mi, facecolor));
+				} else {
+					XSetForeground(display, ip->dbuf_gc, MI_WHITE_PIXEL(mi));
+				}
+				XFillPolygon(display, ip->dbuf, ip->dbuf_gc,
+					ppts, pcount, Convex, CoordModeOrigin);
+			} else {
+				if (MI_NPIXELS(mi) > 2) {
+					facecolor = (i * MI_NPIXELS(mi) / NF + ip->color_offset) % MI_NPIXELS(mi);
+					XSetForeground(display, gc, MI_PIXEL(mi, facecolor));
+				} else {
+					XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
+				}
+				XFillPolygon(display, window, gc, ppts, pcount,
 				     Convex, CoordModeOrigin);
+			}
 		}
 		if (ip->edges) {
 			for (j = 0; j < pcount; j++) {
@@ -790,24 +806,33 @@ drawPoly(ModeInfo * mi, Polyinfo * poly, GC gc,
 			}
 		}
 	}
-
+	icoClearArea(mi, prevX, prevY, polyW + 1, polyH + 1);
+	if (ip->dbuf && ip->faces) {
+		XCopyArea(display, ip->dbuf, window, gc, 0, 0,
+			polyW + 1, polyH + 1, currX, currY);
+	}
 	/* Erase previous, draw current icosahedrons; sync for smoothness. */
 
 	if (ip->edges) {
-		icoClearArea(mi, prevX, prevY, icoW + 1, icoH + 1);
 		if (MI_NPIXELS(mi) <= 2)
-			XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
+			if (ip->faces) {
+				XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
+			} else {
+				XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
+			}
 		else {
 			ip->color = (ip->color + 1) % MI_NPIXELS(mi);
 			XSetForeground(display, gc, MI_PIXEL(mi, ip->color));
 		}
 		XDrawSegments(display, window, gc, edge_segs, pe - edge_segs);
 	}
+	XFlush(display);
 }
 
 void
 init_ico(ModeInfo * mi)
 {
+	Display * display = MI_DISPLAY(mi);
 	icostruct  *ip;
 	int         size = MI_SIZE(mi);
 
@@ -822,11 +847,7 @@ init_ico(ModeInfo * mi)
 	ip->height = MI_HEIGHT(mi);
 
 	ip->edges = edges;
-#ifdef DEBUG
 	ip->faces = faces;
-#else
-	ip->faces = faces = 0;
-#endif
 	/*ip->linewidth
 	   if (!ip->faces && !ip->edges) icoFatal("nothing to draw"); */
 
@@ -856,13 +877,48 @@ init_ico(ModeInfo * mi)
 	ip->loopcount = 0;
 
 	ip->object = MI_COUNT(mi) - 1;
-	if (ip->object < 0 || ip->object >= polysize)
-		ip->object = NRAND(polysize);
+	if (ip->object < 0 || ip->object >= polysize) {
+		/* avoid pyramid (drawing errors) count = 7
+		   also  avoid plane (boring) count = 6 
+		   but allow direct access */
+		ip->object = NRAND(polysize - 2);
+	}
 	ip->poly = polygons + ip->object;
 	if (MI_NPIXELS(mi) > 2)
 		ip->color = NRAND(MI_NPIXELS(mi));
 
+	if (ip->dbuf)
+		XFreePixmap(display, ip->dbuf);
+	if (ip->faces) {
+		ip->dbuf = XCreatePixmap(display, MI_WINDOW(mi),
+			ip->polyW, ip->polyH, MI_DEPTH(mi));
+		ip->color_offset = NRAND(MI_NPIXELS(mi));
+	}
+
+	if (ip->dbuf) {
+		XGCValues   gcv;
+
+		gcv.foreground = 0;
+		gcv.background = 0;
+		gcv.graphics_exposures = False;
+		gcv.function = GXcopy;
+
+		if (ip->dbuf_gc)
+			XFreeGC(display, ip->dbuf_gc);
+		ip->dbuf_gc = XCreateGC(display, ip->dbuf,
+			GCForeground | GCBackground | GCGraphicsExposures | GCFunction,
+			&gcv);
+		XFillRectangle(display, ip->dbuf, ip->dbuf_gc,
+			0, 0, ip->polyW, ip->polyH);
+		XSetBackground(display, MI_GC(mi), MI_BLACK_PIXEL(mi));
+		XSetFunction(display, MI_GC(mi), GXcopy);
+	}
+
 	MI_CLEARWINDOW(mi);
+
+	/* don't want any exposure events from XCopyPlane */
+	XSetGraphicsExposures(display, MI_GC(mi), False);
+
 
 	initPoly(mi, ip->poly, ip->polyW, ip->polyH);
 }
@@ -906,6 +962,15 @@ void
 release_ico(ModeInfo * mi)
 {
 	if (icos != NULL) {
+		int screen;
+		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
+			icostruct  *ip = &icos[screen];
+
+			if (ip->dbuf)
+				XFreePixmap(MI_DISPLAY(mi), ip->dbuf);
+			if (ip->dbuf_gc)
+				XFreeGC(MI_DISPLAY(mi), ip->dbuf_gc);
+		}
 		(void) free((void *) icos);
 		icos = NULL;
 	}

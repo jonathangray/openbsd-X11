@@ -104,7 +104,7 @@ typedef struct {
 	int         height;
 	int         count;
 	double      size;
-	
+
 	int         beecount;	/* number of bees */
 	XSegment   *csegs;	    /* bee lines */
 	int        *cnsegs;
@@ -310,8 +310,8 @@ init_flow(ModeInfo * mi)
 		break;
 	}
 
-	sp->beecount = beemult * MI_COUNT(mi);
-	if (sp->beecount < 0)	/* random variations */	
+	sp->beecount = (int) (beemult * MI_COUNT(mi));
+	if (sp->beecount < 0)	/* random variations */
 		sp->beecount = NRAND(-sp->beecount) + 1; /* Minimum 1 */
 
 	/* Clear the background. */
@@ -402,7 +402,7 @@ draw_flow(ModeInfo * mi)
 		   /* if z is always invisible it's probably time */
 		   fabs(Z(0, b)) > ((sp->tumble.dphi!=0 ||
 							 sp->tumble.phi!=0)?LOST_IN_SPACE:LOST_IN_TIME)){
-			if(sp->view.depth && b==0){ /* lost camera - reset */		
+			if(sp->view.depth && b==0){ /* lost camera - reset */
 				init_flow(mi);
 				return;
 			}
@@ -445,11 +445,11 @@ draw_flow(ModeInfo * mi)
 				double x[3], p[3], x2=0, xp=0;
 				int j;
 
-				/* forward */				
+				/* forward */
 				x[0] = X(0, 0) - X(1, 0);
 				x[1] = Y(0, 0) - Y(1, 0);
 				x[2] = Z(0, 0) - Z(1, 0);
-			
+
 				/* neighbour */
 				p[0] = X(0, 1) - X(1, 0);
 				p[1] = Y(0, 1) - Y(1, 0);
@@ -463,7 +463,7 @@ draw_flow(ModeInfo * mi)
 
 				for(i=0; i<3; i++)               /* (X x P) x X */
 					M[1][i] = x2*p[i] - xp*x[i]; /* == (X . X) P - (X . P) X */
-				
+
 				M[2][0] =  x[1]*p[2] - x[2]*p[1]; /* X x P */
 				M[2][1] = -x[0]*p[2] + x[2]*p[0];
 				M[2][2] =  x[0]*p[1] - x[1]*p[0];
@@ -501,7 +501,7 @@ draw_flow(ModeInfo * mi)
 #endif
 			}
 		}
-		
+
 		for(i=0; i<2; i++){
 			double x=X(i,b)-sp->centre.x;
 			double y=Y(i,b)-sp->centre.y;
@@ -509,7 +509,7 @@ draw_flow(ModeInfo * mi)
 			double X=M[0][0]*x + M[0][1]*y + M[0][2]*z;
 			double Y=M[1][0]*x + M[1][1]*y + M[1][2]*z;
 			double Z=M[2][0]*x + M[2][1]*y + M[2][2]*z+sp->view.height;
-			double absx, absy;				
+			double absx, absy;
 			if(sp->view.depth){
 				if(X <= 0) break;
 				absx=SCALE_X(sp->view.depth*Y/X);

@@ -11,11 +11,11 @@ canonical=$host
 AC_PROG_CC
 dnl Check if C++ compiler is present. If not set CXX to the C-compiler used
 dnl for the other compilations.
-if test "$CC" = gcc; then  
-  AC_CHECK_PROGS(CXX, $CCC g++ CC C++ c++ cxx cc++ xlC $CC, gcc) 
-else 
-  AC_CHECK_PROGS(CXX, $CCC CC C++ g++ c++ cxx cc++ xlC $CC, gcc) 
-fi 
+if test "$CC" = gcc; then
+  AC_CHECK_PROGS(CXX, $CCC g++ CC C++ c++ cxx cc++ xlC $CC, gcc)
+else
+  AC_CHECK_PROGS(CXX, $CCC CC C++ g++ c++ cxx cc++ xlC $CC, gcc)
+fi
 AC_PROG_CXX
 if test "${CXX}" = "xlC" ; then
   CXXFLAGS="${CXXFLAGS} -+"
@@ -98,6 +98,7 @@ dnl add copious amounts of debugging with gcc
 dnl Checks for header files.
 dnl AC_HEADER_STDC /* If its not ansi, its not going to go */
 AC_ISC_POSIX
+AC_C_BIGENDIAN
 dnl AC_HEADER_SYS_WAIT
 dnl AC_CHECK_HEADERS(poll.h sys/poll.h)
 AC_CHECK_HEADERS(fcntl.h limits.h sys/select.h sys/time.h syslog.h unistd.h memory.h sys/param.h)
@@ -131,12 +132,12 @@ dnl AC_PATH_GTK([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
 dnl Test for GTK, and define GTK_CFLAGS and GTK_LIBS
 dnl
 AC_DEFUN(AC_PATH_GTK,
-[dnl 
+[dnl
 dnl Get the cflags and libraries from the gtk-config script
 dnl
 AC_ARG_WITH(gtk-prefix,[  --with-gtk-prefix=DIR   Prefix where GTK is installed (optional)],
             gtk_config_prefix="$withval", gtk_config_prefix="")
-AC_ARG_WITH(gtk-exec-prefix,[  --with-gtk-exec-prefix=DIR 
+AC_ARG_WITH(gtk-exec-prefix,[  --with-gtk-exec-prefix=DIR
                           Exec prefix where GTK is installed (optional)],
             gtk_config_exec_prefix="$withval", gtk_config_exec_prefix="")
 AC_ARG_ENABLE(gtktest, [  --disable-gtktest       Do not try to compile and run a test GTK program],
@@ -184,7 +185,7 @@ dnl
 #include <gtk/gtk.h>
 #include <stdio.h>
 
-int 
+int
 main ()
 {
   int major, minor, micro;
@@ -203,7 +204,7 @@ main ()
       (gtk_minor_version != $gtk_config_minor_version) ||
       (gtk_micro_version != $gtk_config_micro_version))
     {
-      printf("\n*** 'gtk-config --version' returned %d.%d.%d, but GTK+ (%d.%d.%d)\n", 
+      printf("\n*** 'gtk-config --version' returned %d.%d.%d, but GTK+ (%d.%d.%d)\n",
              $gtk_config_major_version, $gtk_config_minor_version, $gtk_config_micro_version,
              gtk_major_version, gtk_minor_version, gtk_micro_version);
       printf ("*** was found! If gtk-config was correct, then it is best\n");
@@ -214,7 +215,7 @@ main ()
       printf("*** If gtk-config was wrong, set the environment variable GTK_CONFIG\n");
       printf("*** to point to the correct copy of gtk-config, and remove the file config.cache\n");
       printf("*** before re-running configure\n");
-    } 
+    }
   else
     {
       if ((gtk_major_version > major) ||
@@ -249,7 +250,7 @@ main ()
   fi
   if test "x$no_gtk" = x ; then
      AC_MSG_RESULT(yes)
-     ifelse([$2], , :, [$2])     
+     ifelse([$2], , :, [$2])
   else
      AC_MSG_RESULT(no)
      if test "$GTK_CONFIG" = "no" ; then
@@ -2083,8 +2084,8 @@ else
           XLOCKLIBS="${XLOCKLIBS} -lvga"
         fi
         # Testing if MesaGL was compiled against glide
-        if test -f $mesagl_libraries/libglide.so; then
-          have_mesagl_glide=`nm $mesagl_libraries/libglide.so | grep grGlideInit | wc -l`
+        if test -f $mesagl_libraries/libMesaGL.so; then
+          have_mesagl_glide=`nm $mesagl_libraries/libMesaGL.so | grep grGlideInit | wc -l`
         else
           have_mesagl_glide=0
         fi
@@ -2093,21 +2094,22 @@ else
           XLOCKLIBS="${XLOCKLIBS} -lglide2x"
         fi
 #  Causes major errors for maintainer.  xlock refuses to run.
-#        # Testing if MesaGL was compiled against pthread
-#        if test -f $mesagl_libraries/libpthread.so; then
-#          have_mesagl_pthread=`nm $mesagl_libraries/libpthread.so | grep pthread_once | wc -l`
-#        else
-#          have_mesagl_pthread=0
-#        fi
-#        if eval "test $have_mesagl_pthread -ge 1"; then
-#          AC_MSG_RESULT([MesaGL library is linked against GLIDE: adding -lpthread])
-#          XLOCKLIBS="${XLOCKLIBS} -lpthread"
-#        fi
-	
+#  I am not able to reproduce the problem ? What is it ?
+# Does a new glibc version fix this problem ?
+        # Testing if MesaGL was compiled against pthread
+        if test -f $mesagl_libraries/libMesaGL.so; then
+          have_mesagl_pthread=`nm $mesagl_libraries/libMesaGL.so | grep pthread_once | wc -l`
+        else
+          have_mesagl_pthread=0
+        fi
+        if eval "test $have_mesagl_pthread -ge 1"; then
+          AC_MSG_RESULT([MesaGL library is linked against PTHREAD: adding -lpthread])
+          XLOCKLIBS="${XLOCKLIBS} -lpthread"
+        fi
         ;;
     esac
     GL=""
-  else  
+  else
     AC_MSG_RESULT(ignored - using OpenGL)
   fi
 
@@ -2132,14 +2134,14 @@ ac_save_CFLAGS="$CFLAGS"
 ac_save_LIBS="$LIBS"
 CFLAGS="${CFLAGS} ${XLOCKINC}"
 LIBS="${XLOCKLIBPATHS} ${XLOCKLIBS} -lX11 -lXext -lm"
-AC_CACHE_VAL(ac_cv_c_gl1_1,[   
+AC_CACHE_VAL(ac_cv_c_gl1_1,[
 AC_TRY_LINK([#define _XOPEN_SOURCE 1
 #include <GL/gl.h>], [
 GLint texture;
 glBindTexture(GL_TEXTURE_2D, texture);
 ], ac_cv_c_gl1_1=yes, ac_cv_c_gl1_1=no)])
 dnl This does not seem to work on Sun's OpenGL
-dnl if test x"$ac_cv_c_gl1_1" = xyes; then    
+dnl if test x"$ac_cv_c_gl1_1" = xyes; then
     AC_DEFINE(HAVE_GLBINDTEXTURE)
     AC_MSG_RESULT(yes)
 dnl else
@@ -2420,7 +2422,7 @@ if test "x$dpms_includes" != x && test "x$dpms_includes" != xNONE ; then
   XLOCKINC="${XLOCKINC} -I$dpms_includes"
 fi
 
-sound=no
+sound=none
 dnl RPLAY RPlay rplay
 
 AC_DEFUN(AC_PATH_RPLAY_DIRECT,
@@ -2514,7 +2516,7 @@ dnl  esac
 dnl  if test "$CC" = gcc && test "$solaris26" = yes; then
 dnl    AC_MSG_RESULT(ignored - problems here with gcc and solaris2.6)
 dnl  else
-    sound=yes
+    sound=rplay
     AC_DEFINE(USE_RPLAY)
     XLOCKLIBS="${XLOCKLIBS} -lrplay"
     test "x$rplay_includes" = xNONE && rplay_includes=$ac_rplay_includes
@@ -2533,6 +2535,110 @@ if test "x$rplay_libraries" != x && test "x$rplay_libraries" != xNONE ; then
 fi
 if test "x$rplay_includes" != x && test "x$rplay_includes" != xNONE ; then
   XLOCKINC="${XLOCKINC} -I$rplay_includes"
+fi
+
+dnl ESOUND Enlightenment sound daemon
+
+AC_DEFUN(AC_PATH_ESOUND,
+[AC_REQUIRE_CPP()dnl
+
+esound_includes=NONE
+esound_libraries=NONE
+
+AC_MSG_CHECKING(for ESOUND)
+AC_ARG_WITH(esound,            [  --with-esound           enable Enlightenment Sound Daemon sounds])
+AC_ARG_WITH(esound_config,     [  --with-esound-config    use this configurator for Enlightenment Sound Daemon sounds])
+AC_ARG_WITH(esound_prefix,     [  --with-esound-prefix    use this prefix for Enlightenment Sound Daemon sounds])
+AC_ARG_WITH(esound_includes,   [  --with-esound-includes  use this dir for Enlightenment Sound Daemon sounds headers])
+AC_ARG_WITH(esound_librairies, [  --with-esound-libraries use this dir for Enlightenment Sound Daemon sounds libs])
+if test "x$with_esound" = xno; then
+  no_esound=yes
+else
+  if test "x$esound_includes" != xNONE && test "x$esound_libraries" != xNONE; then
+    no_esound=
+    if test "x$esound_config" = "x"; then
+      if test "x$esound_prefix" != "x"; then
+        esound_config="$esound_prefix/bin/esd-config"
+      else
+        esound_config="esd-config"
+     fi
+   else
+     if test "x$esound_prefix" = "x"; then
+        esound_prefix=`$esound_config --prefix`
+     fi
+   fi
+  else
+    if test "x$esound_config" = "x"; then
+      if test "x$esound_prefix" != "x"; then
+        esound_config="$esound_prefix/bin/esd-config"
+      else
+        esound_config="esd-config"
+     fi
+   else
+     if test "x$esound_prefix" = "x"; then
+        esound_prefix=`$esound_config --prefix`
+     fi
+   fi
+AC_CACHE_VAL(ac_cv_path_esound,
+[# One or both of these vars are not set, and there is no cached value.
+no_esound=yes
+if test "x$esound_prefix" != "x"; then
+  ac_esound_prefix=$esound_prefix
+  ac_esound_includes=$ac_esound_prefix/include
+  ac_esound_libraries=$ac_esound_prefix/lib
+  no_esound="ac_esound_config=$ac_esound_config ac_esound_prefix=$ac_esound_prefix ac_esound_includes=$ac_esound_includes ac_esound_libraries=$ac_esound_libraries"
+else
+  ac_esound_config="$esound_config"
+  ac_esound_prefix=`$esound_config --prefix`
+  if test $? != 0; then
+    no_esound=yes
+    ac_esound_config=""
+    ac_esound_prefix=""
+    echo
+    echo "cannot get prefix"
+  else
+    no_esound=
+    ac_esound_includes=$ac_esound_prefix/include
+    ac_esound_libraries=$ac_esound_prefix/lib
+  fi
+fi
+if test "$no_esound" = yes; then
+  ac_cv_path_esound="no_esound=yes"
+else
+  ac_cv_path_esound="no_esound= ac_esound_config=\"$ac_esound_config\" ac_esound_prefix=\"$ac_esound_prefix\" ac_esound_includes=\"$ac_esound_includes\" ac_esound_libraries=\"$ac_esound_libraries\""
+fi])dnl
+  fi
+  eval "$ac_cv_path_esound"
+fi # with_esound != no
+
+if test "$no_esound" = yes; then
+  AC_MSG_RESULT(no)
+else
+  if test "$sound" = none; then
+    sound=yes
+    AC_DEFINE(USE_ESOUND)
+    AC_DEFINE(HAVE_LIBESD)
+    test "x$esound_config" = xNONE && esound_config=$ac_esound_config
+    test "x$esound_prefix" = xNONE && esound_prefix=$ac_esound_prefix
+    test "x$esound_includes" = xNONE && esound_includes=$ac_esound_includes
+    test "x$esound_libraries" = xNONE && esound_libraries=$ac_esound_libraries
+    ac_cv_path_esound="no_esound= ac_esound_config=$esound_config ac_esound_prefix=$esound_prefix ac_esound_includes=$esound_includes ac_esound_libraries=$esound_libraries"
+    AC_MSG_RESULT([libraries $esound_libraries, headers $esound_includes])
+  else
+    AC_MSG_RESULT(ignored - using $sound)
+  fi
+fi
+])
+
+AC_PATH_ESOUND
+
+if test "x$esound_libraries" != x && test "x$esound_libraries" != xNONE ; then
+  XLOCKLIBS="${XLOCKLIBS} `$esound_config --libs`"
+  XLOCK_LDFLAGS="${XLOCK_LDFLAGS}:$esound_libraries"
+  XLOCKLIBPATHS="${XLOCKLIBPATHS} -L$esound_libraries"
+fi
+if test "x$esound_includes" != x && test "x$esound_includes" != xNONE ; then
+  XLOCKINC="${XLOCKINC} -I$esound_includes `$esound_config --cflags`"
 fi
 
 dnl NAS audio
@@ -2619,7 +2725,7 @@ fi # with_nas != no
 if test "$no_nas" = yes; then
   AC_MSG_RESULT(no)
 else
-  if test "$sound" = no; then
+  if test "$sound" = none; then
     sgi=no
     case "${canonical}" in
       *-*-irix5* | *-*-irix6* )
@@ -2629,7 +2735,7 @@ else
     if test "$sgi" = yes; then
       AC_MSG_RESULT(ignored - problems here with audio and nas)
     else
-      sound=yes
+      sound=nas
       AC_DEFINE(USE_NAS)
       XLOCKLIBS="${XLOCKLIBS} -laudio"
 dnl    XLOCKLIBS="${XLOCKLIBS} -lnas"
@@ -2731,205 +2837,9 @@ UNINSTALL_XGLOCK=""
 XGLOCK_MAKEFILE=""
 AC_ARG_WITH(gtk, [  --without-gtk           disable GTK (no xglock build)],)
 if test "x$with_gtk" != "xno" ; then
-   AC_PATH_GTK(1.0.4, 
+   AC_PATH_GTK(1.2.0,
                have_gtk="yes",
                have_gtk="no")
-fi
-
-dnl GtkFontSel gtk font selection widget
-
-AC_DEFUN(AC_PATH_GTKFONTSEL_DIRECT,
-[test -z "$gtkfontsel_direct_test_library" && gtkfontsel_direct_test_library="gtkfontsel"
-test -z "$gtkfontsel_direct_test_function" && gtkfontsel_direct_test_function="gtk_font_selection_new"
-test -z "$gtkfontsel_direct_test_include" && gtkfontsel_direct_test_include="gtkfontsel.h"
-  for ac_dir in                      \
-    /usr/include                     \
-    /usr/include/fontsel             \
-    /usr/include/gtkfontsel          \
-    /usr/gtk/include                 \
-    /usr/gtk/fontsel                 \
-    /usr/gtk/gtkfontsel              \
-    /usr/gtk/fontsel/include         \
-    /usr/gtk/gtkfontsel/include      \
-    /usr/local/include               \
-    /usr/local/include/fontsel       \
-    /usr/local/include/gtkfontsel    \
-    /usr/local/gtk/include           \
-    /usr/X11R6.3/include             \
-    /usr/X11R6.3/include/gtk         \
-    /usr/X11R6.2/include             \
-    /usr/X11R6.2/include/gtk         \
-    /usr/X11R6.1/include             \
-    /usr/X11R6.1/include/gtk         \
-    /usr/X11R6/include               \
-    /usr/X11R6/include/gtk           \
-    /usr/X11R5/include               \
-    /usr/X11R5/include/gtk           \
-    /usr/X11R4/include               \
-    /usr/X11R4/include/gtk           \
-    /usr/X11/include                 \
-    /usr/X11/include/gtk             \
-    /usr/X386/include                \
-    /usr/X386/include/gtk            \
-    /usr/x386/include                \
-    /usr/x386/include/gtk            \
-    /usr/XFree86/include             \
-    /usr/XFree86/include/gtk         \
-    /usr/local/X11R6.3/include       \
-    /usr/local/X11R6.3/include/gtk   \
-    /usr/local/X11R6.2/include       \
-    /usr/local/X11R6.2/include/gtk   \
-    /usr/local/X11R6.1/include       \
-    /usr/local/X11R6.1/include/gtk   \
-    /usr/local/X11R6/include         \
-    /usr/local/X11R6/include/gtk     \
-    /usr/local/X11R5/include         \
-    /usr/local/X11R5/include/gtk     \
-    /usr/local/X11R4/include         \
-    /usr/local/X11R4/include/gtk     \
-    /usr/local/X11/include           \
-    /usr/local/X11/include/gtk       \
-    /usr/local/X386/include          \
-    /usr/local/X386/include/gtk      \
-    /usr/local/x386/include          \
-    /usr/local/x386/include/gtk      \
-    /usr/local/XFree86/include       \
-    /usr/local/XFree86/include/gtk   \
-    /usr/local/include/X11R6.3       \
-    /usr/local/include/X11R6.3/gtk   \
-    /usr/local/include/X11R6.2       \
-    /usr/local/include/X11R6.2/gtk   \
-    /usr/local/include/X11R6.1       \
-    /usr/local/include/X11R6.1/gtk   \
-    /usr/local/include/X11R6         \
-    /usr/local/include/X11R6/gtk     \
-    /usr/local/include/X11R5         \
-    /usr/local/include/X11R5/gtk     \
-    /usr/local/include/X11R4         \
-    /usr/local/include/X11R4/gtk     \
-    /usr/local/include/X11           \
-    /usr/local/include/X11/gtk       \
-    /usr/local/include/X386          \
-    /usr/local/include/X386/gtk      \
-    /usr/local/include/x386          \
-    /usr/local/include/x386/gtk      \
-    /usr/local/include/XFree86       \
-    /usr/local/include/XFree86/gtk   \
-    /usr/local/dt/include            \
-    /usr/local/dt/include/gtk        \
-    /usr/dt/include                  \
-    /usr/dt/include/gtk              \
-    /usr/unsupported/include         \
-    /usr/unsupported/include/gtk     \
-    /usr/athena/include              \
-    /usr/athena/include/gtk          \
-    /usr/local/x11r5/include         \
-    /usr/local/x11r5/include/gtk     \
-    /usr/lpp/Xamples/include         \
-    /usr/lpp/Xamples/include/gtk     \
-    $extra_include                   \
-    ; \
-  do
-    if test -r "$ac_dir/$gtkfontsel_direct_test_include"; then
-      no_gtkfontsel= ac_gtkfontsel_includes=$ac_dir
-      break
-    fi
-  done
-
-# Check for the libraries.
-# See if we find them without any special options.
-# Do not add to $LIBS permanently.
-ac_save_LIBS="$LIBS"
-LIBS="-l$gtkfontsel_direct_test_library $LIBS"
-# First see if replacing the include by lib works.
-for ac_dir in `echo "$ac_gtkfontsel_includes" | sed s/include/lib/` \
-                                     \
-    /usr/X11R6.3/lib                 \
-    /usr/X11R6.2/lib                 \
-    /usr/X11R6.1/lib                 \
-    /usr/X11R6/lib                   \
-    /usr/lib/X11                     \
-    /usr/lib/X11/gtk                 \
-    /usr/gtk/lib                     \
-    /usr/X11/gtk/lib                 \
-    /usr/local/lib                   \
-    /usr/local/lib/X11               \
-    /usr/X11/local/lib               \
-    /usr/X11/local/lib/X11           \
-    /usr/X11/local/X11/lib           \
-    /usr/local/lib/gtk               \
-    /usr/local/lib/X11/gtk           \
-    /usr/X11/local/lib/gtk           \
-    /usr/X11/local/lib/X11/gtk       \
-    /usr/X11/local/X11/lib/gtk       \
-    /usr/local/gtk/lib               \
-    /usr/local/X11/gtk/lib           \
-    $extra_lib                       \
-    ; \
-do
-  for ac_extension in a so sl; do
-    if test -r $ac_dir/lib${gtkfontsel_direct_test_library}.$ac_extension; then
-      no_gtkfontsel= ac_gtkfontsel_libraries=$ac_dir
-      break 2
-    fi
-  done
-done
-LIBS="$ac_save_LIBS"])
-
-AC_DEFUN(AC_PATH_GTKFONTSEL,
-[AC_REQUIRE_CPP()dnl
-
-gtkfontsel_includes=NONE
-gtkfontsel_libraries=NONE
-
-AC_MSG_CHECKING(for GTK FontSelection widget)
-AC_ARG_WITH(gtkfontsel, [  --without-gtkfontsel    disable gtkfontsel widget (for xglock)])
-if test "x$with_gtkfontsel" = xno; then
-  no_gtkfontsel=yes
-else
-  if test "x$gtkfontsel_includes" != xNONE && test "x$gtkfontsel_libraries" != xNONE; then
-    no_gtkfontsel=
-  else
-    AC_PATH_GTKFONTSEL_DIRECT
-  fi
-fi # with_gtkfontsel != no
-
-if test "$no_gtkfontsel" = yes; then
-  AC_MSG_RESULT(no)
-else
-  XGLOCKLIBS="-lgtkfontsel ${XGLOCKLIBS}"
-  test "x$gtkfontsel_includes" = xNONE && gtkfontsel_includes=$ac_gtkfontsel_includes
-  test "x$gtkfontsel_libraries" = xNONE && gtkfontsel_libraries=$ac_gtkfontsel_libraries
-  AC_MSG_RESULT([libraries $gtkfontsel_libraries, headers $gtkfontsel_includes])
-  AC_DEFINE(HAVE_GTK_FONTSEL_WIDGET)
-fi
-])
-
-if test "x$have_gtk" = "xyes"; then
-
-  AC_PATH_GTKFONTSEL
-
-  if test "x$gtkfontsel_libraries" != x && test "x$gtkfontsel_libraries" != xNONE ; then
-    XGLOCK_LDFLAGS="${XGLOCK_LDFLAGS}:$gtkfontsel_libraries"
-    XGLOCKLIBPATHS="${XGLOCKLIBPATHS} -L$gtkfontsel_libraries"
-  fi
-  if test "x$gtkfontsel_includes" != x && test "x$gtkfontsel_includes" != xNONE ; then
-    XGLOCKINC="${XGLOCKINC} -I$gtkfontsel_includes"
-  fi
-
-  if test -n "${x_includes}"; then
-    XGLOCKINC="-I${x_includes} ${XGLOCKINC}"
-    XGLOCK="xglock"
-    XGLOCKDIR="xglock"
-    INSTALL_XGLOCK="install_xglock"
-    UNINSTALL_XGLOCK="uninstall_xglock"
-    XGLOCK_MAKEFILE="xglock/Makefile"
-  fi
-  if test -n "${x_libraries}"; then
-    XGLOCK_LDFLAGS="${XGLOCK_LDFLAGS}:/usr/lib:${x_libraries}"
-    XGLOCKLIBPATHS="${XGLOCKLIBPATHS} -L${x_libraries}"
-    XGLOCKLIBS="${XGLOCKLIBS} -lXt"
-  fi
 fi
 
 dnl Should have a tester for XHPUX Xhp
@@ -3088,7 +2998,7 @@ dnl Rather have a usleep
 AC_CHECK_FUNC(usleep, AC_DEFINE(HAVE_USLEEP),
 AC_CHECK_FUNC(nanosleep, AC_DEFINE(HAVE_NANOSLEEP)))
 
-dnl AC_CHECK_FUNCS(gettimeofday) 
+dnl AC_CHECK_FUNCS(gettimeofday)
 AC_MSG_CHECKING(how to call gettimeofday)
 AC_CACHE_VAL(ac_cv_gettimeofday_args,
  [AC_TRY_COMPILE([#include <stdlib.h>
@@ -3113,18 +3023,20 @@ elif test $ac_gettimeofday_args = 1 ; then
 else
   AC_MSG_RESULT(unknown)
 fi
- 
+
 AC_CHECK_FUNCS(tzset timelocal)
 
 AC_C_INLINE
 
 srand=no
-AC_CHECK_FUNC(srand48, AC_DEFINE(SRAND,srand48) AC_DEFINE(LRAND,lrand48)
-  AC_DEFINE(MAXRAND,2147483648.0),
-[AC_CHECK_FUNC(srandom, AC_DEFINE(SRAND,srandom) AC_DEFINE(LRAND,random)
-  AC_DEFINE(MAXRAND,2147483648.0),
-AC_CHECK_FUNC(srand, AC_DEFINE(SRAND,srand) AC_DEFINE(LRAND,rand) srand=yes))])
-
+dnl AC_CHECK_FUNC(srand48, AC_DEFINE(SRAND,srand48) AC_DEFINE(LRAND,lrand48)
+dnl   AC_DEFINE(MAXRAND,2147483648.0),
+dnl [AC_CHECK_FUNC(srandom, AC_DEFINE(SRAND,srandom) AC_DEFINE(LRAND,random)
+dnl   AC_DEFINE(MAXRAND,2147483648.0),
+dnl AC_CHECK_FUNC(srand, AC_DEFINE(SRAND,srand) AC_DEFINE(LRAND,rand) srand=yes))])
+AC_CHECK_FUNC(srand48, AC_DEFINE(HAVE_RAND48),
+  [AC_CHECK_FUNC(srandom, AC_DEFINE(HAVE_RANDOM),
+   AC_CHECK_FUNC(random, AC_DEFINE(HAVE_RAND) srand=yes))])
 if test "$srand" = yes; then
   if test "$aixv3" = yes; then
     AC_DEFINE(MAXRAND,2147483648.0)
@@ -3134,14 +3046,14 @@ if test "$srand" = yes; then
 fi
 
 AC_MSG_CHECKING([matherr support])
-AC_CACHE_VAL(ac_cv_c_matherr,[   
+AC_CACHE_VAL(ac_cv_c_matherr,[
 AC_TRY_COMPILE([#define _XOPEN_SOURCE 1
 #include <math.h>], [
 struct exception x;
-x.type = DOMAIN;  
-x.type = SING; 
+x.type = DOMAIN;
+x.type = SING;
 ], ac_cv_c_matherr=yes, ac_cv_c_matherr=no)])
-if test x"$ac_cv_c_matherr" = xyes; then    
+if test x"$ac_cv_c_matherr" = xyes; then
     AC_DEFINE(USE_MATHERR)
     AC_MSG_RESULT(yes)
 else
@@ -3150,13 +3062,13 @@ fi
 
 dnl Problems here if -I/usr/include used with gcc on Solaris
 AC_MSG_CHECKING([struct sigset_t])
-AC_CACHE_VAL(ac_cv_c_sigset_t,[   
+AC_CACHE_VAL(ac_cv_c_sigset_t,[
 AC_TRY_COMPILE([/*#define _XOPEN_SOURCE 1*/
 #include <signal.h>], [
 typedef struct {unsigned long __sigbits[4];} sigset_t;
 sigset_t sigmask;
 ], ac_cv_c_sigset_t=yes, ac_cv_c_sigset_t=no)])
-if test x"$ac_cv_c_sigset_t" = xyes; then    
+if test x"$ac_cv_c_sigset_t" = xyes; then
   AC_DEFINE(HAVE_STRUCT_SIGSET_T)
   AC_MSG_RESULT(yes)
 else
@@ -3258,7 +3170,7 @@ xyes*|xno*)
   ;;
 esac
 
-if test "$sound" = no; then
+if test "$sound" = none; then
   AC_ARG_ENABLE(def_play, [  --enable-def-play=program
                           set def-play to program that plays sounds],def_play=$enableval,def_play=no)
   if test "$def_play" != no; then
@@ -3299,26 +3211,26 @@ if test "$use_syslog" = yes; then
   AC_MSG_RESULT([defining option USE_SYSLOG])
   AC_DEFINE(USE_SYSLOG)
 fi
- 
+
 AC_ARG_ENABLE(multiple-user, [  --enable-multiple-user  enable multiple users],use_multiple_user=$enableval,use_multiple_user=no)
 if test "$use_multiple_user" = yes; then
   AC_MSG_RESULT([defining option USE_MULTIPLE_USER])
   AC_DEFINE(USE_MULTIPLE_USER)
 fi
- 
+
 AC_ARG_ENABLE(multiple-root, [  --enable-multiple-root  enable multiple root users],use_multiple_root=$enableval,use_multiple_root=no)
 if test "$use_multiple_root" = yes; then
   AC_MSG_RESULT([defining option USE_MULTIPLE_ROOT])
   AC_DEFINE(USE_MULTIPLE_ROOT)
 fi
- 
+
 AC_ARG_ENABLE(window-visibility, [  --enable-window-visibility
                           allow a window to be displayed over xlock],use_window_visiblity=$enableval,use_window_visibility=no)
 if test "$use_window_visibility" = yes; then
   AC_MSG_RESULT([defining option USE_WINDOW_VISIBILITY])
   AC_DEFINE(USE_WINDOW_VISIBLITY)
 fi
- 
+
 AC_ARG_ENABLE(old-event-loop, [  --enable-old-event-loop some machines may still need this
                           (fd_set errors may be a sign)],use_old_event_loop=$enableval,use_old_event_loop=no)
 if test "$use_old_event_loop" = yes; then
@@ -3331,13 +3243,13 @@ dnl if test "$use_vmsutils" = yes; then
 dnl   AC_MSG_RESULT([defining option USE_VMSUTILS])
 dnl   AC_DEFINE(USE_VMSUTILS)
 dnl fi
- 
+
 AC_ARG_ENABLE(xlockrc, [  --enable-xlockrc        for unknown shadow passwd algorithm],use_xlockrc=$enableval,use_xlockrc=no)
 if test "$use_xlockrc" = yes; then
   AC_MSG_RESULT([defining option USE_XLOCKRC])
   AC_DEFINE(USE_XLOCKRC)
 fi
- 
+
 AC_ARG_ENABLE(auto-logout, [  --enable-auto-logout=time
                           enable auto-logout code for lab use (time in minutes)],use_auto_logout=$enableval,use_auto_logout=no)
 case "x$use_auto_logout" in
@@ -3357,7 +3269,7 @@ xno*)
   AC_DEFINE(USE_AUTO_LOGOUT,240)
   ;;
 esac
- 
+
 AC_ARG_ENABLE(default-auto-logout, [  --enable-default-auto-logout=time
                           set default-auto-logout (time in minutes)],
               def_auto_logout=$enableval,
@@ -3379,7 +3291,7 @@ xno*)
   AC_DEFINE(DEF_AUTO_LOGOUT,"120")
   ;;
 esac
- 
+
 AC_ARG_ENABLE(button-logout, [  --enable-button-logout=time
                           enable button logout for lab use (time in minutes)],
               use_button_logout=$enableval,
@@ -3401,7 +3313,7 @@ xno*)
   AC_DEFINE(USE_BUTTON_LOGOUT,10)
   ;;
 esac
- 
+
 AC_ARG_ENABLE(default-button-logout, [  --enable-default-button-logout=time
                           set default-button-logout (time in minutes)],
               def_button_logout=$enableval,
@@ -3454,7 +3366,7 @@ if test "$closedown_logout" = yes; then
   AC_MSG_RESULT([defining option CLOSEDOWN_LOGOUT])
   AC_DEFINE(CLOSEDOWN_LOGOUT)
 fi
- 
+
 AC_ARG_ENABLE(session-logout, [  --enable-session-logout enable-button-logout, and/or enable-bomb, for xdm],
               session_logout=$enableval,
               session_logout=no)
@@ -3462,7 +3374,7 @@ if test "$session_logout" = yes; then
   AC_MSG_RESULT([defining option SESSION_LOGOUT])
   AC_DEFINE(SESSION_LOGOUT)
 fi
- 
+
 AC_ARG_ENABLE(staff-file, [  --enable-staff-file=filename
                           set file of staff who are exempt from auto-logout],
               use_staff_file=$enableval,
@@ -3483,14 +3395,14 @@ x/*)
   fi
   ;;
 esac
- 
+
 AC_ARG_ENABLE(staff-netgroup, [  --enable-staff-netgroup=netgroup
                           set netgroup of staff who are exempt from auto-logout],use_staff_netgroup=$enableval,use_staff_netgroup=no)
 if test "$use_staff_netgroup" != no; then
   AC_MSG_RESULT([defining option STAFF_NETGROUP = "$enableval"])
   AC_DEFINE_UNQUOTED(STAFF_NETGROUP,"$enableval")
 fi
- 
+
 AC_ARG_ENABLE(kerberos4, [  --enable-kerberos4      enable Kerberos 4],kerberos4=$enableval,kerberos4=no)
 if test "$kerberos4" = yes; then
   AC_MSG_RESULT([defining option HAVE_KRB4])
@@ -3556,12 +3468,15 @@ if test "$customization" = yes; then
   AC_DEFINE(CUSTOMIZATION)
 fi
 
-AC_ARG_ENABLE(modules, [  --enable-modules        enable modules (new and experimental)],modules=$enableval,modules=no)
+AC_ARG_ENABLE(modules, [  --enable-modules        enable modules (better to use xmkmf for this)],modules=$enableval,modules=no)
 if test "$modules" = yes; then
   AC_MSG_RESULT([enabling xlk modules])
   MODULES=""
+  NOMODULES="#"
+  AC_DEFINE(USE_MODULES)
 else
   MODULES="#"
+  NOMODULES=""
 fi
 
 AC_ARG_ENABLE(check, [  --enable-check          enable check (new and experimental)],check=$enableval,check=no)
@@ -3700,6 +3615,8 @@ AC_SUBST(DEPEND_FLAGS)
 AC_SUBST(DEPEND_DEFINES)
 AC_SUBST(CXX)
 AC_SUBST(CCC)
+AC_SUBST(MODULES)
+AC_SUBST(NOMODULES)
 
 AC_CONFIG_HEADER(config.h)
 AC_OUTPUT(Makefile

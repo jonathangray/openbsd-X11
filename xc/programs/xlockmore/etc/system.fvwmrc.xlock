@@ -41,7 +41,7 @@ Popup "Fractal-Lock"
 	Exec	"Juliaptr"	exec xlock -mode julia -trackmouse &
 	Exec	"Kumppa"	exec xlock -mode kumppa &
 	Exec	"Lightning"	exec xlock -mode lightning &
-	Exec	"Mandelbrot"	exec xlock -mode lyapunov -install &
+	Exec	"Lyapanuv"	exec xlock -mode lyapunov -install &
 	Exec	"Mandelbrot"	exec xlock -mode mandelbrot -install &
 	Exec	"Mountain"	exec xlock -mode mountain &
 	Exec	"Sierpinski"	exec xlock -mode sierpinski &
@@ -109,6 +109,7 @@ Popup "Assorted-Lock"
 	Exec	"Eyes"		exec xlock -mode eyes +trackmouse &
 	Exec	"Eyesptr"	exec xlock -mode eyes -trackmouse &
 	Exec	"Goop"		exec xlock -mode goop &
+	Exec	"Juggle"	exec xlock -mode juggle &
 	Exec	"Marquee"	exec xlock -mode marquee &
 	Exec	"Matrix"	exec xlock -mode matrix &
 	Exec	"Munch"		exec xlock -mode munch &
@@ -118,10 +119,13 @@ Popup "Assorted-Lock"
 	Exec	"Pyro3d"	exec xlock -mode pyro -use3d &
 	Exec	"Roll"		exec xlock -mode roll &
 	Exec	"Slip"		exec xlock -mode slip &
+	Exec	"Solitare"	exec xlock -mode solitare +trackmouse &
+	Exec	"Solitareptr"	exec xlock -mode solitare -trackmouse &
 	Exec	"Starfish"	exec xlock -mode starfish -install &
 	Exec	"Swarm"		exec xlock -mode swarm +trackmouse &
 	Exec	"Swarmptr"	exec xlock -mode swarm -trackmouse &
 	Exec	"Swirl"		exec xlock -mode swirl -install &
+	Exec	"Tetris"	exec xlock -mode t3d &
 	Exec	"Tetris"	exec xlock -mode tetris &
 	Exec	"Tube"		exec xlock -mode tube -install &
 	Exec	"Worm"		exec xlock -mode worm +use3d &
@@ -318,6 +322,7 @@ Popup "Assorted-Saver"
 	Exec	"Eyes"		exec xlock -nolock -mode eyes +trackmouse &
 	Exec	"Eyesptr"	exec xlock -nolock -mode eyes -trackmouse &
 	Exec	"Goop"		exec xlock -nolock -mode goop &
+	Exec	"Juggle"	exec xlock -nolock -mode juggle &
 	Exec	"Marquee"	exec xlock -nolock -mode marquee &
 	Exec	"Matrix"	exec xlock -nolock -mode matrix &
 	Exec	"Munch"		exec xlock -nolock -mode munch &
@@ -327,10 +332,13 @@ Popup "Assorted-Saver"
 	Exec	"Pyro3d"	exec xlock -nolock -mode pyro -use3d &
 	Exec	"Roll"		exec xlock -nolock -mode roll &
 	Exec	"Slip"		exec xlock -nolock -mode slip &
+	Exec	"Solitare"	exec xlock -nolock -mode solitare +trackmouse &
+	Exec	"Solitareptr"	exec xlock -nolock -mode solitare -trackmouse &
 	Exec	"Starfish"	exec xlock -nolock -mode starfish -install &
 	Exec	"Swarm"		exec xlock -nolock -mode swarm +trackmouse &
 	Exec	"Swarmptr"	exec xlock -nolock -mode swarm -trackmouse &
 	Exec	"Swirl"		exec xlock -nolock -mode swirl -install &
+	Exec	"T3d"		exec xlock -nolock -mode t3d &
 	Exec	"Tetris"	exec xlock -nolock -mode tetris &
 	Exec	"Tube"		exec xlock -nolock -mode tube -install &
 	Exec	"Worm"		exec xlock -nolock -mode worm +use3d &
@@ -370,8 +378,8 @@ EndPopup
 Popup "Marquee-Message-Saver"
 	Title	"Marquee-Message-Saver"
 	Exec	"Brilliant"	exec xlock -nolock -mode marquee -message "WOW! $LOGNAME, You are Brilliant! " &
-	Exec	"Love You"		exec xlock -mode marquee -message "You know, I Love You $LOGNAME." &
-	Exec	"Available"		exec xlock -mode marquee -message "Hey, I am available now! " &
+	Exec	"Love You"	exec xlock -mode marquee -message "You know, I Love You $LOGNAME." &
+	Exec	"Available"	exec xlock -mode marquee -message "Hey, I am available now! " &
 EndPopup
 
 Popup "Nose-Message-Saver"
@@ -430,4 +438,3 @@ Popup "Lock_Saver"
 	Nop	""
 	Popup	"Screensaver"	Screensaver
 EndPopup
-

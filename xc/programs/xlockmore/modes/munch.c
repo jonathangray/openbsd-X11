@@ -20,12 +20,12 @@ static const char sccsid[] = "@(#)munch.c 4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Tim Showalter <tjs@andrew.cmu.edu>
- * 
+ *
  * Copyright 1997, Tim Showalter
  * Permission is granted to copy, modify, and use this as long
  * as this notice remains intact.  No warranties are expressed or implied.
  * CMU Sucks.
- * 
+ *
  * Some code stolen from / This is meant to work with
  * xscreensaver, Copyright (c) 1992, 1995, 1996
  * Jamie Zawinski <jwz@jwz.org>
@@ -35,7 +35,7 @@ static const char sccsid[] = "@(#)munch.c 4.07 97/11/24 xlockmore";
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  */
 
@@ -43,7 +43,7 @@ static const char sccsid[] = "@(#)munch.c 4.07 97/11/24 xlockmore";
  * Munching Squares is this simplistic, silly screen hack (according to
  * HAKMEM, discovered by Jackson Wright in 1962) where you take Y = X XOR T
  * and graph it over and over.  According to HAKMEM, it  takes 5 instructions
- * of PDP-1 assembly.  This is a little more complicated than that, mostly X's 
+ * of PDP-1 assembly.  This is a little more complicated than that, mostly X's
  *  fault, but it does some other random things.
  * http://www.inwap.com/pdp10/hbaker/hakmem/hacks.html#item146
  */
@@ -137,7 +137,7 @@ munchBit(ModeInfo * mi, int width,	/* pixels */
 	}
 }
 
-/* 
+/*
  * dumb way to get # of digits in number.  Probably faster than actually
  * doing a log and a division, maybe.
  */

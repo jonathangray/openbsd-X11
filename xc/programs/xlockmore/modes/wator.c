@@ -24,7 +24,7 @@ static const char sccsid[] = "@(#)wator.c	4.07 97/11/24 xlockmore";
  * Revision History:
  * 10-May-97: Compatible with xscreensaver
  * 29-Aug-95: Efficiency improvements.
- * 12-Dec-94: Coded from A.K. Dewdney's "The Armchair Universe, Computer 
+ * 12-Dec-94: Coded from A.K. Dewdney's "The Armchair Universe, Computer
  *            Recreations from the Pages of Scientific American Magazine"
  *            W.H. Freedman and Company, New York, 1988  (Dec 1984 and
  *            June 1985) also used life.c as a guide.

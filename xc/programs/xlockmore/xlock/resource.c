@@ -36,7 +36,7 @@ static const char sccsid[] = "@(#)resource.c	4.08 98/08/04 xlockmore";
  *            -delay, -batchcount, and -saturation.
  * 21-Feb-95: MANY patches from Heath A. Kehoe <hakehoe@icaen.uiowa.edu>.
  * 21-Dec-94: patch for -delay, -batchcount and -saturation for X11R5+
- *            from Patrick D Sullivan <pds@bss.com>. 
+ *            from Patrick D Sullivan <pds@bss.com>.
  * 18-Dec-94: -inroot option added from Bill Woodward <wpwood@pencom.com>.
  * 20-Sep-94: added bat mode from Lorenzo Patocchi <patol@info.isbiel.ch>.
  * 11-Jul-94: added grav mode, and inwindow option from Greg Bowering
@@ -246,6 +246,13 @@ static int  descr();
 #define DEF_VALIDSOUND	"[]complete.au"
 #define DEF_INVALIDSOUND	"[]not-programmed.au"
 #endif /* !USE_VMSPLAY */
+#ifdef USE_ESOUND
+#define DEFAULT_SOUND_DIR "/usr/lib/sounds/xlockmore"
+#define DEF_LOCKSOUND 	"thank-you.au"
+#define DEF_INFOSOUND	"identify-please.au"
+#define DEF_VALIDSOUND	"complete.au"
+#define DEF_INVALIDSOUND	"not-programmed.au"
+#endif
 #endif /* !DEF_PLAY && !USE_NAS */
 #endif /* !USE_RPLAY */
 
@@ -1818,7 +1825,7 @@ extern void XlockrmParseCommand(
 		/* The problem was with XrmParseCommand is that it does not
                    work for multiple use options.  Running it first with a
                    corrupted version (that makes sure argc and argv do
-                   not change) to setup optDB then run the real 
+                   not change) to setup optDB then run the real
                    XrmParseCommand on a nullDB to set argv and argc.
                  */
 		XlockrmParseCommand(&optDB, ms->opts, ms->numopts,

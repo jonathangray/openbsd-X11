@@ -107,7 +107,7 @@ change hooks are new to xlockmore-3.8:
 
 	o release  This hook will be called when some other mode is
 		about to be initialized, or when xlock is shutting
-		down.  This hook should free up any long-lived, 
+		down.  This hook should free up any long-lived,
 		dynamically allocated resources the mode has acquired.
 		This would include memory and X resources, such as
 		Pixmaps and GCs.
@@ -216,7 +216,7 @@ the mode's callback hook is subtracted from the interval to keep the
 ticks as constant as possible.  This is hardly perfect, but an effort
 is made to remain as accurate as is possible on a multi-tasking system.
 
-   A mode should therefore not spend a large amount of time executing 
+   A mode should therefore not spend a large amount of time executing
 in the callback hook.  While in the callback, the mainline code cannot
 respond to external events from the user.  It is preferable for a
 callback hook to do a little bit of the work on each call, rather than
@@ -444,7 +444,7 @@ line arguments of resources.
 (specified in microseconds).
 
    The floating point number def_saturation controls the saturation of
-the colormap to allocate.  This controls how the color ramp is 
+the colormap to allocate.  This controls how the color ramp is
 populated (<<unfinished: how?>>)
 
    The other two default values, def_batchcount and def_cycles, are

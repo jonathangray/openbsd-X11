@@ -24,7 +24,7 @@ static const char sccsid[] = "@(#)lyapunov.c 4.13 98/12/21 xlockmore";
  * parameter's they found they could make the simulated enzymes behave in
  * either a orderly or chaotic manner.  Images are based on a formula
  * named after the Russian mathematician Aleksandr M. Lyapunov.
- * See  A.K. Dewdney's "Computer Recreations", Scientific American 
+ * See  A.K. Dewdney's "Computer Recreations", Scientific American
  * Magazine" Sep 1991 for more info.
  *
  * Revision History:
@@ -353,7 +353,7 @@ draw_lyapunov(ModeInfo * mi)
 		if (debug)
 		(void) printf("a %g, b %g, result %g\n",
 			 ((double) lp->column) / lp->screen_width,
-			 ((double) h) / lp->screen_height, result); 
+			 ((double) h) / lp->screen_height, result);
 #endif
 		if (result > 0.0)
 			XSetForeground(display, gc, MI_BLACK_PIXEL(mi));

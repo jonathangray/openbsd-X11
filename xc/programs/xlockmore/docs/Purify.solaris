@@ -3,12 +3,12 @@ Content-Transfer-Encoding: 7bit
 Content-Disposition: inline; filename="xlock.plog.sun4os5"
 
 ****  Purify instrumented xlock/xlock (pid 24202 at Thu Feb 26 08:05:25 1998)
-  * Purify 4.0.1 Solaris 2, Copyright (C) 1992-1996 Pure Atria Corp. All rights reserved. 
+  * Purify 4.0.1 Solaris 2, Copyright (C) 1992-1996 Pure Atria Corp. All rights reserved.
   * For contact information type: "purify -help"
   * For TTY output, use the option "-windows=no"
-  * Command-line: xlock/xlock -sequential -duration 15 
+  * Command-line: xlock/xlock -sequential -duration 15
   * Options settings: -chain-length=25 -windows=yes -purify \
-    -purify-home=/vol/pure/purify-4.0.1-solaris2 
+    -purify-home=/vol/pure/purify-4.0.1-solaris2
   * Purify checking enabled.
 
 ****  Purify instrumented xlock/xlock (pid 24202)  ****

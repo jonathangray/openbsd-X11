@@ -27,7 +27,7 @@ static const char sccsid[] = "@(#)stairs.c	4.07 97/11/24 xlockmore";
  * M.C. Escher (1898-1972) was a dutch artist and many people prefer to
  * say he was a mathematician.
  *
- * Thanks goes to Brian Paul for making it possible and inexpensive to use 
+ * Thanks goes to Brian Paul for making it possible and inexpensive to use
  * OpenGL at home.
  *
  * Since I'm not a native English speaker, my apologies for any grammatical

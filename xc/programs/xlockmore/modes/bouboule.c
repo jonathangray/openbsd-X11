@@ -184,7 +184,7 @@ ModStruct   bouboule_description =
 typedef struct SinVariableStruct
 /******************************/
 {
-	double      alpha;	/* 
+	double      alpha;	/*
 				 * Alpha is the current state of the sinvariable
 				 * alpha should be initialized to a value between
 				 * 0.0 and 2 * M_PI

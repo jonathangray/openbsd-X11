@@ -229,7 +229,7 @@ APPDEFAULTS=$ac_x_app_defaults
 #
 AC_DEFUN(AC_CHECK_X_HEADER, [
   ac_save_CPPFLAGS="$CPPFLAGS"
-  if test \! -z "$includedir" ; then 
+  if test \! -z "$includedir" ; then
     CPPFLAGS="$CPPFLAGS -I$includedir"
   fi
   CPPFLAGS="$CPPFLAGS $X_CFLAGS"
@@ -240,7 +240,7 @@ AC_DEFUN(AC_CHECK_X_HEADER, [
 #
 AC_DEFUN(AC_EGREP_X_HEADER, [
   ac_save_CPPFLAGS="$CPPFLAGS"
-  if test \! -z "$includedir" ; then 
+  if test \! -z "$includedir" ; then
     CPPFLAGS="$CPPFLAGS -I$includedir"
   fi
   CPPFLAGS="$CPPFLAGS $X_CFLAGS"
@@ -251,7 +251,7 @@ AC_DEFUN(AC_EGREP_X_HEADER, [
 #
 AC_DEFUN(AC_TRY_X_COMPILE, [
   ac_save_CPPFLAGS="$CPPFLAGS"
-  if test \! -z "$includedir" ; then 
+  if test \! -z "$includedir" ; then
     CPPFLAGS="$CPPFLAGS -I$includedir"
   fi
   CPPFLAGS="$CPPFLAGS $X_CFLAGS"
@@ -265,10 +265,10 @@ AC_DEFUN(AC_TRY_X_COMPILE, [
 AC_DEFUN(AC_CHECK_X_LIB, [
   ac_save_CPPFLAGS="$CPPFLAGS"
   ac_save_LDFLAGS="$LDFLAGS"
-  if test \! -z "$includedir" ; then 
+  if test \! -z "$includedir" ; then
     CPPFLAGS="$CPPFLAGS -I$includedir"
   fi
-  if test \! -z "$includedir" ; then 
+  if test \! -z "$includedir" ; then
     CPPFLAGS="$CPPFLAGS -I$includedir"
   fi
   if test \! -z "$libdir" ; then
@@ -287,7 +287,7 @@ AC_DEFUN(AC_CHECK_X_LIB, [
 #
 AC_DEFUN(AC_TRY_X_RUN, [
   ac_save_CPPFLAGS="$CPPFLAGS"
-  if test \! -z "$includedir" ; then 
+  if test \! -z "$includedir" ; then
     CPPFLAGS="$CPPFLAGS -I$includedir"
   fi
   CPPFLAGS="$CPPFLAGS $X_CFLAGS"
@@ -397,7 +397,7 @@ if test $have_xmu = yes ; then
 				[ac_cv_sunos_xmu_bug=yes])
 		    LDFLAGS="$ac_save_LDFLAGS"])
     if test $ac_cv_sunos_xmu_bug = yes ; then
-      AC_CACHE_CHECK([whether the compiler understands -static], 
+      AC_CACHE_CHECK([whether the compiler understands -static],
 		     ac_cv_ld_static,
 		     [ac_save_LDFLAGS="$LDFLAGS"
 		      LDFLAGS="$LDFLAGS -static"
@@ -465,7 +465,7 @@ if test $have_sgi != yes; then
 
       if test $have_mit = no; then
 	# Double fuck!  Looks like some versions of XFree86 (whichever version
-	# it is that comes with RedHat Linux 2.0 -- I can't find a version 
+	# it is that comes with RedHat Linux 2.0 -- I can't find a version
 	# number) put this garbage in Xss instead of Xext.  Thank you master,
 	#  may I have another.
         AC_CHECK_X_LIB(Xss, XScreenSaverRegister,
@@ -686,10 +686,10 @@ fi
 # If we have Athena, check whether it's a version that includes
 # XawViewportSetCoordinates in Viewport.h (R3 (or R4?) don't.)
 if test $have_athena = yes ; then
-  AC_CACHE_CHECK([for XawViewportSetCoordinates in Viewport.h], 
+  AC_CACHE_CHECK([for XawViewportSetCoordinates in Viewport.h],
 		 ac_cv_have_XawViewportSetCoordinates,
 		 [ac_cv_have_XawViewportSetCoordinates=no
-		  AC_EGREP_X_HEADER(XawViewportSetCoordinates, 
+		  AC_EGREP_X_HEADER(XawViewportSetCoordinates,
 				    X11/Xaw/Viewport.h,
 				    ac_cv_have_XawViewportSetCoordinates=yes)])
   if test $ac_cv_have_XawViewportSetCoordinates = yes ; then
@@ -702,7 +702,7 @@ fi
 #
 have_lesstif=no
 if test $have_motif = yes ; then
-  AC_CACHE_CHECK([whether Motif is really LessTif], 
+  AC_CACHE_CHECK([whether Motif is really LessTif],
 		 ac_cv_have_lesstif,
 		 [AC_TRY_X_COMPILE([#include <Xm/Xm.h>],
 				   [long vers = LesstifVersion;],
@@ -839,7 +839,7 @@ fi
 # Try to find a program to generate random text.
 #
 # Zippy is funnier than the idiocy generally spat out by `fortune',
-# so try to find that, by invoking Emacs and asking it where its 
+# so try to find that, by invoking Emacs and asking it where its
 # libexec directory is ("yow" lives in there.)
 #
 # If that doesn't work, see if fortune, zippy, or yow are on $PATH,
@@ -939,7 +939,7 @@ if test ! -n "$ac_cv_zippy_program"; then
 	else
 	  #
 	  # in some xemacs installations, the pathname of the yow.lines file
-	  # isn't hardcoded into the yow executable, and must be passed on 
+	  # isn't hardcoded into the yow executable, and must be passed on
 	  # the command line.  See if it's in libexec/../etc/.
 
 	  # M4 sucks!!
@@ -1085,10 +1085,10 @@ if test $enable_locking = yes; then
 
       # On SCO, getprpwnam() is in -lprot (which uses nap() from -lx)
       # (I'm told it needs -lcurses too, but I don't understand why.)
-      AC_CHECK_LIB(prot, getprpwnam, 
+      AC_CHECK_LIB(prot, getprpwnam,
 		   [PASSWD_LIBS="$PASSWD_LIBS -lprot -lcurses -lx"],
 		   [# On DEC, getprpwnam() is in -lsecurity
-		    AC_CHECK_LIB(security, getprpwnam, 
+		    AC_CHECK_LIB(security, getprpwnam,
 				 [PASSWD_LIBS="$PASSWD_LIBS -lsecurity"])],
 		   [-lx])
     fi
@@ -1178,7 +1178,7 @@ fi
 
 
 
-if test \! -z "$includedir" ; then 
+if test \! -z "$includedir" ; then
   INCLUDES="-I$includedir"
 fi
 

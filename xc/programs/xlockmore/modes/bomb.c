@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)bomb.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 10-May-97: Made more compatible with xscreensaver :) 
+ * 10-May-97: Made more compatible with xscreensaver :)
  * 09-Jan-95: Assorted defines to control various aspects of bomb mode.
  *            Uncomment, or otherwise define the appropriate line
  *            to obtain the relevant behaviour, thanks to Dave Shield
@@ -100,7 +100,7 @@ typedef struct {
 	XPoint      loc;
 	int         delta;
 	int         color;
-	int         countdown;
+	time_t      countdown;
 	int         startcountdown;
 	int         text_width;
 	int         text_ascent;
@@ -240,7 +240,7 @@ init_bomb(ModeInfo * mi)
 		bp->startcountdown = COUNTDOWN;
 #endif
 	if (bp->countdown == 0)	/* <--Stricter if uncommented */
-		bp->countdown = (int) (time((time_t *) NULL) + bp->startcountdown);
+		bp->countdown = time((time_t *) NULL) + bp->startcountdown;
 	/* Detonator Primed */
 
 	MI_CLEARWINDOW(mi);
@@ -321,18 +321,18 @@ draw_bomb(ModeInfo * mi)
 	bombstruct *bp = &bombs[MI_SCREEN(mi)];
 	char        number[NDIGITS + 2];
 	unsigned long crayon;
-	time_t      countleft;
+	int         countleft;
 
-	countleft = (bp->countdown - time((time_t *) NULL));
+	countleft = (int) (bp->countdown - time((time_t *) NULL));
 	if (countleft <= 0)
 		explode(mi);	/* Bye, bye.... */
 	else {
 		bp->painted = True;
 #ifdef SIMPLE_COUNTDOWN
-		(void) sprintf(number, "%0*d", NDIGITS, (int) countleft);
+		(void) sprintf(number, "%0*d", NDIGITS, countleft);
 #else
 		(void) sprintf(number, "%0*d:%02d", NDIGITS - 2,
-			       (int) countleft / 60, (int) countleft % 60);
+			       countleft / 60, countleft % 60);
 #endif
 
 		/* Blank out the previous number .... */

@@ -2,7 +2,7 @@
 /* text3d --- Shows moving 3D texts */
 
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)text3d.cc	2.0 99/06/02 xlockmore";
+static const char sccsid[] = "@(#)text3d.cc	2.2 99/10/28 xlockmore";
 
 #endif
 
@@ -26,27 +26,30 @@ static const char sccsid[] = "@(#)text3d.cc	2.0 99/06/02 xlockmore";
  *
  * See the gltt Official Site at http://home.worldnet.fr/~rehel/gltt/gltt.html
  *
- * My e-mail address is lassauge@sagem.fr
- * My personnal e-mail address is eric_lassauge@mail.dotcom.fr (less used)
+ * My e-mail address changed to lassauge@mail.dotcom.fr
+ * Web site at http://perso.libertysurf.fr/lassauge/
  *
- * Eric Lassauge  (August-18-1998)
+ * Eric Lassauge  (October-28-1999)
  *
  * REVISION HISTORY:
+ *       99/10/28: fixes from Jouk "I play with every mode" Jansen.
+ *                 Option ttanimate added.
  *       99/06/02: patches for initialization errors of GLTT library.
  *                 Thanks to Jouk Jansen and Scott <mcmillan@cambridge.com>.
- *                 text3d updates for fortunes thanks to Jouk Jansen 
+ *                 text3d updates for fortunes thanks to Jouk Jansen
  *                 <joukj@hrem.stm.tudelft.nl>
  *                 Option no_split added.
- *                 
- *       98/08/23: add better handling of "faulty" fontfile and randomize 
+ *
+ *       98/08/23: add better handling of "faulty" fontfile and randomize
  *                 fontfile if '-ttfont' value is a directory.
  *                 Minor changes for AIX from Jouk Jansen (joukj@hrem.stm.tudelft.nl).
- * 
- * TODO : 
- *       I've still not really decided how to "move" the 3Dtext. 
- *       Function Animate needs still a lot of work! Help welcome !!
- *       Light problem with some letters (don't know why they "reflect" more).
- *       
+ *
+ * TODO :
+ *       Need more animation functions. Help welcome !!
+ *       Light problem with some letters (don't know why they "reflect" more):
+ *       is the problem in gltt or Mesa ???
+ *       SPEED !!!!
+ *
  */
 
 #ifdef STANDALONE
@@ -74,7 +77,6 @@ extern "C"
 
 #ifdef MODE_text3d
 
-#if 1
 #include <gltt/FTEngine.h>
 #include <gltt/FTFace.h>
 #include <gltt/FTInstance.h>
@@ -84,24 +86,13 @@ extern "C"
 #include <gltt/GLTTFont.h>
 #include <gltt/GLTTGlyphPolygonizer.h>
 #include <gltt/GLTTGlyphTriangulator.h>
-#else
-#include "FTEngine.h"
-#include "FTFace.h"
-#include "FTInstance.h"
-#include "FTGlyph.h"
-#include "FTFont.h"
-#include "GLTTOutlineFont.h"
-#include "GLTTFont.h"
-#include "GLTTGlyphPolygonizer.h"
-#include "GLTTGlyphTriangulator.h"
-#endif
 
 #include "text3d.h"
 #include <GL/glu.h>
 
 /* #define USE_BLANK *//* This is really bad when debugging. */
 #ifdef USE_BLANK	/* if the module cannot create the font struct
-			 * then use blank mode instead 
+			 * then use blank mode instead
 			 */
 extern "C" { void init_blank(ModeInfo * mi); }
 extern "C" { void draw_blank(ModeInfo * mi); }
@@ -125,11 +116,13 @@ extern "C" { void refresh_text3d(ModeInfo * mi); }
 #define DEF_ROTFREQ  "0.001"
 #define DEF_FONTSIZE  220
 #define DEF_NOSPLIT	0
+#define DEF_ANIMATE   "Default"
 static float extrusion;
 static float rampl;
 static float rfreq;
 static char *mode_font;
 static int nosplit;
+static char *animate;
 
 static XrmOptionDescRec opts[] =
 {
@@ -139,6 +132,7 @@ static XrmOptionDescRec opts[] =
     {"-rot_frequency", ".text3d.rot_frequency", XrmoptionSepArg, (caddr_t) NULL},
     {"-no_split", ".text3d.no_split", XrmoptionNoArg, (caddr_t) "on"},
     {"+no_split", ".text3d.no_split", XrmoptionNoArg, (caddr_t) "off"},
+    {"-ttanimate", ".text3d.ttanimate", XrmoptionSepArg, (caddr_t) NULL},
 };
 
 static argtype vars[] =
@@ -148,6 +142,7 @@ static argtype vars[] =
     {(caddr_t *) & rampl, "rot_amplitude", "RotationAmplitude", DEF_ROTAMPL, t_Float},
     {(caddr_t *) & rfreq, "rot_frequency", "RotationFrequency", DEF_ROTFREQ, t_Float},
     {(caddr_t *) & nosplit, "no_split", "NoSplit", DEF_NOSPLIT, t_Bool},
+    {(caddr_t *) & animate, "ttanimate", "TTAnimate", DEF_ANIMATE, t_String},
 };
 
 static OptionStruct desc[] =
@@ -157,6 +152,7 @@ static OptionStruct desc[] =
     {"-rot_amplitude float", "Text3d rotation amplitude"},
     {"-rot_frequency float", "Text3d rotation frequency"},
     {"-/+no_split", "Text3d words splitting off/on"},
+    {"-ttanimate anim_name", "Text3d animation function"},
 };
 
 ModeSpecOpt text3d_opts =
@@ -167,11 +163,9 @@ ModStruct text3d_description =
 {"text3d", "init_text3d", "draw_text3d", "release_text3d",
  "refresh_text3d", "change_text3d", NULL, &text3d_opts,
  100000, 1, 1, 1, 64, 1.0, "",
- "Shows 3D texts", 0, NULL};
+ "Shows 3D text", 0, NULL};
 #endif
 
-static double camera_dist = 0.0;     /* could it be a per screen variable ? */
-static double ref_camera_dist = 0.0; /* could it be a per screen variable ? */
 static text3dstruct *text3d = (text3dstruct *) NULL;
 
 /* Hacks to use $TOP/xlock/util.c and iostuff.c functions */
@@ -189,6 +183,58 @@ extern "C" { int scan_dir(const char *directoryname,
 		 int (*compare) (const void *, const void *));
 }
 #endif				/* HAVE_DIRENT_H */
+
+const double angle_speed = 2.5 / 180.0 * M_PI;
+
+extern "C" {
+typedef void (*t3dAnimProc) (text3dstruct * tp);
+}
+
+static void t3d_anim_fullrandom(text3dstruct * tp);
+static void t3d_anim_default(text3dstruct * tp);
+static void t3d_anim_default2(text3dstruct * tp);
+static void t3d_anim_none(text3dstruct * tp);
+static void t3d_anim_crazy(text3dstruct * tp);
+static void t3d_anim_updown(text3dstruct * tp);
+static void t3d_anim_extrusion(text3dstruct * tp);
+static void t3d_anim_rotatexy(text3dstruct * tp);
+static void t3d_anim_rotateyz(text3dstruct * tp);
+static void t3d_anim_frequency(text3dstruct * tp);
+static void t3d_anim_amplitude(text3dstruct * tp);
+
+static t3dAnimProc anim_array[] =
+{
+	t3d_anim_fullrandom,
+	t3d_anim_default,
+	t3d_anim_default2,
+	t3d_anim_none,
+	t3d_anim_crazy,
+	t3d_anim_updown,
+	t3d_anim_extrusion,
+	t3d_anim_rotatexy,
+	t3d_anim_rotateyz,
+	t3d_anim_frequency,
+	t3d_anim_amplitude,
+};
+
+static char * anim_names[] =
+{
+	"Random",
+	"FullRandom",
+	"Default",
+	"Default2",
+	"None",
+	"Crazy",
+	"UpDown",
+	"Extrude",
+	"RotateXY",
+	"RotateYZ",
+	"Frequency",	/* needs -rot_frequency /= 0.0 */
+	"Amplitude",	/* and   -rot_amplitude /= 0.0 */
+	NULL
+};
+
+static int anims=sizeof anim_array / sizeof anim_array[0] ;
 
 /*
  *-----------------------------------------------------------------------------
@@ -214,7 +260,7 @@ static char *
     return s;
 }
 
-static int 
+static int
  readable(char *filename)
 {
     FILE *fp;
@@ -224,11 +270,6 @@ static int
     (void) fclose(fp);
     return True;
 }
-
-#ifdef AIXV3
-/* should probabely be in xlock.h */
-extern "C" long int lrand48(void);	/*Seems to missing in xlC for AIX3.2.5 */
-#endif
 
 /*-------------------------------------------------------------*/
 #if HAVE_DIRENT_H
@@ -400,29 +441,48 @@ public:
 
 /*
  *-----------------------------------------------------------------------------
- *    "Main" local funcs.
+ *    Animation functions.
  *-----------------------------------------------------------------------------
  */
 
+#define FAC_CAMERA	1.15
+#define MAX_CAMERA	5.00
+
+#define MIN_EXTRUSION	 25.0
+#define MAX_EXTRUSION	305.0
+#define FAC_EXTRUSION	  5.0
+
+#define FAC_FREQ	0.15
+#define FAC_AMPL	1.5
+
+#define FAC_RAND	25
+
+/*-------------------------------------------------------------*/
 static void
- Reshape(ModeInfo * mi, int width, int height)
+ t3d_anim_default(text3dstruct * tp)
 {
-    text3dstruct *tp = &text3d[MI_SCREEN(mi)];
-
-    glViewport(0, 0, tp->WinW = (GLint) width, tp->WinH = (GLint) height);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60.0, (GLdouble) width / (GLdouble) height, 10, 10000);
-    glMatrixMode(GL_MODELVIEW);
+    tp->phi   += tp->direction * angle_speed;
+    tp->theta += tp->direction * angle_speed;
 }
 
 /*-------------------------------------------------------------*/
 static void
- Animate(text3dstruct * tp)
+ t3d_anim_default2(text3dstruct * tp)
 {
-#ifdef FUNNY_ANIMATE
-    const double angle_speed = 2.5 / 180.0 * M_PI;
+    tp->phi   += tp->direction * angle_speed;
+    tp->theta += tp->direction * angle_speed * 2.0 ;
+}
+
+/*-------------------------------------------------------------*/
+static void
+ t3d_anim_none(text3dstruct * tp)
+{
+}
+
+/*-------------------------------------------------------------*/
+static void
+ t3d_anim_crazy(text3dstruct * tp)
+{
     int key = NRAND(32);
 
     switch (key)
@@ -453,45 +513,160 @@ static void
 
     case 16:
     case 17:
-	if (camera_dist / 1.05 > ref_camera_dist)
-	    camera_dist /= 1.05;
+	if (tp->camera_dist / FAC_CAMERA > tp->ref_camera_dist)
+	    tp->camera_dist /= FAC_CAMERA;
 	break;
     case 18:
     case 19:
-	if (camera_dist * 1.05 < (ref_camera_dist * 2.0))
-	    camera_dist *= 1.05;
+	if (tp->camera_dist * FAC_CAMERA < (tp->ref_camera_dist * MAX_CAMERA))
+	    tp->camera_dist *= FAC_CAMERA;
 	break;
     case 20:
-	if ((tp->extrusion - 5.0) > 25)
-	    tp->extrusion -= 5.0;
+	if ((tp->extrusion - FAC_EXTRUSION) > MIN_EXTRUSION)
+	    tp->extrusion -= FAC_EXTRUSION;
 	break;
     case 21:
-	if ((tp->extrusion + 5.0) < 75)
-	    tp->extrusion += 5.0;
+	if ((tp->extrusion + FAC_EXTRUSION) < MAX_EXTRUSION)
+	    tp->extrusion += FAC_EXTRUSION;
 	break;
     case 22:
     case 23:
-	tp->rampl /= 1.15;
+	tp->rampl /= FAC_AMPL;
 	break;
     case 24:
     case 25:
-	tp->rampl *= 1.15;
+	tp->rampl *= FAC_AMPL;
 	break;
     case 26:
     case 27:
-	tp->rfreq *= 1.15;
+	tp->rfreq *= FAC_FREQ;
 	break;
     case 28:
     case 29:
-	tp->rfreq /= 1.15;
+	tp->rfreq /= FAC_FREQ;
 	break;
     }
-#else				/* !FUNNY_ANIMATE */
-    const double angle_speed = 2.5 / 180.0 * M_PI;
+}
 
-    tp->phi -= angle_speed;
-    tp->theta -= angle_speed;
-#endif
+static void
+ t3d_anim_updown(text3dstruct * tp)
+{
+    if (tp->direction > 0)
+    {
+        if (tp->camera_dist / FAC_CAMERA > tp->ref_camera_dist)
+            tp->camera_dist /= FAC_CAMERA;
+        else
+	    tp->direction *=-1;
+    }
+    else
+    {
+        if (tp->camera_dist * FAC_CAMERA < (tp->ref_camera_dist * MAX_CAMERA))
+            tp->camera_dist *= FAC_CAMERA;
+        else
+	    tp->direction *=-1;
+    }
+}
+
+static void
+ t3d_anim_extrusion(text3dstruct * tp)
+{
+    if (tp->direction > 0)
+    {
+        if ((tp->extrusion - FAC_EXTRUSION) > MIN_EXTRUSION)
+            tp->extrusion -= FAC_EXTRUSION;
+        else
+            tp->direction *=-1;
+    }
+    else
+    {
+        if ((tp->extrusion + FAC_EXTRUSION) < MAX_EXTRUSION)
+            tp->extrusion += FAC_EXTRUSION;
+        else
+            tp->direction *=-1;
+    }
+}
+
+static void
+ t3d_anim_rotatexy(text3dstruct * tp)
+{
+    tp->phi += tp->direction * angle_speed;
+}
+
+static void
+ t3d_anim_rotateyz(text3dstruct * tp)
+{
+    tp->theta += tp->direction * angle_speed;
+}
+
+static void
+ t3d_anim_frequency(text3dstruct * tp)
+{
+    /* Better visual if freq is a small value < 0.05 */
+    if (tp->direction > 0)
+    {
+        tp->rfreq /= FAC_FREQ;
+    }
+    else
+    {
+        tp->rfreq *= FAC_FREQ;
+    }
+
+    if (NRAND(100) < FAC_RAND )
+            tp->direction *=-1;
+}
+
+static void
+ t3d_anim_amplitude(text3dstruct * tp)
+{
+    if (tp->direction > 0)
+    {
+        tp->rampl /= FAC_AMPL;
+    }
+    else
+    {
+        tp->rampl *= FAC_AMPL;
+    }
+
+    if (NRAND(100) < FAC_RAND )
+            tp->direction *=-1;
+}
+
+static void
+ t3d_anim_fullrandom(text3dstruct * tp)
+{
+    if (NRAND(100) < FAC_RAND || tp->animation == 1)
+    {
+      	tp->animation = NRAND(anims);
+    }
+    anim_array[tp->animation](tp);
+}
+
+/*-------------------------------------------------------------*/
+/*-------------------------------------------------------------*/
+/*
+ *-----------------------------------------------------------------------------
+ *    "Main" local funcs.
+ *-----------------------------------------------------------------------------
+ */
+
+static void
+ Reshape(ModeInfo * mi, int width, int height)
+{
+    text3dstruct *tp = &text3d[MI_SCREEN(mi)];
+
+    glViewport(0, 0, tp->WinW = (GLint) width, tp->WinH = (GLint) height);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(60.0, (GLdouble) width / (GLdouble) height, 10, 10000);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+/*-------------------------------------------------------------*/
+static void
+ Animate(text3dstruct * tp)
+{
+    anim_array[tp->animation](tp);
 }
 
 /*-------------------------------------------------------------*/
@@ -529,9 +704,9 @@ static void
     for (i = 0; i < text_length; ++i)
 	tri[i] = new GLTTGlyphTriangles(vec + i);
 
-    if (camera_dist == 0.0)
+    if (tp->camera_dist == 0.0)
 	/* PURIFY reports an Array Bounds Read on the next line */
-	ref_camera_dist = camera_dist = font.getWidth(c_text) * 0.55;
+	tp->ref_camera_dist = tp->camera_dist = font.getWidth(c_text) * 0.75;
     double min_y = 1e20;
     double max_y = -1e20;
     double size_x = 0.0;
@@ -689,7 +864,7 @@ static void
     spheric_camera(tp, tp->center_x,
 		   tp->center_y + size_x / 2.,
 		   0,
-		   tp->phi, tp->theta + M_PI / 2, camera_dist);
+		   tp->phi, tp->theta + M_PI / 2, tp->camera_dist);
     glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -903,6 +1078,7 @@ void
     int screen = MI_SCREEN(mi);
     text3dstruct *tp;
     char *fontfile = (char *) NULL;
+    int i;
 
     if (text3d == NULL)
     {
@@ -915,6 +1091,7 @@ void
     tp->extrusion = extrusion;
     tp->rampl = rampl;
     tp->rfreq = rfreq;
+    tp->camera_dist = 0.0;
 
     /* Get fontfile from mode_font (it can be a dir name) */
     if (mode_font && strlen(mode_font))
@@ -964,6 +1141,37 @@ void
     }
     free(fontfile);
 
+    /* Get animation function */
+    tp->animation = 0;	/* Not found equals "Random" */
+    tp->direction = (LRAND() & 1) ? 1 : -1; /* random direction */
+    tp->rampl *= tp->direction;
+    tp->rfreq *= tp->direction;
+    for(i=0;anim_names[i] != NULL;i++)
+    {
+        if ( !strcmp( anim_names[i], animate ) )
+        {
+    		tp->animation = i;
+		break;
+        }
+    }
+    if (!tp->animation)
+    {
+	/* Random !!! */
+    	tp->animation = NRAND(anims);
+    }
+    else
+    {
+        tp->animation --;
+    }
+
+    if (MI_IS_DEBUG(mi))
+    {
+	(void) fprintf(stderr,
+		   "%s:\n\ttp->animation[%d]=%s\n",
+		   MI_NAME(mi), tp->animation, anim_names[tp->animation+1]);
+    }
+
+    /* Initialize displayed string */
     tp->words_start = tp->words =
 	text3d_newstr(getWords(MI_SCREEN(mi), MI_NUM_SCREENS(mi)));
     tp->counter = 0;
@@ -976,9 +1184,9 @@ void
 	if (MI_IS_DEBUG(mi))
 	{
 	    (void) fprintf(stderr,
-			   "%s:\n\tcamera_dist=%.1f\n\ttheta=%.1f\n\tphi=%.1f\n\textrusion=%.1f\n\trampl=%.1f.\n",
-			   MI_NAME(mi), camera_dist, tp->theta, tp->phi,
-			   tp->extrusion, tp->rampl);
+			   "%s:\n\tcamera_dist=%.1f\n\ttheta=%.1f\n\tphi=%.1f\n\textrusion=%.1f\n\trampl=%.1f.\n\trfreq=%.1f\n\tdirection=%d\n",
+			   MI_NAME(mi), tp->camera_dist, tp->theta, tp->phi,
+			   tp->extrusion, tp->rampl,tp->rfreq,tp->direction);
 	}
 /*
 	glXSwapBuffers(display, window);
@@ -1049,9 +1257,9 @@ void
     if (MI_IS_DEBUG(mi))
     {
 	(void) fprintf(stderr,
-		       "%s:\n\tcamera_dist=%.1f\n\ttheta=%.1f\n\tphi=%.1f\n\textrusion=%.1f\n\trampl=%.1f\n",
-		       MI_NAME(mi), camera_dist, tp->theta, tp->phi,
-		       tp->extrusion, tp->rampl);
+		       "%s:\n\tcamera_dist=%.1f\n\ttheta=%.1f\n\tphi=%.1f\n\textrusion=%.1f\n\trampl=%.1f\n\trfreq=%.1f\n\tdirection=%d\n",
+		       MI_NAME(mi), tp->camera_dist, tp->theta, tp->phi,
+		       tp->extrusion, tp->rampl,tp->rfreq,tp->direction);
     }
 
 /*
@@ -1061,7 +1269,7 @@ void
 
 /*
  *-----------------------------------------------------------------------------
- *    The display is being taken away from us.  Free up malloc'ed 
+ *    The display is being taken away from us.  Free up malloc'ed
  *      memory and X resources that we've alloc'ed.  Only called
  *      once, we must zap everything for every screen.
  *-----------------------------------------------------------------------------

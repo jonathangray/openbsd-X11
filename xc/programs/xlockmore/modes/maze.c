@@ -30,14 +30,14 @@ static const char sccsid[] = "@(#)maze.c	4.07 97/11/24 xlockmore";
  * 20-Jul-95: minimum size fix Peter Schmitzberger <schmitz@coma.sbg.ac.at>
  * 17-Jun-95: removed sleep statements
  * 22-Mar-95: multidisplay fix Caleb Epstein <epstein_caleb@jpmorgan.com>
- * 9-Mar-95: changed how batchcount is used 
+ * 9-Mar-95: changed how batchcount is used
  * 27-Feb-95: patch for VMS
  * 4-Feb-95: patch to slow down maze Heath Kehoe <hakehoe@icaen.uiowa.edu>
  * 17-Jun-94: HP ANSI C compiler needs a type cast for gray_bits
- *            Richard Lloyd <R.K.Lloyd@csc.liv.ac.uk> 
+ *            Richard Lloyd <R.K.Lloyd@csc.liv.ac.uk>
  * 2-Sep-93: xlock version David Bagley <bagleyd@tux.org>
  * 7-Mar-93: Good ideas from xscreensaver Jamie Zawinski <jwz@jwz.org>
- * 6-Jun-85: Martin Weiss Sun Microsystems 
+ * 6-Jun-85: Martin Weiss Sun Microsystems
  */
 
 /*-

@@ -307,9 +307,9 @@ execxlock(Widget w, char *str, int index, void *data)
 	}
 }
 
-/* This function sets up the display.  For any kind of a real program, 
+/* This function sets up the display.  For any kind of a real program,
  * you'll probably want to save the values returned by the MakeXXX calls
- * so that you have a way to refer to the display objects you have 
+ * so that you have a way to refer to the display objects you have
  * created (like if you have more than one drawing area, and want to
  * draw into both of them).
  */

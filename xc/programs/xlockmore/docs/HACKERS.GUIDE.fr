@@ -1,8 +1,8 @@
-I translate a part of the HACKER.DOC in french 
+I translate a part of the HACKER.DOC in french
 first in text
 second in html
 bye
--- 
+--
 charles /  \
 vidal  / ..|\
       (_\  |_)vidalc@club-internet.fr
@@ -18,24 +18,24 @@ LA DOC DU BIDOUILLEUR
 INTRODUCTION
 ________________________________________________________________________________
 
-Ce document est pour tous ceux qui veulent modifier xlock (more), ajouter de 
+Ce document est pour tous ceux qui veulent modifier xlock (more), ajouter de
 nouveaux modes, debugger , etc....
 
 xlock kesako ?
 
-xlock est une application pour X-windows qui empˆche l'accŠs d'un ou plusieurs 
-‚crans. Il peut ˆtre envoy‚ manuellement ou plus commun‚ment envoy‚ 
-automatiquement par un d‚mon aprŠs une p‚riodes d'inactivit‚. 
-Xlock cr‚‚ une fenˆtre couvrant entiŠrement l'‚cran, et capte tous ‚v‚nements 
-pr‚venant ainsi l'accŠs ext‚rieur. 
-Quand une touche est press‚e alors xlock affiche un message mais aussi le mode 
-dans une icone 
+xlock est une application pour X-windows qui empˆche l'accŠs d'un ou plusieurs
+‚crans. Il peut ˆtre envoy‚ manuellement ou plus commun‚ment envoy‚
+automatiquement par un d‚mon aprŠs une p‚riodes d'inactivit‚.
+Xlock cr‚‚ une fenˆtre couvrant entiŠrement l'‚cran, et capte tous ‚v‚nements
+pr‚venant ainsi l'accŠs ext‚rieur.
+Quand une touche est press‚e alors xlock affiche un message mais aussi le mode
+dans une icone
 (MODE_ICONIQUE) et demande votre mot de passe.
-Lorsque l'‚cran est lock‚ ( ferm‚ ), des images, des dessins, ou des animations 
+Lorsque l'‚cran est lock‚ ( ferm‚ ), des images, des dessins, ou des animations
 sont affich‚es servant de screen-saver ‚vitant la d‚gradation du phosphore.
-Xlock fut d‚velopp‚ chez Sun Micro System par Pack J Naughton.David Bagley l'a 
-repris et maintenu sous le nom de Xlockmore dans lequel d'innombrable mode ont 
-‚t‚ ajout‚, ainsi que la possibilit‚ d'afficher un mode dans une fenˆtre et 
+Xlock fut d‚velopp‚ chez Sun Micro System par Pack J Naughton.David Bagley l'a
+repris et maintenu sous le nom de Xlockmore dans lequel d'innombrable mode ont
+‚t‚ ajout‚, ainsi que la possibilit‚ d'afficher un mode dans une fenˆtre et
 aussi sur la root window.
 
 ________________________________________________________________________________
@@ -43,20 +43,20 @@ ORGANISATION GENERALE
 
 xlock est organiser en deux partie.
 
-1. le traitement de la ligne de commande, la cr‚ation de fenˆtre, le mot de 
+1. le traitement de la ligne de commande, la cr‚ation de fenˆtre, le mot de
 passe, etc ...
 
-2 les modes: ils peuvent ˆtre coder de tel maniŠre qu'il n'y a pas besoin de 
-faire appel … X pour la taille de la fenˆtre, les couleurs ... 
-Une API est comprise dans xlock pour avoir tout les renseignements en ce qui 
+2 les modes: ils peuvent ˆtre coder de tel maniŠre qu'il n'y a pas besoin de
+faire appel … X pour la taille de la fenˆtre, les couleurs ...
+Une API est comprise dans xlock pour avoir tout les renseignements en ce qui
 concerne l'‚cran.
 C'est dans cette partie que vous allez pouvoir ajouter d'autres modes.
 
 L'architecture logiciel d'un mode est structur‚ en 4 sortes de fonctions:
 
 -init:
-celle-ci devra ˆtre appelle pour pr‚parer le d‚roulement d'un mode. Le mode 
-devra initialiser des tables de sinus 
+celle-ci devra ˆtre appelle pour pr‚parer le d‚roulement d'un mode. Le mode
+devra initialiser des tables de sinus
 par exemple, allouer des ressources, m‚moire entre autre, ‚tablir l'‚tat initial
 par des variables etc. ...
 Cette fonction peut ˆtre appel‚ plusieurs fois et la fenˆtre ou l'‚cran peuvent avoir des taille diff‚rentes.
@@ -66,17 +66,17 @@ C'est la principale fonction, c'est la que est implement‚ le corps du mode.
  Elle est appel‚ p‚riodiquement.
  Cette fonction ne doit pas occuper beaucoup de temps a s'ex‚cuter.
 Cette fonction peut etre appele dans deux contextes diff‚rents:
- plein ‚cran ou en version icon. La fonction MI_IS_ICONIC vous dira dans 
+ plein ‚cran ou en version icon. La fonction MI_IS_ICONIC vous dira dans
 quelle contexte on se trouve.
 
--release: 
+-release:
 Ici, cette fonction sera appel‚ si un autre mode est appel‚ ( random , et bouton
-droit ), ou si xlock se termine. 
-Dans cette fonction, il faut d‚sallouer la m‚moire, X ressource, Pixmaps et 
+droit ), ou si xlock se termine.
+Dans cette fonction, il faut d‚sallouer la m‚moire, X ressource, Pixmaps et
 graphics context.
 
 -refresh:
- Celle ci est appel‚ lorsque le dessin peut ˆtre abim‚. Le mode doit repeindre 
+ Celle ci est appel‚ lorsque le dessin peut ˆtre abim‚. Le mode doit repeindre
 l'ensemble de la fenˆtre.
 
 -change: ???? <A FINIR>
@@ -87,10 +87,10 @@ ________________________________________________________________________________
 CONVERSION:
 Le prototype de ces fonctions est d‚fini dans mode.h et ressemble …:
 	void typefonction _mode( ModeInfo *mode_info)
-La structure mode_info est en lecture seule, et contient l'ensemble des 
-informations sur l'‚cran. 
-Ne regardez pas les variables globales, n'‚crasez pas ce pointeur. 
-Au lieu de faire des requetes pour connaŒtre le num‚ro de la couleur blanche 
+La structure mode_info est en lecture seule, et contient l'ensemble des
+informations sur l'‚cran.
+Ne regardez pas les variables globales, n'‚crasez pas ce pointeur.
+Au lieu de faire des requetes pour connaŒtre le num‚ro de la couleur blanche
 etc... , il y a des fonctions propres a xlock: utilisez les.
 
 
@@ -118,17 +118,17 @@ mais aussi dans mode.c … cot‚ des autres fonctions , dans ce que j'appelle la
 
 On passe ensuite … l'impl‚mentation des fonctions proprement dit dans un fichier
 que l'on appellera fadeplot.c.
-Il est ‚vident qu'il faudra modifier le Makefile ( Pour cela je vous laisse 
+Il est ‚vident qu'il faudra modifier le Makefile ( Pour cela je vous laisse
 faire :).
 
-Dans ces fonctions, … partir de la structure ModeInfo, on va obtenir des 
+Dans ces fonctions, … partir de la structure ModeInfo, on va obtenir des
 informations sur l'‚cran qui sont indispensables pour la suite
 
 MI_WIDTH(mi) et MI_HEIGHT(mi) 	vont nous donn‚ la taille de l'‚cran.
 Display    *display    = MI_DISPLAY(mi);	d‚livre le display
 Window      window = MI_WINDOW(mi);	  d‚livre l'identificateur de la fenˆtre
 GC          gc               = MI_GC(mi);    donne le graphics context courant
-XSetForeground(display, gc, MI_BLACK_PIXEL(mi)); 
+XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 				Mettre la couleur du trac‚ en noir
 XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
 				 Mettre la couleur du trac‚ en blanc
@@ -138,13 +138,13 @@ MI_IS_ICONIC(mi)		permet de savoir si on est pass‚ en phase
 NUMCOLORS			Donne le nombre de couleur
 
 
-Oubliez pas aprŠs avoir dessin‚ l'ensemble de faire Xflush(display), 
+Oubliez pas aprŠs avoir dessin‚ l'ensemble de faire Xflush(display),
 ce qui permettra d'afficher r‚ellement votre graphisme sur l'‚cran.
-La cr‚ation d'un nouveau mode s'‚ffectue souvent en r‚cup‚rant le squelette 
+La cr‚ation d'un nouveau mode s'‚ffectue souvent en r‚cup‚rant le squelette
 d'un autre et de le modifier … sa volont‚.
-N'h‚sitez pas a … regarder le code des autres modes, c'est souvent tr‚s 
+N'h‚sitez pas a … regarder le code des autres modes, c'est souvent tr‚s
 instructifs.
-Dernierement on peut utiliser la librairie mesa (la libraire GNU OpenGL de 
+Dernierement on peut utiliser la librairie mesa (la libraire GNU OpenGL de
 silicon Graphics) dans xlock.
 Voila j'espere que vous prendrez plaisir a ajouter des nouveaux modes … xlock,
  un petit conseil le mainteneur de xlock est un fan de casse tˆte et compagnie.
@@ -170,7 +170,7 @@ Ce document est pour tous ceux qui veulent modifier xlock (more), ajouter de nou
 <H2>xlock kesako ?</H2>
 
 xlock est une application pour X-windows qui empêche l’accès d’un ou plusieurs écrans. Il peut être envoyé manuellement ou plus communément envoyé automatiquement par un démon après une périodes d’inactivité.
- Xlock créé une fenêtre couvrant entièrement l’écran, et capte tous événements prévenant ainsi l’accès extérieur. 
+ Xlock créé une fenêtre couvrant entièrement l’écran, et capte tous événements prévenant ainsi l’accès extérieur.
 Quand une touche est pressée alors xlock affiche un message mais aussi le mode dans une icone (MODE_ICONIQUE) et demande votre mot de passe.<p>
 Lorsque l’écran est locké ( fermé ), des images, des dessins, ou des animations sont affichées servant de screen-saver évitant la dégradation du phosphore.
 Xlock fut développé chez Sun Micro System par Pack J Naughton.David Bagley l’a repris et maintenu sous le nom de Xlockmore dans lequel d’innombrable mode ont été ajouté, ainsi que la possibilité d’afficher un mode dans une fenêtre et aussi sur la root window ou d’afficher sequentiellement plusieur mode par l’option random et par l’appuis du bouton du millieu.<p>
@@ -183,7 +183,7 @@ xlock est organiser en deux partie.<p>
 
 <OL>
 <LI> le traitement de la ligne de commande, la création de fenêtre(s), le mot de passe, etc ...
-<LI> les modes: ils peuvent être coder de tel manière qu’il n’y a pas besoin de faire appel à X pour la taille de la fenêtre, les couleurs ... Une API est comprise dans xlock pour avoir tout les renseignements en ce qui concerne l’écran.C’est dans cette 
+<LI> les modes: ils peuvent être coder de tel manière qu’il n’y a pas besoin de faire appel à X pour la taille de la fenêtre, les couleurs ... Une API est comprise dans xlock pour avoir tout les renseignements en ce qui concerne l’écran.C’est dans cette
 </OL>
 <HR>
 <B>L’architecture logiciel d’un mode est structuré en 4 sortes de fonctions:</B>
@@ -206,7 +206,7 @@ Ici, cette fonction sera appelé si un autre mode est appelé ( random , et bouton
  Celle ci est appelé lorsque le dessin peut être abimé. Le mode doit repeindre l’ensemble de la fenêtre.
 Aucun information sur la partie de l’ecran endomage n’est delivre.
 <p>
-<LI><U><B>-change:</B></U> Dans la version courante, seule le mode random utilise cette fonctionnalite. Cet fonction est appele lorsque que l’on change de mode par l’appuie du boutton du millieu. Il est laisse a l’imagination de chacun en ce qui conserne 
+<LI><U><B>-change:</B></U> Dans la version courante, seule le mode random utilise cette fonctionnalite. Cet fonction est appele lorsque que l’on change de mode par l’appuie du boutton du millieu. Il est laisse a l’imagination de chacun en ce qui conserne
 </UL>
 
 

@@ -70,7 +70,7 @@ static const char sccsid[] = "@(#)cartoon.c	4.07 97/11/24 xlockmore";
 -visual DirectColor may yield
 X Error of failed request:  BadMatch (invalid parameter attributes)
  Major opcode of failed request:  2 (X_ChangeWindowAttributes)
-puzzle.c has the same disease.  
+puzzle.c has the same disease.
  */
 
 #ifdef STANDALONE

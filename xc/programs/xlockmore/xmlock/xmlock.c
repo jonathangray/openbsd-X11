@@ -230,9 +230,7 @@ Setup_Widget(Widget father)
 	Widget      Row, PushButtonRow, TogglesRow, ModeLabel, SwitchLabel;
 	char        string[160];
 	XmString    label_str;
-
-#define NUMPROCS 100		/* Greater than or equal to numprocs */
-	XmString    TabXmStr[NUMPROCS];
+	XmString    TabXmStr[numprocs];
 
 	ac = 0;
 	XtSetArg(args[ac], XmNrightAttachment, XmATTACH_FORM);
@@ -313,9 +311,6 @@ Setup_Widget(Widget father)
 	ac++;
 	Row = XmCreateRowColumn(father, "Row", args, ac);
 
-	if (numprocs > NUMPROCS) {
-		(void) printf("NUMPROCS too small should be at least %d\n", numprocs);
-	}
 	for (i = 0; i < numprocs; i++) {
 		(void) sprintf(string, "%-14s%s", LockProcs[i].cmdline_arg,
 			       LockProcs[i].desc);

@@ -229,7 +229,7 @@ init_braid(ModeInfo * mi)
 
 	braid->startcolor = (MI_NPIXELS(mi) > 2) ?
 		(float) NRAND(MI_NPIXELS(mi)) : 0.0;
-	/* XSetLineAttributes (display, MI_GC(mi), 2, LineSolid, CapRound, 
+	/* XSetLineAttributes (display, MI_GC(mi), 2, LineSolid, CapRound,
 	   JoinRound); */
 
 	(void) memset((char *) braid->components, 0, sizeof (braid->components));

@@ -21,12 +21,12 @@ static const char sccsid[] = "@(#)morph3d.c	4.07 97/11/24 xlockmore";
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
- * The original code for this mode was written by Marcelo Fernandes Vianna 
+ * The original code for this mode was written by Marcelo Fernandes Vianna
  * (me...) and was inspired on a WindowsNT(R)'s screen saver (Flower Box).
- * It was written from scratch and it was not based on any other source code. 
- * 
- * Porting it to xlock (the final objective of this code since the moment I 
- * decided to create it) was possible by comparing the original Mesa's gear 
+ * It was written from scratch and it was not based on any other source code.
+ *
+ * Porting it to xlock (the final objective of this code since the moment I
+ * decided to create it) was possible by comparing the original Mesa's gear
  * demo with it's ported version to xlock, so thanks for Danny Sung (look at
  * gear.c) for his indirect help.
  *
@@ -793,6 +793,7 @@ init_morph3d(ModeInfo * mi)
 	if ((mp->glx_context = init_GL(mi)) != NULL) {
 
 		reshape(mi, MI_WIDTH(mi), MI_HEIGHT(mi));
+	    glDrawBuffer(GL_BACK);
 		mp->object = MI_COUNT(mi);
 		if (mp->object <= 0 || mp->object > 5)
 			mp->object = NRAND(5) + 1;
@@ -815,7 +816,6 @@ draw_morph3d(ModeInfo * mi)
 	if (!mp->glx_context)
 		return;
 
-	glDrawBuffer(GL_BACK);
 	glXMakeCurrent(display, window, *(mp->glx_context));
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

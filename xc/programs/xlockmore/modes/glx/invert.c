@@ -17,7 +17,7 @@
  *
  * Demonstration of turning a sphere inside out without creating
  * any kinks (two surfaces can occupy the same space at the same time).
- * 
+ *
  */
 
 /*-
@@ -43,7 +43,7 @@ static void
 reshape(int width, int height)
 {
   GLfloat     h = (GLfloat) height / (GLfloat) width;
-  
+
   glViewport(0, 0, (GLint) width, (GLint) height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -51,7 +51,7 @@ reshape(int width, int height)
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glTranslatef(0.0, 0.0, -10.0);
-  
+
   /* The depth buffer will be cleared, if needed, before the
    * next frame.  Right now we just want to black the screen.
    */
@@ -78,7 +78,7 @@ pinit(void)
   /* spherestruct *gp = &spheres[MI_SCREEN(mi)]; */
   static GLfloat pos[4] =
   {5.0, 5.0, 10.0, 0.0};
-  
+
   glLightfv(GL_LIGHT0, GL_POSITION, pos);
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
   glEnable(GL_LIGHTING);
@@ -103,13 +103,13 @@ init_invert(ModeInfo * mi)
   int         screen = MI_SCREEN(mi);
 
   spherestruct *gp;
-  
+
   if (spheres == NULL) {
     if ((spheres = (spherestruct *) calloc(MI_NUM_SCREENS(mi),
 					   sizeof (spherestruct))) == NULL)
       return;
   }
-  
+
   gp = &spheres[screen];
   gp->time = 0;
   gp->construction = 1;
@@ -120,7 +120,7 @@ init_invert(ModeInfo * mi)
   gp->view_rotz = NRAND(360);
   gp->glx_context = init_GL(mi);
   gp->frames = glGenLists(STEPS);
-  
+
   reshape(MI_WIDTH(mi), MI_HEIGHT(mi));
   pinit();
 }
@@ -133,9 +133,9 @@ draw_invert(ModeInfo * mi)
   Window      window = MI_WINDOW(mi);
   /* int         angle_incr = MI_CYCLES(mi) ? MI_CYCLES(mi) : 2; */
   int         rot_incr = MI_COUNT(mi) ? MI_COUNT(mi) : 1;
-  
+
   glDrawBuffer(GL_BACK);
-  
+
   glXMakeCurrent(display, window, *(gp->glx_context));
   invert_draw(gp);
 
@@ -153,7 +153,7 @@ draw_invert(ModeInfo * mi)
   gp->view_rotx = (int) (gp->view_rotx + rot_incr) % 360;
   gp->view_roty = (int) (gp->view_roty + rot_incr) % 360;
   gp->view_rotz = (int) (gp->view_rotz + rot_incr) % 360;
-  
+
   glFinish();
   glXSwapBuffers(display, window);
 }
@@ -163,10 +163,10 @@ release_invert(ModeInfo * mi)
 {
   if (spheres != NULL) {
     int         screen;
-    
+
     for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
       spherestruct *gp = &spheres[screen];
-      
+
       /* Display lists MUST be freed while their glXContext is current. */
       glXMakeCurrent(MI_DISPLAY(mi), MI_WINDOW(mi), *(gp->glx_context));
 

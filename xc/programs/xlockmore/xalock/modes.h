@@ -50,7 +50,10 @@ static char *LockProcs[] =
 "ico",
 "ifs",
 "image",
+#if defined( USE_GL ) && defined( HAVE_CXX )
 "invert",
+#endif
+"juggle",
 "julia",
 "kaleid",
 "kumppa",
@@ -96,6 +99,12 @@ static char *LockProcs[] =
 "shape",
 "sierpinski",
 "slip",
+#ifdef HAVE_CXX
+"solitare",
+#endif
+#ifdef USE_UNSTABLE
+"space",
+#endif
 "sphere",
 "spiral",
 "spline",
@@ -113,6 +122,7 @@ static char *LockProcs[] =
 #endif
 "swarm",
 "swirl",
+"t3d",
 "tetris",
 "thornbird",
 "tik_tak",
@@ -127,7 +137,6 @@ static char *LockProcs[] =
 "worm",
 "xjack",
 "blank",
-
 #ifdef USE_BOMB
 "bomb",
 "random"
@@ -136,4 +145,4 @@ static char *LockProcs[] =
 #endif
 };
 
-static int  numprocs = sizeof (LockProcs) / sizeof (LockProcs[0]);
+#define numprocs (sizeof (LockProcs) / sizeof (LockProcs[0]))

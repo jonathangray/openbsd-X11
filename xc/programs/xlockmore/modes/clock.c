@@ -23,7 +23,7 @@ static const char sccsid[] = "@(#)clock.c	4.07 97/11/24 xlockmore";
  *
  * The design was highly inspirated from 'oclock' but not the code,
  * which is all mine.
- * 
+ *
  * Revision History:
  * 10-May-97: Compatible with xscreensaver
  * 24-Dec-95: Ron Hitchens <ron@idiom.com> cycles range and defaults

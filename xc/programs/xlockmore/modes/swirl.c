@@ -348,7 +348,7 @@ initialise_colours(COLOUR * colours, float saturate)
  * WhitePixel & BlackPixel in an array of colour specifications.
  *
  * -      swirl is the swirl data
- * -      values is the array of specifications 
+ * -      values is the array of specifications
  */
 static void
 set_black_and_white(SWIRL_P swirl, XColor * values)

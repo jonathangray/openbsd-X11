@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)tetris.c	4.13 98/10/01 xlockmore";
  * other special, indirect and consequential damages.
  *
  * The author should like to be notified if changes have been made to the
- * routine.  Response will only be guaranteed when a VMS version of the 
+ * routine.  Response will only be guaranteed when a VMS version of the
  * program is available.
  *
  * An autoplaying tetris mode for xlockmore
@@ -44,7 +44,7 @@ static const char sccsid[] = "@(#)tetris.c	4.13 98/10/01 xlockmore";
  * This program is distributed in the hope that it will be "playable",
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * Todo list consists of (in this order):
  *  -Removal of "full" lines
  *  -Adding rotation/shifting
@@ -216,6 +216,7 @@ typedef struct {
 static trisstruct *triss = NULL;
 static int icon_width, icon_height;
 
+void init_tetris(ModeInfo * mi);
 
 static int
 ominos[] =
@@ -541,7 +542,7 @@ checkLines(ModeInfo *mi)
 	int	     i, j, y;
 
 
-	lSet = calloc(tp->nrows, sizeof (int));
+	lSet = (int *) calloc(tp->nrows, sizeof (int));
 	for (j = 0; j < tp->nrows; j++) {
 		for (i = 0; i < tp->ncols; i++)
 			if (tp->field[j * tp-> ncols + i].pmid >= 0)
@@ -551,7 +552,7 @@ checkLines(ModeInfo *mi)
 	}
 
 	if (nset) {
-#ifdef UNDER_CONSTRUCTION 
+#ifdef UNDER_CONSTRUCTION
 		for (i = 0; i < ((NUM_FLASHES / nset) % 2) * 2; i++) {
 			for (j = 0; j < tp->nrows; j++) {
 				if (lSet[j] == tp->ncols)
@@ -571,10 +572,10 @@ checkLines(ModeInfo *mi)
 				for (i = 0; i < tp->ncols; i++)
 					tp->field[i].pmid = -1;
 
-#ifdef UNDER_CONSTRUCTION 
+#ifdef UNDER_CONSTRUCTION
 				XCopyArea(display, blockWin, blockWin, tinyGC,
 				  0, 0, frameW, j * BOXSIZE, 0, BOXSIZE);
-		
+
 				XFillRectangle(display, blockWin, revGC,
 				  0, 0, frameW, BOXSIZE);
 #endif
@@ -630,7 +631,7 @@ moveOne(ModeInfo *mi, move_t move)
 
     if ((move == DROP) || ((move == FALL) && atBottom(mi))) {
 	putBox(mi);
-#ifdef UNDER_CONSTRUCTION 
+#ifdef UNDER_CONSTRUCTION
 	{
 		int	     lines;
 
@@ -648,7 +649,7 @@ moveOne(ModeInfo *mi, move_t move)
 	newPolyomino(mi);
 	XSync(display, True);	/* discard all events */
 	if (overlapping(mi)) {
-#ifdef UNDER_CONSTRUCTION 
+#ifdef UNDER_CONSTRUCTION
 		gameOver();
 #endif
 		init_tetris(mi);
@@ -659,7 +660,7 @@ moveOne(ModeInfo *mi, move_t move)
 	return True;
     } else {
 	tryMove(mi, move);
-#ifdef UNDER_CONSTRUCTION 
+#ifdef UNDER_CONSTRUCTION
 	if (rows > THRESHOLD(level)) {
 	    level++;
 	    if (bonus)
@@ -712,7 +713,7 @@ draw_tetris(ModeInfo * mi) {
 			tp->direction = -tp->direction;
 	}
 
-	moveOne(mi, FALL);
+	(void) moveOne(mi, FALL);
 }
 
 void
@@ -736,7 +737,8 @@ release_tetris(ModeInfo * mi) {
 					free_colors(display, tp->cmap, tp->colors, tp->ncolors);
 				if (tp->colors)
 					(void) free((void *) tp->colors);
-				XFreeColormap(display, tp->cmap);
+				if (tp->cmap)
+				  XFreeColormap(display, tp->cmap);
 			}
 			if (tp->gc != NULL)
 				XFreeGC(display, tp->gc);
@@ -853,7 +855,7 @@ init_tetris(ModeInfo * mi) {
 
 	if (tp->field)
 		(void) free((void *) tp->field);
-	tp->field = malloc(tp->ncols * tp->nrows * sizeof (fieldstruct));
+	tp->field = (fieldstruct *) malloc(tp->ncols * tp->nrows * sizeof (fieldstruct));
 	for (i = 0; i < tp->ncols * tp->nrows; i++) {
 		tp->field[i].pmid = -1;
 		tp->field[i].cid = 0;

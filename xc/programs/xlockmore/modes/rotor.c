@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)rotor.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 10-May-97:  Compatible with xscreensaver
+ * 10-May-97: Compatible with xscreensaver
  * 08-Mar-95: CAT stuff for ## was tripping up some C compilers.  Removed.
  * 01-Dec-93: added patch for AIXV3 from Tom McConnell
  *            <tmcconne@sedona.intel.com>
@@ -35,9 +35,9 @@ static const char sccsid[] = "@(#)rotor.c	4.07 97/11/24 xlockmore";
 #define HACK_INIT init_rotor
 #define HACK_DRAW draw_rotor
 #define rotor_opts xlockmore_opts
-#define DEFAULTS "*delay: 10000 \n" \
+#define DEFAULTS "*delay: 500 \n" \
  "*count: 4 \n" \
- "*cycles: 20 \n" \
+ "*cycles: 100 \n" \
  "*size: -6 \n" \
  "*ncolors: 200 \n"
 #define SMOOTH_COLORS
@@ -55,7 +55,7 @@ ModeSpecOpt rotor_opts =
 ModStruct   rotor_description =
 {"rotor", "init_rotor", "draw_rotor", "release_rotor",
  "refresh_rotor", "init_rotor", NULL, &rotor_opts,
- 10000, 4, 20, -6, 64, 0.3, "",
+ 500, 4, 100, -6, 64, 0.3, "",
  "Shows Tom's Roto-Rooter", 0, NULL};
 
 #endif

@@ -173,7 +173,7 @@ typedef unsigned char vertex_type_c;
  * to fill.
  *
  * Here we use a doubly chained ring-like structure as vertices often need
- * to be removed or inserted (they are kept in geometrical order 
+ * to be removed or inserted (they are kept in geometrical order
  * circling the tiled area counterclockwise).  The ring is refered to by
  * a pointer to one more or less random node.  When deleting nodes one
  * must make sure that this pointer continues to refer to a valid

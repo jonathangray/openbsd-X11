@@ -358,13 +358,12 @@ Draw_Fractal(ModeInfo * mi)
 	}
 
 	/* Erase previous */
-
 	if (F->Cur_Pt) {
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 		if (F->dbuf) {
 			XSetForeground(display, F->dbuf_gc, 0);
-/* XDrawPoints(display, F->dbuf, F->dbuf_gc, F->Buffer1, F->Cur_Pt,
-   CoordModeOrigin); */
+			/* XDrawPoints(display, F->dbuf, F->dbuf_gc, F->Buffer1, F->Cur_Pt,
+  				CoordModeOrigin); */
 			XFillRectangle(display, F->dbuf, F->dbuf_gc, 0, 0,
 				       F->Width, F->Height);
 		} else
@@ -462,9 +461,8 @@ draw_ifs(ModeInfo * mi)
 void
 release_ifs(ModeInfo * mi)
 {
-	int         screen;
-
 	if (Root != NULL) {
+		int         screen;
 		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
 			FRACTAL    *Fractal = &Root[screen];
 

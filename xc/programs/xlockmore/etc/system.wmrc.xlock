@@ -41,8 +41,8 @@
 	"Lyapunov"	EXEC	xlock -mode lyapunov -install
 	"Mandelbrot"	EXEC	xlock -mode mandelbrot -install
 	"Mountain"	EXEC	xlock -mode mountain
-	"Sierpinski"	EXEC	xlock -mode sierpinski 
-	"Strange"	EXEC	xlock -mode strange 
+	"Sierpinski"	EXEC	xlock -mode sierpinski
+	"Strange"	EXEC	xlock -mode strange
 	"Thornbird"	EXEC	xlock -mode thornbird
 	"Triangle"	EXEC	xlock -mode triangle
 	"Turtle"	EXEC	xlock -mode turtle
@@ -58,7 +58,7 @@
 	"Ico"		EXEC	xlock -mode ico
 	"Kaleid"	EXEC	xlock -mode kaleid
 	"Laser"		EXEC	xlock -mode laser
-	"Lisa"	EXEC	xlock -mode lisa
+	"Lisa"		EXEC	xlock -mode lisa
 	"Lissie"	EXEC	xlock -mode lissie
 	"Penrose"	EXEC	xlock -mode penrose +ammann
 	"Penrose Ammann"	EXEC xlock -mode penrose -ammann
@@ -103,6 +103,7 @@
 	"Eyes"		EXEC	xlock -mode eyes +trackmouse
 	"Eyesptr"	EXEC	xlock -mode eyes -trackmouse
 	"Goop"		EXEC	xlock -mode goop
+	"Juggle"	EXEC	xlock -mode goop
 	"Marquee"	EXEC	xlock -mode marquee
 	"Matrix"	EXEC	xlock -mode matrix
 	"Munch"		EXEC	xlock -mode munch
@@ -112,15 +113,18 @@
 	"Pyro3d"	EXEC	xlock -mode pyro -use3d
 	"Roll"		EXEC	xlock -mode roll
 	"Slip"		EXEC	xlock -mode slip
+	"Solitare"	EXEC	xlock -mode solitare +trackmouse
+	"Solitareptr"	EXEC	xlock -mode solitare -trackmouse
 	"Starfish"	EXEC	xlock -mode starfish -install
 	"Swarm"		EXEC	xlock -mode swarm +trackmouse
 	"Swarmptr"	EXEC	xlock -mode swarm -trackmouse
 	"Swirl"		EXEC	xlock -mode swirl -install
-	"Tetris"		EXEC	xlock -mode tetris
+	"T3d"		EXEC	xlock -mode t3d
+	"Tetris"	EXEC	xlock -mode tetris
 	"Tube"		EXEC	xlock -mode tube -install
 	"Worm"		EXEC	xlock -mode worm +use3d
 	"Worm3d"	EXEC	xlock -mode worm -use3d
-	"Xjack"	EXEC	xlock -mode xjack
+	"Xjack"		EXEC	xlock -mode xjack
 "Assorted" END
 
 "XPM" MENU
@@ -280,6 +284,7 @@
 	"Eyes"		EXEC	xlock -nolock -mode eyes +trackmouse
 	"Eyesptr"	EXEC	xlock -nolock -mode eyes -trackmouse
 	"Goop"		EXEC	xlock -nolock -mode goop
+	"Juggle"	EXEC	xlock -nolock -mode goop
 	"Marquee"	EXEC	xlock -nolock -mode marquee
 	"Matrix"	EXEC	xlock -nolock -mode matrix
 	"Munch"		EXEC	xlock -nolock -mode munch
@@ -289,10 +294,13 @@
 	"Pyro3d"	EXEC	xlock -nolock -mode pyro -use3d
 	"Roll"		EXEC	xlock -nolock -mode roll
 	"Slip"		EXEC	xlock -nolock -mode slip
+	"Solitare"	EXEC	xlock -nolock -mode solitare +trackmouse
+	"Solitareptr"	EXEC	xlock -nolock -mode solitare -trackmouse
 	"Starfish"	EXEC	xlock -nolock -mode starfish -install
 	"Swarm"		EXEC	xlock -nolock -mode swarm +trackmouse
 	"Swarmptr"	EXEC	xlock -nolock -mode swarm -trackmouse
 	"Swirl"		EXEC	xlock -nolock -mode swirl -install
+	"T3d"		EXEC	xlock -nolock -mode t3d
 	"Tetris"	EXEC	xlock -nolock -mode tetris
 	"Tube"		EXEC	xlock -nolock -mode tube -install
 	"Worm"		EXEC	xlock -nolock -mode worm +use3d

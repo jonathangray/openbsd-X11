@@ -5,7 +5,7 @@
 static const char sccsid[] = "@(#)deco.c 4.07 97/11/24 xlockmore";
 
 #endif
-/* 
+/*
  * Copyright (c) 1997 by Jamie Zawinski <jwz@jwz.org>
  *
  * Permission to use, copy, modify, and distribute this software and its
@@ -34,7 +34,7 @@ static const char sccsid[] = "@(#)deco.c 4.07 97/11/24 xlockmore";
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  *
  * Concept snarfed from Michael D. Bayne in

@@ -67,9 +67,9 @@ glb_draw_init(void)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, glb_config.bubble_colour);
 #else
 	{
-		/* 
+		/*
 		 * E. Lassauge - 98/06/29
-		 * Yeahh, cool ! Now that I know how to have random colors I 
+		 * Yeahh, cool ! Now that I know how to have random colors I
 		 * patch this pretty beautiful mode too !!
 		 */
 		GLfloat     fred, fgreen, fblue;

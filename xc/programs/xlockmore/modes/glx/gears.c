@@ -449,6 +449,7 @@ init_gears(ModeInfo * mi)
 
 	if ((gp->glx_context = init_GL(mi)) != NULL) {
 		reshape(MI_WIDTH(mi), MI_HEIGHT(mi));
+	    glDrawBuffer(GL_BACK);
 		pinit(mi);
 	} else {
 		MI_CLEARWINDOW(mi);
@@ -468,8 +469,6 @@ draw_gears(ModeInfo * mi)
 
 	if (!gp->glx_context)
 		return;
-
-	glDrawBuffer(GL_BACK);
 
 	glXMakeCurrent(display, window, *(gp->glx_context));
 	draw(mi);

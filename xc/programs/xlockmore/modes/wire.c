@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)wire.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 05-Dec-97: neighbors option added. 
+ * 05-Dec-97: neighbors option added.
  * 10-May-97: Compatible with xscreensaver
  * 14-Jun-96: Coded from A.K. Dewdney's "Computer Recreations", Scientific
  *            American Magazine" Jan 1990 pp 146-148.  Used ant.c as an
@@ -764,7 +764,7 @@ init_wire(ModeInfo * mi)
 		WIREBITS(stipples[NUMSTIPPLES - 1], STIPPLESIZE, STIPPLESIZE);
 		WIREBITS(stipples[NUMSTIPPLES - 3], STIPPLESIZE, STIPPLESIZE);
 		WIREBITS(stipples[2], STIPPLESIZE, STIPPLESIZE);
-		if (wp->pixmaps[2] == None) { 
+		if (wp->pixmaps[2] == None) {
 			release_wire(mi);
 			return;
 		}

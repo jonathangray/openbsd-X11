@@ -15,7 +15,7 @@ static const char sccsid[] = "@(#)hyper.c 4.12 98/08/04 xlockmore";
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  *
  ***
@@ -48,7 +48,7 @@ static const char sccsid[] = "@(#)hyper.c 4.12 98/08/04 xlockmore";
  * trade secrets or any patents by this file or any part thereof.  In no
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
- * 
+ *
  * Check out A.K. Dewdney's "Computer Recreations", Scientific American
  * Magazine" Apr 1986 pp 14-25 for more info.
  * Idea on 3d taken from there but does not work yet.  Also a small number of
@@ -436,10 +436,10 @@ figure_points(ModeInfo * mi)
 
 		for (n = i = 0; i < hp->num_d; i++) {
 			for (j = i + 1; j < hp->num_d; j++) {
-				hp->planes[n].a = 0;	
-				hp->planes[n].b = 1 << i;	
-				hp->planes[n].d = 1 << j;	
-				hp->planes[n].c = hp->planes[n].b + hp->planes[n].d;	
+				hp->planes[n].a = 0;
+				hp->planes[n].b = 1 << i;
+				hp->planes[n].d = 1 << j;
+				hp->planes[n].c = hp->planes[n].b + hp->planes[n].d;
 				/*(void) printf ("a %d, b %d, c %d, d %d\n",
 					0, 1 << i, (1 << i) + (1 << j), 1 << j);*/
 				if (MI_NPIXELS(mi) > 2) {

@@ -31,7 +31,7 @@ static const char sccsid[] = "@(#)spline.c	4.07 97/11/24 xlockmore";
  *           reminds me of a great "Twilight Zone" episode.
  * 1992:     X11 version Jef Poskanzer <jef@netcom.com>, <jef@well.sf.ca.us>
  *
- * spline fun #3 
+ * spline fun #3
  */
 
 /*-

@@ -35,7 +35,7 @@ static const char sccsid[] = "@(#)goop.c  4.10 98/03/24 xlockmore";
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  */
 
@@ -103,8 +103,8 @@ ModeSpecOpt goop_opts =
 #ifdef USE_MODULES
 ModStruct   goop_description =
 {"goop", "init_goop", "draw_goop", "release_goop",
- "refresh_goop", "init_goop", NULL, &goop_opts,
- 10000, -5, 1, 1, 64, 1.0, "",
+ "init_goop", "init_goop", NULL, &goop_opts,
+ 10000, -12, 1, 1, 64, 1.0, "",
  "Shows goop from a lava lamp", 0, NULL};
 
 #endif

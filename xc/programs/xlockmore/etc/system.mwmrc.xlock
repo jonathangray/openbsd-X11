@@ -10,7 +10,7 @@
 # For dt you may have to add the full path of xlock to "xlock" depending
 # whether the location xlock is installed is in a path of DT.
 # See /usr/dt/bin/Xsession look for instances of $PATH for system setup.
-# See supplied dtprofile for personal setup...i.e. DTSOURCEPROFILE=true 
+# See supplied dtprofile for personal setup...i.e. DTSOURCEPROFILE=true
 
 Menu Automata-Lock
 {
@@ -119,6 +119,7 @@ Menu Assorted-Lock
 	"Eyes"		f.exec "xlock -mode eyes +trackmouse &"
 	"Eyesptr"	f.exec "xlock -mode eyes -trackmouse &"
 	"Goop"		f.exec "xlock -mode goop &"
+	"Juggle"	f.exec "xlock -mode juggle &"
 	"Marquee"	f.exec "xlock -mode marquee &"
 	"Matrix"	f.exec "xlock -mode matrix &"
 	"Munch"		f.exec "xlock -mode munch &"
@@ -128,10 +129,13 @@ Menu Assorted-Lock
 	"Pyro3d"	f.exec "xlock -mode pyro -use3d &"
 	"Roll"		f.exec "xlock -mode roll &"
 	"Slip"		f.exec "xlock -mode slip &"
+	"Solitare"	f.exec "xlock -mode solitare +trackmouse &"
+	"Solitareptr"	f.exec "xlock -mode solitare -trackmouse &"
 	"Starfish"	f.exec "xlock -mode starfish -install &"
 	"Swarm"		f.exec "xlock -mode swarm +trackmouse &"
 	"Swarmptr"	f.exec "xlock -mode swarm -trackmouse &"
 	"Swirl"		f.exec "xlock -mode swirl -install &"
+	"T3d"		f.exec "xlock -mode t3d &"
 	"Tetris"	f.exec "xlock -mode tetris &"
 	"Tube"		f.exec "xlock -mode tube -install &"
 	"Worm"		f.exec "xlock -mode worm +use3d &"
@@ -341,6 +345,7 @@ Menu Assorted-Saver
 	"Eyes"		f.exec "xlock -nolock -mode eyes +trackmouse &"
 	"Eyesptr"	f.exec "xlock -nolock -mode eyes -trackmouse &"
 	"Goop"		f.exec "xlock -nolock -mode goop &"
+	"Juggle"	f.exec "xlock -nolock -mode juggle &"
 	"Marquee"	f.exec "xlock -nolock -mode marquee &"
 	"Matrix"	f.exec "xlock -nolock -mode matrix &"
 	"Munch"		f.exec "xlock -nolock -mode munch &"
@@ -350,10 +355,13 @@ Menu Assorted-Saver
 	"Pyro3d"	f.exec "xlock -nolock -mode pyro -use3d &"
 	"Roll"		f.exec "xlock -nolock -mode roll &"
 	"Slip"		f.exec "xlock -nolock -mode slip &"
+	"Solitare"	f.exec "xlock -nolock -mode solitare +trackmouse &"
+	"Solitareptr"	f.exec "xlock -nolock -mode solitare -trackmouse &"
 	"Starfish"	f.exec "xlock -nolock -mode starfish -install &"
 	"Swarm"		f.exec "xlock -nolock -mode swarm +trackmouse &"
 	"Swarmptr"	f.exec "xlock -nolock -mode swarm -trackmouse &"
 	"Swirl"		f.exec "xlock -nolock -mode swirl -install &"
+	"T3d"		f.exec "xlock -nolock -mode t3d &"
 	"Tetris"	f.exec "xlock -nolock -mode tetris &"
 	"Tube"		f.exec "xlock -nolock -mode tube -install &"
 	"Worm"		f.exec "xlock -nolock -mode worm +use3d &"
@@ -462,4 +470,3 @@ Menu "Lock_Saver"
 	"Screenlock"	f.menu Screenlock
 	"Screensaver"	f.menu Screensaver
 }
-

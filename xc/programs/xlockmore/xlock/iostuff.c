@@ -4,7 +4,7 @@ static const char sccsid[] = "@(#)iostuff.c	4.10 98/10/23 xlockmore";
 #endif
 
 /*-
- * iostuff.c - various file utilities for images, text, fonts 
+ * iostuff.c - various file utilities for images, text, fonts
  *
  * Copyright (c) 1998 by David Bagley
  *

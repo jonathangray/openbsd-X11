@@ -1,5 +1,5 @@
 // charles vidal 28.08.97 <vidalc@club-internet.fr>
-// the main file , with the main class 
+// the main file , with the main class
 // to compile javac xlock.java
 // to launch java xlock
 // in a browser you could show the GUI but , not launch the program

@@ -39,7 +39,7 @@ extern void reserveColors(ModeInfo * mi, Colormap cmap,
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  */
 
@@ -176,7 +176,7 @@ extern void rotate_colors(Display *, Colormap,
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  */
 
@@ -203,7 +203,7 @@ extern void rgb_to_hsv(unsigned short r, unsigned short g, unsigned short b,
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  */
 
@@ -221,6 +221,13 @@ extern int  screen_number(Screen *);
 extern Visual *find_similar_visual(Screen *, Visual * old);
 extern void describe_visual(FILE * f, Screen *, Visual *);
 extern Visual *get_overlay_visual(Screen *, unsigned long *pixel_return);
+
+#ifdef __cplusplus
+  extern "C" {
+#endif
 extern Bool has_writable_cells(ModeInfo * mi);
+#ifdef __cplusplus
+  }
+#endif
 
 #endif /* __VISUAL_H__ */

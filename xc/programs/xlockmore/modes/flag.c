@@ -24,7 +24,7 @@ static const char sccsid[] = "@(#)flag.c	4.07 97/11/24 xlockmore";
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
- * Revision History: 
+ * Revision History:
  * 24-Oct-97: xpm and ras capability added.
  * 13-May-97: jwz@jwz.org: turned into a standalone program.
  *            Made it able to animate arbitrary (runtime) text or bitmaps

@@ -390,9 +390,9 @@ reserveColors(ModeInfo * mi, Colormap cmap, unsigned long *black)
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
- * 
+ *
  * Modified for the use with xlockmore by Jouk Jansen <joukj@hrem.stm.tudelft.nl>
  * 12 June 1998
  */
@@ -1047,7 +1047,7 @@ rotate_colors(Display * dpy, Colormap cmap,
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  */
 

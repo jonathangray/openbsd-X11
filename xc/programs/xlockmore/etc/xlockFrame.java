@@ -12,7 +12,7 @@ Button blaunch;
 Button blaunchinw;
 Button bquit;
 Choice coptions;
-TextField foroptions; 
+TextField foroptions;
  List lst ;
 int	currentOption=0;
 
@@ -20,7 +20,7 @@ MyFrameError mfe;
 
 boolean isinapp=false;
 
-// Array of option name 
+// Array of option name
 String[] nomOption={"Name program",
 "File",
 "Message Password",
@@ -33,8 +33,8 @@ String[] nomOption={"Name program",
 String[] valueOption={"","","","","","","","",""};
 String[] cmdlineOption={"-program","-messagefile","-password","-validate","-invalid","","-font","-geometry","-display"};
 
-// Array of option boolean name 
-String[] booleanOption={ 
+// Array of option boolean name
+String[] booleanOption={
 "-mono ",
 "-nolock ",
 "-remote ",
@@ -113,6 +113,7 @@ lst.addItem("ico");
 lst.addItem("ifs");
 lst.addItem("image");
 lst.addItem("invert");
+lst.addItem("juggle");
 lst.addItem("julia");
 lst.addItem("kaleid");
 lst.addItem("kumppa");
@@ -121,6 +122,7 @@ lst.addItem("laser");
 lst.addItem("life");
 lst.addItem("life1d");
 lst.addItem("life3d");
+lst.addItem("lightning");
 lst.addItem("lisa");
 lst.addItem("lissie");
 lst.addItem("loop");
@@ -147,6 +149,8 @@ lst.addItem("rubik");
 lst.addItem("shape");
 lst.addItem("sierpinski");
 lst.addItem("slip");
+lst.addItem("solitare");
+lst.addItem("space");
 lst.addItem("sphere");
 lst.addItem("spiral");
 lst.addItem("spline");
@@ -158,6 +162,7 @@ lst.addItem("strange");
 lst.addItem("superquadrics");
 lst.addItem("swarm");
 lst.addItem("swirl");
+lst.addItem("t3d");
 lst.addItem("tetris");
 lst.addItem("thornbird");
 lst.addItem("tik_tak");
@@ -169,8 +174,8 @@ lst.addItem("voters");
 lst.addItem("wator");
 lst.addItem("wire");
 lst.addItem("world");
-lst.addItem("xjack");
 lst.addItem("worm");
+lst.addItem("xjack");
 lst.addItem("blank");
 lst.addItem("bomb");
 lst.addItem("random");
@@ -220,9 +225,9 @@ if (evt.target == blaunch || evt.target == blaunchinw)
 	if (evt.target == blaunchinw ) cmdlinexlock=cmdlinexlock.concat("-inwindow ");
 	for (int i=0;i<nbcoption;i++)
 		{
-		if (!valueOption[i].equals("")) 
+		if (!valueOption[i].equals(""))
 			{
-			cmdlinexlock=cmdlinexlock.concat(cmdlineOption[i]+" "+valueOption[i]+" "); 
+			cmdlinexlock=cmdlinexlock.concat(cmdlineOption[i]+" "+valueOption[i]+" ");
 			}
 		}
 	cmdlinexlock=cmdlinexlock.concat(getBooleanOption());
@@ -230,7 +235,7 @@ if (evt.target == blaunch || evt.target == blaunchinw)
 	cmdlinexlock=cmdlinexlock.concat(lst.getSelectedItem());
 	try {
   System.out.println(cmdlinexlock);
-	r.getRuntime().exec(cmdlinexlock); } 
+	r.getRuntime().exec(cmdlinexlock); }
 			catch ( Exception e )
 				{mfe.show();}
 	return true;}
@@ -241,13 +246,13 @@ else
 	valueOption[currentOption]=foroptions.getText();
 	for (int i=0;i<nbcoption;i++)
 		{
-		if (nomOption[i].equals(label)) 
+		if (nomOption[i].equals(label))
 			{foroptions.setText(valueOption[i]);
 			currentOption=i;
 			}
 		}
 	}
-else 
+else
 	if (evt.target == bquit) {System.exit(0);}
 	else if (evt.target instanceof Checkbox)
 	{
@@ -258,7 +263,7 @@ else
 	{
 	String label= (String) arg;
 	valueOption[currentOption]=label;
-	return true;	
+	return true;
 	}
 	return false;
   }
@@ -273,7 +278,7 @@ class MyFrameError extends Frame {
 Label l;
 Button b_ok;
 MyFrameError (String erreur) {
-	
+
 	setLayout(new BorderLayout());
 	l=new Label(erreur,Label.CENTER);
 	add("Center",l);

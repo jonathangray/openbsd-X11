@@ -6,7 +6,7 @@ static const char sccsid[] = "@(#)decay.c  4.14 99/03/17 xlockmore";
 
 #endif
 
-/* xscreensaver, Copyright (c) 1992, 1993, 1994, 1996, 1997 
+/* xscreensaver, Copyright (c) 1992, 1993, 1994, 1996, 1997
  * Jamie Zawinski <jwz@jwz.org>
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
@@ -14,7 +14,7 @@ static const char sccsid[] = "@(#)decay.c  4.14 99/03/17 xlockmore";
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  */
 
@@ -183,14 +183,14 @@ init_decay (ModeInfo * mi)
 	decaystruct *dp;
 
 	char *s = "random";
-	
+
 	if (decay_info == NULL)
 		decay_info = (decaystruct *) calloc(MI_NUM_SCREENS(mi),
 						sizeof(decaystruct));
 	if(decay_info == NULL) return;
 	dp = &decay_info[MI_SCREEN(mi)];
-	
-	
+
+
 	if      (s && !strcmp(s, "shuffle")) dp->mode = SHUFFLE;
 	else if (s && !strcmp(s, "up")) dp->mode = UP;
 	else if (s && !strcmp(s, "left")) dp->mode = LEFT;
@@ -269,7 +269,7 @@ draw_decay (ModeInfo * mi)
     static int *bias;
 
     decaystruct * dp = &decay_info[MI_SCREEN(mi)];
-	
+
     switch (dp->mode) {
       case SHUFFLE:	bias = no_bias; break;
       case UP:		bias = up_bias; break;
@@ -323,7 +323,7 @@ draw_decay (ModeInfo * mi)
 	       dp->backGC, left, top, width, height,
 	       toleft, totop);
     XFlush(MI_DISPLAY(mi));
-	
+
 }
 
 void

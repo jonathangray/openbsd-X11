@@ -198,7 +198,7 @@ eyes.xbm : $(BITMAPDIR)$(EYESBITMAP).xbm
 
 flag.xbm : $(BITMAPDIR)$(FLAGBITMAP).xbm
 	$(BLN_S)flag.xbm $(FLAGDIR)$(FLAGBITMAP).xbm
- 
+
 image.xbm : $(BITMAPDIR)$(IMAGEBITMAP).xbm
 	$(BLN_S)image.xbm $(BITMAPDIR)$(IMAGEBITMAP).xbm
 

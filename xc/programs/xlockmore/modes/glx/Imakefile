@@ -32,30 +32,49 @@ XCOMM  List of object files
 XLOCKXPMGLOBJS = $(DOG)lament$(O)
 #endif
 #ifdef CPPCompiler
-XLOCKCPPGLOBJS = $(DOG)invert$(OG)i_figureeight$(OG)i_linkage$(O)$(S)\
-$(DOG)i_sphere$(OG)i_spline$(O)$(S)\
+#ifndef Modules
+XLOCKCPPGLOBJS = $(DOG)invert$(OG)i_figureeight$(O)$(S)\
+$(DOG)i_linkage$(OG)i_sphere$(OG)i_spline$(O)$(S)\
 $(DOG)i_threejet$(OG)i_threejetvec$(O)$(S)\
 $(DOG)i_twojet$(OG)i_twojetvec$(O)
-#ifdef Unstable
+#endif
+#if defined(Unstable) && defined(TtfLibrary) && defined(GlttLibrary)
 XLOCKUNSTABLETEXTGLOBJS = $(DOG)text3d$(O)
 #endif
 #endif
-XLOCKGLOBJS = $(DOG)cage$(OG)gears$(O)$(S)\
+XLOCKNORMGLOBJS = $(DOG)cage$(OG)gears$(O)$(S)\
 $(DOG)moebius$(OG)morph3d$(O)$(S)\
-$(DOG)rubik$(OG)stairs$(OG)superquadrics$(O)$(S)\
-$(DOG)buildlwo$(OG)pipes$(OG)pipeobjs$(O)$(S)\
+$(DOG)rubik$(OG)stairs$(OG)superquadrics$(O)
+#ifndef Modules
+XLOCKMULTGLOBJS = $(DOG)buildlwo$(OG)pipes$(OG)pipeobjs$(O)$(S)\
 $(DOG)sproingies$(OG)sproingiewrap$(OG)s1_b$(O)$(S)\
 $(DOG)s1_1$(OG)s1_2$(OG)s1_3$(OG)s1_4$(OG)s1_5$(OG)s1_6$(O)$(S)\
 $(DOG)atlantis$(OG)dolphin$(OG)shark$(OG)swim$(OG)whale$(O)$(S)\
-$(DOG)bubble3d$(OG)b_draw$(OG)b_sphere$(OG)b_lockglue$(O)$(S)\
-$(XLOCKXPMGLOBJS) $(XLOCKCPPGLOBJS) $(XLOCKUNSTABLETEXTGLOBJS)
-
+$(DOG)bubble3d$(OG)b_draw$(OG)b_sphere$(OG)b_lockglue$(O)
 #endif
-
+XLOCKGLOBJS = $(XLOCKNORMGLOBJS)$(S)$(XLOCKMULTGLOBJS)$(S)\
+$(XLOCKXPMGLOBJS)$(S)$(XLOCKCPPGLOBJS)$(S)$(XLOCKUNSTABLETEXTGLOBJS)
+#endif
 XCOMM default target
-all:: $(XLOCKGLOBJS) 
+#ifdef Modules
+MODULES = $(XLOCKGLOBJS:.o=.xlk)
 
-DependTarget()
+EXTRA_LDOPTIONS += $(MODULEFLAGS)
+
+all:: $(XLOCKMODULES)
+
+InstallMultiple($(MODULES), $(DEF_MODULEPATH))
+
+$(MODULES) : %.xlk:%.o
+	$(RM) $@
+	$(CCLINK) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $<
+
+clean::
+	$(RM) $(MODULES)
+
+#else
+all:: $(XLOCKGLOBJS)
+#endif
 
 XLOCKINC = -I. -I../.. -I../../xlock
 

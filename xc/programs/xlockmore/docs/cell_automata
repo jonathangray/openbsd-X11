@@ -18,10 +18,10 @@ ant: Turing Machines where the tape is the screen.
   -batchcount <int>: number of ants
   -cycles <int>: how many cycles before a new ant
   -size <int>: size of ant in pixels
-  
+
   -eyes  eyes on ant (did not bother for -neighbors 12)
     eyes are backwards on triangular ants (easier to place them).
-  -neighbors <int>: 0 random, 4 & 8 ants, 3, 6, & 12 bees (9 seemed hard 
+  -neighbors <int>: 0 random, 4 & 8 ants, 3, 6, & 12 bees (9 seemed hard
     to make consistent, but since 3 was done, there should be a way...)
   -verbose: verbose help identify ant  (good to use with -inwindow or -debug)
 

@@ -1,7 +1,7 @@
 /* atlantis --- Shows moving 3D sea animals */
 
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)atlantis.c	1.3 98/06/18 xlockmore";
+static const char sccsid[] = "@(#)atlantis.c	1.4 2000/01/28 xlockmore";
 
 #endif
 
@@ -22,20 +22,20 @@ static const char sccsid[] = "@(#)atlantis.c	1.3 98/06/18 xlockmore";
  *
  * The original code for this mode was written by Mark J. Kilgard
  * as a demo for openGL programming.
- * 
- * Porting it to xlock  was possible by comparing the original Mesa's morph3d 
- * demo with it's ported version to xlock, so thanks for Marcelo F. Vianna 
+ *
+ * Porting it to xlock  was possible by comparing the original Mesa's morph3d
+ * demo with it's ported version to xlock, so thanks for Marcelo F. Vianna
  * (look at morph3d.c) for his indirect help.
  *
  * Thanks goes also to Brian Paul for making it possible and inexpensive
  * to use OpenGL at home.
  *
- * My e-mail address is lassauge@sagem.fr
+ * My e-mail address is lassauge@mail.dotcom.fr
  *
  * Eric Lassauge  (May-13-1998)
  *
  * REVISION HISTORY:
- * 
+ *
  * David A. Bagley - 98/06/17 : Add whalespeed option. Global options to
  *                              initialize local variables are now:
  *                              XLock.atlantis.cycles: 100      ! SharkSpeed
@@ -43,7 +43,7 @@ static const char sccsid[] = "@(#)atlantis.c	1.3 98/06/18 xlockmore";
  *                              XLock.atlantis.whalespeed: 250  ! WhaleSpeed
  *                              XLock.atlantis.size: 6000       ! SharkSize
  *                              Add random direction for whales/dolphins
- * 
+ *
  * E.Lassauge - 98/06/16: Use the following global options to initialize
  *                        local variables :
  *                              XLock.atlantis.delay: 100       ! SharkSpeed
@@ -52,8 +52,9 @@ static const char sccsid[] = "@(#)atlantis.c	1.3 98/06/18 xlockmore";
  *                              XLock.atlantis.size: 6000       ! SharkSize
  *                        Add support for -/+ wireframe (t'was so easy to do!)
  *
- * TODO : 
- *        - add a sort of background image or random bg color
+ * TODO :
+ *        - try to add what's called underwater caustics in Mark Kilgard's pages
+ *        - add a sort of background image
  *        - better handling of sizes and speeds
  *        - test standalone and module modes
  *        - purify it (!)
@@ -400,7 +401,7 @@ draw_atlantis(ModeInfo * mi)
 
 /*
  *-----------------------------------------------------------------------------
- *    The display is being taken away from us.  Free up malloc'ed 
+ *    The display is being taken away from us.  Free up malloc'ed
  *      memory and X resources that we've alloc'ed.  Only called
  *      once, we must zap everything for every screen.
  *-----------------------------------------------------------------------------

@@ -23,7 +23,7 @@ static const char sccsid[] = "@(#)image.c	4.07 97/11/24 xlockmore";
  *
  * Revision History:
  * 10-May-97: Compatible with xscreensaver
- * 03-Nov-95: Patched to add an arbitrary xpm file. 
+ * 03-Nov-95: Patched to add an arbitrary xpm file.
  * 21-Sep-95: Patch if xpm fails to load <Markus.Zellner@anu.edu.au>.
  * 17-Jun-95: Pixmap stuff of Skip_Burrell@sterling.com added.
  * 07-Dec-94: Icons are now better centered if do not exactly fill an area.
@@ -95,6 +95,8 @@ typedef struct {
 
 static imagestruct *ims = NULL;
 
+void init_image(ModeInfo * mi);
+
 static void
 init_stuff(ModeInfo * mi)
 {
@@ -162,7 +164,7 @@ drawimages(ModeInfo * mi)
 	int         i;
 
 
-	MI_CLEARWINDOWCOLORMAP(mi, ip->backGC, ip->black);
+	MI_CLEARWINDOWCOLORMAPFAST(mi, ip->backGC, ip->black);
 	if (MI_NPIXELS(mi) <= 2)
 		XSetForeground(display, ip->backGC, MI_WHITE_PIXEL(mi));
 	for (i = 0; i < ip->iconcount; i++) {
@@ -180,9 +182,9 @@ drawimages(ModeInfo * mi)
 void
 refresh_image(ModeInfo * mi)
 {
+#if defined( USE_XPM ) || defined( USE_XPMINC )
 	imagestruct *ip = &ims[MI_SCREEN(mi)];
 
-#if defined( USE_XPM ) || defined( USE_XPMINC )
 	if (ip->graphics_format >= IS_XPM) {
 		/* This is needed when another program changes the colormap. */
 		free_image(MI_DISPLAY(mi), ip);

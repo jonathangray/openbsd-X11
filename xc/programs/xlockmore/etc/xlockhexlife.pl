@@ -24,7 +24,7 @@ sub search {
     local ($row, $col, $firstrow, $firstcol);
     local ($i, $j, $found, $c, $tempx, $tempy);
     local (@array);
-  
+
 
     $row = $col = 0;
     $firstrow = -1;

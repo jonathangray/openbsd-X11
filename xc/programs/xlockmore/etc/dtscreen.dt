@@ -482,6 +482,15 @@ ACTION StartDtscreenInvert
 	DESCRIPTION	invert: A sphere inverted without wrinkles
 }
 
+ACTION StartDtscreenJuggle
+{
+	LABEL		StartDtscreenJuggle
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode juggle
+	DESCRIPTION	juggle: A Juggler, juggling
+}
+
 ACTION StartDtscreenJulia
 {
 	LABEL		StartDtscreenJulia
@@ -761,6 +770,15 @@ ACTION StartDtscreenSlip
 	DESCRIPTION	slip: Slipping blits
 }
 
+ACTION StartDtscreenSolitare
+{
+	LABEL		StartDtscreenSolitare
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode solitare
+	DESCRIPTION	solitare: Klondike's game of solitare
+}
+
 ACTION StartDtscreenSphere
 {
 	LABEL		StartDtscreenSphere
@@ -849,6 +867,15 @@ ACTION StartDtscreenSwirl
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode swirl
 	DESCRIPTION	swirl: Animated swirling patterns
+}
+
+ACTION StartDtscreenT3d
+{
+	LABEL		StartDtscreenT3d
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode t3d +install
+	DESCRIPTION	t3d: Flying Balls Clock Demo
 }
 
 ACTION StartDtscreenTetris

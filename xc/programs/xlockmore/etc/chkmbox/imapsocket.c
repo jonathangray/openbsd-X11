@@ -272,7 +272,7 @@ static int ConnectSocket( struct sockaddr_in *addrImap )
 		return( -1 );
 		}
 
-	if ( (fdImap = socket( AF_INET, SOCK_STREAM, 0 )) == SOCKET_ERROR ) {                 
+	if ( (fdImap = socket( AF_INET, SOCK_STREAM, 0 )) == SOCKET_ERROR ) {
 		LogMessage( "Error opening socket", errno );
 		return( -1 );
 		}
@@ -320,7 +320,7 @@ int	i;
 	if ( strncmp( "* OK", recv_buf, 4 ) == 0 ) {
 		return( 0 );
 		}
-	else {	
+	else {
 		close( fdImap );
 		LogMessage( "IMAP service timeout", 0 );
 		return( -1 );
@@ -356,7 +356,7 @@ va_list	argp;
 		}
 
 	return( 0 );
-	 
+
 } /* ImapCmd */
 
 /****************************************************************************/
@@ -449,7 +449,7 @@ void ServerLogout( void )
 static int ParseBufLines( char *b, char *l[] )
 {
 int	i;
-		
+
 	for ( i=0; i<MAX_BUFFER_LINES; i++ )
 		l[i] = NULL;
 
@@ -494,7 +494,7 @@ int	num_msg	= -1;
 		if ( ParseBufLines( b, l ) > 0 ) {
 			for( i=0; i<MAX_BUFFER_LINES; i++ ) {
 				if ( strstr( l[i], "RECENT" ) != NULL )
-					break;	
+					break;
 				}
 			sscanf( l[i], "%*s %d %*s", &num_msg );
 			}
@@ -509,7 +509,7 @@ int	num_msg	= -1;
 				if ( ParseBufLines( b, l ) > 0 ) {
 					for( i=0; i<MAX_BUFFER_LINES; i++ ) {
 						if ( strstr( l[i], "SEARCH" ) != NULL )
-							break;	
+							break;
 						}
 					sscanf( l[i], "%*s %*s %d", &num_msg );
 					}

@@ -36,7 +36,7 @@ static const char sccsid[] = "@(#)vines.c	4.07 97/11/24 xlockmore";
  *            names to make logic easier to follow.
  */
 
-/*- 
+/*-
  * This was modifed from a 'screen saver' that a friend and I
  * wrote on our TI-8x calculators in high school physics one day
  * Basically another geometric pattern generator, this ones claim

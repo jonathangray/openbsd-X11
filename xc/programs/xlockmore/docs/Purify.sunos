@@ -3,12 +3,12 @@ Content-Transfer-Encoding: 7bit
 Content-Disposition: inline; filename="xlock.plog.sun4os4"
 
 ****  Purify instrumented xlock/xlock (pid 25527 at Wed Feb 25 17:02:40 1998)
-  * Purify 4.0.1 SunOS 4.1, Copyright (C) 1992-1996 Pure Atria Corp. All rights reserved. 
+  * Purify 4.0.1 SunOS 4.1, Copyright (C) 1992-1996 Pure Atria Corp. All rights reserved.
   * For contact information type: "purify -help"
   * For TTY output, use the option "-windows=no"
-  * Command-line: xlock/xlock -sequential 
+  * Command-line: xlock/xlock -sequential
   * Options settings: -chain-length=25 -windows=yes -purify \
-    -purify-home=/vol/pure/purify-4.0.1-sunos4 
+    -purify-home=/vol/pure/purify-4.0.1-sunos4
   * Purify checking enabled.
 
 ****  Purify instrumented xlock/xlock (pid 25527)  ****

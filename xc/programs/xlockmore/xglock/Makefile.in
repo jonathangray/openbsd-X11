@@ -1,5 +1,3 @@
-############################################################
-#
 # $Id : Makefile.in 4.04 1997/07/10 $
 #
 # xlockmore Makefile.in for autoconf (UNIX/VMS X11 support)
@@ -30,7 +28,7 @@ S = $(N) $(N)
 XGLOCKOBJS = xglock$(O)
 
 # List of source files
-XMLOCKSRCS = $(VPATH)xglock$(C)
+XGLOCKSRCS = $(VPATH)xglock$(C)
 
 # default target
 all : @XGLOCK@
@@ -47,6 +45,7 @@ prefix = @prefix@
 exec_prefix = @exec_prefix@
 
 bindir = @bindir@
+datadir = @datadir@
 mandir = @mandir@/man1
 
 CONFIGDIR = $(srcdir)/config/
@@ -68,7 +67,12 @@ CC = @CC@
 
 LINT = lint
 #LINT = alint
- 
+
+#DEPEND = makedepend
+DEPEND = @DEPEND@
+DEPEND_FLAGS = @DEPEND_FLAGS@
+DEPEND_DEFINES = @DEPEND_DEFINES@
+
 LN_S = @LN_S@
 RM = rm -f
 RM_S = $(RM)
@@ -79,7 +83,7 @@ ECHO = echo
 #RM_S = set file/remove/nolog
 #ECHO = write sys$output
 
-DEFS = @DEFS@ $(DEFINES)
+DEFS = @DEFS@ $(DEFINES) -DXGLOCKRC_FILE=\"$(datadir)/xlock/xglockrc\"
 XGLOCKINC = @XGLOCKINC@ -I.. -I$(top_srcdir)
 CFLAGS = @GTK_CFLAGS@ @CFLAGS@
 #CFLAGS = -O
@@ -115,6 +119,8 @@ install-program : xglock
 install-man :
 
 install-ad :
+	$(top_srcdir)/mkinstalldirs $(datadir)/xlock
+	$(INSTALL_PROGRAM) $(top_srcdir)/xglock/xglockrc $(datadir)/xlock/xglockrc
 
 uninstall : @UNINSTALL_XGLOCK@
 
@@ -126,6 +132,19 @@ uninstall-program :
 uninstall-man :
 
 uninstall-ad :
+	$(RM) $(datadir)/xlock/xglockrc
+
+install.program : install-program
+
+install.man : install-man
+
+install.ad : install-ad
+
+uninstall.program : uninstall-program
+
+uninstall.man : uninstall-man
+
+uninstall.ad : uninstall-ad
 
 depend :
 
@@ -148,4 +167,37 @@ distclean : clean
 
 clean.all : distclean
 
-xglock.o: xglock.c lmode.h
+# Adds all current dependencies to Makefile
+depend :
+	$(DEPEND) -s '# DO NOT DELETE: updated by make depend'              \
+	$(DEPEND_FLAGS) --                                                  \
+	$(XGLOCKINC) $(DEFS) $(DEPEND_DEFINES) $(CFLAGS) --                 \
+	$(XGLOCKSRCS)
+
+# Adds some dependencies to Makefile.in -- not totally accurate, but pretty
+# close.  This excludes dependencies on files in /usr/include, etc.  It tries
+# to include only dependencies on files which are themselves a part of this
+# package. -w 0
+distdepend :
+	@echo updating dependencies in `pwd`/Makefile.in... ;               \
+	$(DEPEND) -w 0 -f -                                                 \
+	-s '# DO NOT DELETE: updated by make distdepend' $(DEPEND_FLAGS) -- \
+	$(XGLOCKINC) $(DEFS) $(DEPEND_DEFINES) $(CFLAGS) --                 \
+	$(XGLOCKSRCS) |                                                     \
+	(                                                                   \
+	  awk '/^#.*Id : Makefile.in/,/^# DO .*distdepend/' < Makefile.in ; \
+	  sed -e 's@ \./@ @g;s@ /[^ ]*@@g;/^.*:$$/d'                        \
+	      -e 's@\.\./bitmaps@$$(BITMAPDIR)@g' ;                         \
+	  echo ''                                                           \
+	) > /tmp/distdepend.$$$$ &&                                         \
+	mv Makefile.in Makefile.in.bak &&                                   \
+	mv /tmp/distdepend.$$$$ Makefile.in
+
+##############################################################################
+#
+# DO NOT DELETE: updated by make distdepend
+
+xglock.o: ../config.h
+xglock.o: modes.h
+xglock.o: logo.h
+

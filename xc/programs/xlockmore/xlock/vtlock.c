@@ -1,5 +1,5 @@
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)vtlock.c	1.2 98/10/01 xlockmore";
+static const char sccsid[] = "@(#)vtlock.c	1.3 2000/01/28 xlockmore";
 
 #endif
 
@@ -18,14 +18,15 @@ static const char sccsid[] = "@(#)vtlock.c	1.2 98/10/01 xlockmore";
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
- * The original code for was written by R. Cohen-Scali 
- * (remi.cohenscali@pobox.com) for a command line vtswich control tool.
+ * The original code for was written by R. Cohen-Scali
+ * (remi.cohenscali@pobox.com) for a command line vtswich control tool
+ * can be found in the etc directory!
  *
- * My e-mail address is lassauge@sagem.fr
+ * My e-mail address is lassauge@mail.dotcom.fr
  *
  * REVISION HISTORY:
  *       98/10/01: Eric Lassauge - vtlock renamed from lockvt.
- *                 Merge changes from Remi and David. 
+ *                 Merge changes from Remi and David.
  *       98/09/07: Remi Cohen-Scali - A problem stayed in the vtlock process:
  * 	If a user has switched vt while an xautolock is running, it could
  * 	be possible that the vt is locked. Then the user cannot unlock
@@ -34,8 +35,8 @@ static const char sccsid[] = "@(#)vtlock.c	1.2 98/10/01 xlockmore";
  * 	and I will send it back).
  * 	In order to avoid it, we need to know the active vt (this is easily
  * 	achieved with VT_GETSTATE ioctl), and, more dificult, we need to
- * 	know the vt used by the X server.The vt used by X is known as an 
- *      internal variable in the xf86Info structure (xf86InfoRec defined in 
+ * 	know the vt used by the X server.The vt used by X is known as an
+ *      internal variable in the xf86Info structure (xf86InfoRec defined in
  *	xc/programs/Xserver/hw/xfree86/common/xf86Priv.h).
  * 	The problem is that this structure in not accessible to the clients.
  * 	In order to access this information, the workaround is to use
@@ -43,6 +44,7 @@ static const char sccsid[] = "@(#)vtlock.c	1.2 98/10/01 xlockmore";
  * 	All proc specific routines are implemented in vtlock_proc.c
  * 	in order to help porting to other procfs.
  * 	The method is explained in the vtlock_proc.c file.
+ *
  *	PS from E.L: all this stuff is significant for Linux only. For other
  *      OSs the problem remains the same but the details are different !
  */
@@ -56,7 +58,7 @@ static const char sccsid[] = "@(#)vtlock.c	1.2 98/10/01 xlockmore";
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 
-#if defined( __linux__ ) 
+#if defined( __linux__ )
 #include <linux/vt.h>		/* for VT_LOCKSWITCH/VT_UNLOCKSWITCH */
 #else
 #error Sorry ! You must adapt this file to your system !

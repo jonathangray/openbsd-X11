@@ -13,9 +13,9 @@ static const char sccsid[] = "@(#)starfish.c	4.11 98/06/11 xlockmore";
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
- * 
+ *
  * Revision History:
  * 24-Feb-98:  xlockmore version by Jouk Jansen <joukj@hrem.stm.tudelft.nl>
  * 1997 :    original xscreensaver version by Jamie Zawinski <jwz@jwz.org>
@@ -88,7 +88,7 @@ ModeSpecOpt starfish_opts =
 ModStruct   starfish_description =
 {"starfish", "init_starfish", "draw_starfish", "release_starfish",
  "refresh_starfish", "init_starfish", NULL, &starfish_opts,
- 10000, 1, 1, 1, 64, 1.0, "",
+ 2000, 1, 1000, 1, 64, 1.0, "",
  "Shows starfish", 0, NULL};
 
 #endif
@@ -242,7 +242,8 @@ release_starfish(ModeInfo * mi)
 					free_colors(display, sp->cmap, sp->colors, sp->ncolors);
 				if (sp->colors)
 					(void) free((void *) sp->colors);
-				XFreeColormap(display, sp->cmap);
+				if (sp->cmap)
+				  XFreeColormap(display, sp->cmap);
 			}
 			if (sp->gc != NULL)
 				XFreeGC(display, sp->gc);
@@ -306,7 +307,7 @@ throb_starfish(starfishstruct * sp)
 		    (ra < sp->min_r && r < 0.0))
 			r = -r;
 
-		sp->r[i] = r;
+		sp->r[i] = (long) r;
 	}
 }
 

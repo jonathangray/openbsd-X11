@@ -61,7 +61,7 @@ in the small icon version of the changing pattern.
 
 
 
-2 X11R6 Contrib        Last change: 8 Mar 1999                    1
+2 X11R6 Contrib       Last change: 17 Jan 2000                    1
 
 
 
@@ -127,7 +127,7 @@ the session in some manner.
 
 
 
-2 X11R6 Contrib        Last change: 8 Mar 1999                    2
+2 X11R6 Contrib       Last change: 17 Jan 2000                    2
 
 
 
@@ -193,7 +193,7 @@ ddddiiiissssccccrrrreeeetttteeee
 
 
 
-2 X11R6 Contrib        Last change: 8 Mar 1999                    3
+2 X11R6 Contrib       Last change: 17 Jan 2000                    3
 
 
 
@@ -246,20 +246,20 @@ iiiiffffssss     Shows a modified iterated function system.
 
 iiiimmmmaaaaggggeeee   Shows randomly appearing logos.
 
+jjjjuuuugggggggglllleeee  Shows a Juggler, juggling.
+
 jjjjuuuulllliiiiaaaa   Shows the Julia set.
 
 kkkkaaaalllleeeeiiiidddd  Shows Brewster's Kaleidoscope.
 
-kkkkuuuummmmmmmmppppaaaa  Shows kumppa.
+kkkkuuuummmmppppppppaaaa  Shows kumppa.
 
 llllaaaasssseeeerrrr   Shows spinning lasers.
 
-lllliiiiffffeeee    Shows Conway's game of life.
 
 
 
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                    4
+2 X11R6 Contrib       Last change: 17 Jan 2000                    4
 
 
 
@@ -269,6 +269,8 @@ lllliiiiffffeeee    Shows Conway's game of life.
 2 User Commands                                            XLOCK(1)
 
 
+
+lllliiiiffffeeee    Shows Conway's game of life.
 
 lllliiiiffffeeee1111dddd  Shows Wolfram's game of 1D life.
 
@@ -321,11 +323,9 @@ ppppuuuuzzzzzzzzlllleeee  Shows a puzzle being scrambled and t
 
 ppppyyyyrrrroooo    Shows fireworks.
 
-qqqqiiiixxxx     Shows spinning lines a la Qix(tm).
 
 
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                    5
+2 X11R6 Contrib       Last change: 17 Jan 2000                    5
 
 
 
@@ -335,6 +335,8 @@ qqqqiiiixxxx     Shows spinning lines a la Qix(tm).
 2 User Commands                                            XLOCK(1)
 
 
+
+qqqqiiiixxxx     Shows spinning lines a la Qix(tm).
 
 rrrroooollllllll    Shows a rolling ball.
 
@@ -349,6 +351,9 @@ ssssiiiieeeerrrrppppiiiinnnnsssskkkkiiii
         Shows a Sierpinski's triangle.
 
 sssslllliiiipppp    Shows slipping blits.
+
+ssssoooolllliiiittttaaaarrrreeee
+        Shows Klondike's game of solitare.
 
 sssspppphhhheeeerrrreeee  Shows a bunch of shaded spheres.
 
@@ -379,19 +384,14 @@ sssswwwwaaaarrrrmmmm   Shows a swarm of bees following a wasp.
 
 sssswwwwiiiirrrrllll   Shows animated swirling patterns.
 
+tttt3333dddd     Shows a Flying Balls Clock Demo.
+
 tttteeeettttrrrriiiissss  Shows an autoplaying tetris game.
 
-tttthhhhoooorrrrnnnnbbbbiiiirrrrdddd
-        Shows an animated Bird in a Thorn Bush fractal map.
-
-ttttiiiikkkk____ttttaaaakkkk Shows rotating polygons.
-
-ttttrrrriiiiaaaannnngggglllleeee
-        Shows a triangular mountain range.
 
 
 
-2 X11R6 Contrib        Last change: 8 Mar 1999                    6
+2 X11R6 Contrib       Last change: 17 Jan 2000                    6
 
 
 
@@ -401,6 +401,16 @@ ttttrrrriiiiaaaannnngggglllleeee
 2 User Commands                                            XLOCK(1)
 
 
+
+tttteeeexxxxtttt3333dddd  Shows 3D moving texts.
+
+tttthhhhoooorrrrnnnnbbbbiiiirrrrdddd
+        Shows an animated Bird in a Thorn Bush fractal map.
+
+ttttiiiikkkk____ttttaaaakkkk Shows rotating polygons.
+
+ttttrrrriiiiaaaannnngggglllleeee
+        Shows a triangular mountain range.
 
 ttttuuuubbbbeeee    Shows an animated tube.
 
@@ -444,20 +454,10 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      loop, since blank mode has no work to do.
 
 -ccccoooouuuunnnntttt _n_u_m
-     The _b_a_t_c_h_c_o_u_n_t option sets number of _t_h_i_n_g_s to  do  per
-     batch to _n_u_m .
-
-     In ant mode this refers the number of ants.
-
-     In atlantis mode it is the number of sharks.
-
-     In ball mode it is the number of balls.
-
-     In bat mode it is the number of  bats,  could  be  less
 
 
 
-2 X11R6 Contrib        Last change: 8 Mar 1999                    7
+2 X11R6 Contrib       Last change: 17 Jan 2000                    7
 
 
 
@@ -468,6 +468,16 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
 
 
+     The _b_a_t_c_h_c_o_u_n_t option sets number of _t_h_i_n_g_s to  do  per
+     batch to _n_u_m .
+
+     In ant mode this refers the number of ants.
+
+     In atlantis mode it is the number of sharks.
+
+     In ball mode it is the number of balls.
+
+     In bat mode it is the number of  bats,  could  be  less
      because of conflicts.
 
      In blot mode this refers to the number of  pixels  ren-
@@ -510,6 +520,20 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      In dilemma mode  this  refers  the  number  of  initial
      defectors.
 
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                    8
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
      In discrete mode it is the number of points.
 
      In drift mode it is the number  of  levels  to  recurse
@@ -520,19 +544,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      In fadeplot mode it is the number of steps.
 
      In flag mode it means nothing.
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                    8
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
 
      In flame mode it is the number  of  levels  to  recurse
      (larger = more complex).
@@ -565,6 +576,8 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      In image mode it means it is the  number  of  logos  on
      screen at once.
 
+     In juggle mode it is speed.
+
      In julia mode it is the depth of recursion.
 
      In kaleid mode it is the number of pens.
@@ -572,6 +585,20 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      In kumppa mode it means nothing.
 
      In laser mode it is the number lasers.
+
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                    9
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
 
      In life mode it is the number of generations  before  a
      glider is introduced.
@@ -586,19 +613,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      In lissie mode it is the number of worms.
 
      In loop mode it means nothing.
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                    9
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
 
      In mandelbrot mode it is the order.
 
@@ -639,23 +653,9 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      In rotor mode it is the number of rotor  thingys  which
      whirr...
 
-     In rubik mode it is the number of moves.
-
-     In shape mode it means nothing.
-
-     In sierpinski mode it is the number of points.
-
-     In slip mode it means nothing.
-
-     In sphere mode it means nothing.
-
-     In spiral mode it is the number of spirals.
-
-     In spline mode it is the number of points "splined".
 
 
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   10
+2 X11R6 Contrib       Last change: 17 Jan 2000                   10
 
 
 
@@ -665,6 +665,22 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 2 User Commands                                            XLOCK(1)
 
 
+
+     In rubik mode it is the number of moves.
+
+     In shape mode it means nothing.
+
+     In sierpinski mode it is the number of points.
+
+     In slip mode it means nothing.
+
+     In solitare mode it means nothing.
+
+     In sphere mode it means nothing.
+
+     In spiral mode it is the number of spirals.
+
+     In spline mode it is the number of points "splined".
 
      In sproingies mode it is the number of sproingies.
 
@@ -684,6 +700,12 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
      In swarm mode it is the number of bees.
 
+     In t3d mode it means nothing.
+
+     In tetris mode it means nothing.
+
+     In text3d mode it means nothing.
+
      In thornbird mode it is the number of points.
 
      In triangular mode it is the number of mountains.
@@ -695,6 +717,20 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
      In vines mode it is draw a complete vine  (=  0)  or  a
      portion (= 1).
+
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   11
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
 
      In voters mode it means the number of parties, 2 or 3.
 
@@ -718,10 +754,40 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
 -bbbbaaaattttcccchhhhccccoooouuuunnnntttt _n_u_m
      The _b_a_t_c_h_c_o_u_n_t option is depreciated but  should  still
+     work as _c_o_u_n_t.
+
+-ccccyyyycccclllleeeessss _n_u_m
+     The _c_y_c_l_e_s option sets the number of cycles until  time
+     out  for  ant, blot, braid, bug, clock, crystal, daisy,
+     deco,  demon,  dilemma,  discrete,  eyes,  flag,  flow,
+     forest,  galaxy,  helix,  hop, hyper, ico, laser, life,
+     life1d, life3d, lisa, lissie, loop,  mandelbrot,  moun-
+     tain,  petal,  sierpinski,  shape,  spline +erase, t3d,
+     thornbird, triangle, tube,  voters,  wator,  and  wire.
+     For worm it is the length of the lines, for atlantis it
+     is the shark speed, for fadeplot, julia and  spiral  it
+     is  the  length  of  the trail of dots, munch it is the
+     minimum size of the squares, for kaleid it is the %  of
+     black,  for  qix  it is the number of lines, for spline
+     -erase it means the number of splines * 64 (for  compa-
+     tibility  with  +erase),  for gears it is the number of
+     degrees to increment the spin  of  each  gear  by,  for
+     pipes it is the number of systems to draw before clear-
+     ing the screen, for rubik it is the number of steps  to
+     complete  a 90 move, for superquadrics it is the number
+     of frames it takes to morph from one shape to  another.
+     for  text3d  it  is  the number of times drawing a word
+     before the next one, For others it means nothing.
+
+-ssssiiiizzzzeeee _n_u_m
+     The _s_i_z_e option sets the size maximum size of a star in
+     bouboule,  pyro  and  star,  size  of  ball in ball and
+     bounce, size of bat in bat, maximum size of  bubble  in
+     bubble,  size  of  clock  in  clock,  minimum  size  of
 
 
 
-2 X11R6 Contrib        Last change: 8 Mar 1999                   11
+2 X11R6 Contrib       Last change: 17 Jan 2000                   12
 
 
 
@@ -732,36 +798,7 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
 
 
 
-     work as _c_o_u_n_t.
-
--ccccyyyycccclllleeeessss _n_u_m
-     The _c_y_c_l_e_s option sets the number of cycles until  time
-     out  for  ant, blot, braid, bug, clock, crystal, daisy,
-     deco,  demon,  dilemma,  discrete,  eyes,  flag,  flow,
-     forest,  galaxy,  helix,  hop, hyper, ico, laser, life,
-     life1d, life3d, lisa, lissie, loop,  mandelbrot,  moun-
-     tain,  petal,  sierpinski, shape, spline +erase, thorn-
-     bird, triangle, tube, voters,  wator,  and  wire.   For
-     worm  it is the length of the lines, for atlantis it is
-     the shark speed, for fadeplot, julia and spiral  it  is
-     the  length  of  the  trail  of  dots,  munch it is the
-     minimum size of the squares, for kaleid it is the %  of
-     black,  for  qix  it is the number of lines, for spline
-     -erase it means the number of splines * 64 (for  compa-
-     tibility  with  +erase),  for gears it is the number of
-     degrees to increment the spin  of  each  gear  by,  for
-     pipes it is the number of systems to draw before clear-
-     ing the screen, for rubik it is the number of steps  to
-     complete  a 90 move, for superquadrics it is the number
-     of frames it takes to morph from one shape to  another.
-     For others it means nothing.
-
--ssssiiiizzzzeeee _n_u_m
-     The _s_i_z_e option sets the size maximum size of a star in
-     bouboule,  pyro  and  star,  size  of  ball in ball and
-     bounce, size of bat in bat, maximum size of  bubble  in
-     bubble, size of clock in clock, minimum size of rectan-
-     gles in deco, size  of  the  polygons  in  crystal  and
+     rectangles in deco, size of the polygons in crystal and
      tik_tak,  size  of polyhedron in ico, size of lissie in
      lissie, size of dots of flag, for kaleid it is the sym-
      metry,  width  of maze hallway, size of side of penrose
@@ -783,20 +820,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      The _s_a_t_u_r_a_t_i_o_n option sets saturation of the color ramp
      used  to  _v_a_l_u_e  .  0  is  grayscale and 1 is very rich
      color.  0.4 is a nice pastel.
-
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   12
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
 
 -eeeerrrraaaasssseeeemmmmooooddddeeee _m_o_d_e_n_a_m_e
      As of this writing there are over 9  erase  modes  sup-
@@ -827,6 +850,20 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      good.
 
 ----////++++rrrreeeemmmmooootttteeee
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   13
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
      The _r_e_m_o_t_e option tells xxxxlllloooocccckkkk  to  not  stop  you  from
      locking remote X11 servers.  This option should be used
      with care and is intended mainly to lock X11  terminals
@@ -850,20 +887,6 @@ rrrraaaannnnddddoooommmm  Shows a random mode from  above  exc
      which is locked for some reason...  When _a_l_l_o_w_a_c_c_e_s_s is
      true, the X11 server is left open for clients to attach
      and  thus  lowers  the  inherent  security of this lock
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   13
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      screen.  A side effect of using this option is that  if
      xxxxlllloooocccckkkk  is  killed -KILL, the access control list is not
      lost.
@@ -894,6 +917,19 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      Allows xxxxlllloooocccckkkk to be debugged by doing  all  but  locking
      the screen.
 
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   14
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
 ----////++++ddddeeeessssccccrrrriiiippppttttiiiioooonnnn
      The  _d_e_s_c_r_i_p_t_i_o_n  option  causes  xxxxlllloooocccckkkk  shows  a  mode
      description  above  password window.  The default is to
@@ -916,19 +952,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 ----////++++rrrreeeesssseeeettttssssaaaavvvveeeerrrr
      By default xxxxlllloooocccckkkk will call XResetScreenSaver.  This may
      be undesirable with DPMS monitors.
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   14
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
 
 ----////++++ggggrrrraaaabbbbmmmmoooouuuusssseeee
      The _g_r_a_b_m_o_u_s_e option causes xxxxlllloooocccckkkk to grab the mouse and
@@ -959,6 +982,20 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      you  can  complain  to an administrator that someone is
      hogging a machine.
 
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   15
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
 ----////++++uuuusssseeeeffffiiiirrrrsssstttt
      The _u_s_e_f_i_r_s_t option causes xxxxlllloooocccckkkk to use  the  keystroke
      which got you to the password screen as the first char-
@@ -982,20 +1019,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      the password screen will time out.
 
 -ffffoooonnnntttt _f_o_n_t_n_a_m_e
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   15
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      The _f_o_n_t option sets the font to be used on the  prompt
      screen.
 
@@ -1025,6 +1048,20 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 -ppppaaaasssssssswwwwoooorrrrdddd _s_t_r_i_n_g
      Text _s_t_r_i_n_g is the password prompt string, defaults  to
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   16
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
      "Password: ".
 
 -iiiinnnnffffoooo _s_t_r_i_n_g
@@ -1048,20 +1085,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      it is locked.  This should be used with  caution  since
      many of the modes will fail if the windows are far from
      square or are too small  (size  must  be  greater  than
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   16
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      0x0).   This  should  also be used with -enablesaver to
      protect screen from phosphor burn.
 
@@ -1091,6 +1114,20 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 -ddddeeeellllttttaaaa3333dddd _v_a_l_u_e
      Space between the center of your 2 eyes for 3d mode.
 
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   17
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
 -nnnnoooonnnneeee3333dddd _c_o_l_o_r
      Color used for empty size in 3d mode.
 
@@ -1114,20 +1151,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      fortune  generator.   The  first entry is the number of
      fortunes, the next line  contains  the  first  fortune.
      Fortunes  begin  with  a  "%%"  on  a  line  by itself.
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   17
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      Currently used only for marquee and nose modes.  If one
      exists, it takes precedence over the fortune program.
 
@@ -1156,6 +1179,21 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      /
 
 
+
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   18
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
 2 MMMMOOOORRRREEEE OOOOPPPPTTTTIIIIOOOONNNNSSSS ((((tttthhhheeeesssseeee mmmmaaaayyyy nnnnooootttt bbbbeeee aaaavvvvaaaaiiiillllaaaabbbblllleeee))))
 -ccccppppaaaasssssssswwwwdddd _c_r_y_p_t_e_d-_p_a_s_s_w_o_r_d
      The _c_p_a_s_s_w_d option sets the key to be this text  string
@@ -1179,20 +1217,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      attempted  and  fails.   Defaults  to  "Logout  attempt
      FAILED.\n  Current  user  could  not  be  automatically
      logged out."
-
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   18
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
 
 ----////++++ddddttttssssaaaavvvveeeerrrr
      Turn on/off CDE Saver Mode.  This option is only avail-
@@ -1222,6 +1246,20 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      valid.  Default sound, female voice:  "Complete."
 
 -iiiinnnnvvvvaaaalllliiiiddddssssoooouuuunnnndddd _s_t_r_i_n_g
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   19
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
      Text _s_t_r_i_n_g references sound  to  when  a  password  is
      invalid.   Default  sound, female voice: "I am not pro-
      grammed to give you that information."
@@ -1246,20 +1284,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      check mail.
 
 -mmmmaaaaiiiillllIIIIccccoooonnnn _s_t_r_i_n_g
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   19
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      Text _s_t_r_i_n_g of file for the "mail arrived" bitmap.
 
 -nnnnoooommmmaaaaiiiillllIIIIccccoooonnnn _s_t_r_i_n_g
@@ -1288,6 +1312,20 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      sync off, Small auxiliary circuit stays on  to  monitor
      the HS/VS signals to enable power on when data needs to
      be displayed on the screen.  Typical 17 inch screen ...
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   20
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
      5  out of 120 watts with a 10 sec recovery time.)  This
      option is only available if DPMS support  was  compiled
      in.
@@ -1312,20 +1350,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 ----////++++ttttrrrraaaacccckkkkmmmmoooouuuusssseeee
      Turn on and off mouse interaction in _e_y_e_s,  _j_u_l_i_a,  and
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   20
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      _s_w_a_r_m.
 
 -rrrruuuulllleeee _S<_n_e_i_g_h_b_o_r_h_o_o_d>/_B<_n_e_i_g_h_b_o_r_h_o_o_d>
@@ -1354,6 +1378,20 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      Turn on and off having the bubbles bubble up in _b_u_b_b_l_e.
 
 -nnnnxxxx _n_u_m
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   21
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
      Allows one to set  the  number  of  unit  cells  in  x-
      direction in _c_r_y_s_t_a_l.
 
@@ -1378,20 +1416,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      Turn off and on garden look in _d_a_i_s_y.
 
 ----////++++ppppooooppppeeeexxxx
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   21
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      Turn on and off the  population  explosion  counter  in
      _d_c_l_o_c_k.
 
@@ -1420,6 +1444,20 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      Allows one to set the bonus for cheating... between 1.0
      and 4.0 in _d_i_l_e_m_m_a.
 
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   22
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
 ----////++++ccccoooonnnnsssscccciiiioooouuuussss
      Turn off and on self-awareness in _d_i_l_e_m_m_a.
 
@@ -1444,20 +1482,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      Turn on and off star tracks in _g_a_l_a_x_y.
 
 ----////++++ddddeeeeccccaaaayyyy
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   22
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      Turn on and off decaying orbits for _g_r_a_v.
 
 ----////++++ttttrrrraaaaiiiillll
@@ -1486,6 +1510,20 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 ----////++++ddddiiiissssccccoooonnnnnnnneeeecccctttteeeedddd
      Turn on and off disconnected pen movement in _k_a_l_e_i_d.
 
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   23
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
 ----////++++sssseeeerrrriiiiaaaallll
      Turn on and off  sequential  allocation  of  colors  in
      _k_a_l_e_i_d.
@@ -1510,20 +1548,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      _l_i_f_e.
 
 ----////++++aaaannnnddddrrrreeeeeeeennnn
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   23
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      Turn on and off Bob Andreen's S2a2b4a/B2a3a4b hexagonal
      _l_i_f_e.
 
@@ -1552,6 +1576,20 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 ----////++++ffffiiiisssshhhheeeeyyyyeeee
      Turn on if you want a zoomed-in view of _p_i_p_e_s.
 
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   24
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
 ----////++++ttttiiiigggghhhhttttttttuuuurrrrnnnnssss
      Turn on if you want the _p_i_p_e_s to bend more often.
 
@@ -1576,20 +1614,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      Turn on or off shadowing in _s_h_a_p_e.
 
 ----////++++_s_h_a_p_e
-
-
-
-2 X11R6 Contrib        Last change: 8 Mar 1999                   24
-
-
-
-
-
-
-2 User Commands                                            XLOCK(1)
-
-
-
      Turn on or off stippling in _s_h_a_p_e.
 
 -ttttrrrreeeekkkk _n_u_m
@@ -1608,6 +1632,41 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 -rrrroooottttaaaattttiiiioooonnnn _n_u_m
      Set rotation velocity in _s_t_a_r_f_i_s_h.
+
+-ttttttttffffoooonnnntttt _f_i_l_e_n_a_m_e
+     Sets the True Type font file (or font  directory)  used
+     for _t_e_x_t_3_d
+
+-eeeexxxxttttrrrruuuussssiiiioooonnnn _n_u_m
+     Sets length of the text extrusion for _t_e_x_t_3_d
+
+-rrrrooootttt____aaaammmmpppplllliiiittttuuuuddddeeee _f_l_o_a_t
+     Sets rotation amplitude value of each letter for _t_e_x_t_3_d
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   25
+
+
+
+
+
+
+2 User Commands                                            XLOCK(1)
+
+
+
+-rrrrooootttt____ffffrrrreeeeqqqquuuueeeennnnccccyyyy _f_l_o_a_t
+     Sets rotation frequency for _t_e_x_t_3_d
+
+----////++++nnnnoooo____sssspppplllliiiitttt
+     Turn on and off word splitting for _t_e_x_t_3_d
+
+-ttttttttaaaannnniiiimmmmaaaatttteeee _f_u_n_c_t_i_o_n__n_a_m_e
+     Sets the animation function used for _t_e_x_t_3_d.  Currently
+     one  of  :  Random  FullRandom  Default  Default2  None
+      Crazy  UpDown  Extrude  RotateXY  RotateYZ   Frequency
+      Amplitude
 
 -tttthhhhiiiicccckkkknnnneeeessssssss _n_u_m
      Set thickness in _s_t_a_r_f_i_s_h.
@@ -1641,11 +1700,18 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
      writable colormaps (not including xpm).   "all3d"  will
      get all the modes that support this option.  "allmouse"
      will get all the modes that support mouse  interaction.
-     Similarly,    "allautomata"    for    automata   modes,
+     Similarly,  "allautomata" for automata modes, "allfrac-
+     tal" for  fractal  modes,  "allgeometry"  for  geometry
+     modes,  "allspace"  for  space  modes.  The random mode
+     itself can not be referenced.
+
+----////++++sssseeeeqqqquuuueeeennnnttttiiiiaaaallll
+     Turn on non-random _r_a_n_d_o_m option.
 
 
 
-2 X11R6 Contrib        Last change: 8 Mar 1999                   25
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   26
 
 
 
@@ -1654,14 +1720,6 @@ _n_o_s_w_i_t_c_h  means VT switch locking  only  when  xlock  VT  is
 
 2 User Commands                                            XLOCK(1)
 
-
-
-     "allfractal"  for  fractal  modes,  "allgeometry"   for
-     geometry modes, "allspace" for space modes.  The random
-     mode itself can not be referenced.
-
-----////++++sssseeeeqqqquuuueeeennnnttttiiiiaaaallll
-     Turn on non-random _r_a_n_d_o_m option.
 
 
 ********WWWWAAAARRRRNNNNIIIINNNNGGGG********
@@ -1709,9 +1767,17 @@ and turn off TCP/IP access control.
 2 Maintained by:
      David Albert Bagley, <_b_a_g_l_e_y_d@_t_u_x._o_r_g>
 
+2 The latest version is currently at:
+     _f_t_p://_f_t_p._t_u_x._o_r_g/_p_u_b/_t_u_x/_b_a_g_l_e_y_d/_x_l_o_c_k_m_o_r_e
+     _f_t_p://_f_t_p._x._o_r_g/_c_o_n_t_r_i_b/_a_p_p_l_i_c_a_t_i_o_n_s
+
+2 Original Author:
+     Patrick J. Naughton, <_n_a_u_g_h_t_o_n@_e_n_g._s_u_n._c_o_m>
+     Mailstop 21-14
 
 
-2 X11R6 Contrib        Last change: 8 Mar 1999                   26
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   27
 
 
 
@@ -1722,13 +1788,6 @@ and turn off TCP/IP access control.
 
 
 
-2 The latest version is currently at:
-     _f_t_p://_f_t_p._t_u_x._o_r_g/_p_u_b/_t_u_x/_b_a_g_l_e_y_d/_x_l_o_c_k_m_o_r_e
-     _f_t_p://_f_t_p._x._o_r_g/_c_o_n_t_r_i_b/_a_p_p_l_i_c_a_t_i_o_n_s
-
-2 Original Author:
-     Patrick J. Naughton, <_n_a_u_g_h_t_o_n@_e_n_g._s_u_n._c_o_m>
-     Mailstop 21-14
      Sun Microsystems Laboratories, Inc.
      Mountain View, CA  94043
      415/336-1080
@@ -1737,8 +1796,8 @@ with many additional contributors.
 
 
 2 CCCCOOOOPPPPYYYYRRRRIIIIGGGGHHHHTTTT
-2 Copyright (C) 1988-91 by Patrick J. Naughton
-2 Copyright (C) 1993-98 by David A. Bagley
+2 Copyright (C) 1991 by Patrick J. Naughton
+2 Copyright (C) 1993-2000 by David A. Bagley
 
 2 Permission  to  use,  copy,  modify,  and  distribute   this
 software  and  its documentation for any purpose and without
@@ -1777,7 +1836,14 @@ respective copyrights.
 
 
 
-2 X11R6 Contrib        Last change: 8 Mar 1999                   27
+
+
+
+
+
+
+
+2 X11R6 Contrib       Last change: 17 Jan 2000                   28
 
 
 

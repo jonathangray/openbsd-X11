@@ -42,7 +42,7 @@ General problems:
 
   o A few uninitialized memory reads and memory leaks were detected in some
    of the code.  grep for "PURIFY" in the source files to see where the
-   remaining problems are.  Also see docs/Purify for more details. 
+   remaining problems are.  Also see docs/Purify for more details.
 
   o -mono does not work for XPM, especially cartoon (others use XBM when
    mono), also cage and stairs.
@@ -62,7 +62,7 @@ General problems:
    characters (`|' vertical bar, `@' at-sign) while in debug mode
    everything works fine. This probably has something to do with the
    X11-keymapping, as these characters are composed with the right Alt-key
-   on a German keyboard. 
+   on a German keyboard.
 
   o OpenGL and DT may be incompatible on PseudoColor.  (MesaGL should be
    OK.)  OpenGL frequently causes xlock to error out on non-default visuals.
@@ -75,7 +75,7 @@ General problems:
   o Compile-time option to allow running of separate processes.
 
   o make -n install prefix=/foo/bar does not work.
-  
+
   o "xlock -mode random -modelist image -bitmap ./bitmaps/"
    It should change images when middle mouse is pushed or when
    -duration time runs out.
@@ -147,7 +147,7 @@ Mode specific problems:
      "-bitmap ./bitmap/"
 
   flag:
-    sometimes a refresh causes a white background rectangle 
+    sometimes a refresh causes a white background rectangle
 
   hop: center and size many of the hops.
 
@@ -207,7 +207,7 @@ Mode specific problems:
   wire:  it needs a better circuit generator.
 
   xglock:  Needs a lot of work.
-  
+
   kscreensaver:  port xlock to KDE.
 
 

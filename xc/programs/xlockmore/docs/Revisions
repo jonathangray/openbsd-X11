@@ -1,4 +1,4 @@
-xlockmore-4.15 as of 8 November 1999, the maintained version of xlock
+xlockmore-4.16 as of 29 March 2000, the maintained version of xlock
 Adapted from Patrick J. Naughton's original xlock
 
 Primary site: ftp://ftp.tux.org/pub/tux/bagleyd/xlockmore
@@ -24,6 +24,67 @@ Adapted from Patrick J. Naughton's original xlock, with lots of help
 
 BUGS to fix and other stuff to do see docs/TODO.
 
+XFree86 4.x users (see "4.x" in README)
+
+4.16
+  ico.c added double buffering to face drawings.  Run like -faces since the
+    default is off (still kind of flashy and added late).  Also removed
+    pyramid (drawing errors, count = 7) and plane (boring, count = 6) from
+    showing up randomly.
+  ant.c noticed triangular ants were wrong, reverted some of the code back
+    to 4.14.  Also made ants with neighbors > 6 more rare.
+  if both esound and rplay are installed, rplay is configured by default.
+  t3d.c converted from xscreensaver thanks to Jouk Jansen
+    see t3d.c for notes on what is being worked on...
+    Still needs to be scaled to window size.
+  bomb.c update to get rid of warning and more 2038 compatible.
+  juggle.c thanks to Tim Auckland <Tim.Auckland@Sun.COM>.
+    Added -pattern option to try out new patterns.  As a juggler myself I
+    find this very useful.  Cleaned up some of the release code.
+    Now works for patterns with 0's.  Beginnings of a pattern generator
+    is in the works.  Maintainer made it a bit more random.  
+  loop mode 2 bugs fixed for -neighbors 6
+    Minimum size increased for mono because of drawing errors
+    Should now work for small geometries like 32x32
+  image.c update... needs a fast redraw between displays or the original
+    version looks better.  Changed image defaults.
+  rotor.c changed defaults.  Should behave more like the Sun version.
+  rubik.c 2 bugs fixed with one statement.  Now works for -hideshuffling
+    when turning on non square sides and checks that it down not make 2
+    consecutive 180 degree turns when scrambling.
+  genlauncher (stuff to help me maintain this) updated.
+  dclock.c updates so y2k sub mode will no longer appear in random mode
+    thanks to Tom Schmidt.
+  xglock font problem fixes
+    esound implements Enlightenment Sound daemon
+    vtproc patch (compares of unsigned to negative)
+    thanks to Remi Cohen-Scali<remi.cohenscali@pobox.com>
+  new make.com that does not mess up the new users VMS environment
+    thanks to Jouk Jansen.
+  solitare mode added from the book Object Oriented Programming by Timothy
+    Budd.  Added stuff: Mouse interaction, resizing, no initial flashing,
+    and now should release memory.
+  Added a check for gtkfontsel.h fore configure since glock fails to build for
+    me.
+  Dynamic linking of modules.  See "Dynamic Linking" in README.
+    Now works with xmkmf -a (or configure --enable-modules, Linux only) .
+    GL still has colormap problems... do not have a clue.
+    random mode fixed so it will not call blank, bomb, or itself by default.
+    Problems with multi file (GL) modes, these are temporarily being excluded.
+  VMS patches for C++.  Thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl>.
+  Various g++ Wall warnings removed.
+  xmlock NUMPROCS to low thanks to James Hiller <jhiller@crl.com>.
+  BAD_PAM ifdefs fixed thanks to Naomaru Itoi <itoi@eecs.umich.edu>.
+  dclock HIV adjustment thanks to Kenneth Stailey <kstailey@primark.com>.
+  life3d with -mono should look better.
+  genlauncher update with new modes, added xglock to genluancher, modified
+    text3d, and modified xglock (a lot).  (Still have a question with
+    recent Gtk (at least with 1.2.6): when GtkFontSelection is configured
+    the corresponding library is added to xglock's Makefile but it is
+    useless with the recent Gtks. It certainly needs to be incorporated in
+    the configure program.) Thanks to Eric Lassauge
+    <lassauge@mail.dotcom.fr>.
+
 4.15
   -install now works for tetris and kumppa using PseudoColor.
   configure updates to allow use of Sun C++ if g++ is present thanks to
@@ -35,7 +96,7 @@ BUGS to fix and other stuff to do see docs/TODO.
   general cleanup: xmkmf fixes, gcc warning in text3d.cc removed, and
     delinted
   NetBSD patch for xlock.h thanks to Hubert Feyrer
-    <feyrer@smaug.fh-regensburg.de> 
+    <feyrer@smaug.fh-regensburg.de>
   dclock now has an led option
   bug mode now has triangular bugs.  Well, they are still square but the
     neighborhoods can now be 3 or 12.  Added some extra genes to make
@@ -77,7 +138,7 @@ BUGS to fix and other stuff to do see docs/TODO.
   tik_tak new mode from Jouk Jansen <joukj@hrem.stm.tudelft.nl>.
   galaxy authorship for work done fixed.
   life grelbs now have moving antennas.  Its subtle but it HAD to be done.
-    One can still bring in images and change the default grelb screen. 
+    One can still bring in images and change the default grelb screen.
   fullrandom now uses xbm half the time for image, maze, and puzzle.
   inline is left defined for C++ if using C++ and C for config.h.in and
     xlock.h.  Trips up new SparcWorks C++ 6.1.  Help from Danny Zerkel
@@ -127,8 +188,8 @@ BUGS to fix and other stuff to do see docs/TODO.
     <mcmillan@cambridge.com>.
   dclock: options y2k and millennium from Tom Schmidt <tschmidt@micron.com>.
     It uses local timezone and description was cleaned up.  French
-    translations by Eric Lassauge <lassauge@sagem.fr> and Dutch translations
-    from Jouk Jansen.  Also Tom patched dclock up for NetBSD.
+    translations by Eric Lassauge <lassauge@mail.dotcom.fr> and Dutch
+    translations from Jouk Jansen.  Also Tom patched dclock up for NetBSD.
   flag: descriptions and purify errors from Tom Schmidt <tschmidt@micron.com>.
   -neighbors now a mode option.   -mouse changed to -trackmouse
     -mousemotion was getting picked up instead.  -shift, tshift and -cycle
@@ -228,7 +289,7 @@ BUGS to fix and other stuff to do see docs/TODO.
     life1d.c (SEGV'd in a malloc from XCreateGC), I have not been able to
     duplicate the problem).
   Found bug in xjack.  When in small window a divide by zero would occur.
-    Taken out of unstable. 
+    Taken out of unstable.
   Thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl> his new tetris mode.
     It now extensively remodeled after altris.  Taken out of unstable.
   Thanks to Tom Schmidt <tschmidt@micron.com> various fixes and leaks to
@@ -243,7 +304,7 @@ BUGS to fix and other stuff to do see docs/TODO.
     <pdg@draci.its.uow.edu.au> but it does not work yet.
     Proabably will add a nondefault uption where it will use your current
     image on screen to play around with.  New compile-time option to
-    activate: "CHANGEME".  Have not tried it yet my machine is real slow. 
+    activate: "CHANGEME".  Have not tried it yet my machine is real slow.
   Fixed -fullrandom for multiscreens.
   Cool flow update by author Tim AuckLand <tim.auckland@corp.sun.com> .
     A camera is attached to one of the trained bees and Duffing's forced
@@ -260,7 +321,7 @@ BUGS to fix and other stuff to do see docs/TODO.
     put in before) and tetris (not that its unstable but it needs a lot of
     work).  Put it a warning if your using --enable-vtlock that it is a
     pretty big security hole.
-    Update for bsd from Thorsten Frueauf <frueauf@ira.uka.de> 
+    Update for bsd from Thorsten Frueauf <frueauf@ira.uka.de>
   New lifeform for loop.  I am not sure if its ever been done on a
     hexagonal grid (Nov 02 1998).  The hexagonal grid to be is slightly
     more life-like since it maximzes a cell's area while minimizing its
@@ -276,7 +337,7 @@ BUGS to fix and other stuff to do see docs/TODO.
   Thanks to <tim.auckland@corp.sun.com> for his fix for multiheaded bug
     for starfish and link now uses thc CFLAG settings.  There should not
     be calls to release_starfish in draw_starfish.
-  Thanks to  Tim Rowley <tor@cs.brown.edu> for his new mode "invert", a 
+  Thanks to  Tim Rowley <tor@cs.brown.edu> for his new mode "invert", a
     demonstration of turning a sphere inside out without  creating  any kinks
     (two surfaces can occupy the same space at the same time).
   wire upgrades made more bomb proof... possibly an issue on a multihead
@@ -285,11 +346,11 @@ BUGS to fix and other stuff to do see docs/TODO.
   Thanks to Kevin Vajk <kvajk@ricochet.net> for his fix if Xresources
     contains "xlock.mode: Something_really_long..." xlock would memory fault.
   Thanks to Remi Cohen-Scali <remi.cohenscali@pobox.com> and Eric Lassauge
-    <lassauge@sagem.fr> and Jouk Jansen <joukj@hrem.stm.tudelft.nl>  for
-    updates to text3d and configure for text3d.  Also "*.h" files upgraded
-    to handle C++ better.
+    <lassauge@mail.dotcom.fr> and Jouk Jansen <joukj@hrem.stm.tudelft.nl>
+    for updates to text3d and configure for text3d.  Also "*.h" files
+    upgraded to handle C++ better.
   Thanks to Remi Cohen-Scali <remi.cohenscali@pobox.com> and Eric Lassauge
-    <lassauge@sagem.fr> for vtlock upgrade.
+    <lassauge@mail.dotcom.fr> for vtlock upgrade.
   Thanks to <todd.miller@courtesan.com> for his signature patch if
     a file has a NUL without a newline.
   Added -showplanes for hyper.  Option looks real bad now but it may be
@@ -339,7 +400,7 @@ BUGS to fix and other stuff to do see docs/TODO.
   kumppa leak fixes and starfish leak fixes  (one starfish leak remains?)
     Thanks to Jouk Jansen and Tom Schmidt for finding -bitmap leaks.
   Thanks to Remi Cohen-Scali <remi.cohenscali@pobox.com> and Eric Lassauge
-     <lassauge@sagem.fr> for:
+     <lassauge@mail.dotcom.fr> for:
     vtlock: xlock now VT lock switch when using -vtlock option. This is
           enabled for linux with the --enable-vtlock option of configure.
           This may or may not work on some versions of Linux, for example
@@ -351,7 +412,7 @@ BUGS to fix and other stuff to do see docs/TODO.
           not be confused.
     configure: add autodetection of MesaGL links (pthread/glide/vga)
           Autodetection of pthread caused xlock not to run for the maintainer
-          so it was commented out. 
+          so it was commented out.
     language: configure can select the lang used for elapsed time display.  A
           grammar/syntax problem have been fixed in French language.
           The option selecting the language is --with-lang in configure.
@@ -395,7 +456,7 @@ BUGS to fix and other stuff to do see docs/TODO.
   starfish taken out of unstable since it is fixed for multiscreens.
     Similar changes for kumppa and crystal.
   Fix for the following:
-    xlock -mode random -modelist image -bitmap /nonexistant/ 
+    xlock -mode random -modelist image -bitmap /nonexistant/
       xlock: caught signal 11 while running image mode (uid 561).
     xlock -mode random -modelist image -bitmap /nonexistant
       could not read file "gublety-gook"
@@ -419,7 +480,7 @@ BUGS to fix and other stuff to do see docs/TODO.
     rubik.c .
 
 4.11
-  atlantis mode thanks to Eric Lassauge <lassauge@sagem.fr> ported from
+  atlantis mode thanks to Eric Lassauge <lassauge@mail.dotcom.fr> ported from
     Mark J. Kilgard of Silicon Graphics.
   kaleid thanks to Robert Adam, II  <raii@comm.net>.  -fullrandom
     capability added thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl>.
@@ -480,7 +541,7 @@ BUGS to fix and other stuff to do see docs/TODO.
   color background stuff changed around... did I get it right yet?
     I think the biggest outstanding problem is fvwm[2] and that I may not
     have much control over since it does not let me install the colormap for
-    the whole screen. 
+    the whole screen.
   color background reset for shape so it does not screw up other modes.
   Solaris configure fixes by Tom Schmidt and David Bagley (Imakefile may
     need some work)
@@ -589,21 +650,21 @@ BUGS to fix and other stuff to do see docs/TODO.
     This was moved for the modules stuff that I have not got working.  This
     bug is still present for modules, if it works.
   Implemented USE_MULTIPLE_USER for acceptance of multiple passwords to unlock
-    similar to USE_MULTIPLE_ROOT. 
+    similar to USE_MULTIPLE_ROOT.
   +install now works again... broken in 4.08.  I recommend -saturation 1.0
     when running in random mode so you get less mono modes.
   Weeding out of ".", ".." `files' fixed for imagefile in UNIX.
   -sequential now goes more alphabetically.
   SYSV patches for VMS thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl>.
   Image directories no longer need a final slash for -imagefile.
-  Fix when compiled with logout button and used in dtsaver on a 24 bit display. 
+  Fix when compiled with logout button and used in dtsaver on a 24 bit display.
   Finally fixed puzzle mode when moved off screen as in -debug or -inwindow.
 
 4.08
   Patched up imagefile
   Took out MAXSCREENS.  No multiscreen limit now.
   Took out NUMCOLORS.  Put in ncolors as a mode option, range 2-200
-  Took out inital point in qix in the top left corner. 
+  Took out inital point in qix in the top left corner.
   Fixed closedown logout.  Display was shutdown before logout was running.
   New crystal.c thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl> and fixes
     for AIX and VMS.
@@ -666,7 +727,7 @@ BUGS to fix and other stuff to do see docs/TODO.
     in the first square (ie. top left) about 1/4 of the time.
     gl modes are not always cleared when completed.  XClearWindow does not
     work all the time. This led to MI_CLEARWINDOW* macros defined in mode.h
-    and used in all modes. 
+    and used in all modes.
     (Fixed flame, turtle, and petal are blank on mono and with -mono ).
   MI_PAUSE removed from all modes since it does not work on multiscreens
     especially with above patch.
@@ -680,7 +741,7 @@ BUGS to fix and other stuff to do see docs/TODO.
   Interrupts for short delays thanks to William Shubert <wms@hevanet.com>.
     Delay for bouboule and swarm changed to compensate for this.
     Currently backed out since it causes problems with random mode,
-    (USE_NEW_EVENT_LOOP). 
+    (USE_NEW_EVENT_LOOP).
   If -duration is fast, password screen now gets the text info about the
     mode updated.
   -neighbors option for wire mode.
@@ -710,7 +771,7 @@ BUGS to fix and other stuff to do see docs/TODO.
   AIXV3 fix for flag.
   Thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl> for his patches to utils.c
     that allow imagefile to work with the random mode and can now use
-    wild cards to choose specific files in a directory. 
+    wild cards to choose specific files in a directory.
   Thanks to Leonid V. Kalmankin <leonid@cs.msu.su> for his patch for the
     3Dfx card.  It is not autodetected so FX must be uncommented in
     config.h.in before running configure (or iconfig.h before running
@@ -742,7 +803,7 @@ file: glider.3dlife (-rule S45/B5)
 .**.
 .**.
   Added a bit more color to pyro.
-  Fixed MesaGL on TrueColor for modes with MI_WIN_DEPTH in them. 
+  Fixed MesaGL on TrueColor for modes with MI_WIN_DEPTH in them.
   KRB fixes thanks to Robert L. Sink <sinkr@cbl.umces.edu>.
   PAM support thanks to Michael K. Johnson <johnsonm@redhat.com>
    and Marc Ewing <marc@redhat.com>, use --enable-pam .
@@ -788,8 +849,8 @@ file: glider.3dlife (-rule S45/B5)
     default.  Thanks to Michel Eyckmans <eyckmans@imec.be>.
   New Prisoner's Dilemma automata mode, "dilemma".  Thanks to Tom Schmidt for
     his leak fix.
-  New deco and coral modes stolen from xscreensaver. 
-  Hopefully fixed font bomb on bomb. 
+  New deco and coral modes stolen from xscreensaver.
+  Hopefully fixed font bomb on bomb.
   New Purify logs from Tom Schmidt.
   Fixed exposures on dclock, ifs, nose, and strange.  It could still be a
     problem on coral if your machine is slow.  If you use -lockdelay it may
@@ -807,7 +868,7 @@ file: glider.3dlife (-rule S45/B5)
     to pick 3 and 4 randomly.
   Thanks to Tim Mooney <mooney@dogbert.cc.ndsu.NoDak.edu> for his patch to
     configure for Digital Unix and using prefix to set the app-defaults
-    directory. 
+    directory.
   Thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl> for his new crystal.c.
     Now all orthogonal unit cell crystals are represented (quasicrystals
     are not).  Fix for bad memory access and refresh.
@@ -815,7 +876,7 @@ file: glider.3dlife (-rule S45/B5)
     xlock.tcl.
   Modified Makefiles.in used by configure.  A make can be made in xlock and
     modes/gl directories.  Should be OK now with BSD make but I have not
-    tested it.  Also added setuid and password stuff. 
+    tested it.  Also added setuid and password stuff.
   XPM MesaGL conflict lock pick solved by having the iconified window to have
     fixed colors.  This was added to fixedColors in utils.c .  Other writable
     colormap modes were updated to handle this.  This also solves the problem
@@ -831,7 +892,7 @@ file: glider.3dlife (-rule S45/B5)
   Pipes in the pipe mode going towards "near" and "far" should no longer be
     invisible in OpenGL.
   Put more shapes in tube.
- 
+
 4.04
   Thanks to Marcelo F. Vianna <m-vianna@usa.net> for speed ups in morph3d
     Created the great new rubik gl mode.  D. Bagley made it a lot more
@@ -863,7 +924,7 @@ file: glider.3dlife (-rule S45/B5)
   Moved config directory to etc... imake could get confused.
   Fixed color.c so that it could handle the case when all colors are used up.
   sphere.c now can have the shadow in 4 different locations... it is randomly
-    chosen when init_sphere is run.  Fixed a bug if sphere was restarted. 
+    chosen when init_sphere is run.  Fixed a bug if sphere was restarted.
   Fixed sierpinski and wire if there are only a few colors.
   Fixed escher.c it had FALSE instead of "False" in 2 places and was
     causing problems on 64 bit Digital Unix.
@@ -931,7 +992,7 @@ file: glider.3dlife (-rule S45/B5)
   boubloule bug solve using -use3d.  all3d modelist option added.
   New mode added, voters.
   life3d.c leak fix.
-  Lifeforms added P3 Question, P8 Asym, and P8 Smiley added from 
+  Lifeforms added P3 Question, P8 Asym, and P8 Smiley added from
     http://www.halcyon.com/hkoenig/LifeInfo/LifeInfo.html
     life.c can now handle -neighbors 3, 4, 6, 8, 9 and 12.  New pointer
     algorithm.  Hexagons for life, demon, & ant now look better.
@@ -958,7 +1019,7 @@ file: glider.3dlife (-rule S45/B5)
 	Added -grabserver option for unsecure SGI.
   Bug in strcat_firstword fixed thanks to <Jeffrey_Doggett@caradon.com>
     Fix for ":not found" text that appears after about 40 minutes.
- 
+
 4.02
   Logout patch for SUNOS4, galaxy and life3d leak fix thanks to Tom Schmidt.
     inline and seteuid patches for configure and xlock.h.
@@ -1202,7 +1263,7 @@ file: glider.3dlife (-rule S45/B5)
   Demon bug solved when alternating between iconified window and normal
     window.
   mountain patched so it would not be so slow.
-  life1d much improved.  It now has a fade out if it is found repeating.  
+  life1d much improved.  It now has a fade out if it is found repeating.
     Now can break without it completing a whole screen.  -totalistic
     option added (+totalistic -> LCAU collection instead).
   Updated clock to use batchcount  (i.e. many clocks) .. if there are too
@@ -1344,10 +1405,10 @@ file: glider.3dlife (-rule S45/B5)
   puzzle when in -inwindow or compiled with -DDEBUG and moved off screen
     will not bomb out unless it is using an xbm image.  This should be
     completely fixed in 3.11.
-  New defaults: grelb substituted for life icon, -install for 
+  New defaults: grelb substituted for life icon, -install for
     installation of the colormap, some modes slowed down so they would look
     correct on fast machines.
- 
+
 3.9
   All modes (except eyes.c) have been updated to use less global variables.
     Also updated xlockmore to ANSI C by GNU's protoize.
@@ -1449,7 +1510,7 @@ file: glider.3dlife (-rule S45/B5)
   invalid sound added thanks to <J.M.Box@dcs.warwick.ac.uk>
   Thanks to <mccomb@interport.net> for helping to debug marquee and nose
     on multiheaded machines.
- 
+
 3.5
   Fixed my goof on worm.c.
   vms_play fixed for nonexisting sound files and -messagesfile code
@@ -1554,7 +1615,7 @@ file: glider.3dlife (-rule S45/B5)
     bugs (like a BIG network security bug) but most likely broke some
     systems.  Thanks for the many people who gave feedback during
     the BETA test.
-  
+
 2.10
   xlockrc password for more user control of xlock.  Author unknown.
     It is a compile-time option, see Imakefile and README.
@@ -1579,7 +1640,7 @@ file: glider.3dlife (-rule S45/B5)
 
 2.9
   "make install.man" should now work for imake users (if you would like
-   it to work for Makefile.hp ...  mail me the patch).  
+   it to work for Makefile.hp ...  mail me the patch).
   Unbundled SunC warnings removed in bitmap files, maze, grav, life,
     and swirl.
   Swirl patched to work sensibly with TrueColor displays, thanks to
@@ -1652,7 +1713,7 @@ file: glider.3dlife (-rule S45/B5)
     swirl), read the README section on that.
   Thanks to Chris Ross <cross@va.pubnix.com>, maintainer of tvtwm, for
     fixing various bugs; make depend for R5 and less, life3d should not
-    have malloc.h, and a time-elapsed patch. 
+    have malloc.h, and a time-elapsed patch.
   A few new life forms for life.c.  Anyone know what SMILEY is really
     supposed to look like?  :)
   Revised -inroot does not lock screen, as this is done better with the
@@ -1668,7 +1729,7 @@ file: glider.3dlife (-rule S45/B5)
   Something really devilish for BSD (new icons) thanks to J Wunsch
     <j@uriah.sax.de>, but they have been modified.  I also created a
     Linux icon.
-  A patch for Ultrix systems (at least DECstations) running enhanced     
+  A patch for Ultrix systems (at least DECstations) running enhanced
     security thanks to Chris Fuhrman <cfuhrman@vt.edu> and friend.
   Multidisplay bug fix for life3d and wator, thanks to
     <epstein_caleb@jpmorgan.com>.
@@ -1749,7 +1810,7 @@ file: glider.3dlife (-rule S45/B5)
   "galaxy" mode was added, thanks to Hubert Feyrer
     <hubert.feyrer@rz.uni-regensburg.de>.
   "kaleid" mode was added, taken from the Linux version of xkaleid.
-  
+
 1.13
   "timeelapsed" option was added.  Allows you to find out how long a
     machine is locked so you can complain to an administrator.
@@ -1763,7 +1824,7 @@ file: glider.3dlife (-rule S45/B5)
 
 1.11
   Shadow passwords and DES encryption are now detected by the Imakefile.
-    Victor Langeveld <vic@mbfys.kun.nl> reorganized the Imakefile for 
+    Victor Langeveld <vic@mbfys.kun.nl> reorganized the Imakefile for
     shadow passwords and crypt.  Now should compile "right out of the
     box" (although there are still problems on Solaris 2.3).
   Patch to fix sudden rotation changes in rock from Yoshiaki Kasahara

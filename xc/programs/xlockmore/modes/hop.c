@@ -24,7 +24,7 @@ static const char sccsid[] = "@(#)hop.c	4.07 97/11/24 xlockmore";
  * Revision History:
  * Changes in xlockmore distribution
  * 24-Jun-97: EJK and RR functions stolen from xmartin2.2
- *            Ed Kubaitis <ejk@ux2.cso.uiuc.edu> ejk functions and xmartin 
+ *            Ed Kubaitis <ejk@ux2.cso.uiuc.edu> ejk functions and xmartin
  *            Renaldo Recuerdo rr function, generalized exponent version
  *              of the Barry Martin's square root function
  * 10-May-97: Compatible with xscreensaver

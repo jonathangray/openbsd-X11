@@ -43,14 +43,14 @@ static const char sccsid[] = "@(#)sproingiewrap.c	4.07 97/11/24 xlockmore";
  * with the latter six being copies of the first, only lowered and
  * rotated by 90 degrees (jumping to the left).  So after going
  * through 12 frames, a sproingie has gone down two rows but not
- * moved horizontally. 
+ * moved horizontally.
  *
  * To have the sproingies randomly choose left/right jumps at each
  * block, the program should go back to thinking of only 6 frames,
  * and jumping down only one row when it is done.  Then it can pick a
  * direction for the next row.
  *
- * (Falling off the end might not be so bad either.  :) )  
+ * (Falling off the end might not be so bad either.  :) )
  */
 
 #ifdef STANDALONE

@@ -209,11 +209,13 @@
 
      <STRONG>image</STRONG>   Shows randomly appearing logos.
 
+     <STRONG>juggle</STRONG>  Shows a Juggler, juggling.
+
      <STRONG>julia</STRONG>   Shows the Julia set.
 
      <STRONG>kaleid</STRONG>  Shows Brewster's Kaleidoscope.
 
-     <STRONG>kummpa</STRONG>  Shows kumppa.
+     <STRONG>kumppa</STRONG>  Shows kumppa.
 
      <STRONG>laser</STRONG>   Shows spinning lasers.
 
@@ -269,8 +271,8 @@
      <STRONG>puzzle</STRONG>  Shows a puzzle being scrambled and then solved.
 
      <STRONG>pyro</STRONG>    Shows fireworks.
-
      <STRONG>qix</STRONG>     Shows spinning lines a la Qix(tm).
+
      <STRONG>roll</STRONG>    Shows a rolling ball.
 
      <STRONG>rotor</STRONG>   Shows Tom's Roto-Rooter.
@@ -284,6 +286,9 @@
              Shows a Sierpinski's triangle.
 
      <STRONG>slip</STRONG>    Shows slipping blits.
+
+     <STRONG>solitare</STRONG>
+             Shows Klondike's game of solitare.
 
      <STRONG>sphere</STRONG>  Shows a bunch of shaded spheres.
 
@@ -314,7 +319,11 @@
 
      <STRONG>swirl</STRONG>   Shows animated swirling patterns.
 
+     <STRONG>t3d</STRONG>     Shows a Flying Balls Clock Demo.
+
      <STRONG>tetris</STRONG>  Shows an autoplaying tetris game.
+
+     <STRONG>text3d</STRONG>  Shows 3D moving texts.
 
      <STRONG>thornbird</STRONG>
              Shows an animated Bird in a Thorn Bush fractal map.
@@ -428,6 +437,7 @@
           In fadeplot mode it is the number of steps.
 
           In flag mode it means nothing.
+
           In flame mode it is the number  of  levels  to  recurse
           (larger = more complex).
 
@@ -459,6 +469,8 @@
           In image mode it means it is the  number  of  logos  on
           screen at once.
 
+          In juggle mode it is speed.
+
           In julia mode it is the depth of recursion.
 
           In kaleid mode it is the number of pens.
@@ -480,6 +492,7 @@
           In lissie mode it is the number of worms.
 
           In loop mode it means nothing.
+
           In mandelbrot mode it is the order.
 
           In marquee mode it means nothing.
@@ -518,7 +531,6 @@
 
           In rotor mode it is the number of rotor  thingys  which
           whirr...
-
           In rubik mode it is the number of moves.
 
           In shape mode it means nothing.
@@ -527,11 +539,14 @@
 
           In slip mode it means nothing.
 
+          In solitare mode it means nothing.
+
           In sphere mode it means nothing.
 
           In spiral mode it is the number of spirals.
 
           In spline mode it is the number of points "splined".
+
           In sproingies mode it is the number of sproingies.
 
           In stairs mode it is means nothing.
@@ -549,6 +564,12 @@
           In swirl mode it means the number of "knots".
 
           In swarm mode it is the number of bees.
+
+          In t3d mode it means nothing.
+
+          In tetris mode it means nothing.
+
+          In text3d mode it means nothing.
 
           In thornbird mode it is the number of points.
 
@@ -592,11 +613,11 @@
           deco,  demon,  dilemma,  discrete,  eyes,  flag,  flow,
           forest,  galaxy,  helix,  hop, hyper, ico, laser, life,
           life1d, life3d, lisa, lissie, loop,  mandelbrot,  moun-
-          tain,  petal,  sierpinski, shape, spline +erase, thorn-
-          bird, triangle, tube, voters,  wator,  and  wire.   For
-          worm  it is the length of the lines, for atlantis it is
-          the shark speed, for fadeplot, julia and spiral  it  is
-          the  length  of  the  trail  of  dots,  munch it is the
+          tain,  petal,  sierpinski,  shape,  spline +erase, t3d,
+          thornbird, triangle, tube,  voters,  wator,  and  wire.
+          For worm it is the length of the lines, for atlantis it
+          is the shark speed, for fadeplot, julia and  spiral  it
+          is  the  length  of  the trail of dots, munch it is the
           minimum size of the squares, for kaleid it is the %  of
           black,  for  qix  it is the number of lines, for spline
           -erase it means the number of splines * 64 (for  compa-
@@ -606,14 +627,15 @@
           ing the screen, for rubik it is the number of steps  to
           complete  a 90 move, for superquadrics it is the number
           of frames it takes to morph from one shape to  another.
-          For others it means nothing.
+          for  text3d  it  is  the number of times drawing a word
+          before the next one, For others it means nothing.
 
      -<STRONG>size</STRONG> <EM>num</EM>
           The <EM>size</EM> option sets the size maximum size of a star in
           bouboule,  pyro  and  star,  size  of  ball in ball and
           bounce, size of bat in bat, maximum size of  bubble  in
-          bubble, size of clock in clock, minimum size of rectan-
-          gles in deco, size  of  the  polygons  in  crystal  and
+          bubble,  size  of  clock  in  clock,  minimum  size  of
+          rectangles in deco, size of the polygons in crystal and
           tik_tak,  size  of polyhedron in ico, size of lissie in
           lissie, size of dots of flag, for kaleid it is the sym-
           metry,  width  of maze hallway, size of side of penrose
@@ -923,6 +945,7 @@
           zle mode.  For eyes and  pacman  only  a  xbm  file  is
           accepted.   Certain modes reject the bitmap if too big.
           /
+
 
 
 
@@ -1284,6 +1307,28 @@
      -<STRONG>rotation</STRONG> <EM>num</EM>
           Set rotation velocity in <EM>starfish</EM>.
 
+     -<STRONG>ttfont</STRONG> <EM>filename</EM>
+          Sets the True Type font file (or font  directory)  used
+          for <EM>text3d</EM>
+
+     -<STRONG>extrusion</STRONG> <EM>num</EM>
+          Sets length of the text extrusion for <EM>text3d</EM>
+
+     -<STRONG>rot_amplitude</STRONG> <EM>float</EM>
+          Sets rotation amplitude value of each letter for <EM>text3d</EM>
+
+     -<STRONG>rot_frequency</STRONG> <EM>float</EM>
+          Sets rotation frequency for <EM>text3d</EM>
+
+     <STRONG>-/+no_split</STRONG>
+          Turn on and off word splitting for <EM>text3d</EM>
+
+     -<STRONG>ttanimate</STRONG> <EM>function</EM>_<EM>name</EM>
+          Sets the animation function used for <EM>text3d</EM>.  Currently
+          one  of  :  Random  FullRandom  Default  Default2  None
+           Crazy  UpDown  Extrude  RotateXY  RotateYZ   Frequency
+           Amplitude
+
      -<STRONG>thickness</STRONG> <EM>num</EM>
           Set thickness in <EM>starfish</EM>.
 
@@ -1316,14 +1361,13 @@
           writable colormaps (not including xpm).   "all3d"  will
           get all the modes that support this option.  "allmouse"
           will get all the modes that support mouse  interaction.
-          Similarly,    "allautomata"    for    automata   modes,
-          "allfractal"  for  fractal  modes,  "allgeometry"   for
-          geometry modes, "allspace" for space modes.  The random
-          mode itself can not be referenced.
+          Similarly,  "allautomata" for automata modes, "allfrac-
+          tal" for  fractal  modes,  "allgeometry"  for  geometry
+          modes,  "allspace"  for  space  modes.  The random mode
+          itself can not be referenced.
 
      <STRONG>-/+sequential</STRONG>
           Turn on non-random <EM>random</EM> option.
-
 
 
 </PRE>
@@ -1397,8 +1441,8 @@
 
 </PRE>
 <H2>COPYRIGHT</H2><PRE>
-     Copyright (c) 1988-91 by Patrick J. Naughton
-     Copyright (c) 1993-98 by David A. Bagley
+     Copyright (c) 1988-1991 by Patrick J. Naughton
+     Copyright (c) 1993-2000 by David A. Bagley
 
      Permission  to  use,  copy,  modify,  and  distribute   this
      software  and  its documentation for any purpose and without
@@ -1410,6 +1454,13 @@
      McKusick.  All Rights Reserved.
      DEC, HP, IBM, Linux, SCO, SGI,  and  Sun  icons  have  their
      respective copyrights.
+
+
+
+
+
+
+
 
 
 
