@@ -85,6 +85,10 @@ static int initialVT = -1;
 #define PCVT_CONSOLE_MODE O_RDWR|O_NDELAY
 #endif
 
+#ifdef WSCONS_SUPPORT
+#  define PCVT_CONSOLE_DEV "/dev/ttyC0"
+#endif
+
 #define CHECK_DRIVER_MSG \
   "Check your kernel's console driver configuration and /dev entries"
 
@@ -100,6 +104,9 @@ static char *supported_drivers[] = {
 #endif
 #ifdef PCVT_SUPPORT
 	"pcvt",
+#endif
+#ifdef WSCONS_SUPPORT
+	"wscons",
 #endif
 };
 
@@ -142,7 +149,7 @@ static int xf86OpenSyscons(
 );
 #endif /* SYSCONS_SUPPORT */
 
-#ifdef PCVT_SUPPORT
+#if defined(PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
 static int xf86OpenPcvt(
 #if NeedFunctionPrototypes
     void
@@ -158,7 +165,7 @@ static int xf86OpenPcvt(
  * at its own.)
  */
 static xf86ConsOpen_t xf86ConsTab[] = {
-#ifdef PCVT_SUPPORT
+#if defined(PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
     xf86OpenPcvt,
 #endif
 #ifdef CODRV_SUPPORT
@@ -182,7 +189,7 @@ xf86OpenConsole()
     int onoff;
 #endif
     xf86ConsOpen_t *driver;
-#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT)
+#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined (WSCONS_SUPPORT)
     vtmode_t vtmode;
 #endif
     
@@ -276,7 +283,7 @@ xf86OpenConsole()
 	    }
 	    break;
 #endif
-#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT)
+#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined (WSCONS_SUPPORT)
 	case SYSCONS:
 	case PCVT:
 	    /*
@@ -325,13 +332,13 @@ xf86OpenConsole()
 	        FatalError("xf86OpenConsole: KDSETMODE KD_GRAPHICS failed\n");
 	    }
    	    break; 
-#endif /* SYSCONS_SUPPORT || PCVT_SUPPORT */
+#endif /* SYSCONS_SUPPORT || PCVT_SUPPORT || PCVT_SUPPORT */
         }
     }
     else 
     {
 	/* serverGeneration != 1 */
-#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT)
+#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined (WSCONS_SUPPORT)
     	if (xf86Info.consType == SYSCONS || xf86Info.consType == PCVT)
     	{
 	    if (ioctl(xf86Info.consoleFd, VT_ACTIVATE, xf86Info.vtno) != 0)
@@ -339,7 +346,7 @@ xf86OpenConsole()
 	        ErrorF("xf86OpenConsole: VT_ACTIVATE failed\n");
 	    }
         }
-#endif /* SYSCONS_SUPPORT || PCVT_SUPPORT */
+#endif /* SYSCONS_SUPPORT || PCVT_SUPPORT || WSCONS_SUPPORT */
     }
     return;
 }
@@ -580,7 +587,7 @@ xf86OpenCodrv()
 }
 #endif /* CODRV_SUPPORT */
 
-#ifdef PCVT_SUPPORT
+#if defined(PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
 
 static int
 xf86OpenPcvt()
@@ -695,7 +702,7 @@ xf86CloseConsole()
 #if defined(CODRV_SUPPORT)
     int onoff;
 #endif
-#if defined(SYSCONS_SUPPORT) || defined(PCVT_SUPPORT)
+#if defined(SYSCONS_SUPPORT) || defined(PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
     struct vt_mode   VT;
 #endif
 
@@ -717,7 +724,7 @@ xf86CloseConsole()
 	ioctl (xf86Info.consoleFd, CONSOLE_X_MODE_OFF, 0);
 	break;
 #endif /* PCCONS_SUPPORT */
-#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT)
+#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
     case SYSCONS:
     case PCVT:
         ioctl(xf86Info.consoleFd, KDSETMODE, KD_TEXT);  /* Back to text mode */
@@ -734,7 +741,7 @@ xf86CloseConsole()
 	if (initialVT != -1)
 		ioctl(xf86Info.consoleFd, VT_ACTIVATE, initialVT);
         break;
-#endif /* SYSCONS_SUPPORT || PCVT_SUPPORT */
+#endif /* SYSCONS_SUPPORT || PCVT_SUPPORT || WSCONS_SUPPORT */
     }
 
     if (xf86Info.screenFd != xf86Info.consoleFd)
@@ -768,7 +775,7 @@ int i;
 		KeepTty = TRUE;
 		return(1);
 	}
-#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT)
+#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined (WSCONS_SUPPORT)
 	if ((argv[i][0] == 'v') && (argv[i][1] == 't'))
 	{
 		if (sscanf(argv[i], "vt%2d", &VTnum) == 0 ||
@@ -780,16 +787,16 @@ int i;
 		}
 		return(1);
 	}
-#endif /* SYSCONS_SUPPORT || PCVT_SUPPORT */
+#endif /* SYSCONS_SUPPORT || PCVT_SUPPORT || WSCONS_SUPPORT */
 	return(0);
 }
 
 void
 xf86UseMsg()
 {
-#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT)
+#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined (WSCONS_SUPPORT)
 	ErrorF("vtXX                   use the specified VT number (1-12)\n");
-#endif /* SYSCONS_SUPPORT || PCVT_SUPPORT */
+#endif /* SYSCONS_SUPPORT || PCVT_SUPPORT || WSCONS_SUPPORT */
 	ErrorF("-keeptty               ");
 	ErrorF("don't detach controlling tty (for debugging only)\n");
 	return;
