@@ -61,18 +61,18 @@ XFree86 X servers support three classes of mice: serial, bus and PS/2 mice.
 	    compatible with the original PS/2 mouse from IBM immediately after
 
 
-Mouse Support in XFree86
+Mouse Support in XFree86						      1
 
 
 
 
 
-Mouse Support in XFree86
+Mouse Support in XFree86						      2
 
 
 
 	    power up.  The PS/2 mouse with additional features requires a spe-
-	    cialized initialization procedure to enable these features.  With-
+	    cialized initialization procedure to enable these features.	 With-
 	    out proper initialization, it behaves as though it were an ordinary
 	    two or three button mouse.
 
@@ -100,20 +100,20 @@ another axis or a pair of buttons (see below).
 			       "Auto"  "BusMouse"  "PS/2"   "xxxPS/2"
      --------------------------------------------------------------------
      BSD/OS	       Ok	 ?	   ?	     ?	       ?
-     FreeBSD	       Ok	 Ok	   Ok	     Ok        SP*1
-     FreeBSD(98)       Ok	 ?	   Ok	     NA        NA
+     FreeBSD	       Ok	 Ok	   Ok	     Ok	       SP*1
+     FreeBSD(98)       Ok	 ?	   Ok	     NA	       NA
      Interactive Unix  Ok	 NA	   ?*1	     ?*1       NA
-     Linux	       Ok	 Ok	   Ok	     Ok        Ok
-     Linux/98	       Ok	 ?	   Ok	     NA        NA
-     LynxOS	       Ok	 NA	   Ok	     Ok        NA
+     Linux	       Ok	 Ok	   Ok	     Ok	       Ok
+     Linux/98	       Ok	 ?	   Ok	     NA	       NA
+     LynxOS	       Ok	 NA	   Ok	     Ok	       NA
      NetBSD	       Ok	 Ok	   Ok	     SP*1      NA
-     NetBSD/pc98       Ok	 ?	   Ok	     NA        NA
-     OpenBSD	       Ok	 Ok	   Ok	     Ok*1      NA
-     OS/2	       SP*2	 SP*2	   SP*2      SP*2      SP*2
-     SCO	       Ok	 ?	   SP*1      SP*1      NA
-     Solaris 2.x       Ok	 NA*1	   ?*1	     Ok        NA
-     SVR4	       Ok	 NA*1	   SP*1      SP*1      NA
-     PANIX	       Ok	 ?	   SP*1      SP*1      NA
+     NetBSD/pc98       Ok	 ?	   Ok	     NA	       NA
+     OpenBSD	       Ok	 Ok	   Ok	     Ok*1      Ok*1
+     OS/2	       SP*2	 SP*2	   SP*2	     SP*2      SP*2
+     SCO	       Ok	 ?	   SP*1	     SP*1      NA
+     Solaris 2.x       Ok	 NA*1	   ?*1	     Ok	       NA
+     SVR4	       Ok	 NA*1	   SP*1	     SP*1      NA
+     PANIX	       Ok	 ?	   SP*1	     SP*1      NA
 
      Ok: support is available,	NA: not available, ?: untested or unknown.
      SP: support is available in a different form
@@ -133,7 +133,7 @@ No testing has been done with BSD/OS.
 
 
 
-Mouse Support in XFree86
+Mouse Support in XFree86						      3
 
 
 
@@ -162,7 +162,7 @@ The PnP serial mouse support (the "Auto" protocol) is not supported for the
 moment.
 
 The bus mouse and PS/2 mouse should be supported by using the appropriate
-device drivers.  Use /dev/mouse for the "BusMouse" protocol and /dev/kdmouse
+device drivers.	 Use /dev/mouse for the "BusMouse" protocol and /dev/kdmouse
 for the "PS/2" protocol.  These protocols are untested but may work.  Please
 send success/failure reports to <michael.rohleder@stadt-frankfurt.de>.
 
@@ -199,13 +199,14 @@ The PS/2 mouse is not supported.
 
 
 
-Mouse Support in XFree86
+Mouse Support in XFree86						      4
 
 
 
 3.11  OpenBSD
 
-OpenBSD does not support extended PS/2 mouse protocols ("xxxPS/2").
+OpenBSD 2.2 and earlier does not support extended PS/2 mouse protocols
+("xxxPS/2").
 
 The PS/2 mouse device driver /dev/pms emulates the bus mouse.  Specify the
 "BusMouse" protocol for any PS/2 mouse regardless of the brand of the mouse
@@ -215,11 +216,15 @@ The raw PS/2 mouse device driver /dev/psm uses the standard PS/2 mouse proto-
 col.  Therefore, you should specify the "PS/2" protocol for any PS/2 mouse
 regardless of the brand of the mouse when using this device.
 
+Starting with OpenBSD 2.3, the kernel driver for /dev/psm has support for
+extended PS/2 mouse protocols ("xxxPS/2"). You may specify the exact model of
+your mouse, or "Auto" to try the PnP auto-detection.
+
 3.12  OS/2
 
 XFree86/OS2 always uses the native mouse driver of the operating system and
 will support any type of pointer that the OS supports, whether it is serial,
-bus mouse, or PnP type.  If the mouse works under Presentation Manager, it will
+bus mouse, or PnP type.	 If the mouse works under Presentation Manager, it will
 also work under XFree86/OS2.
 
 Always specify "OSMouse" as the protocol type.
@@ -253,22 +258,21 @@ protocol type.	The PC-98 version of PANIX supports the bus mouse with the
 "Xqueue" protocol type.
 
 
+
+
+
+
+
+
+
+Mouse Support in XFree86						      5
+
+
+
 4.  Configuring Your Mouse
 
 Before using the XF86Setup or xf86config programs to set up mouse configura-
 tion, you must identify the interface type, the device name and the protocol
-
-
-
-
-
-
-
-
-Mouse Support in XFree86
-
-
-
 type of your mouse.  Blindly trying every possible combination of mouse set-
 tings will lead you nowhere.
 
@@ -288,7 +292,7 @@ than one serial port to which the serial mouse can be attached.
 
 The next step is to guess the appropriate protocol type for the mouse.	The X
 server may be able to select a protocol type for the given mouse automatically
-in some cases.	Otherwise, the user has to choose one manually.  Follow the
+in some cases.	Otherwise, the user has to choose one manually.	 Follow the
 guidelines below.
 
       Bus mouse
@@ -320,22 +324,21 @@ guidelines below.
 	    PnP COM device specification and the X server may be able to detect
 	    an appropriate protocol type for the mouse automatically.
 
-	    Specify "Auto" as the protocol type and start the X server.  If the
+
+
+
+
+
+
+
+Mouse Support in XFree86						      6
+
+
+
+	    Specify "Auto" as the protocol type and start the X server.	 If the
 	    mouse is not a PnP mouse, or the X server cannot determine a suit-
-	    able protocol type, the server will print the following error
-
-
-
-
-
-
-
-
-Mouse Support in XFree86
-
-
-
-	    message and abort.
+	    able protocol type, the server will print the following error mes-
+	    sage and abort.
 
 		 xf86SetupMouse: Cannot determine the mouse protocol
 
@@ -386,21 +389,22 @@ Mouse Support in XFree86
 
 	      6.  If the serial mouse has a roller or a wheel and it doesn't
 		  work with the "IntelliMouse" protocol, you have to use it as
+
+
+
+
+
+
+
+
+Mouse Support in XFree86						      7
+
+
+
 		  a regular 2- or 3-button serial mouse.
+
 	    If the "Auto" protocol is specified and the mouse seems working,
 	    but you find that not all features of the mouse is available, that
-
-
-
-
-
-
-
-
-Mouse Support in XFree86
-
-
-
 	    is because the X server does not have native support for that model
 	    of mouse and is using a ``compatible'' protocol according to PnP
 	    information.
@@ -408,12 +412,12 @@ Mouse Support in XFree86
 	    If you suspect this is the case with your mouse, please send report
 	    to <XFree86@XFree86.Org>.
 
-      Standardized protocols
-	    Mouse device drivers in your OS may use the standardized protocol
-	    regardless of the model or the class of the mouse.	For example,
-	    SVR4 systems may support "Xqueue" protocol.  In FreeBSD the system
-	    mouse device /dev/sysmouse uses the "SysMouse" protocol.  Please
-	    refer to the OS support section of this file for more information.
+      Standardized protMouse device drivers in your OS may use the standardized
+	    protocol regardless of the model or the class of the mouse.	 For
+	    example, SVR4 systems may support "Xqueue" protocol.  In FreeBSD
+	    the system mouse device /dev/sysmouse uses the "SysMouse" protocol.
+	    Please refer to the OS support section of this file for more infor-
+	    mation.
 
 
 5.  XF86Config Options
@@ -425,7 +429,7 @@ fig file.
 
 This option tells the X server the number of buttons on the mouse.  Currently
 there is no reliable way to automatically detect the correct number.  This
-option is the only means for the X server to obtain it.  The default value is
+option is the only means for the X server to obtain it.	 The default value is
 three.
 
 Note that if you intend to assign Z axis movement to button events using the
@@ -451,21 +455,19 @@ axis motion to the button M.  If this option is used and the buttons N or M
 actually exists in the mouse, their actions won't be detected by the X server.
 
 Currently this option can not be set in the XF86Setup program.	You need to
+
+
+
+
+
+
+
+
+Mouse Support in XFree86						      8
+
+
+
 edit the XF86Config file by hand to add this option.
-
-
-
-
-
-
-
-
-
-
-
-Mouse Support in XFree86
-
-
 
 5.3  Resolution
 
@@ -519,19 +521,19 @@ detection:
 This mouse has four buttons.  Thinking Mouse supports the PnP COM device speci-
 fication.
 
+
+
+
+
+
+
+
+
+Mouse Support in XFree86						      9
+
+
+
 To use this mouse as a serial device:
-
-
-
-
-
-
-
-
-
-Mouse Support in XFree86
-
-
 
 	  Protocol "Auto" or "ThinkingMouse"
 	  Device   "/dev/xxxx" (where xxxx is a serial port)
@@ -585,19 +587,20 @@ These mice have a "magic button" which is used like a wheel or a roller.  The
 identical to NetMouse except that it has the third button on the left hand
 side.
 
+
+
+
+
+
+
+
+
+Mouse Support in XFree86						     10
+
+
+
 NetMouse and NetMouse Pro support the PnP COM device specification.  When used
 as a serial mouse, they are compatible with MS IntelliMouse.
-
-
-
-
-
-
-
-
-Mouse Support in XFree86
-
-
 
 To use these mice as a serial device:
 
@@ -650,25 +653,24 @@ To use this mouse as the PS/2 device and the OS supports automatic PS/2 mouse
 detection:
 
 	  Protocol "Auto"
+
+
+
+
+
+
+
+
+Mouse Support in XFree86						     11
+
+
+
 	  Device   "/dev/xxxx"	(where xxxx is the PS/2 mouse device)
-
-
-
-
-
-
-
-
-
-
-Mouse Support in XFree86
-
-
 
 6.6  ASCII MieMouse (serial, PS/2)
 
 This mouse appears to be OEM from Genius.  Although its shape is quite differ-
-ent, it works like Genius NetMouse Pro.  This mouse has a "knob" which is used
+ent, it works like Genius NetMouse Pro.	 This mouse has a "knob" which is used
 like a wheel or a roller.  The "knob" action is recognized as the Z axis
 motion.
 
@@ -700,9 +702,9 @@ detection:
 
 6.7  Logitech MouseMan+ and FirstMouse+ (serial, PS/2)
 
-MouseMan+ has two buttons on top, one side button and a roller.  FirstMouse+
+MouseMan+ has two buttons on top, one side button and a roller.	 FirstMouse+
 has two buttons and a roller.  The roller movement is recognized as the Z axis
-motion.  The roller also acts as the third button.  The side button is recog-
+motion.	 The roller also acts as the third button.  The side button is recog-
 nized as the fourth button.
 
 MouseMan+ and FirstMouse+ support the PnP COM device specification.  They have
@@ -717,19 +719,19 @@ To use this mouse as the PS/2 device and the OS supports PS/2 mouse initializa-
 tion:
 
 	  Protocol "MouseManPlusPS/2"
+
+
+
+
+
+
+
+
+Mouse Support in XFree86						     12
+
+
+
 	  Device   "/dev/xxxx"	(where xxxx is the PS/2 mouse device)
-
-
-
-
-
-
-
-
-
-Mouse Support in XFree86
-
-
 
 To use this mouse as the PS/2 device but the OS does not support PS/2 mouse
 initialization (the wheel and the fourth button won't work):
@@ -791,9 +793,7 @@ detection:
 
 
 
-
-
-Mouse Support in XFree86
+Mouse Support in XFree86						     13
 
 
 
@@ -867,14 +867,14 @@ Mouse Support in XFree86
 
 
 
-1. Introduction  ............................................................ 1
+1. Introduction	 ............................................................ 1
 
 2. Supported Hardware  ...................................................... 1
 
 3. OS Support for Mice	..................................................... 2
    3.1	Summary of Supported Mouse Protocol Types  .......................... 2
    3.2	BSD/OS	............................................................. 2
-   3.3	FreeBSD  ............................................................ 3
+   3.3	FreeBSD	 ............................................................ 3
    3.4	FreeBSD(98)  ........................................................ 3
    3.5	Interactive Unix  ................................................... 3
    3.6	Linux  .............................................................. 3
@@ -882,25 +882,25 @@ Mouse Support in XFree86
    3.8	LynxOS	............................................................. 3
    3.9	NetBSD	............................................................. 3
    3.10 NetBSD/pc98  ........................................................ 3
-   3.11 OpenBSD  ............................................................ 4
+   3.11 OpenBSD	 ............................................................ 4
    3.12 OS/2  ............................................................... 4
    3.13 SCO  ................................................................ 4
-   3.14 Solaris  ............................................................ 4
+   3.14 Solaris	 ............................................................ 4
    3.15 SVR4  ............................................................... 4
    3.16 PANIX  .............................................................. 4
 
-4. Configuring Your Mouse  .................................................. 4
+4. Configuring Your Mouse  .................................................. 5
 
 5. XF86Config Options  ...................................................... 7
-   5.1	Buttons  ............................................................ 7
+   5.1	Buttons	 ............................................................ 7
    5.2	ZAxisMappping  ...................................................... 7
    5.3	Resolution  ......................................................... 8
 
 6. Mouse Gallery  ........................................................... 8
-   6.1	MS IntelliMouse  (serial, PS/2)  .................................... 8
+   6.1	MS IntelliMouse	 (serial, PS/2)	 .................................... 8
    6.2	Kensington Thinking Mouse (serial, PS/2)  ........................... 8
-   6.3	Genius NetScroll (PS/2)  ............................................ 9
-   6.4	Genius NetMouse and NetMouse Pro (serial, PS/2)  .................... 9
+   6.3	Genius NetScroll (PS/2)	 ............................................ 9
+   6.4	Genius NetMouse and NetMouse Pro (serial, PS/2)	 .................... 9
    6.5	ALPS GlidePoint (serial, PS/2)	.................................... 10
    6.6	ASCII MieMouse (serial, PS/2)  ..................................... 11
    6.7	Logitech MouseMan+ and FirstMouse+ (serial, PS/2)  ................. 11
@@ -922,5 +922,3 @@ Mouse Support in XFree86
 				       i
 
 
-
-$XFree86: xc/programs/Xserver/hw/xfree86/doc/README.mouse,v 1.1.2.4 1998/03/02 10:00:10 dawes Exp $
