@@ -1,489 +1,460 @@
-  README for XFree86 3.3.1 on OpenBSD
-  Matthieu Herrb
-  Last modified on: 7 Oct 1997
 
-  1.  What and Where is XFree86?
 
-  XFree86 3.3.1 is a port of X11R6.3 that supports several versions of
-  Intel-based Unix.  It is derived from X386 1.2, which was the X server
-  distributed with X11R5.  This release consists of many new features
-  and performance improvements as well as many bug fixes.  The release
-  is available as source patches against the X Consortium X11R6.3 code,
-  as well as binary distributions for many architectures.
 
-  See the Copyright Notice.
 
-  The sources for XFree86 are available by anonymous ftp from:
 
-  ftp://ftp.XFree86.org/pub/XFree86/current
 
-  Binaries for OpenBSD 2.2  are available in the OpenBSD 2.2 binary
-  distribution.
 
-  XFree86 3.3.1 also builds on other OpenBSD architectures. See section
-  ``Building on other architectures'' for details.
 
-  2.  Bug Reports for This Document
 
-  Send email to matthieu@laas.fr (Matthieu Herrb) or XFree86@XFree86.org
-  if you have comments or suggestions about this file and we'll revise
-  it.
+		      RREEAADDMMEE ffoorr XXFFrreeee8866 33..33..11 oonn OOppeennBBSSDD
 
-  3.  This release have been done for OpenBSD 2.2. It contains a few
-  minor changes in respect to the XFree86 3.3.1 distribution for OpenBSD
-  2.1 that can be found on the XFree86 sites New features in this
-  release
+				Matthieu Herrb
 
+			 Last modified on: 7 Oct 1997
 
-     1. The servers are no longer installed setuid. You need to run xdm
-        to use X safely. You can also set the setuid bit yourself, but
-        don't do that unless you know what you are doing.
 
-     2. A security hole that allow to view the first words of an
-        arbitrary file when the servers are setuid has been fixed.
 
-     3. See the Release Notes for non-OS dependent new features in
-        XFree86 3.3.1.
+_1_.  _W_h_a_t _a_n_d _W_h_e_r_e _i_s _X_F_r_e_e_8_6_?
 
-  4.  Installing the Binaries
+XFree86 3.3.1 is a port of X11R6.3 that supports several versions of Intel-
+based Unix.  It is derived from X386 1.2, which was the X server distributed
+with X11R5.  This release consists of many new features and performance
+improvements as well as many bug fixes.	 The release is available as source
+patches against the X Consortium X11R6.3 code, as well as binary distributions
+for many architectures.
 
-  Refer to section 4 of the Release Notes  for detailed installation
-  instructions.
+See the Copyright Notice.
 
-  5.  Configuring X for Your Hardware
+The sources for XFree86 are available by anonymous ftp from:
 
-  The XF86Config file tells the X server what kind of monitor, video
-  card and mouse you have.  You must create it to tell the server what
-  specific hardware you have.
+ftp://ftp.XFree86.org/pub/XFree86/current
 
-  XFree86 3.2 introduced a new, user-friendly configuration utility
-  called XF86Setup. It has to be run as root. Refer to its documentation
-  for details about its use.
+Binaries for OpenBSD 2.2  are available in the OpenBSD 2.2 binary distribution.
 
-  You'll need info on your hardware:
+XFree86 3.3.1 also builds on other OpenBSD architectures. See section _B_u_i_l_d_i_n_g
+_o_n _o_t_h_e_r _a_r_c_h_i_t_e_c_t_u_r_e_s (section 9.3, page 7) for details.
 
-     o  Your mouse type, baud rate and its /dev entry.
 
-     o  The video card's chipset (e.g. ET4000, S3, etc).
+_2_.  _B_u_g _R_e_p_o_r_t_s _f_o_r _T_h_i_s _D_o_c_u_m_e_n_t
 
-     o  Your monitor's sync frequencies.
+Send email to _m_a_t_t_h_i_e_u_@_l_a_a_s_._f_r (Matthieu Herrb) or _X_F_r_e_e_8_6_@_X_F_r_e_e_8_6_._o_r_g if you
+have comments or suggestions about this file and we'll revise it.
 
-  The recommended way to generate an XF86Config file is to use the
-  XF86Setup utility.  The xf86config text utility is still there for the
-  (few) cases where XF86Setup can't be used. Also, there is a sample
-  file installed as /usr/X11R6/lib/X11/XF86Config.eg, which can be used
-  as a starting point.
 
-  For details about the XF86Config file format, refer to the
-  XF86Config(5) manual page.
+_3_.  _N_e_w _f_e_a_t_u_r_e_s _i_n _t_h_i_s _r_e_l_e_a_s_e
 
-  In order to protect your hardware from damage, the server will no
-  longer read XF86Config files from a user's home directory, but
-  requires that it be in /etc/XF86Config,
-  /usr/X11R6/lib/X11/XF86Config.hostname or
-  /usr/X11R6/lib/X11/XF86Config.
+This release have been done for OpenBSD 2.2. It contains a few minor changes in
+respect to the XFree86 3.3.1 distribution for OpenBSD 2.1 that can be found on
+the XFree86 sites"
 
-  Once you've set up a XF86Config file, you can fine tune the video
-  modes with the xvidtune utility.
+  1.  The servers are no longer installed setuid. You need to run xdm to use X
+      safely. You can also set the setuid bit yourself, but ddoonn''tt ddoo tthhaatt
+      unless you know what you are doing.
 
-  5.1.  About mouse configuration
+  2.  A security hole that allow to view the first words of an arbitrary file
+      when the servers are setuid has been fixed.
 
-  If your serial mouse does not work try using kermit or tip to connect
-  to the mouse serial port and verify that it does indeed generate
-  characters.
+  3.  See the Release Notes for non-OS dependent new features in XFree86 3.3.1.
 
-  The OpenBSD pms driver  provides both "raw" and "cooked" (translated)
-  modes.  "raw" mode does not do protocol translation, so XFree86 would
-  use the PS/2 protocol for talking to the device in that mode.
-  "cooked" mode is the old BusMouse translation.  By default, the driver
-  runs in "cooked" mode.  It can be switched using ioctls or by opening
-  the first minor device which is /dev/psm0.
 
-  5.2.  Other input devices
 
-  XFree86  supports the dynamic loading of drivers for external input
-  devices using the XInput extension. Currently supported devices are:
 
-     o  Joystick (xf86Jstk.so)
 
-     o  Wacom tablets (Wacom IV protocol only, xf86Wacom.so)
+README for XFree86 3.3.1 on OpenBSD					      1
 
-     o  SummaSketch tablets (xf86Summa.so)
 
-     o  Elographics touchscreen (xf86Elo.so)
 
-  To use a specific device, add the line
 
-       load "module"
 
+README for XFree86 3.3.1 on OpenBSD					      2
 
-  in the Module section of XF86Config, where module is the name of the
-  .so file corresponding to your device.  You also need to set up a XIn-
-  put section in XF86Config.  Refer to the XF86Config(5) man page for
-  detailed configuration instructions.
 
-  You can then change the device used to drive the X pointer with the
-  xsetpointer(1) command.
 
-  For joystick support, you'll need to enable the joystick device driver
-  in the kernel.  See joy(4) for details.
+_4_.  _I_n_s_t_a_l_l_i_n_g _t_h_e _B_i_n_a_r_i_e_s
 
+Refer to section 4 of the Release Notes	 for detailed installation instruc
+tions.
 
 
-  5.3.  Configuring PEX and XIE extensions
+_5_.  _C_o_n_f_i_g_u_r_i_n_g _X _f_o_r _Y_o_u_r _H_a_r_d_w_a_r_e
 
-  The PEX and XIE extensions are  supported as external modules.  If you
-  want to have access to these extensions, add the following lines to
-  the Module section of XF86Config:
+The XF86Config file tells the X server what kind of monitor, video card and
+mouse you have.	 You _m_u_s_t create it to tell the server what specific hardware
+you have.
 
+XFree86 3.2 introduced a new, user-friendly configuration utility called
+XXFF8866SSeettuupp. It has to be run as root. Refer to its documentation for details
+about its use.
 
-          load    "pex5.so"
-          load    "xie.so"
+You'll need info on your hardware:
 
+    Your mouse type, baud rate and its /dev entry.
 
+    The video card's chipset (e.g. ET4000, S3, etc).
 
+    Your monitor's sync frequencies.
 
-  6.  Installing Xdm, the display manager
+The recommended way to generate an XF86Config file is to use the XF86Setup
+utility.  The xf86config text utility is still there for the (few) cases where
+XF86Setup can't be used. Also, there is a sample file installed as
+/usr/X11R6/lib/X11/XF86Config.eg, which can be used as a starting point.
 
-  The file xc/lib/Xdmcp/WrapHelp.c is not available in France (where the
-  binary distribution is built) so support for XDM-AUTHORIZATION-1 is
-  not included here. You'll have to get WrapHelp.c and rebuild xdm after
-  having set HasXdmAuth in host.def.
+For details about the XF86Config file format, refer to the _X_F_8_6_C_o_n_f_i_g_(_5_) manual
+page.
 
-  The file is available within the US; for details see
-  ftp.x.org:/pub/R6/xdm-auth/README.
+In order to protect your hardware from damage, the server will no longer read
+XF86Config files from a user's home directory, but requires that it be in
+/etc/XF86Config, /usr/X11R6/lib/X11/XF86Config.hostname or
+/usr/X11R6/lib/X11/XF86Config.
 
-  To start the display manager, log in as root on the console and type:
-  ``xdm -nodaemon''.
+Once you've set up a XF86Config file, you can fine tune the video modes with
+the xvidtune utility.
 
-  You can start xdm automatically on bootup un-commenting the following
-  code in /etc/rc.local:
+_5_._1  _A_b_o_u_t _m_o_u_s_e _c_o_n_f_i_g_u_r_a_t_i_o_n
 
+If your serial mouse does not work try using kermit or tip to connect to the
+mouse serial port and verify that it does indeed generate characters.
 
+The OpenBSD pms driver	provides both "raw" and "cooked" (translated) modes.
+"raw" mode does not do protocol translation, so XFree86 would use the PPSS//22 pro
+tocol for talking to the device in that mode.  "cooked" mode is the old Bus
+Mouse translation.  By default, the driver runs in "cooked" mode.  It can be
+switched using ioctls or by opening the first minor device which is /dev/psm0.
 
-         if [ -x /usr/X11R6/bin/xdm ]; then
-           echo -n ' xdm'; /usr/X11R6/bin/xdm
-         fi
+_5_._2  _O_t_h_e_r _i_n_p_u_t _d_e_v_i_c_e_s
 
+XFree86	 supports the dynamic loading of drivers for external input devices
 
 
 
-  On the default OpenBSD 2.2 installation, you will also need to create
-  the virtual console device for the X server:
 
 
-       cd /dev
-        ./MAKEDEV ttyC5
 
 
 
+README for XFree86 3.3.1 on OpenBSD					      3
 
-  It's also better to specify explicitly the virtual console to be used
-  by the X server. If you're experimenting keyboards lockup with xdm, in
-  /usr/X11R6/lib/X11/xdm/Xservers, replace the line:
 
 
-       :0 local /usr/X11R6/bin/X
+using the XInput extension. Currently supported devices are:
 
+    Joystick (xf86Jstk.so)
 
+    Wacom tablets (Wacom IV protocol only, xf86Wacom.so)
 
+    SummaSketch tablets (xf86Summa.so)
 
-  by:
+    Elographics touchscreen (xf86Elo.so)
 
+To use a specific device, add the line
 
-       :0 local /usr/X11R6/bin/X vt06
+     load "_m_o_d_u_l_e"
 
 
+in the MMoodduullee section of XF86Config, where _m_o_d_u_l_e is the name of the .so file
+corresponding to your device.  You also need to set up a XXIInnppuutt section in
+XF86Config.  Refer to the _X_F_8_6_C_o_n_f_i_g_(_5_) man page for detailed configuration
+instructions.
 
+You can then change the device used to drive the X pointer with the _x_s_e_t_
+_p_o_i_n_t_e_r_(_1_) command.
 
-  7.  Running X
+For joystick support, you'll need to enable the joystick device driver in the
+kernel.	 See _j_o_y_(_4_) for details.
 
-  8mb of memory is a recommended minimum for running X.  The server,
-  window manager and an xterm take about 4 Mb of memory themselves.  On
-  a 4Mb system that would leave nothing left over for other applications
-  like gcc that expect a few meg free.  X will work with 4Mb of memory,
-  but in practice compilation while running X can take 5 or 10 times as
-  long due to constant paging.
+_5_._3  _C_o_n_f_i_g_u_r_i_n_g _P_E_X _a_n_d _X_I_E _e_x_t_e_n_s_i_o_n_s
 
-  The easiest way for new users to start X windows is to type: ``startx
-  >& startx.log''.  Error messages are lost unless you redirect them
-  because the server takes over the screen.
+The PEX and XIE extensions are	supported as external modules.	If you want to
+have access to these extensions, add the following lines to the MMoodduullee section
+of XF86Config:
 
-  To get out of X windows, type: ``exit'' in the console xterm.  You can
-  customize your X by creating .xinitrc, .xserverrc, and .twmrc files in
-  your home directory as described in the xinit and startx man pages.
+	load	"pex5.so"
+	load	"xie.so"
 
-  8.  Kernel Support for X
 
-  To make sure X support is enabled under  OpenBSD, the following line
-  must be in your config file in /sys/arch/i386/conf:
+_6_.  _I_n_s_t_a_l_l_i_n_g _X_d_m_, _t_h_e _d_i_s_p_l_a_y _m_a_n_a_g_e_r
 
+The file xc/lib/Xdmcp/WrapHelp.c is not available in France (where the binary
+distribution is built) so support for XDM-AUTHORIZATION-1 is not included here.
+You'll have to get WrapHelp.c and rebuild xdm after having set HasXdmAuth in
+host.def.
 
-       option XSERVER
+The file is available within the US; for details see ftp.x.org:/pub/R6/xdm-
+auth/README.
 
+To start the display manager, log in as root on the console and type: ``xdm
+-nodaemon''.
 
-  The server supports the two standard  OpenBSD/i386 console drivers:
-  pccons and pcvt. They are detected at runtime and no configuration of
-  the server itself is required.
+You can start xdm automatically on bootup un-commenting the following code in
+/etc/rc.local:
 
-  The pcvt console driver is now the default in OpenBSD.  It offers
-  several virtual consoles and international keyboard support.
 
-  When not using XKB, the server can read the actual keymap from the
-  keyboard driver and use to build the X keymap. Be sure to use
-  ``RightAlt ModeShift'' in XF86Config to have the right Alt key behave
-  as AltGr.
 
-  Syscons and codrv are not bundled with OpenBSD. They are available by
-  anonymous FTP from a number of sites. They are not supported by the
-  XFree86 binary distribution anymore. You can compile support for them
-  by adding -DSYSCONS_SUPPORT or -DCODRV_SUPPORT to
-  XFree86ConsoleDefines in xf86site.def. See the section ``Console
-  drivers'' for details.
 
-  8.1.  Aperture Driver
 
-  By default OpenBSD includes the BSD 4.4 kernel security feature that
-  disable access to the /dev/mem device when in multi-users mode. But
-  XFree86 servers can take advantage (or require) linear access to the
-  display memory.
 
-  The P9000, Mach64 and AGX servers require linear memory access, other
-  accelerated servers can take advantage of it, but do not require it.
-  Some drivers in the SVGA server require linear memory access too,
-  notably the Matrox driver.
 
-  There are two ways to allow XFree86 to access linear memory:
 
-     1. Disable the kernel security feature by adding `option INSECURE'
-        in the kernel configuration file and build a new kernel.
 
-        In OpenBSD 2.2, you will also need to comment out the line
-        initializing securelevel to 1 in /etc/rc.securelevel.
 
 
-     2. Install the aperture driver:
+README for XFree86 3.3.1 on OpenBSD					      4
 
-        a. The first step is highly dependent from your exact operating
-           system version:
 
-           o  OpenBSD 2.0
 
-              Use the aperture driver from /usr/lkm:
+       if [ -x /usr/X11R6/bin/xdm ]; then
+	 echo -n ' xdm'; /usr/X11R6/bin/xdm
+       fi
 
-              add the following lines to the end of /etc/rc.local:
+On the default OpenBSD 2.2 installation, you will also need to create the vir
+tual console device for the X server:
 
+     cd /dev
+      ./MAKEDEV ttyC5
 
-                 KERNDIR=/usr/lkm
-                 if [ -f ${KERNDIR}/ap.o ]; then
-                   modload -o ${KERNDIR}/ap -e ap -p ${KERNDIR}/apinstall ${KERNDIR}/ap.o
-                 fi
+It's also better to specify explicitly the virtual console to be used by the X
+server. If you're experimenting keyboards lockup with xdm, in
+/usr/X11R6/lib/X11/xdm/Xservers, replace the line:
 
+     :0 local /usr/X11R6/bin/X
 
 
+by:
 
-           o  OpenBSD 2.1, 2.2
+     :0 local /usr/X11R6/bin/X vt06
 
-              Uncomment the lines loading the aperture driver from
-              /etc/rc.securelevel
 
+_7_.  _R_u_n_n_i_n_g _X
 
-        b. Reboot your system. XFree86 will auto-detect the aperture
-           driver if available.
+8mb of memory is a recommended minimum for running X.  The server, window man
+ager and an xterm take about 4 Mb of memory themselves.	 On a 4Mb system that
+would leave nothing left over for other applications like gcc that expect a few
+meg free.  X will work with 4Mb of memory, but in practice compilation while
+running X can take 5 or 10 times as long due to constant paging.
 
+The easiest way for new users to start X windows is to type: ``startx >&
+startx.log''.  Error messages are lost unless you redirect them because the
+server takes over the screen.
 
-        Warning: if you boot another kernel than  /bsd, loadable kernel
-        modules can crash your system. Always boot in single user mode
-        when you want to run another kernel.
+To get out of X windows, type: ``exit'' in the console xterm.  You can cus
+tomize your X by creating .xinitrc, .xserverrc, and .twmrc files in your home
+directory as described in the xinit and startx man pages.
 
 
+_8_.  _K_e_r_n_e_l _S_u_p_p_o_r_t _f_o_r _X
 
-          Caveat: the  aperture driver only allows one access at a
-          time (so that the system is in the same security state
-          once X is launched). This means that if you run multiple
-          servers on multiples VT, only the first one will have
-          linear memory access.  Use 'option INSECURE' if you need
-          more that one X server at a time.
+To make sure X support is enabled under	 OpenBSD, the following line must be in
+your config file in /sys/arch/i386/conf:
 
+     option XSERVER
 
-  8.2.  MIT-SHM
+The server supports the two standard  OpenBSD/i386 console drivers: pccons and
+pcvt. They are detected at runtime and no configuration of the server itself is
+required.
 
-  OpenBSD supports System V shared memory. If XFree86 detects this
-  support in your kernel, it will support the MIT-SHM extension.
+The pcvt console driver is now the default in OpenBSD.	It offers several vir
+tual consoles and international keyboard support.
 
-  To add support for system V shared memory to your kernel add the
-  lines:
+When not using XKB, the server can read the actual keymap from the keyboard
 
 
 
-        # System V-like IPC
-        options         SYSVMSG
-        options         SYSVSEM
-        options         SYSVSHM
 
 
 
 
-  to your kernel config file. Then from /sys/arch/i386/config, type:
 
+README for XFree86 3.3.1 on OpenBSD					      5
 
 
-   # rm -f ../compile/<KERNEL-NAME>/*
-   # config <KERNEL-NAME>
-   # cd ../compile/<KERNEL-NAME>
-   # make depend
-   # make
 
+driver and use to build the X keymap. Be sure to use ``RightAlt ModeShift'' in
+XF86Config to have the right AAlltt key behave as AAllttGGrr.
 
+Syscons and codrv are not bundled with OpenBSD. They are available by anonymous
+FTP from a number of sites. They are not supported by the XFree86 binary dis
+tribution anymore. You can compile support for them by adding -DSYSCONS_SUPPORT
+or -DCODRV_SUPPORT to XFree86ConsoleDefines in xf86site.def. See the section
+_C_o_n_s_o_l_e _d_r_i_v_e_r_s (section 9.1, page 7) for details.
 
+_8_._1  _A_p_e_r_t_u_r_e _D_r_i_v_e_r
 
-  Then install your new kernel and re-boot:
+By default OpenBSD includes the BSD 4.4 kernel security feature that disable
+access to the /dev/mem device when in multi-users mode. But XFree86 servers can
+take advantage (or require) linear access to the display memory.
 
+The P9000, Mach64 and AGX servers require linear memory access, other acceler
+ated servers can take advantage of it, but do not require it.  Some drivers in
+the SVGA server require linear memory access too, notably the Matrox driver.
 
+There are two ways to allow XFree86 to access linear memory:
 
-        # cp /bsd /obsd
-        # cp bsd /
-        # reboot
+  1.  Disable the kernel security feature by adding `option INSECURE' in the
+      kernel configuration file and build a new kernel.
 
+      In OpenBSD 2.2, you will also need to comment out the line initializing
+      securelevel to 1 in /etc/rc.securelevel.
 
+  2.  Install the aperture driver:
 
+	1.   The first step is highly dependent from your exact operating sys
+	    tem version:
 
-  9.  Rebuilding the XFree86 Distribution
+		 OpenBSD 2.0
 
-  The server link kit allow you to rebuild just the X server with a
-  minimum amount of disk space.  Just unpack it, make the appropriate
-  changes to the xf86site.def, type ``./mkmf'' and ``make'' to link the
-  server.  See /usr/X11R6/lib/Server/README for more info.
+		 Use the aperture driver from /usr/lkm:
 
-  See INSTALL for instructions on unbundling and building the source
-  distribution.
+		 add the following lines to the end of /etc/rc.local:
 
-  You should configure the distribution by editing
-  xc/config/cf/xf86site.def  before compiling.  To compile the sources,
-  invoke ``make World'' in the xc directory.
+		       KERNDIR=/usr/lkm
+		       if [ -f ${KERNDIR}/ap.o ]; then
+			 modload -o ${KERNDIR}/ap -e ap -p ${KERNDIR}/apinstall ${KERNDIR}/ap.o
+		       fi
 
-  9.1.  Console drivers
+		 OpenBSD 2.1, 2.2
 
-  XFree86 3.3.1 has a configuration option to select the console drivers
-  to use in xf86site.def:
+		 Uncomment the lines loading the aperture driver from
+		 /etc/rc.securelevel
 
-     o  if you're using pccons put:
 
+	2.   Reboot your system. XFree86 will auto-detect the aperture driver
+	    if available.
 
-           #define XFree86ConsoleDefines -DPCCONS_SUPPORT
 
+      WWaarrnniinngg:: if you boot another kernel than	/bsd, loadable kernel modules
 
 
 
-     o  if you're using pcvt put:
 
 
-           #define XFree86ConsoleDefines -DPCVT_SUPPORT
 
 
 
+README for XFree86 3.3.1 on OpenBSD					      6
 
-     o  if you're using syscons put:
 
 
-           #define XFree86ConsoleDefines -DSYSCONS_SUPPORT
+      can crash your system. Always boot in single user mode when you want to
+      run another kernel.
 
 
+	   CCaavveeaatt:: the	aperture driver only allows one access at a time
+	   (so that the system is in the same security state once X is
+	   launched). This means that if you run multiple servers on mul
+	   tiples VT, only the first one will have linear memory access.
+	   Use 'option INSECURE' if you need more that one X server at a
+	   time.
 
+_8_._2  _M_I_T_-_S_H_M
 
-     o  if you're running codrv put:
+OpenBSD supports System V shared memory. If XFree86 detects this support in
+your kernel, it will support the MIT-SHM extension.
 
+To add support for system V shared memory to your kernel add the lines:
 
-      #define XFree86ConsoleDefines -DCODRV_SUPPORT
+      # System V-like IPC
+      options	      SYSVMSG
+      options	      SYSVSEM
+      options	      SYSVSHM
 
+to your kernel config file. Then from /sys/arch/i386/config, type:
 
+      # rm -f ../compile/<KERNEL-NAME>/*
+      # config <KERNEL-NAME>
+      # cd ../compile/<KERNEL-NAME>
+      # make depend
+      # make
 
+Then install your new kernel and re-boot:
 
-  If you don't define XFree86ConsoleDefines in xf86site.def the pccons
-  and pcvt drivers will be supported.
+      # cp /bsd /obsd
+      # cp bsd /
+      # reboot
 
-  9.2.  console.h and ioctl_pc.h files:
 
-  If you want to build a server supporting codrv and you don't already
-  have the corresponding header file ioctl_pc.h installed in
-  /usr/include/machine, then install the copy that is supplied in
-  xc/programs/Xserver/hw/xfree86/etc.  If you run OpenBSD-current you
-  probably want to install it in /usr/src/sys/arch/i386/include too, so
-  that it get reinstalled each time you run make includes.
+_9_.  _R_e_b_u_i_l_d_i_n_g _t_h_e _X_F_r_e_e_8_6 _D_i_s_t_r_i_b_u_t_i_o_n
 
-  If you have installed the  codrv console driver, this file should be
-  taken from your installed version of the driver.
+The server link kit allow you to rebuild just the X server with a minimum
+amount of disk space.  Just unpack it, make the appropriate changes to the
+xf86site.def, type ``./mkmf'' and ``make'' to link the server.	See
+/usr/X11R6/lib/Server/README for more info.
 
-  The console.h file for syscons isn't distributed with XFree86 anymore.
-  You should get it from the syscons distribution.
+See INSTALL for instructions on unbundling and building the source distribu
+tion.
 
-  9.3.  Building on other architectures
+You should configure the distribution by editing xc/config/cf/xf86site.def
+before compiling.  To compile the sources, invoke ``make World'' in the xc
+directory.
 
-  XFree86 3.3.1 also compiles on other OpenBSD architectures.
 
-  The XFree86 servers can also been built on OpenBSD/mips. The S3 server
-  has been tested on an Acer Mips system with a S3/928 board. Contact
-  Per Fogelstrom (pefo@OpenBSD.org) for details.
 
-  The Xsun server patches from Dennis Ferguson and Matthew Green for
-  NetBSD have been integrated in xc/programs/Xserver/hw/sun. The Xsun
-  server can be built on the sparc and the sun3, with patches from
-  Kenneth Stailey.
 
-  The client side of XFree86 also builds on the alpha, pmax, amiga,
-  mac68k and mvme68k architectures.
 
-  Problems with this port should be reported directly to the OpenBSD
-  mailing lists rather than to the xfree86 mailing list.
 
-  10.  Building New X Clients
 
-  The easiest way to build a new client (X application) is to use xmkmf
-  if an Imakefile is included in the sources.  Type ``xmkmf -a'' to
-  create the Makefiles, check the configuration if necessary and type
-  ``make''.  Whenever you install additional man pages you should update
-  whatis.db by running ``makewhatis /usr/X11R6/man''.
 
-  To avoid the ``Virtual memory exhausted'' message from cc while
-  compiling, increase the data and stack size limits (in csh type
-  ``limit datasize 32M'' and ``limit stacksize 16M'').
 
-  11.  Thanks
 
-  Many thanks to:
 
-     o  Pace Willison for providing the initial port to 386BSD.
+README for XFree86 3.3.1 on OpenBSD					      7
 
-     o  Amancio Hasty for fixing cursor restoration, mouse bugs and many
-        others.
 
-     o  Christoph Robitschko for fixing com.c and thus select().
 
+_9_._1  _C_o_n_s_o_l_e _d_r_i_v_e_r_s
 
-     o  Nate Williams for the patchkit support for X.
+XFree86 3.3.1 has a configuration option to select the console drivers to use
+in xf86site.def:
 
-     o  Rod Grimes and Jack Velte of Walnut Creek Cdrom for use of their
-        machines in preparing the FreeBSD binary release.
+     if you're using pccons put:
 
+	   #define XFree86ConsoleDefines -DPCCONS_SUPPORT
 
-  Generated from XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/OpenBSD.sgml,v 1.1.2.2 1997/08/02 13:48:14 dawes Exp $
+    if you're using pcvt put:
 
+	   #define XFree86ConsoleDefines -DPCVT_SUPPORT
 
+    if you're using syscons put:
 
+	   #define XFree86ConsoleDefines -DSYSCONS_SUPPORT
 
+    if you're running codrv put:
 
-  $XConsortium$
+	   #define XFree86ConsoleDefines -DCODRV_SUPPORT
 
 
+If you don't define XXFFrreeee8866CCoonnssoolleeDDeeffiinneess in xf86site.def the pccons and pcvt
+drivers will be supported.
 
+_9_._2  _c_o_n_s_o_l_e_._h _a_n_d _i_o_c_t_l___p_c_._h _f_i_l_e_s_:
 
+If you want to build a server supporting codrv and you don't already have the
+corresponding header file ioctl_pc.h installed in /usr/include/machine, then
+install the copy that is supplied in xc/programs/Xserver/hw/xfree86/etc.  If
+you run OpenBSD-current you probably want to install it in
+/usr/src/sys/arch/i386/include too, so that it get reinstalled each time you
+run make includes.
 
+If you have installed the  codrv console driver, this file should be taken from
+your installed version of the driver.
 
+The console.h file for syscons isn't distributed with XFree86 anymore. You
+should get it from the syscons distribution.
 
+_9_._3  _B_u_i_l_d_i_n_g _o_n _o_t_h_e_r _a_r_c_h_i_t_e_c_t_u_r_e_s
 
+XFree86 3.3.1 also compiles on other OpenBSD architectures.
 
+The XFree86 servers can also been built on OpenBSD/mips. The S3 server has been
+tested on an Acer Mips system with a S3/928 board. Contact Per Fogelstrom
+(pefo@OpenBSD.org) for details.
 
+The Xsun server patches from Dennis Ferguson and Matthew Green for NetBSD have
+been integrated in xc/programs/Xserver/hw/sun. The Xsun server can be built on
+the sparc and the sun3, with patches from Kenneth Stailey.
 
+The client side of XFree86 also builds on the alpha, pmax, amiga, mac68k and
+mvme68k architectures.
 
 
 
@@ -492,27 +463,49 @@
 
 
 
+README for XFree86 3.3.1 on OpenBSD					      8
 
 
 
+Problems with this port should be reported directly to the OpenBSD mailing
+lists rather than to the xfree86 mailing list.
 
 
+_1_0_.  _B_u_i_l_d_i_n_g _N_e_w _X _C_l_i_e_n_t_s
 
+The easiest way to build a new client (X application) is to use xmkmf if an
+Imakefile is included in the sources.  Type ``xmkmf -a'' to create the Make
+files, check the configuration if necessary and type ``make''.	Whenever you
+install additional man pages you should update whatis.db by running ``make
+whatis /usr/X11R6/man''.
 
+To avoid the ``Virtual memory exhausted'' message from cc while compiling,
+increase the data and stack size limits (in csh type ``limit datasize 32M'' and
+``limit stacksize 16M'').
 
 
+_1_1_.  _T_h_a_n_k_s
 
+Many thanks to:
 
+    PPaaccee WWiilllliissoonn for providing the initial port to 386BSD.
 
+    AAmmaanncciioo HHaassttyy for fixing cursor restoration, mouse bugs and many others.
 
+    CChhrriissttoopphh RRoobbiittsscchhkkoo for fixing com.c and thus select().
 
+    NNaattee WWiilllliiaammss for the patchkit support for X.
 
+    RRoodd GGrriimmeess and JJaacckk VVeellttee of Walnut Creek Cdrom for use of their machines
+     in preparing the FreeBSD binary release.
 
+     Generated from XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/OpenBSD.sgml,v 1.1.2.2 1997/08/02 13:48:14 dawes Exp $
 
 
 
 
 
+     $XConsortium$
 
 
 
@@ -524,5 +517,144 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+README for XFree86 3.3.1 on OpenBSD					      9
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				   CONTENTS
+
+
+
+1.  What and Where is XFree86? .............................................. 1
+
+2.  Bug Reports for This Document ........................................... 1
+
+3.  New features in this release ............................................ 1
+
+4.  Installing the Binaries ................................................. 2
+
+5.  Configuring X for Your Hardware ......................................... 2
+    5.1 About mouse configuration ........................................... 2
+    5.2 Other input devices ................................................. 2
+    5.3 Configuring PEX and XIE extensions .................................. 3
+
+6.  Installing Xdm, the display manager ..................................... 3
+
+7.  Running X ............................................................... 4
+
+8.  Kernel Support for X .................................................... 4
+    8.1 Aperture Driver ..................................................... 5
+    8.2 MIT-SHM ............................................................. 6
+
+9.  Rebuilding the XFree86 Distribution ..................................... 6
+    9.1 Console drivers ..................................................... 7
+    9.2 console.h and ioctl_pc.h files: ..................................... 7
+    9.3 Building on other architectures ..................................... 7
+
+10. Building New X Clients .................................................. 8
+
+11. Thanks .................................................................. 8
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				       i
 
 
