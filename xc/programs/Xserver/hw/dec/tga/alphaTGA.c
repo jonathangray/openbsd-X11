@@ -87,7 +87,11 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "alpha.h"
 #include "cfb.h"
-#include "machine/tgareg.h"
+#ifdef __NetBSD__
+#  include <dev/pci/tgareg.h>
+#else 
+#  include "machine/tgareg.h"
+#endif
 
 /* XXX */
 #include <stdio.h>
