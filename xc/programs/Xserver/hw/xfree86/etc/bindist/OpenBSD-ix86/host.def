@@ -1,6 +1,6 @@
 /*
  * Host.def for building OpenBSD bindists
- * $OpenBSD: host.def,v 1.4 1998/03/26 06:19:54 todd Exp $
+ *
  * $XFree86: xc/programs/Xserver/hw/xfree86/etc/bindist/OpenBSD-ix86/host.def,v 1.1.2.2 1998/03/01 12:54:36 dawes Exp $
  */
 
@@ -8,23 +8,17 @@
 
 #define ForceNormalLib		YES
 
-/* #define TCL YES */
+#define TCL YES
 #ifdef TCL
 #define HasTcl			YES
 #define HasTk			YES
-#define TkLibName		tk42
-#define TclLibName		tcl76
+#define TkLibName		tk80
+#define TclLibName		tcl80
+#define TclIncDir               /usr/local/include/tcl8.0
+#define TkIncDir                /usr/local/include/tk8.0
 #else
 #define HasTcl			NO
 #define HasTk			NO
 #endif
 
 #define JoystickSupport		YES
-
-/* No for now, when utilities installed/in ports, yes */
-#define HasLinuxDoc		NO
-#define HasLatex		NO
-#define HasDvips		NO
-#define BuildLinuxDocHtml	NO
-#define BuildAllDocs		NO
-#define InstallJapaneseDocs	NO
