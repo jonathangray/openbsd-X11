@@ -6,7 +6,6 @@
 ./usr/X11R6/bin/appres
 ./usr/X11R6/bin/atobm
 ./usr/X11R6/bin/bdftopcf
-./usr/X11R6/bin/beforelight
 ./usr/X11R6/bin/bitmap
 ./usr/X11R6/bin/bmtoa
 ./usr/X11R6/bin/editres
@@ -371,8 +370,6 @@
 ./usr/X11R6/include/X11/extensions/Xdbe.h
 ./usr/X11R6/include/X11/extensions/Xdbeproto.h
 ./usr/X11R6/include/X11/extensions/Xext.h
-./usr/X11R6/include/X11/extensions/dpms.h
-./usr/X11R6/include/X11/extensions/dpmsstr.h
 ./usr/X11R6/include/X11/extensions/lbxbuf.h
 ./usr/X11R6/include/X11/extensions/lbxbufstr.h
 ./usr/X11R6/include/X11/extensions/lbxdeltastr.h
@@ -406,7 +403,6 @@
 ./usr/X11R6/lib/X11/XErrorDB
 ./usr/X11R6/lib/X11/XKeysymDB
 ./usr/X11R6/lib/X11/app-defaults
-./usr/X11R6/lib/X11/app-defaults/Beforelight
 ./usr/X11R6/lib/X11/app-defaults/Bitmap
 ./usr/X11R6/lib/X11/app-defaults/Bitmap-color
 ./usr/X11R6/lib/X11/app-defaults/Chooser
@@ -435,7 +431,6 @@
 ./usr/X11R6/lib/X11/app-defaults/Xman
 ./usr/X11R6/lib/X11/app-defaults/Xmessage
 ./usr/X11R6/lib/X11/app-defaults/Xmh
-./usr/X11R6/lib/X11/app-defaults/Xvidtune
 ./usr/X11R6/lib/X11/config
 ./usr/X11R6/lib/X11/config/Amoeba.cf
 ./usr/X11R6/lib/X11/config/DGUX.cf

@@ -3,6 +3,7 @@
 ./usr/X11R6/bin/Xnest
 ./usr/X11R6/bin/Xvfb
 ./usr/X11R6/bin/Xwrapper
+./usr/X11R6/bin/beforelight
 ./usr/X11R6/bin/dga
 ./usr/X11R6/bin/joycal
 ./usr/X11R6/bin/reconfig
@@ -18,6 +19,8 @@
 ./usr/X11R6/include/X11/extensions/xf86mscstr.h
 ./usr/X11R6/include/X11/extensions/xf86vmode.h
 ./usr/X11R6/include/X11/extensions/xf86vmstr.h
+./usr/X11R6/include/X11/extensions/dpms.h
+./usr/X11R6/include/X11/extensions/dpmsstr.h
 ./usr/X11R6/lib/X11/Cards
 ./usr/X11R6/lib/X11/XF86Config.eg
 ./usr/X11R6/lib/X11/XF86Setup
@@ -92,6 +95,8 @@
 ./usr/X11R6/lib/X11/XF86Setup/texts/ja/message_proc.tcl
 ./usr/X11R6/lib/X11/XF86Setup/texts/ja/messages.tcl
 ./usr/X11R6/lib/X11/XF86Setup/texts/local_text.tcl
+./usr/X11R6/lib/X11/app-defaults/Beforelight
+./usr/X11R6/lib/X11/app-defaults/Xvidtune
 ./usr/X11R6/lib/X11/doc
 ./usr/X11R6/lib/X11/doc/AccelCards
 ./usr/X11R6/lib/X11/doc/BUILD
