@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.8 1998/06/26 01:36:33 todd Exp $
+#	$OpenBSD: Makefile,v 1.9 1998/07/05 09:04:20 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -13,8 +13,10 @@ CONFHOSTDEF=xc/config/cf/host.def
 
 RELERROR=echo You must set DESTDIR and RELEASEDIR for a release.; exit 255
 
-CP?= cp
-
+CP?= /bin/cp
+MKDIR?= /bin/mkdir -p
+LN?= /bin/ln
+CHOWN?=/usr/sbin/chown
 
 all:
 	cd xc ; ${MAKE} World
@@ -41,7 +43,7 @@ release:
 .endif
 .endif
 	rm -rf ${DESTDIR}/usr/X11R6/*
-	@if [ "`cd ${DESTDIR};ls`" ]; then \
+	@if [ "`cd ${DESTDIR}/usr/X11R6;ls`" ]; then \
 		echo "Files found in ${DESTDIR}. Cleanup before proceeding."; \
 		exit 255; \
 	fi
