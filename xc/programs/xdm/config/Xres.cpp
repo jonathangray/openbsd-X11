@@ -38,14 +38,14 @@ xlogin*greetColor: CadetBlue
 xlogin*borderWidth: 1
 xlogin*frameWidth: 5
 xlogin*innerFramesWidth: 2
-xlogin*shdColor: #404040
-xlogin*hiColor: #c0c0c0
-xlogin*background: gray0
-xlogin*greetColor: red
+xlogin*shdColor: grey30
+xlogin*hiColor: grey90
+xlogin*background: #00a5bd
+xlogin*greetColor: Blue3
 #endif /* XPM */
 xlogin*failColor: red
-*Foreground: #f0f8f0
-*Background: #3f3f3f
+*Foreground: black
+*Background: #fffff0
 /**/#else
 #ifdef XPM
 xlogin*borderWidth: 3
@@ -66,9 +66,9 @@ xlogin*logoFileName: BITMAPDIR/**//OpenBSD_1bpp.xpm
 /**/#if PLANES > 4
 /**/#if PLANES > 8
 xlogin*logoFileName: BITMAPDIR/**//OpenBSD_15bpp.xpm
-/**/#else
+/**/#else/* PLANES > 8 */
 xlogin*logoFileName: BITMAPDIR/**//OpenBSD_8bpp.xpm
-/**/#endif
+/**/#endif/* PLANES > 8 */
 /**/#else /* PLANES > 4 */
 xlogin*logoFileName: BITMAPDIR/**//OpenBSD_4bpp.xpm
 /**/#endif /* PLANES > 4 */
