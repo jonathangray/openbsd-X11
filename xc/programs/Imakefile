@@ -44,7 +44,7 @@ SCREENSAVESRCDIR = beforelight
 XFINDPROXYSRCDIR = xfindproxy
       XFWPSRCDIR = xfwp
      XHOSTSRCDIR = xhost
-     XLOCKSRCDIR = xlockmore
+ XLOCKMORESRCDIR = xlockmore
        XMHSRCDIR = xmh
        XRXSRCDIR = xrx
        XSMSRCDIR = xsm
@@ -62,7 +62,7 @@ SUBDIRS = \
 	$(RGBSRCDIR) $(RSTARTSRCDIR) $(SMPROXYSRCDIR) $(WMSRCDIR) x11perf \
 	xauth xclipboard xclock xcmsdb $(XCONSOLESRCDIR) $(XDMSRCDIR) \
 	$(XF86DGASRCDIR) xfd $(XFSSRCDIR) $(XFINDPROXYSRCDIR) \
-	$(XFWPSRCDIR) \
+	$(XFWPSRCDIR) $(XLOCKMORESRCDIR) \
 	$(XHOSTSRCDIR) xieperf $(XINITSRCDIR) $(XKBSRCDIRS) xkill xlogo \
 	xlsatoms xlsclients xlsfonts xmag $(XMHSRCDIR) xmodmap xprop \
 	xrdb xrefresh $(XRXSRCDIR) xset xsetroot $(XSMSRCDIR) xstdcmap \
