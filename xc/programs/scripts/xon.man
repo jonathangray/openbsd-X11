@@ -33,7 +33,7 @@ remote-host [-access] [-debug] [-name window-name] [-nols] [-screen screen-no]
 .SH DESCRIPTION
 .I Xon
 runs the specified command (default xterm -ls) on the remote machine using
-rsh, remsh, or rcmd.  Xon passes the DISPLAY, XAUTHORITY and
+ssh, rsh, remsh, or rcmd.  Xon passes the DISPLAY, XAUTHORITY and
 XUSERFILESEARCHPATH environment variables to the remote command.
 .PP
 When no command is specified, xon runs 'xterm -ls'.  It additionally
@@ -66,7 +66,7 @@ suspends that behaviour.
 This changes the screen number of the DISPLAY variable passed to the remote
 command.
 .IP "\fB-user user-name\fP"
-By default, xon simply uses rsh/remsh/rcmd to connect to the remote machine
+By default, xon simply uses ssh/rsh/remsh/rcmd to connect to the remote machine
 using the
 same user name as on the local machine.  This option cause xon to specify an
 alternative user name.  This will not work unless you have authorization to
