@@ -914,7 +914,8 @@ XkbProcessArguments(argc,argv,i)
     }
 #endif
     else if (strncmp(argv[i], "-xkbmap", 7) == 0) {
-	if(++i < argc) {
+	i++;
+	if((i < argc) && (strlen(argv[i]) < PATH_MAX)) {
 	    XkbInitialMap= argv[i];
 	    return 2;
 	}
