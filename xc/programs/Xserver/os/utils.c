@@ -104,6 +104,12 @@ static mutex print_lock;
 #endif
 #endif
 
+#ifndef NOSTDHDRS
+#include <errno.h>
+#else
+extern int errno;
+#endif
+
 #if defined(CSRG_BASED) || defined(linux) || defined(SVR4)
 #define HAS_SAVED_IDS_AND_SETEUID
 #endif
@@ -231,8 +237,6 @@ OsSignal(sig, handler)
 #endif
 #endif
 
-#include <errno.h>
-extern int errno;
 
 static Bool StillLocking = FALSE;
 
