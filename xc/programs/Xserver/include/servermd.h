@@ -239,7 +239,8 @@ SOFTWARE.
 
 #endif /* tektronix */
 
-#if defined(macII) || ((defined(__NetBSD__) || defined(__OpenBSD__)) && defined(__m68k__))
+#ifdef macII
+#if ((defined(__NetBSD__) || defined(__OpenBSD__)) && defined(__m68k__))
 
 #define IMAGE_BYTE_ORDER      	MSBFirst        /* Values for the MacII only */
 #define BITMAP_BIT_ORDER      	MSBFirst
@@ -250,6 +251,7 @@ SOFTWARE.
 
 #else
 #error ARgj!
+#endif /* m68k */
 #endif /* macII */
 
 #if (defined(mips) || defined(__mips)) && !defined(sgi)
