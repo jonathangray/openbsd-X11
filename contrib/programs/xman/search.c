@@ -181,7 +181,14 @@ int type;
   }
 
   strcpy(tmp, MANTEMP);		/* get a temp file. */
+#if !defined(__OpenBSD__)
   (void) mktemp(tmp);
+#else
+  {
+    int stemp = mkstemp(tmp);
+    close(stemp);
+  }
+#endif
   mantmp = tmp;
 
   /* set the command */
