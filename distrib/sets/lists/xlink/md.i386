@@ -39,6 +39,8 @@
 ./usr/X11R6/lib/Server/config/cf/NetBSD.cf
 ./usr/X11R6/lib/Server/config/cf/Oki.cf
 ./usr/X11R6/lib/Server/config/cf/OpenBSD.cf
+./usr/X11R6/lib/Server/config/cf/QNX.cf
+./usr/X11R6/lib/Server/config/cf/QNX.rules
 ./usr/X11R6/lib/Server/config/cf/Server.tmpl
 ./usr/X11R6/lib/Server/config/cf/ServerLib.tmpl
 ./usr/X11R6/lib/Server/config/cf/Threads.tmpl
@@ -85,6 +87,8 @@
 ./usr/X11R6/lib/Server/config/cf/necLib.rules
 ./usr/X11R6/lib/Server/config/cf/necLib.tmpl
 ./usr/X11R6/lib/Server/config/cf/noop.rules
+./usr/X11R6/lib/Server/config/cf/nto.cf
+./usr/X11R6/lib/Server/config/cf/nto.rules
 ./usr/X11R6/lib/Server/config/cf/oldlib.rules
 ./usr/X11R6/lib/Server/config/cf/os2.cf
 ./usr/X11R6/lib/Server/config/cf/os2.rules
