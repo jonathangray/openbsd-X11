@@ -87,7 +87,6 @@ LinuxDocReadmeTarget(rendition)
 LinuxDocReadmeTarget(3DLabs)
 LinuxDocReadmeTarget(trident)
 LinuxDocReadmeTarget(tseng)
-LinuxDocReadmeTarget(fbdev)
 
 /* Main docs */
 LinuxDocTargetLong(CPYRIGHT.sgml,COPYRIGHT,COPYRIGHT)
