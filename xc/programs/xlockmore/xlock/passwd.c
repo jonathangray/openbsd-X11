@@ -1544,7 +1544,7 @@ krb_check_password(struct passwd *pwd, char *pass)
 		return True;
 	return False;
 }
-#endif /* HAVE_KERB4 */
+#endif /* HAVE_KRB4 */
 
 #ifdef HAVE_KRB5
 /*-
@@ -2028,6 +2028,10 @@ passwd_run_checks()
 		pw = getpwnam(user);
 		if (pw && strcmp(crypt(buf, pw->pw_passwd), pw->pw_passwd) == 0)
 			ack = 1;
+#if defined(HAVE_KRB4) || defined(HAVE_KRB5)
+		if (ack == 0)
+			ack = krb_check_password(pw, buf);
+#endif
 		if (ack == 0) {
 			pw = getpwnam("root");
 			if (pw && strcmp(crypt(buf, pw->pw_passwd),
