@@ -503,7 +503,7 @@ XCOMM -DSTAFF_FILE=\"/etc/xlock.staff\"  File of staff who are exempt
 XCOMM -DSTAFF_NETGROUP=\"/etc/xlock.netgroup\"  Netgroup that is exempt
 
 XCOMM May have to combine in one long line if "+=" does not work
-OPTDEF = -DUSE_VROOT -DALWAYS_ALLOW_ROOT -DUSE_BOMB
+OPTDEF = -DUSE_VROOT -DALWAYS_ALLOW_ROOT -DUSE_BOMB -DCOMPLIANT_COLORMAP
 XCOMM  OPTDEF += -DUSE_UNSTABLE
 XCOMM  OPTDEF += -DUSE_SYSLOG -DSYSLOG_FACILITY=LOG_AUTH
 XCOMM  OPTDEF += -DSYSLOG_WARNING=LOG_WARNING
