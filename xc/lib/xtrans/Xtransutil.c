@@ -482,12 +482,13 @@ trans_mkdir(char *path, int mode)
 	return 0;
     }
     /* If mkdir failed with EEXIST, test if it is a directory with 
-       the right modes, else fail */
+       the right modes and owner, else fail */
     if (errno == EEXIST) {
-	if (stat(path, &buf) != 0) {
+	if (lstat(path, &buf) != 0) {
 	    return -1;
 	}
-	if (S_ISDIR(buf.st_mode) && ((buf.st_mode & ~S_IFMT) == mode)) {
+	if (S_ISDIR(buf.st_mode) && ((buf.st_mode & ~S_IFMT) == mode)
+	    && buf.st_uid == 0) {
 	    return 0;
 	}
     }
