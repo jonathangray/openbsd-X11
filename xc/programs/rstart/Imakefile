@@ -145,6 +145,7 @@ DEFAULT_USER_PATH=DefaultUserPath
 #endif
 
 install::
+	@mkdir -p $(DESTDIR)$(MYLIBDIR)/contexts
 	Recurse(commands,$(MYLIBDIR),FilterCommand)
 	Recurse(contexts,$(MYLIBDIR),FilterContext)
 	InstallAliases()
