@@ -19,7 +19,7 @@ IconFont -adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*
 HilightColor #bebebe blue
 MenuStyle #4d4d4d #bebebe #e7e7e7 -adobe-times-bold-r-*-*-12-*-*-*-*-*-*-* fvwm
 
-DeskTopSize 3x2
+DeskTopSize 3x3
 
 ColormapFocus FollowsMouse
 
@@ -40,7 +40,11 @@ Style "FvwmBanner"  StaysOnTop
 Style "FvwmButtons" Icon toolbox.xpm, ClickToFocus
 
 # Styles for your common terminal emulator programs:
+AddToDecor terms
++ ButtonStyle 1 Pixmap mini.xterm.xpm
+Style "XTerm"       UseDecor terms
 Style "XTerm"       Icon xterm.xpm, SloppyFocus, IconBox -70 1 -1 -140
+Style "rxvt"        UseDecor terms
 Style "rxvt"        Icon term.xpm, SloppyFocus, IconBox -70 1 -1 -140
 Style "rxvt"        MWMBorder, MWMButtons
 
@@ -347,7 +351,7 @@ Key F8		A	M	CirculateDown
 *FvwmPagerFore white
 *FvwmPagerHilight #2d2d2d
 *FvwmPagerGeometry 80x60-1-1
-*FvwmPagerLabel 0 OpenBSD 2.4
+*FvwmPagerLabel 0 OpenBSD 2.5
 *FvwmPagerLabel 1 Maker
 *FvwmPagerLabel 2 Mail
 *FvwmPagerLabel 3 Matlab
