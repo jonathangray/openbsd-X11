@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.21 2000/04/27 06:10:10 todd Exp $
+#	$OpenBSD: Makefile,v 1.22 2000/04/28 19:46:48 espie Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -29,6 +29,10 @@ MACHINE?=`uname -m`
 RELEASEDIR?=`/bin/pwd`/rel
 DESTDIR?=`/bin/pwd`/dest
 
+LOCALAPPD=/usr/local/lib/X11/app-defaults
+REALAPPD=/var/X11/app-defaults
+
+
 all:
 	${RM} -f ${CONFHOSTDEF}
 	${CP} ${HOSTDEF} ${CONFHOSTDEF}
@@ -42,6 +46,8 @@ all-contrib:
 
 build: all
 	${MAKE} install
+# kludge, since Todd abuses DESTDIR
+	${MAKE} fix-appd DESTDIR=`echo $$DESTDIR`
 
 release:
 .if ! ( defined(DESTDIR) && defined(RELEASEDIR) )
@@ -71,6 +77,7 @@ release:
 	@${ECHO} /dev/grf0 > ${DESTDIR}/usr/X11R6/lib/X11/X0screens
 .endif
 	@${MAKE} dist
+	@${MAKE} fix-appd
 
 perms:
 	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/.
@@ -87,7 +94,7 @@ dist:
 	${MAKE} perms
 	cd distrib/sets && csh ./maketars ${OSrev} && csh ./checkflist
 
-install: install-xc install-contrib install-linkkit install-distrib
+install: install-xc install-contrib install-linkkit install-distrib 
 	/usr/libexec/makewhatis ${DESTDIR}/usr/X11R6/man
 
 install-xc:
@@ -109,6 +116,16 @@ install-linkkit:
 install-distrib:
 	cd distrib/notes; ${MAKE} install
 
+fix-appd:
+	# Make sure /usr/local/lib/X11/app-defaults is a link
+	if [ ! -L $(DESTDIR)${LOCALAPPD} ]; then \
+	    if [ -d $(DESTDIR)${LOCALAPPD} ]; then \
+		mv $(DESTDIR)${LOCALAPPD}/* $(DESTDIR)${REALAPPD}; \
+		rmdir $(DESTDIR)${LOCALAPPD}; \
+	    fi; \
+	    ln -s ${REALAPPD} ${DESTDIR}${LOCALAPPD}; \
+    	fi
+
 clean:
 	cd xc; ${MAKE} clean
 .if exists(contrib/Makefile)
@@ -124,3 +141,7 @@ distclean:
 b-r:
 	@echo ${.CURDIR}/build-release
 	@env DESTDIR=${DESTDIR} RELEASEDIR=${RELEASEDIR} ${.CURDIR}/build-release
+
+.PHONY: all all-contrib build release dist install install-xc \
+    install-contrib install-linkkit install-distrib clean distclean \
+    fix-appd b-r

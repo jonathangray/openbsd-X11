@@ -1944,3 +1944,4 @@
 ./var/X11/xdm/pixmaps/OpenBSD_8bpp.xpm
 ./var/X11/xkb
 ./var/X11/xkb/README
+./usr/local/lib/X11/app-defaults
