@@ -28,9 +28,5 @@ extern Bool get_boolean_resource (char*,char*,Bool);
 extern int get_integer_resource (char*,char*,int);
 extern double get_float_resource (char*,char*);
 extern unsigned int get_pixel_resource (char*,char*,Display*,Colormap,unsigned int);
-extern unsigned int get_minutes_resource (char*,char*);
-extern unsigned int get_seconds_resource (char*,char*);
-extern int parse_time (const char *string, Bool seconds_default_p,
-                       Bool silent_p);
 
 #endif /* __XSCREENSAVER_RESOURCES_H__ */

@@ -21,9 +21,16 @@
  *   - Same for get_integer_resource(), get_pixel_resource().
  */
 
-#include "utils.h"
-#include "resources.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
+#include <X11/Xlib.h>
+#include <X11/Xos.h>
 #include <X11/Xresource.h>
+
+#include "resources.h"
 
 
 /* Resource functions.  Assumes: */
@@ -174,66 +181,3 @@ get_pixel_resource (char *res_name, char *res_class,
 }
 
 
-int
-parse_time (const char *string, Bool seconds_default_p, Bool silent_p)
-{
-  unsigned int h, m, s;
-  char c;
-  if (3 == sscanf (string,   " %u : %2u : %2u %c", &h, &m, &s, &c))
-    ;
-  else if (2 == sscanf (string, " : %2u : %2u %c", &m, &s, &c) ||
-	   2 == sscanf (string,    " %u : %2u %c", &m, &s, &c))
-    h = 0;
-  else if (1 == sscanf (string,       " : %2u %c", &s, &c))
-    h = m = 0;
-  else if (1 == sscanf (string,          " %u %c",
-			(seconds_default_p ? &s : &m), &c))
-    {
-      h = 0;
-      if (seconds_default_p) m = 0;
-      else s = 0;
-    }
-  else
-    {
-      if (! silent_p)
-	fprintf (stderr, "%s: invalid time interval specification \"%s\".\n",
-		 progname, string);
-      return -1;
-    }
-  if (s >= 60 && (h != 0 || m != 0))
-    {
-      if (! silent_p)
-	fprintf (stderr, "%s: seconds > 59 in \"%s\".\n", progname, string);
-      return -1;
-    }
-  if (m >= 60 && h > 0)
-    {
-      if (! silent_p)
-	fprintf (stderr, "%s: minutes > 59 in \"%s\".\n", progname, string);
-      return -1;
-    }
-  return ((h * 60 * 60) + (m * 60) + s);
-}
-
-static unsigned int 
-get_time_resource (char *res_name, char *res_class, Bool sec_p)
-{
-  int val;
-  char *s = get_string_resource (res_name, res_class);
-  if (!s) return 0;
-  val = parse_time (s, sec_p, False);
-  free (s);
-  return (val < 0 ? 0 : val);
-}
-
-unsigned int 
-get_seconds_resource (char *res_name, char *res_class)
-{
-  return get_time_resource (res_name, res_class, True);
-}
-
-unsigned int 
-get_minutes_resource (char *res_name, char *res_class)
-{
-  return get_time_resource (res_name, res_class, False);
-}
