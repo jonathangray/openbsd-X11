@@ -44,7 +44,7 @@ put its standard input, output and error files into non-blocking mode.
 .TP 8
 .B "\-dev \fIfn[:fn][:fn]\fP"
 This option specifies the graphics devices which the server shall use for
-displaying (e.g. /dev/grf0 for Amiga Chipset, /dev/grf1 for RetinaZ2,
+displaying (e.g. /dev/grf0 for Amiga Chipset,
 /dev/grf2 for RetinaZ3,
 /dev/grf3 for Cirrus based boards (Picollo, Picollo SD64, Spectrum, Picasso),
 /dev/grf5 for CyberVision64, /dev/grf6 for Tseng ET4000 based boards (oMniBus,
@@ -162,10 +162,6 @@ Bob Scheifler, Keith Packard
 .TP 8 
 Amiga Custom Chip work by 
 Eduardo Horvath and Andy Heffernan
-.TP 8 
-RetinaZ2 support by 
-Andy Heffernan based on work by Lutz Vieweg & Markus Wild, integration
-into the generic Xamiga server by Niklas Hallqvist
 .TP 8 
 RetinaZ3 support by 
 Markus Wild
