@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.25 1998/04/06 00:45:49 dgregor Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.26 1998/04/18 07:46:34 todd Exp $
 XCOMM
 
 #ifndef OSName
@@ -153,6 +153,7 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 
 #if HasXpm
 # define XdmPixmap OpenBSD.xpm
+# define XdmbwPixmap OpenBSDbw.xpm
 #endif
 
 /*
@@ -440,6 +441,7 @@ install:: fonts.alias							@@\
 /* For the X11R5 server */
 # define CompressAllFonts	NO
 # define InstallFontAliases	InstallFontAliasesNoComment
+# define UseRgbTxt		NO
 
 #endif /* Hp300Architecture */
 
