@@ -7,6 +7,5 @@
 ./usr/X11R6/man/cat1/Xnest.0
 ./usr/X11R6/man/cat1/Xserver.0
 ./usr/X11R6/man/cat1/Xvfb.0
-./usr/lib/libc.so.17
 ./var/X11/xserver
 ./var/X11/xserver/SecurityPolicy
