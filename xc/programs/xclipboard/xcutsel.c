@@ -267,7 +267,7 @@ static void GetBuffer(w, closure, callData)
 }
 
 
-void main(argc, argv)
+int main(argc, argv)
     int argc;
     char *argv[];
 {

@@ -91,8 +91,7 @@ static XtResource editres_resources[] = {
 
 Atom wm_delete_window;
 
-void
-main(argc, argv)
+int main(argc, argv)
 int argc;
 char **argv;
 {

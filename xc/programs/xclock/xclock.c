@@ -123,7 +123,7 @@ static void save(w, client_data, call_data)
     token->save_success = True;
 }
 
-void main(argc, argv)
+int main(argc, argv)
     int argc;
     char **argv;
 {

@@ -98,7 +98,7 @@ static XrmOptionDescRec options[] = {
 {"-transparent","*clock.transparent",	XrmoptionNoArg,		"TRUE"},
 };
 
-void main(argc, argv)
+int main(argc, argv)
     int argc;
     char **argv;
 {

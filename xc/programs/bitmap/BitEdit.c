@@ -974,7 +974,7 @@ void DoQuit(w, event, params, num_params) /* ARGSUSED */
   exit(0);
 }
 
-void main(argc, argv)
+int main(argc, argv)
     int    argc;
     char  *argv[];
 {
