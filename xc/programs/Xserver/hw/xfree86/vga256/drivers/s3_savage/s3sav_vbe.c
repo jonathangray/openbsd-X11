@@ -314,6 +314,21 @@ S3SAVGetBIOSModes( int iDepth, S3VMODEENTRY* s3vModeTable )
 
     while (*mode_list != -1)
     {
+	/*
+	 * This is a HACK to work around what I believe is a BUG in the
+	 * Toshiba Satellite BIOSes in 08/2000 and 09/2000.  The BIOS
+	 * table for 1024x600 says it has six refresh rates, when in fact
+	 * it only has 3.  This causes the BIOS to go into an infinite
+	 * loop until the user interrupts it, usually by pressing
+	 * Ctrl-Alt-F1.  For now, we'll just punt everything with a VESA
+	 * number greater than or equal to 0200.
+	 */
+	if( *mode_list >= 0x0200 )
+	{
+	    mode_list++;
+	    continue;
+	}
+
 	memset(&r, 0, sizeof(r));
 
 	r.eax = 0x4f01;
