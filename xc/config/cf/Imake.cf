@@ -86,6 +86,10 @@ XCOMM $XFree86: xc/config/cf/Imake.cf,v 3.34.2.4 1998/05/22 16:38:18 dawes Exp $
 #   endif
 #   undef mips
 # endif
+# ifdef powerpc
+#  define ppcArchitecture
+#  undef powerpc
+# endif
 # ifdef __alpha__
 #   define AlphaArchitecture
 #   undef __alpha__
