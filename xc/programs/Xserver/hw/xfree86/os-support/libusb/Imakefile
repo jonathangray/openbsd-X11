@@ -1,0 +1,10 @@
+XCOMM $XFree86$
+
+#include <Server.tmpl>
+
+SRCS = data.c descr.c parse.c usage.c 
+OBJS = data.o descr.o parse.o usage.o
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(usb,$(OBJS))
+DependTarget()
