@@ -1,3 +1,16 @@
 Post-installation instructions for XFree86 on OpenBSD/mac68k
 ------------------------------------------------------------
 
+1. Mac68k setup is easy:
+
+Typical installations do not require any additional configuration
+beyond package installation.  See the Xmac68k(1) manual page for
+information on middle and right mouse button emulation.
+
+2. Start xdm, the X display manager, either
+
+a) manually, as root:		xdm -nodaemon
+b) or, uncomment the xdm lines regarding /etc/rc.local.
+
+If you encounter a problem, you can browse the entire documentation at
+http://www.xfree86.org/XFree86/3.3.2/DocIndex
