@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.25 2000/07/07 22:12:38 todd Exp $
+#	$OpenBSD: Makefile,v 1.26 2001/02/10 08:52:29 matthieu Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -33,11 +33,10 @@ LOCALAPPD=/usr/local/lib/X11/app-defaults
 LOCALAPPX=/usr/local/lib/X11
 REALAPPD=/var/X11/app-defaults
 
-
 all:
 	${RM} -f ${CONFHOSTDEF}
 	${CP} ${HOSTDEF} ${CONFHOSTDEF}
-	cd xc ; ${MAKE} World
+	cd xc ; ${MAKE} World WORLDOPTS=
 	${MAKE} all-contrib
 
 all-contrib:
@@ -127,7 +126,7 @@ fix-appd:
 	    fi; \
 	    mkdir -p ${DESTDIR}${LOCALAPPX}; \
 	    ln -s ${REALAPPD} ${DESTDIR}${LOCALAPPD}; \
-    	fi
+	fi
 
 clean:
 	cd xc; ${MAKE} clean
