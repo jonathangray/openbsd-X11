@@ -1,9 +1,6 @@
 #!/bin/ksh
-pd=`/bin/pwd`
-export DESTDIR=$pd/dest
-export RELEASEDIR=$pd/rel
 
-log=$pd/snap.log
+log=`/bin/pwd`/snap.log
 if [ -f $log ]
 then
 
