@@ -55,6 +55,7 @@ XdmcpReadARRAY8 (buffer, array)
 	if (!XdmcpReadCARD8 (buffer, &array->data[i]))
 	{
 	    Xfree (array->data);
+	    array->data = 0;
 	    return FALSE;
 	}
     }

@@ -37,7 +37,8 @@ void
 XdmcpDisposeARRAY8 (array)
     ARRAY8Ptr	array;
 {
-    Xfree (array->data);
+    if (array->data != 0) 
+	Xfree (array->data);
     array->length = 0;
     array->data = 0;
 }

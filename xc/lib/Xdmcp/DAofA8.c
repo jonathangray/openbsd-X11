@@ -38,10 +38,11 @@ XdmcpDisposeARRAYofARRAY8 (array)
     ARRAYofARRAY8Ptr	array;
 {
     int	i;
-
+    
     for (i = 0; i < (int)array->length; i++)
 	XdmcpDisposeARRAY8 (&array->data[i]);
-    Xfree (array->data);
+    if (array->data != 0) 
+	Xfree (array->data);
     array->length = 0;
     array->data = 0;
 }
