@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.11 1998/09/19 01:20:26 todd Exp $
+#	$OpenBSD: Makefile,v 1.12 1998/09/26 21:47:47 marc Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -20,7 +20,7 @@ CHOWN?=/usr/sbin/chown
 RM?= /bin/rm
 
 all:
-	${RM} ${CONFHOSTDEF}
+	${RM} -f ${CONFHOSTDEF}
 	${CP} ${HOSTDEF} ${CONFHOSTDEF}
 	cd xc ; ${MAKE} World
 	${MAKE} all-contrib
