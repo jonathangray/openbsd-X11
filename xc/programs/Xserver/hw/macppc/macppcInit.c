@@ -235,7 +235,9 @@ void OsVendorInit(
 
 	if (macppcKbdPriv.fd == -1 || macppcPtrPriv.fd == -1)
 	    err(1, "open kbd/mouse");
+#ifdef XKB
 	noXkbExtension = FALSE;		/* XXX for now */
+#endif
 	inited = 1;
 
 	if (ioctl(macppcKbdPriv.fd, WSKBDIO_GTYPE, &kbdtype) == -1) {
