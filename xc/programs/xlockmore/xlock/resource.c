@@ -155,8 +155,8 @@ static int  descr();
 #ifdef USE_MB
 #define DEF_FONTSET	DEF_FONT ## ",-*-24-*"
 #endif
-#define DEF_BG		"White"
-#define DEF_FG		"Black"
+#define DEF_BG		"Black"
+#define DEF_FG		"White"
 #ifdef FR
 #define DEF_NAME	"Nom: "
 #define DEF_PASS	"Mot de passe: "
