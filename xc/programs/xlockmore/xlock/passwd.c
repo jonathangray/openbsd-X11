@@ -530,7 +530,7 @@ gpasskey(char *pass)
 {
 	static char saltchars[CPASSCHARS + 1] =
 	"abcdefghijklmnopwrstuvwxyzABCDEFGHIJKLMNOPWRSTUVWXYZ1234567890./";
-	char        pw[9], salt[2], *pw2;
+	char        pw[9], salt[3], *pw2;
 
 #if 0
 	char       *getpass(const char *);
