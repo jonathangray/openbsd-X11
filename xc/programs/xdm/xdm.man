@@ -209,7 +209,8 @@ sets the port-number which
 .I xdm
 will monitor for XDMCP requests.  As XDMCP
 uses the registered well-known UDP port 177, this resource should
-not be changed except for debugging.
+not be changed except for debugging. If set to 0 xdm will not listen
+for XDMCP or Chooser requests.
 .IP "\fB\-session\fP \fIsession_program\fP"
 Specifies the value for the \fBDisplayManager*session\fP resource.  This
 indicates the program to run as the session after the user has logged in.
