@@ -11,7 +11,7 @@ NormalProgramTarget(dga,$(OBJS),$(DEPLIBS),$(LOCAL_LIBRARIES),NullParameter)
 #if !defined(OpenBSDArchitecture)
 InstallProgramWithFlags(dga,$(BINDIR),$(INSTUIDFLAGS))
 #else
-InstallProgram(xload,$(BINDIR))
+InstallProgram(dga,$(BINDIR))
 #endif
 DependTarget()
 
