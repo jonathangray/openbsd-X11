@@ -6,5 +6,4 @@ then
 	xconsole -geometry 480x130-0-0 -daemon -notify -verbose -fn fixed -exitOnFail
 fi
 
-xsetroot -solid black&
 #sxpm OpenBSD.xpm &
