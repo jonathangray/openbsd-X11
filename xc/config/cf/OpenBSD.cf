@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.13 1998/12/22 11:23:02 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.43 1999/09/14 06:02:59 matthieu Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.44 1999/10/12 14:48:40 matthieu Exp $
 XCOMM
 
 #ifndef OSName
@@ -482,6 +482,11 @@ install:: fonts.alias							@@\
 
 # include <xf86.rules>
 # define Xmac68kServer
+
+/*
+ * XKB is reported not to work on Macs
+ */
+# define DfltDisableXKB		YES
 
 #endif /* mac68kArchitecture */
 
