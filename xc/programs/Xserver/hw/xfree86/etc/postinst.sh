@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# $XFree86: xc/programs/Xserver/hw/xfree86/etc/postinst.sh,v 3.13.2.4 1997/07/26 06:30:51 dawes Exp $
+# $XFree86: xc/programs/Xserver/hw/xfree86/etc/postinst.sh,v 3.13.2.6 1998/02/26 20:41:52 hohndel Exp $
 #
-# postinst.sh (for XFree86 3.3.1)
+# postinst.sh (for XFree86 3.3.2)
 #
 # This script should be run after installing a new version of XFree86.
 #

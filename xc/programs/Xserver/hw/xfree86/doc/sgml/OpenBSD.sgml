@@ -1,10 +1,10 @@
 <!DOCTYPE linuxdoc PUBLIC "-//XFree86//DTD linuxdoc//EN">
 
 <article>
-<title>README for XFree86 3.3.1 on OpenBSD
+<title>README for XFree86 3.3.2 on OpenBSD
 <author>
 Matthieu Herrb
-<Date>Last modified on: 7 Oct 1997
+<Date>Last modified on: 20 February 1998
 
 <toc>
 
@@ -12,7 +12,7 @@ Matthieu Herrb
 <sect>What and Where is XFree86?
 
 <p>
-XFree86 3.3.1 is a port of X11R6.3 that supports several versions of
+XFree86 3.3.2 is a port of X11R6.3 that supports several versions of
 Intel-based Unix.  It is derived from X386 1.2, which was the X server
 distributed with X11R5.  This release consists of many new features
 and performance improvements as well as many bug fixes.  The release
@@ -26,13 +26,18 @@ The sources for XFree86 are available by anonymous ftp from:
 <htmlurl name="ftp://ftp.XFree86.org/pub/XFree86/current"
 url="ftp://ftp.XFree86.org/pub/XFree86/current">
 
-Binaries for OpenBSD 2.2  are available in the OpenBSD 2.2 
-binary distribution.
+Binaries for OpenBSD 2.2  are available from:
 
+<htmlurl name="ftp://ftp.XFree86.org/pub/XFree86/current/binaries/"
+url="ftp://ftp.XFree86.org/pub/XFree86/current/binaries/OpenBSD">
+
+A list of mirror sites is provided by
+<htmlurl name="ftp://ftp.XFree86.org/pub/XFree86/MIRRORS"
+url="ftp://ftp.XFree86.org/pub/XFree86/MIRRORS">
 
 <p>
 
-XFree86 3.3.1 also builds on other OpenBSD architectures. See section
+XFree86 3.3.2 also builds on other OpenBSD architectures. See section
 <ref id="otherarch" name="Building on other architectures"> for details.
 
 
@@ -44,18 +49,10 @@ Send email to <em/matthieu@laas.fr/ (Matthieu Herrb) or
 this file and we'll revise it.
 
 <sect>New features in this release
-This release have been done for OpenBSD 2.2. It contains a few minor changes
-in respect to the XFree86 3.3.1 distribution for OpenBSD 2.1 that can
-be found on the XFree86 sites
 <p>
 <enum>
-<item>The servers are no longer installed setuid. You need to run xdm
-to use X safely. You can also set the setuid bit yourself, but
-<bf/don't do that/ unless you know what you are doing.
-<item>A security hole that allow to view the first words of an
-arbitrary file when the servers are setuid has been fixed.
 <item>See the <htmlurl url="RELNOTES.html" name="Release Notes"> for
-non-OS dependent new features in XFree86 3.3.1.
+non-OS dependent new features in XFree86 3.3.2.
 </enum>
 
 <sect>Installing the Binaries
@@ -63,8 +60,6 @@ non-OS dependent new features in XFree86 3.3.1.
 <p>
 Refer to section 5 of the <htmlurl url="RELNOTES.html" name="Release
 Notes">  for detailed installation instructions.
-
-
 
 <sect>Configuring X for Your Hardware
 
@@ -116,6 +111,13 @@ XFree86 would use the <bf>PS/2</bf> protocol for talking to the device
 in that mode.  "cooked" mode is the old BusMouse translation.
 By default, the driver runs in "cooked" mode.  It can be switched using
 ioctls or by opening the first minor device which is <tt>/dev/psm0</tt>.
+<p>
+Only standard PS/2 mice are supported by this driver. Newest PS/2
+mice that send more than three bytes at a time (especially
+intellimouse, or mouseman+ with a "3D" roller) are not supported yet. 
+<p>
+See <htmlurl url="mouse.html" name="README.mouse">  for general
+instruction on mouse configuration in XFree86.
 
 <sect1>Other input devices
 <p>
@@ -154,7 +156,6 @@ lines to the <bf/Module/ section of <tt/XF86Config/:
    load    "pex5.so"
    load    "xie.so"
 </verb></tscreen>
-
 
 <sect>Installing Xdm, the display manager
 
@@ -225,7 +226,7 @@ To make sure X support is enabled under  OpenBSD, the following
 line must be in your config file in <tt>/sys/arch/i386/conf</tt>:
 
 <tscreen>
- option XSERVER
+ options XSERVER
 </tscreen>
 
 The server supports the two standard  OpenBSD/i386
@@ -271,8 +272,9 @@ There are two ways to allow XFree86 to access linear memory:
    `option INSECURE' in the kernel configuration file and build a new
    kernel. 
 
-In OpenBSD 2.2, you will also need to comment out the line
+In OpenBSD 2.2 and later, you will also need to comment out the line
 initializing <tt/securelevel/ to 1 in <tt>/etc/rc.securelevel</tt>.
+
 
 <item>Install the aperture driver:
 <enum>
@@ -295,6 +297,15 @@ system version:
     <p>
     Uncomment the lines loading the aperture driver from
     <tt>/etc/rc.securelevel</tt> 
+
+<item> OpenBSD-current 
+    <p> 
+    In addition to the loadable kernel module, you can now use an
+    in-kernel aperture driver. Add 'option APERTURE' to your kernel
+    configuration file, build and install the new kernel and run 
+    <tt>./MAKEDEV std</tt> in <tt>/dev</tt>. Edit
+    <tt>/etc/sysctl.conf</tt> to set the variable
+    <bf>machdep.allowaperture</bf> to 1.
 </itemize>
 
 <item> Reboot your system. XFree86 will auto-detect the aperture
@@ -371,7 +382,7 @@ sources, invoke ``<tt/make World/'' in the xc directory.
 <sect1>Console drivers<label id="console-drivers">
 
 <p>
-XFree86 3.3.1 has a configuration option to select the console
+XFree86 3.3.2 has a configuration option to select the console
 drivers to use in <tt/xf86site.def/:
 <itemize>
 <item> if you're using pccons put:
@@ -417,7 +428,7 @@ anymore. You should get it from the syscons distribution.
 <sect1>Building on other architectures<label id="otherarch">
 
 <p>
-XFree86 3.3.1 also compiles on other OpenBSD architectures. 
+XFree86 3.3.2 also compiles on other OpenBSD architectures. 
 
 The XFree86 servers can also been built on OpenBSD/mips. The S3 server
 has been tested on an Acer Mips system with a S3/928 board. Contact
@@ -426,7 +437,7 @@ Per Fogelstrom (pefo@OpenBSD.org) for details.
 The Xsun server patches from Dennis Ferguson and Matthew Green for
 NetBSD have been integrated in
 <tt>xc/programs/Xserver/hw/sun</tt>. The Xsun server can be built on
-the sparc and the sun3, with patches from Kenneth Stailey.
+the sparc and the sun3.
 
 The client side of XFree86 also builds on the alpha, pmax, amiga,
 mac68k and mvme68k architectures.
@@ -464,7 +475,7 @@ and many others.
 </itemize>
 
 <verb>
-$XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/OpenBSD.sgml,v 1.1.2.2 1997/08/02 13:48:14 dawes Exp $
+$XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/OpenBSD.sgml,v 1.1.2.5 1998/02/26 13:59:07 dawes Exp $
 
 
 
