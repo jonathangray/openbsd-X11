@@ -401,13 +401,17 @@ static int PtsToRegion(numFullPtBlocks, iCurPtBlock, FirstPtBlock, reg)
     register int i;
     register BOX *extents;
     register int numRects;
- 
+    BOX *prevRects = reg->rects;
+
     extents = &reg->extents;
  
     numRects = ((numFullPtBlocks * NUMPTSTOBUFFER) + iCurPtBlock) >> 1;
  
     if (!(reg->rects = (BOX *)Xrealloc((char *)reg->rects, 
-	    (unsigned) (sizeof(BOX) * numRects))))       return(0);
+	    (unsigned) (sizeof(BOX) * numRects))))  {
+	Xfree(prevRects);
+	return(0);
+    }
  
     reg->size = numRects;
     CurPtBlock = FirstPtBlock;

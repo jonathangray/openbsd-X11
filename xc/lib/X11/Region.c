@@ -480,10 +480,14 @@ miRegionCopy(dstrgn, rgn)
         {
             if (dstrgn->rects)
             {
+		BOX *prevRects = dstrgn->rects;
+		
                 if (! (dstrgn->rects = (BOX *)
 		       Xrealloc((char *) dstrgn->rects,
-				(unsigned) rgn->numRects * (sizeof(BOX)))))
+				(unsigned) rgn->numRects * (sizeof(BOX))))) {
+		    Xfree(prevRects);
 		    return;
+		}
             }
             dstrgn->size = rgn->numRects;
 	}

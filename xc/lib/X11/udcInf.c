@@ -148,8 +148,13 @@ int  *num_codeset;
                 if(num_ret == 1){
                     ret = (int *)Xmalloc(sizeof(int));
                 } else {
+		    int *prev_ret = ret;
+
 		    ret = 
                         (int *)Xrealloc(ret,num_ret*sizeof(int)); 
+		    if (ret == NULL){
+			Xfree(prev_ret);
+		    }
                 }
                 if(ret == NULL){
 		    _xudc_utyerrno = 0x03 ;

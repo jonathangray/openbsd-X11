@@ -1669,6 +1669,8 @@ char *	my_memmove(s1, s2, n)
 				bfr = (bfr != 0)
 					? realloc(bfr, length)
 					: malloc(length);
+				if (bfr == NULL) 
+				    SysError(ERROR_MMALLOC);
 			}
 			for (j = 0; j < n; j++)
 				bfr[j] = s2[j];

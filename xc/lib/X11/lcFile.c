@@ -307,6 +307,7 @@ _XlcResolveLocaleName(lc_name, pub)
     int i, n, len, sinamelen;
     char *args[NUM_LOCALEDIR];
     static char locale_alias[] = LOCALE_ALIAS;
+    char *tmp_siname;
 
     xlocaledir (dir, PATH_MAX);
     n = _XlcParsePath(dir, args, NUM_LOCALEDIR);
@@ -340,7 +341,10 @@ _XlcResolveLocaleName(lc_name, pub)
      * pub->siname is in the format <lang>_<terr>.<codeset>, typical would
      * be "en_US.ISO8859-1", "en_US.utf8", or "ru_RU.KOI-8"
      */
-    pub->siname = Xrealloc (pub->siname, 2 * (sinamelen + 1));
+    tmp_siname = Xrealloc (pub->siname, 2 * (sinamelen + 1));
+    if (tmp_siname == NULL) {
+	return 0;
+    }
 
     /* language */
     dst = &pub->siname[sinamelen + 1];

@@ -975,10 +975,15 @@ static void PutEntry(db, bindings, quarks, type, value)
     if (q > maxResourceQuark) {
 	unsigned oldsize = (maxResourceQuark + 1) >> 3;
 	unsigned size = ((q | 0x7f) + 1) >> 3; /* reallocate in chunks */
-	if (resourceQuarks)
+	if (resourceQuarks) {
+	    unsigned char *prevQuarks = resourceQuarks;
+
 	    resourceQuarks = (unsigned char *)Xrealloc((char *)resourceQuarks,
 						       size);
-	else
+	    if (!resourceQuarks) {
+		Xfree(prevQuarks);
+	    }
+	} else
 	    resourceQuarks = (unsigned char *)Xmalloc(size);
 	if (resourceQuarks) {
 	    bzero((char *)&resourceQuarks[oldsize], size - oldsize);

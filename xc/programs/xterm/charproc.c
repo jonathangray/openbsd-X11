@@ -1024,6 +1024,8 @@ static void VTparse()
 		} else if (string_used+1 >= string_size) {
 			string_size += string_size;
 			string_area = (Char *)realloc(string_area, string_size);
+			if (string_area == NULL) 
+			    SysError(ERROR_VTREALLOC);
 		}
 		string_area[string_used++] = c;
 	    } else if (parsestate != esc_table) {
