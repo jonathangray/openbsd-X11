@@ -660,7 +660,7 @@ void InitInput(argc, argv)
     int     	  argc;
     char    	  **argv;
 {
-    DevicePtr	p, k;
+    DeviceIntPtr	p, k;
     extern Bool mieqInit();
 
     p = AddInputDevice(sunMouseProc, TRUE);
@@ -671,7 +671,7 @@ void InitInput(argc, argv)
     RegisterPointerDevice(p);
     RegisterKeyboardDevice(k);
     miRegisterPointerDevice(screenInfo.screens[0], p);
-    (void) mieqInit (k, p);
+    (void) mieqInit ((DevicePtr)k, (DevicePtr)p);
 #define SET_FLOW(fd) fcntl(fd, F_SETFL, FNDELAY | FASYNC)
 #ifdef SVR4
     (void) OsSignal(SIGPOLL, SigIOHandler);
