@@ -8,7 +8,6 @@ NetBSD.cf or OpenBSD.cf.):
 XamigaCCmono           - Old Amiga Mono support from XamigaMono
 XamigaCCcolor          - Amiga CustomChips Color support (ECS/AGA), former Xdaniver
 XamigaGfxCardSupport   - Support for Gfx Board in general (Chunky Framebuffer)
-XamigaRetinaZ2Support  - Support for the GFX accelerator of the RetinaZ2 Graphics board
 XamigaRetinaZ3Support  - Support for the GFX accelerator of the RetinaZ3 Graphics board
 XamigaCl5426Server     - Support for Cirrus 5426 based Gfx Boards
                          (Picollo, Picollo SD64, Spectrum, PicassoII)
