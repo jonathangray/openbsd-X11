@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.30 1998/05/04 05:01:00 todd Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.31 1998/05/30 14:08:02 matthieu Exp $
 XCOMM
 
 #ifndef OSName
@@ -176,10 +176,10 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 #endif
 
 
-
-XCOMM Man pages need to be formatted when installed, so override the default
-XCOMM imake rules.
-
+/*
+ * Man pages need to be formatted when installed, so override the default
+ * imake rules.
+ */
 #define ManSuffix	1
 #define FileManSuffix	5
 #define ManSourcePath	$(MANPATH)/cat
@@ -200,7 +200,10 @@ install.man::                                                           @@\
 	-@if [ -f file.0 ]; \						@@\
 	then \								@@\
 	$(INSTALL) -c $(INSTMANFLAGS) file.0 $(DESTDIR)destdir/dest.0; \@@\
-	fi
+	fi								@@\
+									@@\
+clean::									@@\
+	RemoveFile(file.0)
 
 #define InstallGenManPageLong(file,destdir,dest,suffix)			@@\
 	InstallManPageLong(file,destdir,dest)
