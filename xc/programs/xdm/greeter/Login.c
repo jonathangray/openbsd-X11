@@ -1320,7 +1320,7 @@ Ctrl<Key>\\\\:	abort-session() \n\
 :Ctrl<Key>plus:	allow-all-access() \n\
 <Key>BackSpace:	delete-previous-character() \n\
 <Key>Delete:	delete-previous-character() \n\
-<Key>Return:	finish-field() \n"
+<Key>Return:	finish-field() \n\"
 #ifndef XPM
 "<KeyPress>:	insert-char() \
 "
