@@ -54,8 +54,16 @@
 #undef MAXHOSTNAMELEN		/* avoid duplication from param.h */
 #include <sys/param.h>		/* pull in __NetBSD_Version__ */
 #if __NetBSD_Version__ >= 103060000
-#include <dev/wscons/wsconsio.h>
+#define WSCONS_SUPPORT
 #endif
+#endif
+
+#if defined(__OpenBSD__) && defined(__i386__) /* XXXX && defined(OpenBSD2_9) */
+#define WSCONS_SUPPORT
+#endif
+
+#ifdef WSCONS_SUPPORT
+#include <dev/wscons/wsconsio.h>
 #endif
 
 #ifdef XINPUT
@@ -135,7 +143,7 @@ Bool xf86SupportedMouseTypes[] =
 	FALSE,	/* auto */
 #endif
 	TRUE,	/* ACECAD */
-#if defined(__NetBSD__) && __NetBSD_Version__ >= 103060000
+#if defined(WSCONS_SUPPORT)
 	TRUE,	/* wsmouse */
 #else
 	FALSE,	/* wsmouse */
@@ -233,7 +241,7 @@ static unsigned char proto[][7] = {
   {  0xf8,   0x80, 0x00,   0x00, 5,    0x00,   0xff },  /* sysmouse */
   {  0xf8,   0x80, 0x00,   0x00, 5,    0x00,   0xff },  /* dummy entry for auto - used only to fill space */
   {  0x80,   0x80, 0x80,   0x00, 3,    0x00,   0xff },  /* ACECAD */
-#if defined(__NetBSD__) && __NetBSD_Version__ >= 103060000
+#if defined(WSCONS_SUPPORT)
   {  0x00,   0x00, 0x00,   0x00, sizeof(struct wscons_event),
      				       0x00,   0x00 },  /* wsmouse */
 #else
@@ -594,7 +602,7 @@ MouseDevPtr mouse;
 	}
 	break;
 
-#if defined(__NetBSD__)
+#if defined(WSCONS_SUPPORT)
       case P_WSMOUSE:
 	break;
 #endif
@@ -726,11 +734,10 @@ xf86MouseProtocol(device, rBuf, nBytes)
      *         Microsoft...)
      */
     if (mouse->pBufP != 0 &&
-#if !defined(__NetBSD__)
-	mouse->mseType != P_PS2 &&
-#endif
-#if defined(__NetBSD__)
+#if defined(WSCONS_SUPPORT)
 	mouse->mseType != P_WSMOUSE &&
+#else
+	mouse->mseType != P_PS2 &&
 #endif
 #ifdef USB_MOUSE
 	mouse->mseType != P_USB &&
@@ -888,7 +895,7 @@ xf86MouseProtocol(device, rBuf, nBytes)
       break;
       
     case P_BM:              /* BusMouse */
-#if defined(__NetBSD__)
+#if defined(WSCONS_SUPPORT)
     case P_PS2:
 #endif
       buttons = (~mouse->pBuf[0]) & 0x07;
@@ -896,7 +903,7 @@ xf86MouseProtocol(device, rBuf, nBytes)
       dy = - (char)mouse->pBuf[2];
       break;
 
-#if !defined(__NetBSD__)
+#if !(defined(WSCONS_SUPPORT))
     case P_PS2:             /* PS/2 mouse */
       buttons = (mouse->pBuf[0] & 0x04) >> 1 |       /* Middle */
 	        (mouse->pBuf[0] & 0x02) >> 1 |       /* Right */
@@ -978,7 +985,7 @@ xf86MouseProtocol(device, rBuf, nBytes)
       dy = (mouse->pBuf[0] & 0x20) ?  -(mouse->pBuf[2]-256) : -mouse->pBuf[2];
       break;
 
-#endif /* !__NetBSD__ */
+#endif /* !WSCONS_SUPPORT */
 
     case P_SYSMOUSE:        /* sysmouse */
       buttons = (~mouse->pBuf[0]) & 0x07;
@@ -992,7 +999,7 @@ xf86MouseProtocol(device, rBuf, nBytes)
 	}
       break;
 
-#if defined(__NetBSD__) && __NetBSD_Version__ >= 103060000
+#if defined(WSCONS_SUPPORT)
     case P_WSMOUSE: {
       struct wscons_event ev;
 
@@ -1032,7 +1039,7 @@ xf86MouseProtocol(device, rBuf, nBytes)
       }
       break;
       }
-#endif /* defined(__NetBSD__) && __NetBSD_Version__ >= 103060000 */
+#endif /* defined(WSCONS_SUPORT)
 
 #ifdef USB_MOUSE
     case P_USB:
