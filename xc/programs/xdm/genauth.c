@@ -74,6 +74,7 @@ longtochars (l, c)
 
 # define FILE_LIMIT	1024	/* no more than this many buffers */
 
+#ifndef ARC4_RANDOM
 static
 sumFile (name, sum)
 char	*name;
@@ -111,15 +112,23 @@ long	sum[2];
     close (fd);
     return ret_status;
 }
+#endif
 
 static
 InitXdmcpWrapper ()
 {
-    long	    sum[2];
-    unsigned char   tmpkey[8];
+#ifdef	ARC4_RANDOM
+    u_int32_t sum[2];
 
-#ifdef DEV_RANDOM
+    sum[0] = arc4random();
+    sum[1] = arc4random();
+    *(u_char *)sum = 0;
+
+    _XdmcpWrapperToOddParity(sum, key);
+
+#elif DEV_RANDOM
     int fd;
+    unsigned char   tmpkey[8];
     
     if ((fd = open(DEV_RANDOM, O_RDONLY)) >= 0) {
 	if (read(fd, tmpkey, 8) == 8) {
@@ -131,8 +140,10 @@ InitXdmcpWrapper ()
 	    close(fd);
 	}
     }
-#endif
-	    
+#else    
+    long	    sum[2];
+    unsigned char   tmpkey[8];
+
     if (!sumFile (randomFile, sum)) {
 	sum[0] = time ((Time_t *) 0);
 	sum[1] = time ((Time_t *) 0);
@@ -141,6 +152,7 @@ InitXdmcpWrapper ()
     longtochars (sum[1], tmpkey+4);
     tmpkey[0] = 0;
     _XdmcpWrapperToOddParity (tmpkey, key);
+#endif
 }
 
 #endif

@@ -129,7 +129,7 @@ FRAGILE_DEFINES = -DFRAGILE_DEV_MEM
 #endif
 
 #ifdef OpenBSDArchitecture
-RANDOM_DEFINES = -DDEV_RANDOM=\"/dev/srandom\"
+RANDOM_DEFINES = -DARC4_RANDOM
 #endif
 
 #if HasVFork
