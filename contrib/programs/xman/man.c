@@ -1022,7 +1022,7 @@ char  manpath[];
 	}
 	memset(&gs, 0, sizeof(glob_t));
 	while (path = strtok((char *)NULL, " \t\n")) {
-	    if (glob(path, GLOB_APPEND|GLOB_BRACE, NULL, &gs) < 0) {
+	    if (glob(path, GLOB_BRACE, NULL, &gs) < 0) {
 		return FALSE;
 	    }
 	} /* while */
@@ -1037,6 +1037,7 @@ char  manpath[];
 		strcat(manpath, gs.gl_pathv[i]);
 	    }
 	} /* for */
+	globfree(&gs);
     }
     fclose(fp);
     return(!firstpath);
