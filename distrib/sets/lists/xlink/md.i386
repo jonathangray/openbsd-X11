@@ -839,6 +839,7 @@
 ./usr/X11R6/lib/Server/lib86/libxf86.a
 ./usr/X11R6/lib/Server/lib86/libxf86_hw.a
 ./usr/X11R6/lib/Server/lib86/libxf86_os.a
+./usr/X11R6/lib/Server/lib86/libusb.a
 ./usr/X11R6/lib/Server/lib86/xf86Init.o
 ./usr/X11R6/lib/Server/lib86/xf86Init_m.o
 ./usr/X11R6/lib/Server/miinitext.c
