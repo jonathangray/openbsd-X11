@@ -70,11 +70,11 @@ XCOMM $XFree86: xc/config/cf/Imake.cf,v 3.34.2.11 1998/12/22 11:23:01 hohndel Ex
 #  define i386Architecture
 #  undef i386
 # endif
-# if defined(__sparc__) || defined(sparc)
+# if defined(__sparc__) 
 #  define SparcArchitecture
 #  undef sparc
 # endif
-# ifdef mips
+# ifdef __mips__
 #   define MipsArchitecture
 #   ifdef arc
 #     define ArcArchitecture
@@ -86,7 +86,7 @@ XCOMM $XFree86: xc/config/cf/Imake.cf,v 3.34.2.11 1998/12/22 11:23:01 hohndel Ex
 #   endif
 #   undef mips
 # endif
-# ifdef powerpc
+# ifdef __powerpc__
 #  define ppcArchitecture
 #  undef powerpc
 # endif
@@ -94,7 +94,7 @@ XCOMM $XFree86: xc/config/cf/Imake.cf,v 3.34.2.11 1998/12/22 11:23:01 hohndel Ex
 #   define AlphaArchitecture
 #   undef __alpha__
 # endif
-# ifdef mc68020
+# ifdef __mc68020__
 #  define Mc68020Architecture
 #  if defined(amiga)
 #   define AmigaArchitecture
