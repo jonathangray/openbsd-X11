@@ -71,6 +71,8 @@ xlogin*useShape: true
 xlogin*logoPadding: 10
 #endif /* Hp300Architecture */
 #endif /* XPM */
+! comment out to disable root logins
+xlogin.Login.allowRootLogin:	true
 
 XConsole.text.geometry:	480x130
 XConsole.verbose:	true
