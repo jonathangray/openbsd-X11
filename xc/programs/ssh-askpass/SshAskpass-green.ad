@@ -1,6 +1,6 @@
 ! SshAskpass.ad:  Default resources for the X11-based ssh-askpass for OpenSSH
 ! created 1999-Nov-17 03:40 Jim Knoble <jmknoble@pobox.com>
-! autodate: 1999-Nov-22 03:09
+! autodate: 1999-Nov-22 07:49
 ! 
 ! by Jim Knoble <jmknoble@pobox.com>
 ! Copyright © 1999 Jim Knoble
@@ -56,15 +56,15 @@
 
 ! Ssh-askpass grabs the keyboard by default.
 ! To stop it from grabbing the keyboard, use:
-!*grabKeyboard:			true
+!*grabKeyboard:			false
 
 ! Ssh-askpass does not grab the pointer by default.
 ! To make it grab the pointer, use:
-!*grabPointer:			false
+!*grabPointer:			true
 
 ! Ssh-askpass does not grab the server by default.
 ! To make it grab the server, use:
-!*grabServer:			false
+!*grabServer:			true
 
 *Dialog.title:			OpenSSH Authentication Passphrase Request
 *Dialog.label:			Please enter your authentication passphrase:

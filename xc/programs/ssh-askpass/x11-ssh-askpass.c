@@ -1,6 +1,6 @@
 /* x11-ssh-askpass.c:  A generic X11-based password dialog for OpenSSH.
  * created 1999-Nov-17 03:40 Jim Knoble <jmknoble@pobox.com>
- * autodate: 1999-Nov-22 03:13
+ * autodate: 1999-Nov-23 02:52
  * 
  * by Jim Knoble <jmknoble@pobox.com>
  * Copyright © 1999 Jim Knoble
@@ -37,6 +37,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* For (get|set)rlimit() ... */
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
+/* ... end */
+
+/* For errno ... */
+#include <errno.h>
+/* ... end */
 
 #include <X11/Xlib.h>
 #include <X11/Intrinsic.h>
@@ -818,8 +828,10 @@ void grabKeyboard(AppInfo *app)
       Bool keyboardMode = GrabModeAsync;
 
       app->isKeyboardGrabbed = True;
+      XSync(app->dpy, False);
       status = XGrabKeyboard(app->dpy, grabWindow, ownerEvents,
 			     pointerMode, keyboardMode, CurrentTime);
+      XSync(app->dpy, False);
       if (GrabSuccess != status) {
 	 char *reason = "reason unknown";
 	 
@@ -865,9 +877,11 @@ void grabPointer(AppInfo *app)
       Cursor cursor = None;
 
       app->isPointerGrabbed = True;
+      XSync(app->dpy, False);
       status = XGrabPointer(app->dpy, grabWindow, ownerEvents, eventMask,
 			    pointerMode, keyboardMode, confineTo, cursor,
 			    CurrentTime);
+      XSync(app->dpy, False);
       if (GrabSuccess != status) {
 	 char *reason = "reason unknown";
 	 
@@ -904,7 +918,9 @@ void grabServer(AppInfo *app)
       return;
    } else {
       app->isServerGrabbed = True;
+      XSync(app->dpy, False);
       XGrabServer(app->dpy);
+      XSync(app->dpy, False);
    }
 }
 
@@ -1079,13 +1095,12 @@ int main(int argc, char **argv)
 {
    AppInfo app;
    XEvent event;
-   int status;
 
    memset(&app, 0, sizeof(app));
    
    app.argc = argc;
    app.argv = argv;
-   
+
    progclass = "SshAskpass";
    app.toplevelShell = XtAppInitialize(&(app.appContext), progclass,
 					NULL, 0, &argc, argv,
@@ -1102,11 +1117,30 @@ int main(int argc, char **argv)
    app.appClass = progclass;
    /* For resources.c. */
    db = app.resourceDb;
-   
+
+   {
+      struct rlimit resourceLimit;
+      int status;
+      
+      status = getrlimit(RLIMIT_CORE, &resourceLimit);
+      if (-1 == status) {
+	 fprintf(stderr, "%s: getrlimit failed (%s)\n", app.appName,
+		 strerror(errno));
+	 exit(EXIT_STATUS_ERROR);
+      }
+      resourceLimit.rlim_cur = 0;
+      status = setrlimit(RLIMIT_CORE, &resourceLimit);
+      if (-1 == status) {
+	 fprintf(stderr, "%s: setrlimit failed (%s)\n", app.appName,
+		 strerror(errno));
+	 exit(EXIT_STATUS_ERROR);
+      }
+   }
+
    createDialog(&app);
    createGCs(&app);
    createDialogWindow(&app);
-
+   
    XMapWindow(app.dpy, app.dialog->dialogWindow);
    
    while(True) {

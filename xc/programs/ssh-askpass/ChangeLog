@@ -5,7 +5,48 @@
    cvs2cl.pl.  See http://www.red-bean.com/~kfogel/cvs2cl.shtml for more.
   -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+-
 
+2000-01-07 09:52  jmknoble
+
+	* Imakefile: Now we install the actual program as
+	`x11-ssh-askpass', and make a symlink to that from `ssh-askpass'.
+	This allows for multiple passphrase dialogs on a system.
+        Bumped version to 1.0.
+
+	* README: Added note about location of x11-ssh-askpass.
+
+1999-12-24 06:59  jmknoble
+
+	* Imakefile: Oops.  Version backed out to 0.99; missing spec file
+        for building RPMs.
+
+1999-12-24 06:05  jmknoble
+
+	* Imakefile: Updated version to 1.0.  Removed reference to utils.h.
+        Prefer install targets available in X11R6.
+
+1999-12-24 05:56  jmknoble
+
+	* resources.c, resources.h: Moved header includes from utils.h into
+        resources.c.  Trimmed unused functions.
+
+	* README: Updated install directory.  Removed reference to utils.h.
+
+	* dynlist.c: Removed potential memory leak (and ensuing loss of
+        buffer contents) if realloc() failed.
+
+1999-12-24 05:53  jmknoble
+
+	* utils.h: Moved header includes from here into resources.c.
+
+1999-12-05 04:21  jmknoble
+
+	* Imakefile: Added patch from Markus Friedl to change use of awk
+	(with GNU-specific extensions?) to sed, more likely to be available
+        on various platforms.
+
 1999-11-23 10:14  jmknoble
+
+	* .cvsignore: Added ChangeLog to .cvsignore.
 
 	* Imakefile: Added facility for autogenerating ChangeLog using
         cvs2cl.

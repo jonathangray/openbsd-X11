@@ -1,6 +1,6 @@
 # README: Notes about X11-based passphrase dialog for OpenSSH
 # created 1999-Nov-21 jmk
-# autodate: 1999-Nov-22 03:20
+# autodate: 2000-Jan-07 04:53
 
 +-------------+
 | Description |
@@ -57,10 +57,10 @@ procedure:
   make
   make install
 
-x11-ssh-askpass installs by default in /usr/local/lib/ssh/.  To install
-it somewhere else (for example, /usr/lib/ssh/) use:
+x11-ssh-askpass installs by default in /usr/local/libexec/ssh/.  To
+install it somewhere else (for example, /usr/libexec/ssh/) use:
 
-  make install BINDIR=/usr/lib/ssh
+  make install BINDIR=/usr/libexec/ssh
 
 Several different app-defaults files accompany x11-ssh-askpass:
 
@@ -75,6 +75,14 @@ commands before building (for example):
 
   rm -f SshAskpass_ad.h
   make includes APP_DEFAULTS=SshAskpass-NeXTish.ad
+
++-----------------+
+| Where To Get It |
++-----------------+
+
+x11-ssh-askpass is available at:
+
+  http://www.pobox.com/~jmknoble/software/x11-ssh-askpass/
 
 +--------------------------+
 | Copyright, License, Etc. |
@@ -91,7 +99,6 @@ part, from xscreensaver:
   drawing.h
   resources.c
   resources.h
-  utils.h
 
 The contents of the following files contains a limited amount of code
 (less than approximately 25%) which is derived from portions of
