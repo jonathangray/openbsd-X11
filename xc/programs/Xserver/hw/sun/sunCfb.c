@@ -285,18 +285,19 @@ Bool sunTCXInit (screen, pScreen, argc, argv)
 
 #if !defined(i386) && !defined(__bsdi__) /* { */
 
-#ifdef SVR4
+#ifdef SVR4 /* { */
 #include <sys/cg2reg.h>
 #else
-#ifndef CSRG_BASED
+#ifndef CSRG_BASED /* { */
 #include <pixrect/cg2reg.h>
 #else
-#if defined(__sparc__) || defined(__sparc)
+#if defined(__sparc__) || defined(__sparc) /* { */
 #include <machine/cgtworeg.h>
 #else
 #include <machine/cg2reg.h>
-#endif
-#endif
+#endif /* } */
+#endif /* } */
+#endif /* } */
 
 typedef struct {
     struct cg2memfb	mem;
