@@ -42,6 +42,7 @@ Style "FvwmButtons" Icon toolbox.xpm, ClickToFocus
 # Styles for your common terminal emulator programs:
 AddToDecor terms
 + ButtonStyle 1 Pixmap mini.xterm.xpm
++ HilightColor #bebebe blue
 Style "XTerm"       UseDecor terms
 Style "XTerm"       Icon xterm.xpm, SloppyFocus, IconBox -70 1 -1 -140
 Style "rxvt"        UseDecor terms
@@ -107,8 +108,9 @@ AddToMenu RootMenu	"Root Menu"	Title
 +			""		Nop
 +                       "Refresh Screen"   Refresh
 +                       "Recapture Screen" Recapture
++			"(Re)Start"	Popup Quit-Verify
 +			""		Nop
-+			"Exit Fvwm"	Popup Quit-Verify
++                       "Exit"  Module FvwmForm QuitVerify
 
 AddToMenu Utilities     "Utilities" Title
 +			"Top"		Exec exec xterm -T Top -n Top -e top
@@ -202,9 +204,7 @@ AddToMenu Module-Popup	"FvwmModules"	Title
 +                       "Form - MyFvwmTalk"  Module FvwmForm MyFvwmTalk
 +                       "Form - QuitVerify"  Module FvwmForm QuitVerify
 
-AddToMenu Quit-Verify 	"Really Quit Fvwm?%mini.fvwm.xpm%" Title	
-+		      	"Yes, Really Quit%mini.exit.xpm%"  Quit	
-+		      	""		    Nop	
+AddToMenu Quit-Verify 
 +		      	"Restart Fvwm%mini.refresh.xpm%"	    Restart fvwm
 +		      	""		    Nop	
 +	      	      	"Start wm2"         Restart wm2
@@ -213,7 +213,7 @@ AddToMenu Quit-Verify 	"Really Quit Fvwm?%mini.fvwm.xpm%" Title
 +		        "Start tvtwm"       Restart tvtwm
 +		        "Start vtwm"        Restart vtwm
 +		      	"Start mwm"    	    Restart mwm
-+	      	      	"Start olwm"        Restart /usr/openwin/bin/olwm
++	      	      	"Start olwm"        Restart olwm
 +		      	""		    Nop	
 +		      	"Start dummy%mini.xterm.xpm%"       Restart xterm
 +		      	""		    Nop	
