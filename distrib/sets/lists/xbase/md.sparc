@@ -14,12 +14,6 @@
 ./usr/X11R6/include/X11/extensions/XKBui.h
 ./usr/X11R6/include/X11/extensions/XKM.h
 ./usr/X11R6/include/X11/extensions/XKMformat.h
-./usr/X11R6/lib/X11/etc
-./usr/X11R6/lib/X11/etc/sun.termcap
-./usr/X11R6/lib/X11/etc/sun.terminfo
-./usr/X11R6/lib/X11/etc/xmodmap.std
-./usr/X11R6/lib/X11/etc/xterm.termcap
-./usr/X11R6/lib/X11/etc/xterm.terminfo
 ./usr/X11R6/lib/X11/fonts/PEX
 ./usr/X11R6/lib/X11/fonts/PEX/Roman.phont
 ./usr/X11R6/lib/X11/fonts/PEX/Roman_M.phont
@@ -198,7 +192,6 @@
 ./usr/X11R6/lib/libX11.so.6.1
 ./usr/X11R6/lib/libXIE.so.6.0
 ./usr/X11R6/lib/libXaw.so.6.1
-./usr/X11R6/lib/libXdpms.a
 ./usr/X11R6/lib/libXext.so.6.3
 ./usr/X11R6/lib/libXi.so.6.0
 ./usr/X11R6/lib/libXmu.so.6.0
