@@ -1,5 +1,6 @@
 ./usr
 ./usr/X11R6
+./usr/X11R6/README
 ./usr/X11R6/bin
 ./usr/X11R6/bin/Xmark
 ./usr/X11R6/bin/Xprt
