@@ -1,11 +1,14 @@
-XCOMM $OpenBSD: Imakefile,v 1.3 2000/05/17 12:59:49 matthieu Exp $
+XCOMM $OpenBSD: Imakefile,v 1.4 2000/08/29 10:03:45 matthieu Exp $
 
            SRCS = drawing.c dynlist.c resources.c x11-ssh-askpass.c
            OBJS = drawing.o dynlist.o resources.o x11-ssh-askpass.o
         DEPLIBS = $(DEPXTOOLLIB) $(DEPXLIB)
 LOCAL_LIBRARIES = $(XTOOLLIB) $(XLIB)
 
+           NAME = ssh-askpass
           CLASS = SshAskpass
+        VERSION = 1.0.1
+           DATE = August 28, 2000
    APP_DEFAULTS = $(CLASS)-default.ad
 
 $(CLASS)_ad.h: $(CLASS).ad
@@ -16,10 +19,18 @@ $(CLASS)_ad.h: $(CLASS).ad
 $(CLASS).ad:
 	$(LN) $(APP_DEFAULTS) $(CLASS).ad
 
-includes:: $(CLASS)_ad.h
+$(NAME).man: x11-ssh-askpass.man.in Imakefile
+	sed \@@\
+	  -e 's#@NAME@#$(NAME)#g' \@@\
+	  -e 's#@VERSION@#$(VERSION)#g' \@@\
+	  -e 's#@DATE@#$(DATE)#g' \@@\
+	  <x11-ssh-askpass.man.in >$@.tmp
+	$(MV) $@.tmp $@
+
+includes:: $(CLASS)_ad.h $(NAME).man
 
 clean::
 	$(RM) -f $(CLASS)_ad.h $(CLASS).ad
 
-ComplexProgramTarget(ssh-askpass)
-InstallAppDefaults(SshAskpass)
+ComplexProgramTarget($(NAME))
+InstallAppDefaults($(CLASS))
