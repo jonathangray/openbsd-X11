@@ -80,7 +80,11 @@ OS_SUBDIR = os2
 OS_SUBDIR = sco
 #endif
 
-SUBDIRS = $(OS_SUBDIR) misc
+#if UsbMouseSupport && !HasLibUsb
+USB_SUBDIR = libusb
+#endif
+
+SUBDIRS = $(OS_SUBDIR) misc $(USB_SUBDIR)
 
 SRCS = $(OS_SUBDIR)/?*.c misc/?*.c
 OBJS = $(OS_SUBDIR)/?*.o misc/?*.o
