@@ -10,7 +10,7 @@ DisplayManager.accessFile:	XDMDIR/Xaccess
 DisplayManager._0.authorize:	true
 DisplayManager._1.authorize:	true
 ! The following three resources set up display :0 as the console.
-DisplayManager.*.setup:	XDMDIR/Xsetup
+! DisplayManager.*.setup:	XDMDIR/Xsetup
 DisplayManager._0.startup:	XDMDIR/GiveConsole
 DisplayManager._0.reset:	XDMDIR/TakeConsole
 !
