@@ -8,6 +8,7 @@ FVWM_SRCDIR = ..
 NullMake()
 
 #if InstallSample
+InstallNamedNonExec(system.fvwmrc,.fvwmrc,$(FVWMDIR))
 InstallNonExecFile(system.fvwmrc,$(FVWMDIR))
 InstallNonExecFile(system.fvwm2rc,$(FVWMDIR))
 InstallNonExecFile(decor_examples,$(FVWMDIR))
