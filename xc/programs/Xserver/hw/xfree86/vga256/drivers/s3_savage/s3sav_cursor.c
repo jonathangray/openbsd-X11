@@ -83,7 +83,6 @@ extern int vgaCRIndex, vgaCRReg;
 static int s3vCursGeneration = -1;
 static int s3vHotX;
 static int s3vHotY;
-static int s3vCursorVRAMMemSegment;
 static CursorPtr s3vCursorpCurs;
 
 #define MAX_CURS 64
@@ -110,16 +109,17 @@ S3SAVCursorInit(pm, pScr)
     * buffer.  Savage4 requires 4k alignment for the cursor image.
     */
 
-   if( s3vPriv.chip < S3_SAVAGE2000) {
-      s3vCursorVRAMMemSegment = (S3_IN32(0x48C14) & 0x3FFF) * 2 - 4;
-   } else {
-      s3vCursorVRAMMemSegment = ((S3_IN32(0x48C18) >> 4) & 0x3FFF) * 2 - 4;
-   }
+    if(OFLG_ISSET(OPTION_NOACCEL, &vga256InfoRec.options)) {
+       if( s3vPriv.chip < S3_SAVAGE2000) {
+	  s3vPriv.CursorKByte = (S3_IN32(0x48C14) & 0x3FFF) * 2 - 4;
+       } else {
+	  s3vPriv.CursorKByte = ((S3_IN32(0x48C18) >> 4) & 0x3FFF) * 2 - 4;
+       }
+    }
+    else
+       s3vPriv.CursorKByte = vga256InfoRec.videoRam - 1;
 
-   if( !s3vCursorVRAMMemSegment )
-      s3vCursorVRAMMemSegment = vga256InfoRec.videoRam - 1;
-
-   return TRUE;
+    return TRUE;
 }
 
 /* This allows the cursor to be displayed */
@@ -268,12 +268,12 @@ S3SAVLoadCursor(pScr, pCurs, x, y)
 
    /* Load storage location.  */
    outb(vgaCRIndex, 0x4d);
-   outb(vgaCRReg, (0xff & s3vCursorVRAMMemSegment));
+   outb(vgaCRReg, (0xff & s3vPriv.CursorKByte));
    outb(vgaCRIndex, 0x4c);
-   outb(vgaCRReg, (0xff00 & s3vCursorVRAMMemSegment) >> 8);
+   outb(vgaCRReg, (0xff00 & s3vPriv.CursorKByte) >> 8);
 
    ram = (unsigned short *)pCurs->bits->devPriv[index];
-   MemToBus(videobuffer + s3vCursorVRAMMemSegment * 1024, (char *) ram, 1024);
+   MemToBus(videobuffer + s3vPriv.CursorKByte * 1024, (char *) ram, 1024);
 
    if( s3vPriv.chip == S3_SAVAGE4 ) {
       /*

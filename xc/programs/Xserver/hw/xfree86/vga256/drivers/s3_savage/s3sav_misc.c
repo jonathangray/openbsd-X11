@@ -55,15 +55,18 @@ extern SymTabRec s3savChipTable[];
 extern S3VPRIV s3vPriv;
 
 static S3PCIInformation Mappings[] = {
-    { PCI_SAVAGE3D,	S3_SAVAGE3D },
-    { PCI_SAVAGE3D_MV,	S3_SAVAGE3D_MV },
-    { PCI_SAVAGE4,	S3_SAVAGE4 },
-    { PCI_SAVAGE2000,	S3_SAVAGE2000 },
-    { PCI_SAVAGE_MX_MV,	S3_SAVAGE_MX },
-    { PCI_SAVAGE_MX,	S3_SAVAGE_MX },
-    { PCI_SAVAGE_IX_MV,	S3_SAVAGE_MX },
-    { PCI_SAVAGE_IX,	S3_SAVAGE_MX },
-    { PCI_SAVAGE_370,	S3_SAVAGE_370 },
+    { PCI_SAVAGE3D,		S3_SAVAGE3D },
+    { PCI_SAVAGE3D_MV,		S3_SAVAGE3D },
+    { PCI_SAVAGE4,		S3_SAVAGE4 },
+    { PCI_SAVAGE2000,		S3_SAVAGE2000 },
+    { PCI_SAVAGE_MX_MV,		S3_SAVAGE_MX },
+    { PCI_SAVAGE_MX,		S3_SAVAGE_MX },
+    { PCI_SAVAGE_IX_MV,		S3_SAVAGE_MX },
+    { PCI_SAVAGE_IX,		S3_SAVAGE_MX },
+    { PCI_PROSAVAGE_133,	S3_PROSAVAGE },
+    { PCI_PROSAVAGE_K133,	S3_PROSAVAGE },
+    { PCI_S3TWISTER,		S3_PROSAVAGE },
+    { PCI_S3TWISTERK,		S3_PROSAVAGE },
 };
 
 #define NMAPPINGS	(sizeof(Mappings)/sizeof(Mappings[0]))
@@ -116,11 +119,7 @@ S3SAVGetPCIInfo()
 
 	    info.MemBase = pcrp->_base0 & 0xFFFFFFF0;
 
-	    if(
-		(ChipId == PCI_SAVAGE4) ||
-		(ChipId == PCI_SAVAGE2000) ||
-		(ChipId == PCI_SAVAGE_370)
-	    ) {
+	    if( !S3_SAVAGE3D_SERIES(info.ChipType) ) {
 		info.MemBase1 = pcrp->_base1 & 0xFFFFFFF0;
 	    }
 	    break;

@@ -72,8 +72,9 @@
 /* S3V internal includes */
 #include "s3sav_driver.h"
 #include "regs3sav.h"
+#include "s3bci.h"
 
-static const char S3SAVVersionId[] = "$Version: s3_savage 1.0.11 $";
+static const char S3SAVVersionId[] = "$Version: s3_savage 1.0.16 $";
 
 /*
  * If the symbol USEBIOS is defined, we try to use the onboard BIOS to do
@@ -168,11 +169,10 @@ vgaVideoChipRec S3_SAVAGE = {
 SymTabRec s3savChipTable[] = {
    { S3_UNKNOWN,      "unknown"},
    { S3_SAVAGE3D,     "Savage3D"}, 
-   { S3_SAVAGE3D_MV,  "Savage3D/MV"},
    { S3_SAVAGE4,      "Savage4"},
    { S3_SAVAGE2000,   "Savage2000"},
    { S3_SAVAGE_MX,    "Savage/MX"},
-   { S3_SAVAGE_370,   "Savage/NB"},
+   { S3_PROSAVAGE,    "ProSavage/133"},
    { -1,              ""},
    };
 
@@ -241,6 +241,33 @@ ResetBCI2K()
     }
 }
 
+static Bool
+ShadowWait( )
+{
+    BCI_GET_PTR;
+    int loop = 0;
+
+    s3vPriv.ShadowCounter = (s3vPriv.ShadowCounter + 1) & 0x7fff;
+    BCI_SEND( 0xc0010000 );
+    BCI_SEND( 0x98000000 + s3vPriv.ShadowCounter );
+
+    while(
+	((s3vPriv.ShadowVirtual[1] & 0x7fff) != s3vPriv.ShadowCounter)  &&
+	(loop++ < MAXLOOP)
+    )
+	;
+    
+    if( loop >= MAXLOOP ) {
+	ErrorF( "ShadowStatus failure; counter is %x, shadow is %08x %08x\n",
+	    s3vPriv.ShadowCounter, 
+	    s3vPriv.ShadowVirtual[0],
+	    s3vPriv.ShadowVirtual[1]
+	);
+    }
+
+    return loop >= MAXLOOP;
+}
+
 /* Wait until "v" queue entries are free */
 
 static int
@@ -250,6 +277,11 @@ WaitQueue3D( int v )
     int slots = MAXFIFO - v;
 
     mem_barrier();
+    if( s3vPriv.ShadowVirtual )
+    {
+	s3vPriv.WaitQueue = ShadowWait;
+	return ShadowWait();
+    }
     loop &= STATUS_WORD0;
     while( ((STATUS_WORD0 & 0x0000ffff) > slots) && (loop++ < MAXLOOP))
 	;
@@ -265,6 +297,11 @@ WaitQueue4( int v )
     if( !s3vPriv.NoPCIRetry )
 	return;
     mem_barrier();
+    if( s3vPriv.ShadowVirtual )
+    {
+	s3vPriv.WaitQueue = ShadowWait;
+	return ShadowWait();
+    }
     while( ((ALT_STATUS_WORD0 & 0x001fffff) > slots) && (loop++ < MAXLOOP))
 	;
     return loop >= MAXLOOP;
@@ -278,6 +315,11 @@ WaitQueue2K( int v )
 
     if( !s3vPriv.NoPCIRetry )
 	return;
+    if( s3vPriv.ShadowVirtual )
+    {
+	s3vPriv.WaitQueue = ShadowWait;
+	return ShadowWait();
+    }
     mem_barrier();
     while( ((ALT_STATUS_WORD0 & 0x000fffff) > slots) && (loop++ < MAXLOOP))
 	;
@@ -293,6 +335,11 @@ WaitIdleEmpty3D()
 {
     int loop = 0;
     mem_barrier();
+    if( s3vPriv.ShadowVirtual )
+    {
+	s3vPriv.WaitIdleEmpty = ShadowWait;
+	return ShadowWait();
+    }
     loop &= STATUS_WORD0;
     while( ((STATUS_WORD0 & 0x0008ffff) != 0x80000) && (loop++ < MAXLOOP) )
 	;
@@ -304,6 +351,11 @@ WaitIdleEmpty4()
 {
     int loop = 0;
     mem_barrier();
+    if( s3vPriv.ShadowVirtual )
+    {
+	s3vPriv.WaitIdleEmpty = ShadowWait;
+	return ShadowWait();
+    }
     while( ((ALT_STATUS_WORD0 & 0x00a1ffff) != 0x00a00000) && (loop++ < MAXLOOP) )
 	;
     return loop >= MAXLOOP;
@@ -314,8 +366,11 @@ WaitIdleEmpty2K()
 {
     int loop = 0;
     mem_barrier();
-    /* CAUTION!  How do we insure this read isn't optimized away? */
-    /* Is the "volatile" enough to do that? */
+    if( s3vPriv.ShadowVirtual )
+    {
+	s3vPriv.WaitIdleEmpty = ShadowWait;
+	return ShadowWait();
+    }
     loop &= ALT_STATUS_WORD0;
     while( ((ALT_STATUS_WORD0 & 0x009fffff) != 0) && (loop++ < MAXLOOP) )
 	;
@@ -331,6 +386,11 @@ WaitIdle3D()
 {
     int loop = 0;
     mem_barrier();
+    if( s3vPriv.ShadowVirtual )
+    {
+	s3vPriv.WaitIdle = ShadowWait;
+	return ShadowWait();
+    }
     while( (!(STATUS_WORD0 & 0x00080000)) && (loop++ < MAXLOOP) )
 	;
     return loop >= MAXLOOP;
@@ -341,6 +401,11 @@ WaitIdle4()
 {
     int loop = 0;
     mem_barrier();
+    if( s3vPriv.ShadowVirtual )
+    {
+	s3vPriv.WaitIdle = ShadowWait;
+	return ShadowWait();
+    }
     while( (!(ALT_STATUS_WORD0 & 0x00800000)) && (loop++ < MAXLOOP) )
 	;
     return loop >= MAXLOOP;
@@ -351,41 +416,14 @@ WaitIdle2K()
 {
     int loop = 0;
     mem_barrier();
+    if( s3vPriv.ShadowVirtual )
+    {
+	s3vPriv.WaitIdle = ShadowWait;
+	return ShadowWait();
+    }
     loop &= ALT_STATUS_WORD0;
     while( (ALT_STATUS_WORD0 & 0x00900000) && (loop++ < MAXLOOP) )
 	;
-    return loop >= MAXLOOP;
-}
-
-/* Wait until Command FIFO is empty */
-
-
-static int
-WaitCommandEmpty3D() {
-    int loop = 0;
-    mem_barrier();
-    while( (STATUS_WORD0 & 0x0000ffff) && (loop++ < MAXLOOP) )
-	;
-    return loop >= MAXLOOP;
-}
-
-static int
-WaitCommandEmpty4() {
-    int loop = 0;
-    mem_barrier();
-    while( (ALT_STATUS_WORD0 & 0x0001ffff) && (loop++ < MAXLOOP) )
-	;
-    return loop >= MAXLOOP;
-}
-
-static int
-WaitCommandEmpty2K() {
-    int loop = 0;
-    mem_barrier();
-    while( (ALT_STATUS_WORD0 & 0x001fffff) && (loop++ < MAXLOOP) )
-	;
-    if( loop >= MAXLOOP )
-	ResetBCI2K();
     return loop >= MAXLOOP;
 }
 
@@ -446,8 +484,7 @@ Bool enter;
 	 cr3a = inb(vgaCRReg);
 	 outb(vgaCRReg, cr3a | 0x80);
 
-         WaitIdle();           /* DOn't know if these map properly ? */
-         WaitCommandEmpty();   /* We should probably do a DMAEmpty() as well */
+         WaitIdleEmpty();
 
 	 outb(vgaCRIndex, 0x53);
 	 outb(vgaCRReg, cr53);   /* Restore CR53 to original for MMIO */
@@ -496,7 +533,7 @@ unsigned int width;
 #ifdef USEBIOS
 
     /*
-     * If S3VInit figured out a VESA mode number for this timing, the
+     * If S3SAVInit figured out a VESA mode number for this timing, the
      * just use the S3 BIOS to do the switching, with a few additional
      * tweaks.
      */
@@ -601,8 +638,7 @@ unsigned int width;
 	/* Enable the graphics engine. */
 
 	outw(vgaCRIndex, 0x0140);
-	if(!OFLG_ISSET(OPTION_NOACCEL, &vga256InfoRec.options))
-	    S3SAVInitialize2DEngine();
+	S3SAVInitialize2DEngine();
 
 	/* Handle the pitch. */
 
@@ -855,21 +891,22 @@ unsigned int width;
 
    if(restore->CR66 & 0x01) S3SAVGEReset(0,__LINE__,__FILE__);
 
-   VerticalRetraceWait();
-   ((mmtr)s3savMmioMem)->memport_regs.regs.fifo_control = restore->MMPR0;
-   WaitIdle();                  /* Don't ask... */
-   ((mmtr)s3savMmioMem)->memport_regs.regs.miu_control = restore->MMPR1;
-   WaitIdle();                  
-   ((mmtr)s3savMmioMem)->memport_regs.regs.streams_timeout = restore->MMPR2;
-   WaitIdle();
-   ((mmtr)s3savMmioMem)->memport_regs.regs.misc_timeout = restore->MMPR3;
+   if( s3vPriv.chip != S3_SAVAGE_MX )
+   {
+       VerticalRetraceWait();
+       ((mmtr)s3savMmioMem)->memport_regs.regs.fifo_control = restore->MMPR0;
+       WaitIdle();                  /* Don't ask... */
+       ((mmtr)s3savMmioMem)->memport_regs.regs.miu_control = restore->MMPR1;
+       WaitIdle();                  
+       ((mmtr)s3savMmioMem)->memport_regs.regs.streams_timeout = restore->MMPR2;
+       WaitIdle();
+       ((mmtr)s3savMmioMem)->memport_regs.regs.misc_timeout = restore->MMPR3;
+   }
 
-   /* If we're going into graphics mode and acceleration was enabled, */
+   /* If we're going into graphics mode, */
    /* go set up the BCI buffer and the global bitmap descriptor. */
 
-   if( (restore->CR31 & 0x0a) &&
-       (!OFLG_ISSET(OPTION_NOACCEL, &vga256InfoRec.options))
-   )
+   if( (restore->CR31 & 0x0a) )
    {
       outb(vgaCRIndex, 0x50);
       outb(vgaCRReg, inb(vgaCRReg) | 0xC1);
@@ -884,19 +921,19 @@ unsigned int width;
    outb(vgaCRIndex, 0x3a);             
    outb(vgaCRReg, cr3a);
 
-   if( restore->CR31 & 0x0a ) 
-     S3SAVSetGBD();
+    if( restore->CR31 & 0x0a ) 
+	S3SAVSetGBD();
 
 #ifdef USEBIOS
 }
 #endif
 
-   if (xf86Verbose > 1) {
-      ErrorF("\n\nViRGE driver: done restoring mode, dumping CR registers:\n\n");
-      S3SAVPrintRegs();
-   }
+    if (xf86Verbose > 1) {
+	ErrorF("\n\nViRGE driver: done restoring mode, dumping CR registers:\n\n");
+	S3SAVPrintRegs();
+    }
 
-   vgaProtect(FALSE);
+    vgaProtect(FALSE);
 
 }
 
@@ -1106,43 +1143,6 @@ unsigned char cr3a, cr53, cr66;
 
 
 
-static unsigned char *find_bios_string(int BIOSbase, char *match1, char *match2)
-{
-#define BIOS_BSIZE 1024
-#define BIOS_BASE  0xc0000
-
-   static unsigned char bios[BIOS_BSIZE];
-   static int init=0;
-   int i,j,l1,l2;
-
-   if (!init) {
-      init = 1;
-      if (xf86ReadBIOS(BIOSbase, 0, bios, BIOS_BSIZE) != BIOS_BSIZE)
-	 return NULL;
-      if ((bios[0] != 0x55) || (bios[1] != 0xaa))
-	 return NULL;
-   }
-   if (match1 == NULL)
-      return NULL;
-
-   l1 = strlen(match1);
-   if (match2 != NULL) 
-      l2 = strlen(match2);
-   else	/* for compiler-warnings */
-      l2 = 0;
-
-   for (i=0; i<BIOS_BSIZE-l1; i++)
-      if (bios[i] == match1[0] && !memcmp(&bios[i],match1,l1))
-	 if (match2 == NULL) 
-	    return &bios[i+l1];
-	 else
-	    for(j=i+l1; (j<BIOS_BSIZE-l2) && bios[j]; j++) 
-	       if (bios[j] == match2[0] && !memcmp(&bios[j],match2,l2))
-		  return &bios[j+l2];
-   return NULL;
-}
-
-
 /*
  * This function adjusts the pitch to a multiple of 16 pixels.
  */
@@ -1241,8 +1241,7 @@ S3SAVProbe()
    outb(vgaCRIndex, 0x2d);
    s3vPriv.ChipId |= (inb(vgaCRReg) << 8);
 
-   /* And compute the amount of video memory and offscreen memory */
-   s3vPriv.MemOffScreen = 0;
+   /* And compute the amount of video memory */
    if (!vga256InfoRec.videoRam) {
       static unsigned char RamSavage3D[] = { 8, 4, 4, 2 };
       static unsigned char RamSavage4[] =  { 2, 4, 8, 12, 16, 32, 64, 2 };
@@ -1251,7 +1250,6 @@ S3SAVProbe()
 
       switch( s3vPriv.chip ) {
          case S3_SAVAGE3D:
-         case S3_SAVAGE3D_MV:
 	    vga256InfoRec.videoRam = RamSavage3D[ (config1 & 0xC0) >> 6 ];
 	    break;
 
@@ -1264,7 +1262,7 @@ S3SAVProbe()
 	    vga256InfoRec.videoRam = RamSavageMX[ (config1 & 0x0E) >> 1 ];
 	    break;
 
-	 case S3_SAVAGE_370:
+	 case S3_PROSAVAGE:
 	    vga256InfoRec.videoRam = RamSavageNB[ (config1 & 0xE0) >> 5 ];
 	    break;
 
@@ -1277,13 +1275,8 @@ S3SAVProbe()
       vga256InfoRec.videoRam *= 1024;
 
       if (xf86Verbose) {
-         if (s3vPriv.MemOffScreen)
-            ErrorF("%s %s: videoram:  %dk (plus %dk off-screen)\n",
-                   XCONFIG_PROBED, vga256InfoRec.name, vga256InfoRec.videoRam,
-                   s3vPriv.MemOffScreen);
-         else
-            ErrorF("%s %s: videoram:  %dk\n",
-                   XCONFIG_PROBED, vga256InfoRec.name, vga256InfoRec.videoRam);
+	 ErrorF("%s %s: videoram:  %dk\n",
+	      XCONFIG_PROBED, vga256InfoRec.name, vga256InfoRec.videoRam);
       }
    } else {
       if (xf86Verbose) {
@@ -1292,6 +1285,42 @@ S3SAVProbe()
       }
    }
 
+    /* If we're running with acceleration, compute the command overflow
+     * buffer location.   The command overflow buffer must END at a 
+     * 4MB boundary; for all practical purposes, that means the very
+     * end of the frame buffer. 
+     */
+
+    if(OFLG_ISSET(OPTION_NOACCEL, &vga256InfoRec.options)) {
+	s3vPriv.CursorKByte = vga256InfoRec.videoRam - 4;
+	s3vPriv.cobIndex = 0;
+	s3vPriv.cobSize = 0;
+	s3vPriv.cobOffset = vga256InfoRec.videoRam << 10;
+    }
+    else if( S3_SAVAGE4_SERIES(s3vPriv.chip) ) {
+	/*
+	 * The Savage4 and proSavage have COB coherency bugs which render
+	 * the buffer useless.  We disable it.
+	 */
+	s3vPriv.CursorKByte = vga256InfoRec.videoRam - 4;
+	s3vPriv.cobIndex = 2;
+	s3vPriv.cobSize = 0x8000 << s3vPriv.cobIndex;
+	s3vPriv.cobOffset = vga256InfoRec.videoRam << 10;
+    }
+    else {
+	/* We use 128kB for the COB on all chips. */
+
+        s3vPriv.cobIndex = 7;
+	s3vPriv.cobSize = 0x400 << s3vPriv.cobIndex;
+        s3vPriv.cobOffset = (vga256InfoRec.videoRam << 10) - s3vPriv.cobSize;
+    }
+
+    /*
+     * We place the cursor in high memory, just before the command overflow
+     * buffer.  The cursor must be aligned on a 4k boundary.
+     */
+
+    s3vPriv.CursorKByte = (s3vPriv.cobOffset >> 10) - 4;
 
    /* reset S3 graphics engine to avoid memory corruption */
    outb(vgaCRIndex, 0x66);
@@ -1313,31 +1342,27 @@ S3SAVProbe()
    if (vga256InfoRec.dacSpeeds[2] <= 0) vga256InfoRec.dacSpeeds[2] = 220000;
    if (vga256InfoRec.dacSpeeds[3] <= 0) vga256InfoRec.dacSpeeds[3] = 220000;
 
-   /* Set status word positions based on chip type. */
+   /* Set status word handlers based on chip type. */
 
    switch( s3vPriv.chip ) {
       case S3_SAVAGE3D:
-      case S3_SAVAGE3D_MV:
       case S3_SAVAGE_MX:
-         s3vPriv.WaitQueue = WaitQueue3D;
-	 s3vPriv.WaitIdle = WaitIdle3D;
-	 s3vPriv.WaitIdleEmpty = WaitIdleEmpty3D;
-	 s3vPriv.WaitCommandEmpty = WaitCommandEmpty3D;
+         s3vPriv.WaitQueue	= WaitQueue3D;
+	 s3vPriv.WaitIdle	= WaitIdle3D;
+	 s3vPriv.WaitIdleEmpty	= WaitIdleEmpty3D;
 	 break;
 
       case S3_SAVAGE4:
-      case S3_SAVAGE_370:
-         s3vPriv.WaitQueue = WaitQueue4;
-	 s3vPriv.WaitIdle = WaitIdle4;
-	 s3vPriv.WaitIdleEmpty = WaitIdleEmpty4;
-	 s3vPriv.WaitCommandEmpty = WaitCommandEmpty4;
+      case S3_PROSAVAGE:
+         s3vPriv.WaitQueue	= WaitQueue4;
+	 s3vPriv.WaitIdle	= WaitIdle4;
+	 s3vPriv.WaitIdleEmpty	= WaitIdleEmpty4;
          break;
 
       case S3_SAVAGE2000:
-         s3vPriv.WaitQueue = WaitQueue2K;
-	 s3vPriv.WaitIdle = WaitIdle2K;
-	 s3vPriv.WaitIdleEmpty = WaitIdleEmpty2K;
-	 s3vPriv.WaitCommandEmpty = WaitCommandEmpty2K;
+         s3vPriv.WaitQueue	= WaitQueue2K;
+	 s3vPriv.WaitIdle	= WaitIdle2K;
+	 s3vPriv.WaitIdleEmpty	= WaitIdleEmpty2K;
          break;
    }
    
@@ -1431,10 +1456,7 @@ S3SAVProbe()
    
    /* Determine if we need to use the STREAMS processor */
 
-#if 0 /* Don't need to do this for Savage3D */
-   if (vgaBitsPerPixel >= 24) s3vPriv.NeedSTREAMS = TRUE;
-      else s3vPriv.NeedSTREAMS = FALSE;
-#endif
+   s3vPriv.NeedSTREAMS = FALSE;
    s3vPriv.STREAMSRunning = FALSE;
 
 #ifdef	USEBIOS
@@ -1742,6 +1764,29 @@ S3VMODEENTRY * pmt;
    if(!vgaHWInit (mode, sizeof(vgaS3VRec)))
       return FALSE;
 
+    /*
+     * We place the shadow status area at the very end of the hardware
+     * cursor area.  This area is reserved even for a software cursor.
+     */
+
+    if( getenv("SAV_SHADOW_STATUS") )
+    {
+	extern pointer vgaLinearBase;
+
+	ErrorF("%s %s: Shadow Status Enabled\n", 
+	    XCONFIG_GIVEN, vga256InfoRec.name);
+
+	s3vPriv.ShadowPhysical = (unsigned long)
+	    (s3vPriv.FrameBufferBase + s3vPriv.CursorKByte*1024 + 4096 - 32);
+
+	s3vPriv.ShadowVirtual = (unsigned long*)
+	    ((unsigned char *)vgaLinearBase + s3vPriv.CursorKByte*1024 + 4096 - 32);
+
+	ErrorF("%s %s: Shadow region physical %08x, linear %08x\n",
+	    XCONFIG_PROBED, vga256InfoRec.name,
+	    s3vPriv.ShadowPhysical, s3vPriv.ShadowVirtual );
+    }
+
 #ifdef USEBIOS
    /* Scan through our BIOS list to locate the closest valid mode. */
 
@@ -1822,7 +1867,6 @@ S3VMODEENTRY * pmt;
    new->CR66 = 0x89; 
 
 /* Now set linear addr. registers */
-/* LAW size: always 8 MB for Savage3D */
 
    outb(vgaCRIndex, 0x58);
    new->CR58 = inb(vgaCRReg) & 0x80;
@@ -2059,7 +2103,7 @@ void
 S3SAVFbInit()
 {
 
-   /* Call S3VAccelInit to setup the XAA accelerated functions */
+   /* Call S3SAVAccelInit to setup the XAA accelerated functions */
 
    if(!OFLG_ISSET(OPTION_NOACCEL, &vga256InfoRec.options))
       S3SAVAccelInit();

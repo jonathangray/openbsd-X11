@@ -1,4 +1,4 @@
-$OpenBSD: README,v 1.1 2000/10/09 01:57:23 marc Exp $
+$OpenBSD: README,v 1.2 2001/02/20 21:48:10 marc Exp $
 
 This version of the s3 savage driver differs slightly from that
 released by XFree86 in fix-08-s3savage_ix+mx.   The source came
@@ -13,9 +13,8 @@ Some notes from http://www.probo.com/timr/savagemx.html by timr@probo.com
 
     Text Scrolling: Some users have reported a bus lock, requiring a power
     cycle to recover, during rapid text scrolling. This has been reported
-    both in xterm and in the "Matrix" screen saver (xlock -mode matrix). I
-    have not been able to duplicate this hang on my test system. As soon as
-    I am able to reproduce it reliably, I will embark on a repair strategy.
+    both in xterm and in the "Matrix" screen saver (xlock -mode matrix).
+    (see below).
 
     VT-Switching: There is a known issue when bringing down the server on
     non-Linux and non-x86 systems. I have some kind of a register timing or
@@ -31,6 +30,19 @@ Some notes from http://www.probo.com/timr/savagemx.html by timr@probo.com
     32-bit modes get "sparklies" on the screen during rapid activity. The
     snow is not intolerable, but it is annoying. I am working on this
     issue.
+
+If you have experienced the "Text Scrolling" problem noted above, export
+the environment variable SAV_SHADOW_STATUS, e.g.
+
+  sh/bash/ksh:	export SAV_SHADOW_STATUS=1
+  csh/tcsh:	setenv SAV_SHADOW_STATUS=1
+
+This symbol must be defined before the server launches. If you use startx,
+that's not hard. If you use xdm/kdm, you will probably have to add this to
+one of the system-wide files, like /etc/profile.
+
+There is a small but measurable (less than 5%) performance penalty for
+enabling this feature; which is why it is not turned on by default.
 
 The "VT-Switching" and "Snow on FreeBSD at 32bpp" problems have also
 been seen on OpenBSD.

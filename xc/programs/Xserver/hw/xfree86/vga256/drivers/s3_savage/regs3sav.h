@@ -75,17 +75,9 @@
 #define S3_OUT32(addr, val) *(volatile CARD32 *)((char*)s3savMmioMem + (addr)) = (val)
 #endif /* __alpha__ */
 
-#define S3_ViRGE_SERIES(chip)     ((chip&0xfff0)==0x31e0)
-#define S3_ViRGE_GX2_SERIES(chip) (chip == S3_ViRGE_GX2)
-#define S3_ViRGE_MX_SERIES(chip)  (chip == S3_ViRGE_MX || chip == S3_ViRGE_MXP)
-#define S3_ViRGE_MXP_SERIES(chip) (chip == S3_ViRGE_MXP)
-#define S3_ViRGE_VX_SERIES(chip)  ((chip&0xfff0)==0x3de0)
-#define S3_ANY_ViRGE_SERIES(chip) (    S3_ViRGE_SERIES(chip)		\
-				    || S3_ViRGE_VX_SERIES(chip))
-#define S3_ANY_SERIES(chip)       (    S3_ViRGE_SERIES(chip)		\
-				    || S3_ViRGE_VX_SERIES(chip))
-
 #define S3_SAVAGE3D_SERIES(chip)  ((chip>=S3_SAVAGE3D) && (chip<=S3_SAVAGE_MX))
+
+#define S3_SAVAGE4_SERIES(chip)   ((chip==S3_SAVAGE4) || (chip==S3_PROSAVAGE))
 
 #define S3_SAVAGE_SERIES(chip)    ((chip>=S3_SAVAGE3D) && (chip<=S3_SAVAGE2000))
 
@@ -99,30 +91,18 @@
 #define PCI_SAVAGE_MX		0x8C11
 #define PCI_SAVAGE_IX_MV	0x8C12
 #define PCI_SAVAGE_IX		0x8C13
-#define PCI_SAVAGE_370		0x8A25
-
-#define PCI_ViRGE		0x5631
-#define PCI_ViRGE_VX		0x883D
-#define PCI_ViRGE_DXGX 		0x8A01
-#define PCI_ViRGE_GX2 		0x8A10
-#define PCI_ViRGE_MX 		0x8C01
-#define PCI_ViRGE_MXP 		0x8C03
+#define PCI_PROSAVAGE_133	0x8A25
+#define PCI_PROSAVAGE_K133	0x8A26
+#define PCI_S3TWISTER		0x8D01
+#define PCI_S3TWISTERK		0x8D02
 
 /* Chip tags */
 #define S3_UNKNOWN		 0
 #define S3_SAVAGE3D              1
-#define S3_SAVAGE3D_MV           2
-#define S3_SAVAGE_MX		 3
-#define S3_SAVAGE4               4
-#define S3_SAVAGE_370		 5
-#define S3_SAVAGE2000            6
-
-#define S3_ViRGE		 1
-#define S3_ViRGE_VX		 2
-#define S3_ViRGE_DXGX		 3
-#define S3_ViRGE_GX2		 4
-#define S3_ViRGE_MX		 5
-#define S3_ViRGE_MXP		 6
+#define S3_SAVAGE_MX		 2
+#define S3_SAVAGE4               3
+#define S3_PROSAVAGE		 4
+#define S3_SAVAGE2000            5
 
 
 /* VESA Approved Register Definitions */
@@ -131,116 +111,6 @@
 #define	DAC_W_INDEX	0x03c8
 #define	DAC_DATA	0x03c9
 
-#if 0 /* ==================== old S3 defs ==================== */
-
-/* Display Status Bit Fields */
-#define	HORTOG		0x0004
-#define	VBLANK		0x0002
-#define	SENSE		0x0001
-
-/* Horizontal Sync Width Bit Field */
-#define HSYNCPOL_NEG	0x0020
-#define	HSYNCPOL_POS	0x0000
-
-/* Vertical Sync Width Bit Field */
-#define	VSYNCPOL_NEG	0x0020
-#define	VSYNCPOL_POS	0x0000
-
-/* Display Control Bit Field */
-#define	DISPEN_NC	0x0000
-#define	DISPEN_DISAB	0x0040
-#define	DISPEN_ENAB	0x0020
-#define	INTERLACE	0x0010
-#define	DBLSCAN		0x0008
-#define	MEMCFG_2	0x0000
-#define	MEMCFG_4	0x0002
-#define	MEMCFG_6	0x0004
-#define	MEMCFG_8	0x0006
-#define	ODDBNKENAB	0x0001
-
-/* Subsystem Status Register */
-#define	_8PLANE		0x0080
-#define	MONITORID_8503	0x0050
-#define	MONITORID_8507	0x0010
-#define	MONITORID_8512	0x0060
-#define	MONITORID_8513	0x0060
-#define	MONITORID_8514	0x0020
-#define	MONITORID_NONE	0x0070
-#define	MONITORID_MASK	0x0070
-#define	GPIDLE		0x0008
-#define	INVALIDIO	0x0004
-#define	PICKFLAG	0x0002
-#define	VBLNKFLG	0x0001
-
-/* Subsystem Control Register */
-#define	GPCTRL_NC	0x0000
-#define	GPCTRL_ENAB	0x4000
-#define	GPCTRL_RESET	0x8000
-#define CHPTEST_NC	0x0000
-#define CHPTEST_NORMAL	0x1000
-#define CHPTEST_ENAB	0x2000
-#define	IGPIDLE		0x0800
-#define	IINVALIDIO	0x0400
-#define	IPICKFLAG	0x0200
-#define	IVBLNKFLG	0x0100
-#define	RGPIDLE		0x0008
-#define	RINVALIDIO	0x0004
-#define	RPICKFLAG	0x0002
-#define	RVBLNKFLG	0x0001
-
-/* Current X, Y & Dest X, Y Mask */
-#define	COORD_MASK	0x07ff
-
-#ifdef CLKSEL
-#undef CLKSEL
-#endif
-
-/* Advanced Function Control Regsiter */
-#define	CLKSEL		0x0004
-#define	DISABPASSTHRU	0x0001
-
-/* Graphics Processor Status Register */
-#define	GPBUSY		0x0200
-#define	DATDRDY		0x0100
-/* Background Mix Register */
-#define	BSS_BKGDCOL	0x0000
-#define	BSS_FRGDCOL	0x0020
-#define	BSS_PCDATA	0x0040
-#define	BSS_BITBLT	0x0060
-
-/* Foreground Mix Register */
-#define	FSS_BKGDCOL	0x0000
-#define	FSS_FRGDCOL	0x0020
-#define	FSS_PCDATA	0x0040
-#define	FSS_BITBLT	0x0060
-
-/* Memory Control Register */
-#define	BUFSWP		0x0010
-#define	VRTCFG_2	0x0000
-#define	VRTCFG_4	0x0004
-#define	VRTCFG_6	0x0008
-#define	VRTCFG_8	0x000C
-#define	HORCFG_4	0x0000
-#define	HORCFG_5	0x0001
-#define	HORCFG_8	0x0002
-#define	HORCFG_10	0x0003
-
-/* Pixel Control Register */
-#define	MIXSEL_FRGDMIX	0x0000
-#define	MIXSEL_PATT	0x0040
-#define	MIXSEL_EXPPC	0x0080
-#define	MIXSEL_EXPBLT	0x00c0
-#define COLCMPOP_F	0x0000
-#define COLCMPOP_T	0x0008
-#define COLCMPOP_GE	0x0010
-#define COLCMPOP_LT	0x0018
-#define COLCMPOP_NE	0x0020
-#define COLCMPOP_EQ	0x0028
-#define COLCMPOP_LE	0x0030
-#define COLCMPOP_GT	0x0038
-#define	PLANEMODE	0x0004
-
-#endif  /* ============================== */
 
 /* Subsystem Control Register */
 #define	GPCTRL_NC	0x0000
