@@ -222,7 +222,7 @@ static void CGStoreColors(pmap, ndef, pdefs)
    force us to go STATIC_COLOR */
 static ColormapPtr InstalledMaps[MAXSCREENS];
 
-static int
+int
 cfbListInstalledColormaps(pScreen, pmaps)
     ScreenPtr	pScreen;
     Colormap	*pmaps;
@@ -234,7 +234,7 @@ cfbListInstalledColormaps(pScreen, pmaps)
 }
 
 
-static void
+void
 cfbInstallColormap(pmap)
     ColormapPtr	pmap;
 {
@@ -254,7 +254,7 @@ cfbInstallColormap(pmap)
     }
 }
 
-static void
+void
 cfbUninstallColormap(pmap)
     ColormapPtr	pmap;
 {
@@ -321,7 +321,7 @@ static void checkMono (argc, argv)
 }
 
 #ifdef GFX_CARD_SUPPORT
-UseGfxHardwareCursor = FALSE;
+Bool UseGfxHardwareCursor = FALSE;
 
 Bool amigaGRFInit (screen, pScreen, argc, argv)
     int	    	  screen;    	/* what screen am I going to be */
@@ -382,7 +382,7 @@ Bool amigaGRFInit (screen, pScreen, argc, argv)
  *-----------------------------------------------------------------------
  */
 /*ARGSUSED*/
-static Bool
+Bool
 amigaRZ2Init (screen, pScreen, argc, argv)
     int	    	  screen;    	/* The index of pScreen in the ScreenInfo */
     ScreenPtr	  pScreen;  	/* The Screen to initialize */
@@ -390,16 +390,16 @@ amigaRZ2Init (screen, pScreen, argc, argv)
     char    	  **argv;   	/* The arguments themselves. Don't change! */
 {
     if (!cfbScreenInit (pScreen, amigaFbs[screen].fb,
-			amigaFbs[screen].info.grf.gd_fbwidth,
-			amigaFbs[screen].info.grf.gd_fbheight,
+			amigaFbs[screen].info.gd_fbwidth,
+			amigaFbs[screen].info.gd_fbheight,
 			monitorResolution, monitorResolution,
-			amigaFbs[screen].info.grf.gd_fbwidth))
+			amigaFbs[screen].info.gd_fbwidth))
     	return (FALSE);
     
     if (!amigaScreenAllocate (pScreen))
 	return FALSE;
 
-    amigaCGScreenInit (pScreen);
+    CGScreenInit (pScreen);
 
     if (!amigaScreenInit (pScreen))
 	return FALSE;
@@ -433,8 +433,8 @@ amigaRZ2Probe (pScreenInfo, index, fbNum, argc, argv)
 {
     int fd;
 
-    if ((fd = open(amigaFbData[fbNum].devName, O_RDWR, 0)) < 0) {
-	perror(amigaFbData[fbNum].devName);
+    if ((fd = open(amigaFbData[fbNum].devname, O_RDWR, 0)) < 0) {
+	perror(amigaFbData[fbNum].devname);
 	return FALSE;
     }
 
