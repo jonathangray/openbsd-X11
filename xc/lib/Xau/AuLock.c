@@ -94,7 +94,7 @@ long	dead;
     
     while (retries > 0) {
 	if (creat_fd == -1) {
-	    creat_fd = creat (creat_name, 0666);
+	    creat_fd = open (creat_name, O_WRONLY|O_CREAT|O_EXCL,0600);
 	    if (creat_fd == -1) {
 		if (errno != EACCES)
 		    return LOCK_ERROR;
