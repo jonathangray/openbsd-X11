@@ -40,6 +40,12 @@
 #define MAP_FLAGS (MAP_FILE | MAP_SHARED)
 #endif
 
+#ifdef __OpenBSD__
+#define SYSCTL_MSG "\tCheck that you have set 'machdep.allowaperture=1'\n"\
+		   "\tin /etc/sysctl.conf and reboot your machine\n" \
+		   "\trefer to xf86(4) for details\n"
+#endif
+
 /***************************************************************************/
 /* Video Memory Mapping section                                            */
 /***************************************************************************/
@@ -125,15 +131,29 @@ Bool warn;
 
 		if (warn)
 		{
+#ifndef __OpenBSD__
 		    ErrorF("%s checkDevMem: warning: failed to mmap %s (%s)\n",
 			   XCONFIG_PROBED, DEV_APERTURE, strerror(errno));
+#else /* __OpenBSD__ */
+		    ErrorF("%s checkDevMem: warning: failed to mmap %s (%s)\n%s",
+			   XCONFIG_PROBED, DEV_APERTURE, strerror(errno),
+			   SYSCTL_MSG);
+#endif /* __OpenBSD__ */
+			   
+			   
 		}
 	    }
 	} else {
 	    if (warn)
 	    {
+#ifndef __OpenBSD__
 		ErrorF("%s checkDevMem: warning: failed to open %s and %s\n\t(%s)\n",
 		   XCONFIG_PROBED, DEV_MEM, DEV_APERTURE, strerror(errno));
+#else /* __OpenBSD__ */
+		ErrorF("%s checkDevMem: warning: failed to open %s and %s\n\t(%s)\n%s",
+		       XCONFIG_PROBED, DEV_MEM, DEV_APERTURE, strerror(errno),
+		       SYSCTL_MSG);
+#endif /* __OpenBSD__ */
 	    }
 	}
 	
@@ -190,8 +210,14 @@ unsigned long Size;
 	if ((unsigned long)Base < 0xA0000 || (unsigned long)Base >= 0xE8000)
 #endif
 	{
+#ifndef __OpenBSD__
 		FatalError("%s: Address 0x%x outside allowable range\n",
 			   "xf86MapVidMem", Base);
+#else /* __OpenBSD__ */
+		FatalError("%s: unable to mmap framebuffer address 0x%x\n%s",
+			   "xf86MapVidMem", Base, SYSCTL_MSG);
+#endif /* __OpenBSD__ */
+			   
 	}
 	base = (pointer)mmap(0, Size, PROT_READ|PROT_WRITE, MAP_FLAGS,
 			     xf86Info.screenFd,
@@ -298,8 +324,15 @@ int ScreenNum;
 
 	if (i386_iopl(TRUE) < 0)
 	{
+#ifndef __OpenBSD__
 		FatalError("%s: Failed to set IOPL for extended I/O\n",
 			   "xf86EnableIOPorts");
+#else
+		FatalError("%s: Failed to enable I/O ports access\n%s",
+			   "xf86EnableIOPorts", SYSCTL_MSG);
+#endif /* __OpenBSD__ */
+
+
 	}
 	ExtendedEnabled = TRUE;
 
