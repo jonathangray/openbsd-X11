@@ -1,5 +1,5 @@
 /*
- * $XFree86: xc/programs/xterm/trace.h,v 3.1.2.2 1998/02/15 16:10:12 hohndel Exp $
+ * $XFree86: xc/programs/xterm/trace.h,v 3.1.2.3 1998/10/20 20:51:55 hohndel Exp $
  */
 
 /************************************************************
@@ -33,13 +33,18 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #ifndef	included_trace_h
 #define	included_trace_h
 
-#include "proto.h"
+#ifdef HAVE_CONFIG_H
+#include <xtermcfg.h>
+#endif
 
-extern	void	Trace PROTO(( char *, ... ))
-#if __GNUC__
+extern	void	Trace ( char *, ... )
+#ifdef GCC_PRINTF
 	__attribute__ ((format(printf,1,2)))
 #endif
 	;
 #define TRACE(p) Trace p;
+
+extern	char	*trace_who;
+#define TRACE_CHILD int tracing_child = (trace_who = "child") != 0;
 
 #endif	/* included_trace_h */

@@ -1,5 +1,5 @@
 /*
- * $XFree86: xc/programs/xterm/trace.c,v 3.1.2.2 1998/02/15 16:10:12 hohndel Exp $
+ * $XFree86: xc/programs/xterm/trace.c,v 3.1.2.3 1998/10/20 20:51:55 hohndel Exp $
  */
 
 /************************************************************
@@ -38,42 +38,39 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <time.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "trace.h"
-
-#if __STDC__ || CC_HAS_PROTOS
-#define ANSI_VARARGS 1
 #include <stdarg.h>
-#else
-#define ANSI_VARARGS 0
-#include <varargs.h>
-#endif
+
+#include <trace.h>
+
+char *trace_who = "parent";
 
 void
-#if	ANSI_VARARGS
 Trace(char *fmt, ...)
-#else
-Trace(va_alist)
-va_dcl
-#endif
 {
-#if	!ANSI_VARARGS
-	register char *fmt;
-#endif
 	static	FILE	*fp;
+	static	char	*trace_out;
 	va_list ap;
 
+	if (fp != 0
+	 && trace_who != trace_out) {
+		fclose(fp);
+		fp = 0;
+	}
+	trace_out = trace_who;
+
 	if (!fp) {
-		fp = fopen("Trace.out", "w");
+		char name[BUFSIZ];
+		sprintf(name, "Trace-%s.out", trace_who);
+		fp = fopen(name, "w");
 		if (fp != 0) {
+			time_t now = time((time_t*)0);
 #if HAVE_UNISTD_H
-			time_t now;
 			fprintf(fp, "process %d real (%d/%d) effective (%d/%d) -- %s",
 				getpid(),
 				getuid(), getgid(),
 				geteuid(), getegid(),
 				ctime(&now));
 #else
-			time_t now;
 			fprintf(fp, "process %d -- %s",
 				getpid(),
 				ctime(&now));
@@ -83,19 +80,14 @@ va_dcl
 	if (!fp)
 		abort();
 
-#if	ANSI_VARARGS
 	va_start(ap,fmt);
-#else
-	va_start(ap);
-	fmt = va_arg(ap, char *);
-#endif
 	if (fmt != 0) {
 		vfprintf(fp, fmt, ap);
-		va_end(ap);
 		(void)fflush(fp);
 	} else {
 		(void)fclose(fp);
 		(void)fflush(stdout);
 		(void)fflush(stderr);
 	}
+	va_end(ap);
 }

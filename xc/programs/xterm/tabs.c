@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: tabs.c,v 1.4 91/05/06 17:12:18 gildea Exp $
- *	$XFree86: xc/programs/xterm/tabs.c,v 3.2.4.2 1998/02/15 16:10:10 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/tabs.c,v 3.2.4.3 1998/10/20 20:51:53 hohndel Exp $
  */
 
 /*
@@ -28,15 +28,8 @@
 
 /* tabs.c */
 
-#ifdef HAVE_CONFIG_H
-#include <xtermcfg.h>
-#endif
-
-#include "ptyx.h"
-
-#include "xterm.h"
-
-extern XtermWidget term;
+#include <xterm.h>
+#include <data.h>
 
 /*
  * This file presumes 32bits/word.  This is somewhat of a crock, and should
@@ -53,8 +46,7 @@ extern XtermWidget term;
  * places tabstops at only every 8 columns
  */
 void
-TabReset(tabs)
-Tabs	tabs;
+TabReset(Tabs tabs)
 {
 	register int i;
 
@@ -70,9 +62,7 @@ Tabs	tabs;
  * places a tabstop at col
  */
 void
-TabSet(tabs, col)
-    Tabs	tabs;
-    int		col;
+TabSet(Tabs tabs, int col)
 {
 	SET_TAB(tabs,col);
 }
@@ -81,9 +71,7 @@ TabSet(tabs, col)
  * clears a tabstop at col
  */
 void
-TabClear(tabs, col)
-    Tabs	tabs;
-    int		col;
+TabClear(Tabs tabs, int col)
 {
 	CLR_TAB(tabs,col);
 }
@@ -94,9 +82,7 @@ TabClear(tabs, col)
  * A tabstop at col is ignored.
  */
 int
-TabNext (tabs, col)
-    Tabs	tabs;
-    int		col;
+TabNext (Tabs tabs, int col)
 {
 	register TScreen *screen = &term->screen;
 
@@ -117,9 +103,7 @@ TabNext (tabs, col)
  * A tabstop at col is ignored.
  */
 int
-TabPrev (tabs, col)
-    Tabs	tabs;
-    int		col;
+TabPrev (Tabs tabs, int col)
 {
 	for (--col; col >= 0; --col)
 		if (TST_TAB(tabs,col))
@@ -132,7 +116,7 @@ TabPrev (tabs, col)
  * Tab to the next stop, returning true if the cursor moved
  */
 Boolean
-TabToNextStop()
+TabToNextStop(void)
 {
 	register TScreen *screen = &term->screen;
 	int saved_column = screen->cur_col;
@@ -148,7 +132,7 @@ TabToNextStop()
  * Tab to the previous stop, returning true if the cursor moved
  */
 Boolean
-TabToPrevStop()
+TabToPrevStop(void)
 {
 	register TScreen *screen = &term->screen;
 	int saved_column = screen->cur_col;
@@ -162,8 +146,7 @@ TabToPrevStop()
  * clears all tabs
  */
 void
-TabZonk (tabs)
-Tabs	tabs;
+TabZonk (Tabs tabs)
 {
 	register int i;
 

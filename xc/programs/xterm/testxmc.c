@@ -1,5 +1,5 @@
 /*
- * $XFree86: xc/programs/xterm/testxmc.c,v 3.2.2.1 1998/02/15 16:10:11 hohndel Exp $
+ * $XFree86: xc/programs/xterm/testxmc.c,v 3.2.2.2 1998/10/20 20:51:54 hohndel Exp $
  */
 
 /************************************************************
@@ -84,21 +84,9 @@ authorization.
  *	The xmcAttributes resource should also apply to alternate character
  *	sets and to color.
  */
-#ifdef HAVE_CONFIG_H
-#include <xtermcfg.h>
-#endif
 
-#include <X11/Xos.h>
-
-#ifndef X_NOT_STDC_ENV
-#include <stdlib.h>
-#else
-extern char *malloc();
-#endif
-
-#include "ptyx.h"
-#include "data.h"
-#include "xterm.h"
+#include <xterm.h>
+#include <data.h>
 
 #define MARK_ON(a)  (my_attrs & a) != 0 && (term->flags & (whichone = a)) == 0
 #define MARK_OFF(a) (my_attrs & a) != 0 && (term->flags & (whichone = a)) != 0
@@ -111,7 +99,7 @@ void Mark_XMC(register TScreen *screen, int param)
 	Char whichone = 0;
 
 	if (glitch == 0) {
-		glitch = malloc(screen->xmc_glitch);
+		glitch = (Char *)malloc(screen->xmc_glitch);
 		memset(glitch, XMC_GLITCH, screen->xmc_glitch);
 	}
 	switch (param) {

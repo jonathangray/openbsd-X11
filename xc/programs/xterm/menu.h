@@ -1,5 +1,5 @@
 /* $XConsortium: menu.h /main/27 1996/12/01 23:47:03 swick $ */
-/* $XFree86: xc/programs/xterm/menu.h,v 3.4.2.1 1998/02/15 16:10:06 hohndel Exp $ */
+/* $XFree86: xc/programs/xterm/menu.h,v 3.4.2.2 1998/10/20 20:51:48 hohndel Exp $ */
 /*
 
 Copyright (c) 1989  X Consortium
@@ -33,7 +33,12 @@ from the X Consortium.
 #ifndef included_menu_h
 #define included_menu_h
 
-#include "proto.h"
+#ifdef HAVE_CONFIG_H
+#include <xtermcfg.h>
+#endif
+
+#include <X11/Intrinsic.h>
+#include <proto.h>
 
 typedef struct _MenuEntry {
     char *name;
@@ -63,8 +68,10 @@ extern void HandleCreateMenu       PROTO_XT_ACTIONS_ARGS;
 extern void HandleCursesEmul       PROTO_XT_ACTIONS_ARGS;
 extern void HandleHardReset        PROTO_XT_ACTIONS_ARGS;
 extern void HandleJumpscroll       PROTO_XT_ACTIONS_ARGS;
+extern void HandleLogging          PROTO_XT_ACTIONS_ARGS;
 extern void HandleMarginBell       PROTO_XT_ACTIONS_ARGS;
 extern void HandlePopupMenu        PROTO_XT_ACTIONS_ARGS;
+extern void HandlePrint            PROTO_XT_ACTIONS_ARGS;
 extern void HandleQuit             PROTO_XT_ACTIONS_ARGS;
 extern void HandleRedraw           PROTO_XT_ACTIONS_ARGS;
 extern void HandleReverseVideo     PROTO_XT_ACTIONS_ARGS;
@@ -84,11 +91,7 @@ extern void HandleTekPage          PROTO_XT_ACTIONS_ARGS;
 extern void HandleTekReset         PROTO_XT_ACTIONS_ARGS;
 extern void HandleVisibility       PROTO_XT_ACTIONS_ARGS;
 
-#ifdef ALLOWLOGGING
-extern void HandleLogging          PROTO_XT_ACTIONS_ARGS;
-#endif
-
-extern void DoSecureKeyboard PROTO((Time tp));
+extern void DoSecureKeyboard (Time tp);
 
 /*
  * The following definitions MUST match the order of entries given in 
@@ -104,6 +107,7 @@ typedef enum {
 #ifdef ALLOWLOGGING
     mainMenu_logging,
 #endif
+    mainMenu_print,
     mainMenu_redraw,
     mainMenu_line1,
     mainMenu_8bit_ctrl,

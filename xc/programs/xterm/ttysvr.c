@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/xterm/ttysvr.c,v 3.1.8.2 1998/02/15 16:10:12 hohndel Exp $ */
+/* $XFree86: xc/programs/xterm/ttysvr.c,v 3.1.8.3 1998/10/20 20:51:55 hohndel Exp $ */
 /*
  *
  * ttysvr.c
@@ -9,13 +9,9 @@
  *	Leendert van Doorn, 1992
  */
 
-#ifdef HAVE_CONFIG_H
-#include <xtermcfg.h>
-#endif
-
-#include "ptyx.h"
-#include "data.h"
-#include "error.h"
+#include <ptyx.h>
+#include <data.h>
+#include <error.h>
 #include <stdio.h>
 
 extern char *ProgramName;

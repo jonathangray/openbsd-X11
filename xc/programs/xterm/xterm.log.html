@@ -20,7 +20,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF   *
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.            *
  *****************************************************************************
-  $XFree86: xc/programs/xterm/xterm.log.html,v 1.1.2.5 1998/03/03 12:51:03 dawes Exp $
+  $XFree86: xc/programs/xterm/xterm.log.html,v 1.1.2.8 1998/11/01 09:59:26 hohndel Exp $
   -->
 <HTML>
 <HEAD>
@@ -41,6 +41,27 @@ in the XFree86 CHANGELOG (found in the unbundled tree,
 xc/programs/Xserver/hw/xfree86).
 
 <UL>
+<LI><A HREF="#xterm_88">Patch #88 - 1998/10/31 - XFree86 3.9Nk and 3.3.2h</A>
+<LI><A HREF="#xterm_87">Patch #87 - 1998/10/21 - XFree86 3.9Nj and 3.3.2f</A>
+<LI><A HREF="#xterm_86">Patch #86 - 1998/10/14 - XFree86 3.9Nj and 3.3.2e</A>
+<LI><A HREF="#xterm_85">Patch #85 - 1998/10/12 - XFree86 3.9Nj and 3.3.2e</A>
+<LI><A HREF="#xterm_84">Patch #84 - 1998/10/9 - XFree86 3.9Ni and 3.3.2e</A>
+<LI><A HREF="#sync_83">Resync #83 - 1998/10/7 - XFree86 3.3.2e</A>
+<LI><A HREF="#xterm_83">Patch #83 - 1998/8/25 - XFree86 3.9Nb</A>
+<LI><A HREF="#xterm_82">Patch #82 - 1998/7/15 - XFree86 3.9Aj</A>
+<LI><A HREF="#xterm_81">Patch #81 - 1998/7/14 - XFree86 3.9Aj</A>
+<LI><A HREF="#xterm_80">Patch #80 - 1998/6/29 - XFree86 3.9Ai</A>
+<LI><A HREF="#xterm_79">Patch #79 - 1998/6/28 - XFree86 3.9Ai</A>
+<LI><A HREF="#xterm_78">Patch #78 - 1998/6/3 - XFree86 3.9Ah and 3.3.2</A>
+<LI><A HREF="#xterm_77">Patch #77 - 1998/5/26 - XFree86 3.9Ah and 3.3.2</A>
+<LI><A HREF="#xterm_76">Patch #76 - 1998/5/8 - XFree86 3.9Ah and 3.3.2</A>
+<LI><A HREF="#xterm_75">Patch #75 - 1998/5/7 - XFree86 3.9Ah and 3.3.2</A>
+<LI><A HREF="#xterm_74">Patch #74 - 1998/4/27 - XFree86 3.9Ag and 3.3.2</A>
+<LI><A HREF="#xterm_73">Patch #73 - 1998/4/25 - XFree86 3.9Ag and 3.3.2</A>
+<LI><A HREF="#xterm_72">Patch #72 - 1998/4/17 - XFree86 3.9Ag and 3.3.2</A>
+<LI><A HREF="#xterm_71">Patch #71 - 1998/4/12 - XFree86 3.9Ag and 3.3.2</A>
+<LI><A HREF="#xterm_70">Patch #70 - 1998/3/29 - XFree86 3.9Af and 3.3.2</A>
+<LI><A HREF="#xterm_69">Patch #69 - 1998/3/16 - XFree86 3.9Ad and 3.3.2</A>
 <LI><A HREF="#xterm_68">Patch #68 - 1998/3/4 - XFree86 3.9Ad and 3.3.1z</A>
 <LI><A HREF="#xterm_67">Patch #67 - 1998/2/23 - XFree86 3.9Ad and 3.3.1e</A>
 <LI><A HREF="#xterm_66">Patch #66 - 1998/2/16 - XFree86 3.9Ad and 3.3.1d</A>
@@ -110,6 +131,510 @@ xc/programs/Xserver/hw/xfree86).
 <LI><A HREF="#xterm_02">Patch #2 - 1996/1/7</A>
 <LI><A HREF="#xterm_01">Patch #1 - 1996/1/6</A>
 </UL>
+
+<H1><A NAME="xterm_88">Patch #88 - 1998/10/31 - XFree86 3.9Nk and 3.3.2h</A></H1>
+This refines my #85 patch by checking for a case where the font server
+returns a bold font that does not quite correspond to the normal font.
+When I asked for a bold version of the 6x12 font, the font server
+returned a near equivalent where the ascent and descent values did not
+match, causing xterm to leave lines across the display.
+This patch makes xterm reject that type of mismatch, falling back to the
+old font behavior.
+
+<H1><A NAME="xterm_87">Patch #87 - 1998/10/21 - XFree86 3.9Nj and 3.3.2f</A></H1>
+This corrects a problem reported by Stefan Dalibor.  My table entries for the
+<em>printerExtent</em> and <em>printerFormFeed</em> resources used the wrong
+types for sizeof, causing the printer to not work properly on some platforms
+because the <em>printAttributes</em> resource was overwritten (e.g., Digital Unix with DEC Alpha).
+<p>
+I reviewed all of the resource table entries and fixed a potential problem with
+<em>resizeGravity</em>, which was typed as <em>int</em> rather than
+<em>XtGravity</em>.
+
+<H1><A NAME="xterm_86">Patch #86 - 1998/10/14 - XFree86 3.9Nj and 3.3.2e</A></H1>
+A small fix: when switching to/from the continuous mouse reporting mode,
+the event mask was incorrect if xterm was built under X11R5 because the
+original data was saved under an ifdef for active-icon.
+
+<H1><A NAME="xterm_85">Patch #85 - 1998/10/12 - XFree86 3.9Nj and 3.3.2e</A></H1>
+Some cleanup (I noticed the pixel droppings a few months ago after getting a
+new 17" monitor):
+<ul>
+	<li>split-out the functions that load/reload fonts for xterm as new
+	  file fontutils.c to extend them to support automatic loading of
+	  bold font corresponding to the normal font.  Adapted logic from
+	  EMU 1.3 for this purpose.  This fixes most occurrences of pixel
+	  droppings from bold characters.
+
+	<li>modified by renaming variables and adding casts to permit compile
+	  with g++.
+
+	<li>modify headers so they can all be compiled without order
+	  dependencies, and use bracketed rather than quoting includes to allow
+	  compile from separate directory.
+
+	<li>renamed xtermm terminfo entry to xterm-mono, to avoid conflict with
+	  Solaris entry now in ncurses.
+</ul>
+
+<H1><A NAME="xterm_84">Patch #84 - 1998/10/9 - XFree86 3.9Ni</A> and 3.3.2e</H1>
+Several small fixes and enhancements, including a patch from
+Bjorn Helgaas:
+<ul>
+	<li>correct initialization of TERMCAP environment variable, which 
+	  was frequently set to garbage on non-Linux systems because 
+	  "termcap" and "newtc" contained random data from the stack. 
+ 
+	<li>remove the LINEWRAPPED attribute from lines as they are cleared. 
+	  Previously, the attribute was set but never cleared. 
+ 
+	<li>make word and line selections work even when lines are wrapped 
+	  by xterm.  Previously, selections were limited to one screen line. 
+</ul>
+as well as
+<ul>
+	<li>modify logic for line-wrapping to reset the associated flag if
+	  the application deletes a character. This fixes a problem reported
+	  by Bjorn Helgaas where word/line selection would still wrap even
+	  after deleting characters from the first line.
+	<li>add kll/kH capabilities to xterm-xfree86 entries in termcap and
+	  terminfo (request by Michael Schroeder).
+	<li>shorten descriptions in termcap to make resolved entries all
+	  shorter than 1023 character limit.
+	<li>use DECSTR control sequence to shorten initialization and reset
+	  strings in xterm-xfree86 termcap and terminfo.
+	<li>use rmul/smul and rmir/smir in xterm-r5 terminfo to match termcap.
+	<li>correct typos in initialization and reset strings in xterm-r5
+	  termcap and terminfo.
+	<li>disable special translations of key symbols (the backarrow key,
+	  the editing keypad and the keypad "+") when a modifier other than
+	  shift, control or numlock is used.  This makes xterm handle the meta
+	  key as expected by people using emacs (reported by Pete Harlan
+	  &lt;harlan@pointofchoice.com&gt; in linux.debian.user newsgroup).
+</ul>
+
+<H1><A NAME="sync_83">Resync #83 - 1998/10/7 - XFree86 3.3.2e</A></H1>
+
+Merge changes through patch #83 with the 3.3.2e version.  This follows a
+patch by Matthieu Herrb &lt;matthieu@laas.fr&gt; to add checks for nonnull
+return from malloc.
+
+<H1><A NAME="xterm_83">Patch #83 - 1998/8/25 - XFree86 3.9Nb</A></H1>
+Several small fixes and enhancements:
+<ul>
+	<li>add configure test to infer if xterm should be installed setuid
+	  based on previously installed xterm (reported by Stephen Marley
+	  and Stefan Dalibor).
+
+	<li>integrate/extend patch by Jason Bacon to implement quasi-continuous
+	  mouse reporting.
+
+	<li>correct control sequences transmitted by function keys F1 to F4
+	  when sunFunctionKeys resource is true (it was still using the
+	  VT100 control sequences).
+
+	<li>modify handling of backarrow key so that the control modifier
+	  toggles the backspace/delete interpretation set by the
+	  backarrowKey resource.
+
+	<li>limit the row and column values used to report mouse position.
+</ul>
+
+From resync with XFree86 3.9Nb:
+<ul>
+	<li>add support for the VSTATUS control character (patch by
+	  Robert Earl &lt;rearl@teleport.com&gt;).
+</ul>
+
+<H1><A NAME="xterm_82">Patch #82 - 1998/7/15 - XFree86 3.9Aj</A></H1>
+Bug fix for patch #81:
+<ul>
+	<li>remove an #undef for NBBY, which caused compile problem on FreeBSD
+	  (reported by David Dawes).
+</ul>
+
+<H1><A NAME="xterm_81">Patch #81 - 1998/7/14 - XFree86 3.9Aj</A></H1>
+More bug fixes:
+<ul>
+	<li>fix conflicting ifdef's for TIOCSLTC when building with Linux on
+	  AXP aka DEC Alpha (reported by Robin Cutshaw).
+
+	<li>correction to patch #79, move assignment for *utptr-&gt;ut_user = 0;
+	  back into non-SVR4 ifdef in main.c, since this clobbers username on
+	  Solaris 2.5.1 (analysis by Will Day
+	  &lt;willday@rom.oit.gatech.edu&gt;).
+
+	<li>corrected khome/kend in xterm-8bit terminfo description.
+
+	<li>improve cursor color by making it always the reverse of fg/bg
+	  unless the cursorColor resource is set, i.e., to something other than
+	  the default foreground (reported by Vikas Agnihotri and Bram
+	  Moolenaar).
+
+	<li>minor fixes for compiler warnings, including a syntax error in
+	  the AMOEBA ifdef's.
+</ul>
+From resync with XFree86 3.9Aj:
+<ul>
+	<li>correcton to patch #73, supply missing #else for fallback definitions
+	  of size_t, time_t (Robin Cutshaw &lt;robin@intercore.com&gt;).
+</ul>
+
+<H1><A NAME="xterm_80">Patch #80 - 1998/6/29 - XFree86 3.9Ai</A></H1>
+This fixes a couple of items leftover or introduced by patch 79:
+<ul>
+	<li>take out the logic that suppresses editing-keypad in vt100 mode
+	  (those keys are too valuable to give up for a fine point of
+	  emulation).
+
+	<li>corrected a couple of places in terminfo where I missed using the 
+	  vt220-style editing-keypad codes for Find/Select (mapped to Home/End).
+
+	<li>checked termcap file against terminfo, fix several places where it
+	  was inconsistent.
+</ul>
+
+<H1><A NAME="xterm_79">Patch #79 - 1998/6/28 - XFree86 3.9Ai</A></H1>
+
+This patch fixes several small bugs:
+<ul>
+	<li>use X_EXTRA_LIBS in standalone Makefile.in (patch by Tomas Vanhala).
+ 
+	<li>add new resource 'oldXtermFKeys' which provides backward compatibility
+	  for F1-F4 control sequences with TOG's xterm.
+ 
+	<li>determine the server's default foreground/background Pixel values,
+	  needed if the -flipPixels X server option is used (reported by
+	  David Dawes).
+
+	<li>correct logic for F1-F4 function keys so that they generate VT100
+	  compatible escape sequences in VT220 mode, since that is what the
+	  numeric keypad is supposed to do (reported by Ron Johnson, Jr. 
+	  &lt;ronjohn@communique.net&gt;).
+
+	<li>modify logic for editing keypad to work more like VT220: don't
+	  pass those codes in VT100-mode unless oldXtermFKeys mode is set.
+
+	<li>correct an interaction with the editing-keypad logic that prevented
+	  backarrow key from sending a 127 for the delete key (the 'remove'
+	  escape sequence was being sent instead).
+
+	<li>use return-value from getutid() rather than the parameter, to work on
+	  systems which do not update the latter (patch by Kevin Buhr
+	  &lt;buhr@mozart.stat.wisc.edu&gt;)
+
+	<li>correct scrollbar border color when toggling to/from secure keyboard
+	  mode (patch by Jeff Uphoff &lt;juphoff@tarsier.cv.nrao.edu&gt;)
+
+	<li>modifications to terminfo file:
+<ul>
+	  <li>rename description to xterm-xfree86, adding an entry 'xterm'
+	    which is derived from xterm-xfree86 to simplify customization.
+
+	  <li>change string for kdch1 from \177 to \E[3~, to address complaints
+	    from Debian developers.  (This applies to the key labeled "Delete",
+	    and does not affect the backarrow key).
+
+	  <li>add user-strings u6, u7, u8, u9 to entries to make them work with
+	    Daniel Weaver's "tack" program.
+
+	  <li>modify xterm-24, xterm-bold, xterm-boldso entries to disentangle them from
+	    explicit dependency upon xterm-xfree86.
+
+	  <li>add generic 'xterm-color' entry.
+
+	  <li>minor corrections to xterm-xfree86, xterm-8bit, xterm-r5 and
+	    xterm-r6 entries.
+</ul>
+</ul>
+
+<H1><A NAME="xterm_78">Patch #78 - 1998/6/3 - XFree86 3.9Ah and 3.3.2</A></H1>
+
+Again, most of the bulk of this patch is for ANSI conversion.  I used the
+IRIX compiler's -wlint option to find the remaining functions that use
+K&R syntax (since gcc does not do this properly).
+
+Also, I changed the logic in the print code slightly to close unwanted files
+before opening a pipe to the printer.  This may help in some configurations
+where the line printer hangs until xterm closes the pipe.
+
+<H1><A NAME="xterm_77">Patch #77 - 1998/5/26 - XFree86 3.9Ah and 3.3.2</A></H1>
+
+Most of the bulk of this patch is to convert the extended C (K&R functions
+with prototypes) to ANSI.  I verified that on Linux by comparing object
+files, to ensure that I did not, for example, interchange parameters in
+the function declarations.
+<p>
+The rest of the patch fixes several minor bugs, and adds a few features:
+<ul>
+	<li>back-out my use of ncurses "captoinfo -f" option (if/then/else/endif)
+	  formatting, since ncurses did not correctly filter embedded newlines
+	  in terminfo capability strings until _after_ ncurses 4.1, thus
+	  corrupting setf/setb/sgr strings (reported by Darren Hiebert and
+	  others).
+
+	<li>document SGR 8, 28 (invisible/visible), add corresponding
+	  capabilities to terminfo description.
+<p>	  
+	  I would also add the 'prot protected capability, but the control
+	  sequences for that would not be recognized or properly ignored by the
+	  older xterm programs.
+
+	<li>modify ChangeGroup to not suppress a null-resource, but treat it as an
+	  empty string (recommended by Stefan Dalibor).
+
+	<li>add printerAutoClose resource to control whether printer is closed
+	  when going offline.  More than one person reports problems (on
+	  Solaris 2.6 and Digital Unix 4.0) getting the printer to proceed
+	  unless xterm exits; I think that it is a problem flushing the pipe.
+	  Closing it ought to flush it.
+
+	<li>adapt TOG fix-3 to in HandleKeymapChange and VTInitI18N (but adapt
+	  XtStackAlloc/XtStackFree for clarity, as well as fixing memory leak).
+
+	<li>change calls on FillCurBackground to ClearCurBackground, in effect
+	  using XClearArea rather than XFillRectangle when clearing as a
+	  side-effect of scrolling and insertion  (patch by Alexander V
+	  Lukyanov)
+
+	<li>correct some places where insert/delete did not _move_ the color
+	  attributes, using memmove (patch by Alexander V  Lukyanov
+	  &lt;lav@long.yar.ru&gt;)
+
+	<li>add ifdef's for __CYGWIN32__, for port to cygnus version B19.1
+	  (patch by Andrew Sumner &lt;andrew_sumner@hotmail.com&gt;).
+
+	<li>remove #define for hpux that turned on USE_SYSV_ENVVARS, since this
+	  causes some applications (such as 'less') to get incorrect $LINES and
+	  $COLUMNS values (reported by Clint Olsen).
+
+	<li>modify behavior for HP-UX, to set the "reserved" process group
+	  controls to _POSIX_VDISABLE so the TIOCSLTC ioctl does not produce an
+	  error (patch by Ben Yoshino &lt;ben@wiliki.eng.hawaii.edu&gt;).
+
+	<li>correct length of underlining, reducing it by one pixel to avoid
+	  leaving a dot when the application does not clear the whole screen
+	  (patch by (Sergei Laskavy &lt;Laskavy@cs.msu.su&gt;).
+<p>
+	  I noticed this only recently myself (and other people as well); it
+	  depends on the font chosen.  A 6x10 font shows it, but the other
+	  fonts (from XTerm.ad) do not.  I also see a similar problem with the
+	  emulation of bold fonts.
+
+	<li>add include for Xos.h to xterm.h, to ensure proper definitions
+	  (reported by Holger Veit).
+
+	<li>update config.guess to recognize Unixware 2.1 and 7 (patch by
+	  Mike Hopkirk &lt;hops@sco.com&gt;).
+</ul>
+
+<H1><A NAME="xterm_76">Patch #76 - 1998/5/8 - XFree86 3.9Ah and 3.3.2</A></H1>
+
+A fix for the print-window function, and some minor cleanup:
+<ul>
+	<li>modify logic that closes pipe in the print-window function to not use
+	  pclose, which does not work on all systems, since I did not open the
+	  pipe with popen (reported by Stefan Dalibor).
+
+	<li>correct name of $(EXTRA_LOAD_FLAGS) imake variable (reported
+	  by Stefan Dalibor).
+
+	<li>guard logic in ChangeGroup() function against null pointer
+	  (reported by Stefan Dalibor).
+
+	<li>ensure that menu entry for toggling sunKeyboard resource is
+	  initialized (reported by Branden Robinson &lt;branden@purdue.edu&gt;).
+
+	<li>gcc unused-variable warnings (reported by Bernd Ernesti
+	  &lt;bernd@arresum.inka.de&gt;)
+
+	<li>rename global variable 'buffer' to 'VTbuffer'
+</ul>
+
+<H1><A NAME="xterm_75">Patch #75 - 1998/5/7 - XFree86 3.9Ah and 3.3.2</A></H1>
+
+This incorporates fixes from several people, as well as some improvements
+that I made based on feedback from users:
+<ul>
+	<li>add option to standalone configure script, "--with-own-terminfo-dir",
+	  which causes xterm to pass a predefined value of $TERMINFO to the
+	  application.  Also use this value in install rule "make install-ti",
+	  for the standalone configure script.
+
+	  (patch & feedback from Tor Lillqvist &lt;tml@hemuli.tte.vtt.fi&gt;)
+
+	<li>change ifdef's for "hpux" to "__hpux" (patch by Tor Lillqvist).  The
+	  imake configuration uses the former, but the latter is predefined by
+	  HP's compilers.
+
+	<li>define USE_SYSV_ENVVARS for HP-UX, curses does not use $TERMCAP (patch
+	  by Tor Lillqvist).
+
+	<li>on HP-UX, use the /dev/ptym/clone device to allocate ptys.  Works
+	  both on HP-UX 9 and 10.  (patch by Tor Lillqvist).
+
+	<li>modify configure script to obtain the $(EXTRA_LOADFLAGS) value from
+	  imake, needed for compiling under DEC OSF/1 (reported by
+	  Stefan Dalibor)
+
+	<li>modify print-window action so that the printer is closed after
+	  printing a window, unless the printer was already opened (i.e.,
+	  by an application running in the window).  This makes the printing
+	  complete without having to exit xterm, since not all systems treat
+	  fflush through a pipe very well (reported by Stefan Dalibor)
+
+	<li>modify printing code so that the ^M's are not printed if the
+	  printAttribute resource is set to zero (request by Stefan Dalibor).
+
+	<li>correct typo in xterm.man, for the default value of printAttribute
+	  (reported by Stefan Dalibor).
+
+	<li>correct printing code so that the alternate character set is
+	  printed, like other attributes, with escape sequences.
+
+	<li>correct termcap description, removing spurious 'm' character from
+	  the 'op' capability (reported by Greg Woods &lt;woods@weird.com&gt;).
+
+	<li>correct trace code so that the initial timestamp is set.
+
+	<li>correct/modify utmp data for the Linux glibc 2 configuration,
+	  so that the ut_line member is set before using it to update wtmp
+	  (patch by Bill Nottingham &lt;wen1@cec.wustl.edu&gt;).
+</ul>
+
+<H1><A NAME="xterm_74">Patch #74 - 1998/4/27 - XFree86 3.9Ag and 3.3.2</A></H1>
+
+This corrects a couple of recent bugs and adds a new resource:
+<ul>
+	<li>modify definition of TRACE_CHILD so that it does not conflict with
+	  ifdef's for USE_USG_PTYS in main.c (reported by Vikas Agnihotri
+	  &lt;VikasA@att.com&gt; and Stefan Dalibor).
+
+	<li>correct ownership of file (actually pipe) written by the print
+	  controls.  When undoing the setuid changes in patch #69, I overlooked
+	  this.  Now xterm forks a process which resets setuid and routes the
+	  printer data as the real user.
+
+	<li>add a new resource, "printAttributes", which controls whether
+	  color attributes (or any attributes) are sent to the printer.
+</ul>
+
+<H1><A NAME="xterm_73">Patch #73 - 1998/4/25 - XFree86 3.9Ag and 3.3.2</A></H1>
+
+This patch does the following:
+<ul>
+	<li>implements a print-window facility for xterm.  Though useful in
+	  itself, I added it as part of some debugging which I am doing.
+	  (Occasionally during an exposure event xterm fails to restore the
+	  proper colors for highlighted text, and printing the screen will
+	  show the internal states nicely).
+<p>
+	  The print facility now also displays the color information.
+	  (I will probably make this a resource).
+
+	<li>modified the xterm-16color terminfo description to use the setaf and
+	  setab strings, which is a little more efficient (requested by Stephen
+	  Marley).
+
+	<li>reduced some clutter of the ifdef/includes (e.g., stdlib.h, unistd.h,
+	  errno) making the configure script test for these.
+<p>
+	  I removed the symbols Size_t and Time_t, since they no longer serve
+	  a useful purpose.
+
+	<li>added some debugging traces to show the initial screen size,
+	  and the success/failure of the ioctl calls pass handle window
+	  resizing events to the application (for Clint Olsen).
+<p>
+	  I also modified the trace code to produce two files since some
+	  of the information is produced by the child process.  So now
+	  they are Trace-parent.out and Trace-child.out
+
+	<li>updated configure test for ANSI compiler options to handle a
+	  special case for HP-UX 10.x (reported by Clint Olsen).
+</ul>
+
+<H1><A NAME="xterm_72">Patch #72 - 1998/4/17 - XFree86 3.9Ag and 3.3.2</A></H1>
+
+This is a patch from Chris Siebenmann &lt;cks@hawkwind.utcs.toronto.edu&gt;,
+which I have cleaned up a little, and integrated into the configure script.
+<p>
+From his description:
+<blockquote>
+ This set of patches is the latest incarnation of patches originally 
+written by Ian! D Allen, then of the University of Waterloo and now of 
+who knows where; I have been carrying them forward from xterm to xterm 
+ever since about X11R4.  What they do is add an option so that when an 
+iconified xterm receives output it prepends '*** ' to its icon title 
+and (optionally) beeps the bell; deiconifying the xterm removes the 
+'*** '. Over the years I've found this to be incredibly convenient for 
+monitoring all sorts of low-activity things. 
+</blockquote>
+
+<H1><A NAME="xterm_71">Patch #71 - 1998/4/12 - XFree86 3.9Ag and 3.3.2</A></H1>
+
+This patch is a slightly modified version of one by Richard Braakman, which
+prevents buffer overflow in the input-method and preedit-type parsing in xterm. 
+I changed a couple of details to make the code more maintainable, and looked
+for similar things - copying into a fixed-size buffer (found none, though I did
+spot an unused variable).
+
+<H1><A NAME="xterm_70">Patch #70 - 1998/3/29 - XFree86 3.9Af and 3.3.2</A></H1>
+
+This patch corrects some minor bugs in xterm, and fills in some more details
+in the VT220 emulation:
+<UL>
+	<LI>modify Imakefile to use SpecialCObjectRule for menu and data modules,
+	  making xterm build properly if logging is enabled
+	  (patch by Scott Sewall &lt;scott@iprg.nokia.com&gt;).
+
+	<LI>restore "ich" capability to terminfo entries, since
+	  Michael Schroeder points out that "ich1"
+	  is the one which is the problem in Solaris vi.
+
+	<LI>correct color of cursor, which would disappear on inverse-video
+	  since the initialization did not compare the cursor color against
+	  both foreground and background (reported by Olivier Calle).
+
+	<LI>correct abbreviation-test for -version and -help options, making
+	  command-line option -vb work (reported by Stefan Dalibor).
+
+	<LI>correct a dependency between ifdef's for OPT_I18N_SUPPORT and
+	  OPT_INPUT_METHOD (reported by Stefan Dalibor).
+
+	<LI>split-out character-set translations as new module charsets.c, to
+	  implement VT220 national replacement character sets (a mode where
+	  some of the characters are displayed as specific European glyphs).
+	  This relies on xterm using an ISO 8859-1 font (approach suggested by
+	  Kenneth R. Robinette &lt;zkrr01@mailbox.neosoft.com&gt;).
+
+	<LI>correct a missing increment, which made SS2 and SS3 controls
+	  repeat the shifted character.
+
+	<LI>add xterm-nrc to terminfo to illustrate the VT220 national
+	  replacement character sets.
+
+	<LI>reformat terminfo using new ncurses tic option "-f", which makes
+	  if/then/else/endif expressions easier to read.
+</UL>
+
+<H1><A NAME="xterm_69">Patch #69 - 1998/3/16 - XFree86 3.9Ad and 3.3.2</A></H1>
+
+This corrects the problem in xterm with utmp, reported by Olivier Calle
+&lt;olivier@tc.fluke.com&gt
+as well as some other people after the XFree86 3.3.2 release.
+<P>
+The error was introduced by my patch #53 in XFree86 3.9r (October 1997).
+<P>
+The correction removes the reset of setuid/setgid before the main event loop,
+and solves the problem which I had worked around in a different manner:  for
+some reason, the particular waitpid() call in creat_as() hangs, does not
+return when the child process exits.  I changed the ifdef's to force the Linux
+configuration to use wait() instead.  This call appears to work properly on
+other platforms such as SunOS and Solaris.
+<P>
+I also added tests in the standalone configure script to check for the
+existence of waitpid().
 
 <H1><A NAME="xterm_68">Patch #68 - 1998/3/4 - XFree86 3.9Ad and 3.3.1z</A></H1>
 

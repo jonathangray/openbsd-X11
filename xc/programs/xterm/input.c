@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: input.c /main/21 1996/04/17 15:54:23 kaleb $
- *	$XFree86: xc/programs/xterm/input.c,v 3.11.2.3 1998/02/15 16:10:04 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/input.c,v 3.11.2.4 1998/10/20 20:51:46 hohndel Exp $
  */
 
 /*
@@ -28,11 +28,7 @@
 
 /* input.c */
 
-#ifdef HAVE_CONFIG_H
-#include <xtermcfg.h>
-#endif
-
-#include "ptyx.h"		/* gets Xt headers, too */
+#include <xterm.h>
 
 #include <X11/keysym.h>
 #if HAVE_X11_DECKEYSYM_H
@@ -40,22 +36,18 @@
 #endif
 
 #include <X11/Xutil.h>
-#include <stdio.h>
 
-#include "xterm.h"
-#include "data.h"
+#include <data.h>
 
 static char *kypd_num = " XXXXXXXX\tXXX\rXXXxxxxXXXXXXXXXXXXXXXXXXXXX*+,-./0123456789XXX=";
 static char *kypd_apl = " ABCDEFGHIJKLMNOPQRSTUVWXYZ??????abcdefghijklmnopqrstuvwxyzXXX";
 static char *cur = "HDACB  FE";
 
-static int decfuncvalue PROTO((KeySym keycode));
-static int sunfuncvalue PROTO((KeySym keycode));
-static void AdjustAfterInput PROTO((TScreen *screen));
+static int decfuncvalue (KeySym keycode);
+static int sunfuncvalue (KeySym keycode);
 
 static void
-AdjustAfterInput (screen)
-register TScreen *screen;
+AdjustAfterInput (register TScreen *screen)
 {
 	if(screen->scrollkey && screen->topline != 0)
 		WindowScroll(screen, 0);
@@ -75,12 +67,44 @@ register TScreen *screen;
 	}
 }
 
+/* returns true if the key is on the editing keypad */
+static Boolean
+IsEditFunctionKey(KeySym keysym)
+{
+	switch (keysym) {
+	case XK_Prior:
+	case XK_Next:
+	case XK_Insert:
+	case XK_Find:
+	case XK_Select:
+#ifdef DXK_Remove
+	case DXK_Remove:
+#endif
+#ifdef XK_KP_Delete
+	case XK_KP_Delete:
+	case XK_KP_Insert:
+#endif
+		return True;
+	default:
+		return False;
+	}
+}
+
+/*
+ * Modifiers other than shift, control and numlock should be reserved for the
+ * user.  We use the first two explicitly to support VT220 keyboard, and the
+ * third is used implicitly in keyboard configuration to make the keypad work.
+ */
+#define isModified(event) \
+    (event->state & \
+    	(Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask ))
+
 void
-Input (keyboard, screen, event, eightbit)
-    register TKeyboard	*keyboard;
-    register TScreen	*screen;
-    register XKeyEvent *event;
-    Bool eightbit;
+Input (
+	register TKeyboard *keyboard,
+	register TScreen *screen,
+	register XKeyEvent *event,
+	Bool eightbit)
 {
 
 #define STRBUFSIZE 500
@@ -120,9 +144,10 @@ Input (keyboard, screen, event, eightbit)
 
 	/* VT300 & up: backarrow toggle */
 	if ((nbytes == 1)
-	 && !(term->keyboard.flags & MODE_DECBKM)
+	 && !isModified(event)
+	 && (((term->keyboard.flags & MODE_DECBKM) == 0)
+	   ^ ((event->state & ControlMask) != 0))
 	 && (keysym == XK_BackSpace)) {
-		keysym = XK_Delete;
 		strbuf[0] = '\177';
 	}
 
@@ -145,7 +170,7 @@ Input (keyboard, screen, event, eightbit)
 
 #if OPT_SUNPC_KBD
 	/* make an DEC editing-keypad from a Sun or PC editing-keypad */
-	if (sunKeyboard) {
+	if (sunKeyboard && !isModified(event)) {
 		switch (keysym) {
 		case XK_Delete:
 #ifdef DXK_Remove
@@ -168,9 +193,16 @@ Input (keyboard, screen, event, eightbit)
 		VT52_CURSOR_KEYS
 		unparseseq(&reply, pty);
 		key = TRUE;
-        } else if (IsCursorKey(keysym) &&
-        	keysym != XK_Prior && keysym != XK_Next) {
-       		if (keyboard->flags & MODE_DECCKM) {
+#if 0	/* OPT_SUNPC_KBD should suppress - but only for vt220 compatibility */
+	} else if (sunKeyboard
+	 	&& screen->old_fkeys == False
+	 	&& screen->ansi_level <= 1
+		&& IsEditFunctionKey(keysym)) {
+		key = FALSE;	/* ignore editing-keypad in vt100 mode */
+#endif
+	} else if (IsCursorKey(keysym) &&
+		keysym != XK_Prior && keysym != XK_Next) {
+		if (keyboard->flags & MODE_DECCKM) {
 			reply.a_type = SS3;
 			reply.a_final = cur[keysym-XK_Home];
 			VT52_CURSOR_KEYS
@@ -182,17 +214,9 @@ Input (keyboard, screen, event, eightbit)
 			unparseseq(&reply, pty);
 		}
 		key = TRUE;
-	 } else if (IsFunctionKey(keysym) || IsMiscFunctionKey(keysym)
-	 	|| keysym == XK_Prior
-		|| keysym == XK_Next
-#ifdef DXK_Remove
-		|| keysym == DXK_Remove
-#endif
-#ifdef XK_KP_Delete
-		|| keysym == XK_KP_Delete
-		|| keysym == XK_KP_Insert
-#endif
-		) {
+	 } else if (IsFunctionKey(keysym)
+		|| IsMiscFunctionKey(keysym)
+		|| IsEditFunctionKey(keysym)) {
 #if OPT_SUNPC_KBD
 		if ((event->state & ControlMask)
 		 && sunKeyboard
@@ -210,8 +234,9 @@ Input (keyboard, screen, event, eightbit)
 		/*
 		 * Interpret F1-F4 as PF1-PF4 for VT52, VT100
 		 */
-		else if (screen->ansi_level <= 1
-		  && (dec_code >= 11 && dec_code <= 14))
+		else if (!sunFunctionKeys
+		 && screen->old_fkeys == False
+		 && (dec_code >= 11 && dec_code <= 14))
 		{
 			reply.a_type = SS3;
 			VT52_CURSOR_KEYS
@@ -241,11 +266,12 @@ Input (keyboard, screen, event, eightbit)
 		 * but no keypad(,) - it's a pain for users to work around.
 		 */
 		if (!sunFunctionKeys
+		 && !isModified(event)
 		 && sunKeyboard
 		 && keysym == XK_KP_Add)
 			keysym = XK_KP_Separator;
 #endif
-	  	if ((keyboard->flags & MODE_DECKPAM) != 0) {
+		if ((keyboard->flags & MODE_DECKPAM) != 0) {
 			reply.a_type  = SS3;
 			reply.a_final = kypd_apl[keysym-XK_KP_Space];
 			VT52_KEYPAD
@@ -280,10 +306,7 @@ Input (keyboard, screen, event, eightbit)
 }
 
 void
-StringInput (screen, string, nbytes)
-    register TScreen	*screen;
-    register char *string;
-    Size_t nbytes;
+StringInput ( register TScreen *screen, register char *string, size_t nbytes)
 {
 	int	pty	= screen->respond;
 
@@ -301,8 +324,8 @@ StringInput (screen, string, nbytes)
 }
 
 /* These definitions are DEC-style (e.g., vt320) */
-static int decfuncvalue (keycode)
-	KeySym  keycode;
+static int
+decfuncvalue (KeySym keycode)
 {
 	switch (keycode) {
 		case XK_F1:	return(11);
@@ -346,8 +369,8 @@ static int decfuncvalue (keycode)
 }
 
 
-static int sunfuncvalue (keycode)
-	KeySym  keycode;
+static int
+sunfuncvalue (KeySym  keycode)
 {
   	switch (keycode) {
 		case XK_F1:	return(224);
@@ -388,7 +411,7 @@ static int sunfuncvalue (keycode)
 		case XK_R13:	return(220);
 		case XK_R14:	return(221);
 		case XK_R15:	return(222);
-  
+
 		case XK_Find :	return(1);
 		case XK_Insert:	return(2);
 		case XK_Delete:	return(3);

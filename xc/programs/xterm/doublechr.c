@@ -1,5 +1,5 @@
 /*
- * $XFree86: xc/programs/xterm/doublechr.c,v 3.2.2.1 1998/02/15 16:10:04 hohndel Exp $
+ * $XFree86: xc/programs/xterm/doublechr.c,v 3.2.2.2 1998/10/20 20:51:45 hohndel Exp $
  */
 
 /************************************************************
@@ -34,13 +34,8 @@ authorization.
 
 ********************************************************/
 
-#ifdef HAVE_CONFIG_H
-#include <xtermcfg.h>
-#endif
-
-#include "ptyx.h"
-#include "data.h"
-#include "xterm.h"
+#include <xterm.h>
+#include <data.h>
 
 /*
  * The first column is all that matters for double-size characters (since the
@@ -50,11 +45,8 @@ authorization.
 #define curChrSet SCRN_BUF_CSETS(screen, screen->cur_row)[0]
 
 #if OPT_DEC_CHRSET
-static void repaint_line PROTO((unsigned set));
-
 static void
-repaint_line(newChrSet)
-	unsigned newChrSet;
+repaint_line(unsigned newChrSet)
 {
 	register TScreen *screen = &term->screen;
 	int curcol = screen->cur_col;
@@ -86,8 +78,7 @@ repaint_line(newChrSet)
  * we'll be using it for the top (true) or bottom (false) of the line.
  */
 void
-xterm_DECDHL(top)
-	Bool top;
+xterm_DECDHL(Bool top)
 {
 #if OPT_DEC_CHRSET
 	repaint_line(top ? CSET_DHL_TOP : CSET_DHL_BOT);
@@ -98,7 +89,7 @@ xterm_DECDHL(top)
  * Set the line to single-width characters (the normal state).
  */
 void
-xterm_DECSWL()
+xterm_DECSWL(void)
 {
 #if OPT_DEC_CHRSET
 	repaint_line(CSET_SWL);
@@ -109,7 +100,7 @@ xterm_DECSWL()
  * Set the line to double-width characters
  */
 void
-xterm_DECDWL()
+xterm_DECDWL(void)
 {
 #if OPT_DEC_CHRSET
 	repaint_line(CSET_DWL);

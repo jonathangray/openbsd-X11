@@ -1196,7 +1196,7 @@ Here is a copy of modeplot:
 #
 # Do `modeplot -?' to see the control options.
 #
-# ($Id: VidModes.sgml,v 1.1.1.2 1998/03/07 16:14:57 matthieu Exp $)
+# ($Id: VidModes.sgml,v 1.1.1.3 1998/11/28 08:38:14 matthieu Exp $)
 
 # Monitor description. Bandwidth in MHz, horizontal frequencies in kHz
 # and vertical frequencies in Hz.
@@ -1235,7 +1235,7 @@ output can be redirected to a printer.  See gnuplot(1) for  details.
 The modeplot tool was created by Eric S. Raymond <esr@thyrsus.com> based on
 analysis and scratch code by Martin Lottermoser <Martin.Lottermoser@mch.sni.de>
 
-This is modeplot $Revision: 1.1.1.2 $
+This is modeplot $Revision: 1.1.1.3 $
 EOF
 		exit;;
 	esac
