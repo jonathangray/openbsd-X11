@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.12 1998/10/04 13:36:13 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.37 1998/11/28 11:18:15 matthieu Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.38 1998/11/28 11:28:47 matthieu Exp $
 XCOMM
 
 #ifndef OSName
@@ -521,7 +521,6 @@ install:: fonts.alias							@@\
 # ifndef BuildPexExt
 #  define BuildPexExt 		(XsunServer || Xsun24Server)
 # endif
-#endif
 
 #endif /* Sun3Architecture */
 
