@@ -1,4 +1,5 @@
 ./usr/X11R6/bin/X
+./usr/X11R6/bin/XF86_3DLabs
 ./usr/X11R6/bin/XF86_8514
 ./usr/X11R6/bin/XF86_AGX
 ./usr/X11R6/bin/XF86_I128
