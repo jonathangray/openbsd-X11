@@ -8,7 +8,11 @@ LOCAL_LIBRARIES = $(XXF86DGALIB) $(XLIB)
 AllTarget(ProgramTargetName(dga))
 
 NormalProgramTarget(dga,$(OBJS),$(DEPLIBS),$(LOCAL_LIBRARIES),NullParameter)
+#if !defined(OpenBSDArchitecture)
 InstallProgramWithFlags(dga,$(BINDIR),$(INSTUIDFLAGS))
+#else
+InstallProgram(xload,$(BINDIR))
+#endif
 DependTarget()
 
 InstallManPage(dga,$(MANDIR))
