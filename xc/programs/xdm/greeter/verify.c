@@ -216,7 +216,7 @@ struct verify_info	*verify;
 		    unlink(krbtkfile);
            
 		    ret = krb_verify_user(greet->name, "", realm, 
-				      greet->password, 0, "rcmd");
+				      greet->password, 1, "rcmd");
            
 		    if(ret == KSUCCESS){
 			    chown(krbtkfile, p->pw_uid, p->pw_gid);
@@ -234,9 +234,7 @@ struct verify_info	*verify;
 		    } else if(ret != KDC_PR_UNKNOWN && ret != SKDC_CANT){
 			    /* failure */
 			    Debug("kerberos verify failure %d\n", ret);
-			    bzero(greet->password, strlen(greet->password));
 			    krbtkfile[0] = '\0';
-			    return 0;
 		    }
 		}
 	}
