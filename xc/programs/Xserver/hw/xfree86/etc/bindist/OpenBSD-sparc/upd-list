@@ -1,12 +1,9 @@
-bin/SuperProbe
 bin/imake
 bin/lbxproxy
 bin/makedepend
 bin/mkdirhier
 bin/resize
-bin/scanpci
 bin/twm
-bin/xf86config
 bin/xfwp
 bin/xhost
 bin/xkbcomp
@@ -23,8 +20,6 @@ lib/libX11.a
 lib/libXt.so.6.0
 lib/libXt.a
 lib/libxkbfile.a
-lib/modules/xf86Wacom.so
-lib/X11/Cards
 lib/X11/config/FreeBSD.cf
 lib/X11/config/Imake.cf
 lib/X11/config/Imake.rules
@@ -48,5 +43,3 @@ lib/X11/config/xf86site.def
 lib/X11/config/xfree86.cf
 lib/X11/etc/xterm.termcap
 lib/X11/xkb
-man/man1/XF86_Accel.0
-man/man1/XFree86.0
