@@ -66,8 +66,8 @@ macppcFbDataRec macppcFbData[] = {
  * line list of devices
  */
 static char *fallbackList[] = {
-    "/dev/ttyE0", "/dev/ttyE1", "/dev/ttyE2", "/dev/ttyE3",
-    "/dev/ttyE4", "/dev/ttyE5", "/dev/ttyE6", "/dev/ttyE7",
+    "/dev/ttyC0", "/dev/ttyC1", "/dev/ttyC2", "/dev/ttyC3",
+    "/dev/ttyC4", "/dev/ttyC5", "/dev/ttyC6", "/dev/ttyC7",
 };
 #define FALLBACK_LIST_LEN sizeof fallbackList / sizeof fallbackList[0]
 
@@ -89,7 +89,7 @@ static PixmapFormatRec	formats[] = {
  *	The fd of the framebuffer.
  */
 static int OpenFrameBuffer(device, screen)
-    char		*device;	/* e.g. "/dev/ttyE0" */
+    char		*device;	/* e.g. "/dev/ttyC0" */
     int			screen;    	/* what screen am I going to be */
 {
     int			ret = TRUE;
