@@ -155,31 +155,30 @@ struct verify_info	*verify;
            
 		if(krb_get_lrealm(realm, 1)){
 			Debug ("Can't get Kerberos realm.\n");
-			bzero(greet->password, strlen(greet->password));
-			return 0;
-		}
+		} else {
 
-		ret = krb_verify_user(greet->name, "", realm, 
+		    ret = krb_verify_user(greet->name, "", realm, 
 				      greet->password, 0, "rcmd");
            
-		if(ret == KSUCCESS){
-			chown(krbtkfile, p->pw_uid, p->pw_gid);
-			Debug("kerberos verify succeeded\n");
-			if (k_hasafs()) {
-				if (k_setpag() == -1)
-				    LogError ("setpag() failed for %s\n",
-					      greet->name);
-				
-				if((ret = k_afsklog(NULL, NULL)) != KSUCCESS)
-				    LogError("Warning %s\n", 
-					     krb_get_err_text(ret));
-			}
-			goto done;
-		} else if(ret != KDC_PR_UNKNOWN && ret != SKDC_CANT){
-			/* failure */
-			Debug("kerberos verify failure\n");
-			bzero(greet->password, strlen(greet->password));
-			return 0;
+		    if(ret == KSUCCESS){
+			    chown(krbtkfile, p->pw_uid, p->pw_gid);
+			    Debug("kerberos verify succeeded\n");
+			    if (k_hasafs()) {
+				    if (k_setpag() == -1)
+					    LogError ("setpag() failed for %s\n",
+						      greet->name);
+				    
+				    if((ret = k_afsklog(NULL, NULL)) != KSUCCESS)
+					    LogError("Warning %s\n", 
+						     krb_get_err_text(ret));
+			    }
+			    goto done;
+		    } else if(ret != KDC_PR_UNKNOWN && ret != SKDC_CANT){
+			    /* failure */
+			    Debug("kerberos verify failure %d\n", ret);
+			    bzero(greet->password, strlen(greet->password));
+			    return 0;
+		    }
 		}
 	}
 #endif
