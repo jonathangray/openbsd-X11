@@ -562,8 +562,7 @@ void fvwm_msg(int type,char *id,char *msg,...);
 #ifdef BROKEN_SUN_HEADERS
 #include "sun_headers.h"
 #endif
-#if defined(NEEDS_ALPHA_HEADER) && !defined(__OpenBSD__)
-#warning what
+#ifdef NEEDS_ALPHA_HEADER
 #include "alpha_header.h"
 #endif /* NEEDS_ALPHA_HEADER */
 #endif /* _MISC_ */
