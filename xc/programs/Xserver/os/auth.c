@@ -170,16 +170,16 @@ LoadAuthorization ()
     Xauth   *auth;
     int	    i;
     int	    count = 0;
-#if !defined(WIN32) && !defined(__EMX__) && !defined(__sparc__)
+#if !defined(WIN32) && !defined(__EMX__) && !defined(__sparc__) && !defined(__powerpc__)
     char    *buf;
 #endif
 
     ShouldLoadAuth = FALSE;
     if (!authorization_file)
 	return 0;
-#if !defined(WIN32) && !defined(__EMX__) && !defined(__sparc__)
-    /* XXXX this causes the X server to freeze on the sparc 
-       when started from xdm. I don't understand why --matthieu@laas.fr */
+#if !defined(WIN32) && !defined(__EMX__) && !defined(__sparc__) && !defined(__powerpc__)
+    /* XXXX this causes the X server to freeze on the sparc and powerpc.
+       I don't understand why --matthieu@laas.fr */
     buf = (char *)xalloc (strlen(authorization_file) + 5);
     if (!buf)
 	return 0;
@@ -204,7 +204,7 @@ LoadAuthorization ()
 	}
 	XauDisposeAuth (auth);
     }
-#if !defined(WIN32) && !defined(__EMX__) && !defined(__sparc__)
+#if !defined(WIN32) && !defined(__EMX__) && !defined(__sparc__) && !defined(__powerpc__)
     Pclose (f);
 #else
     fclose (f);
