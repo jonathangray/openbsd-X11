@@ -86,7 +86,7 @@ fatal (int fd, des_cblock *key, des_key_schedule schedule,
     p = msg;
     *p++ = ERROR;
     vsnprintf (p + 4, sizeof(msg) - 5, format, args);
-    syslog (LOG_ERR, p + 4);
+    syslog (LOG_ERR, "%s", p + 4);
     len = strlen (p + 4);
     p += krb_put_int (len, p, 4, 4);
     p += len;
