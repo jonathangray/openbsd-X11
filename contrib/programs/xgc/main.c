@@ -121,8 +121,7 @@ static Widget percentchoice;	/* form for choosing percentage of test */
 ** starts the event loop.
 */
 
-void
-main(argc,argv)
+int main(argc,argv)
      int argc;
      char **argv;
 {

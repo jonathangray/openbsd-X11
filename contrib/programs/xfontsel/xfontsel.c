@@ -241,7 +241,7 @@ static Boolean patternFieldSpecified[FIELD_COUNT]; /* = 0 */
 
 #define	INT2XTP(i) ((XtPointer)(long)(i))
 
-void main(argc, argv)
+int main(argc, argv)
     int argc;
     char **argv;
 {

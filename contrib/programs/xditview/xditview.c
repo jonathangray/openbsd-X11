@@ -205,7 +205,7 @@ XtPointer panner_ptr, report_ptr;
     XtSetValues (panner, args, n);
 }
 
-void main(argc, argv)
+int main(argc, argv)
     int argc;
     char **argv;
 {

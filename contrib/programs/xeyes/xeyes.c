@@ -74,7 +74,7 @@ static XtActionsRec actions[] = {
 
 static Atom wm_delete_window;
 
-void main(argc, argv)
+int main(argc, argv)
     int argc;
     char **argv;
 {

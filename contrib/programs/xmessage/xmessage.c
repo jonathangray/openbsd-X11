@@ -180,8 +180,7 @@ static void time_out();
  * xmessage main program - make sure that there is a message,
  * then create the query box and go.  Callbacks take care of exiting.
  */
-void
-main (argc, argv)
+int main (argc, argv)
     int argc;
     char **argv;
 {

@@ -138,8 +138,7 @@ int saved_argc;
  *	Returns: return, what return.
  */
 
-void 
-main(argc,argv)
+int main(argc,argv)
 char ** argv;
 int argc;
 {

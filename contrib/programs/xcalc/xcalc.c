@@ -110,7 +110,7 @@ static XtResource Resources[] = {
 #undef offset
 
 
-void main(argc, argv)
+int main(argc, argv)
     int		argc;
     char	**argv;
 {
