@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.14 1999/12/01 12:49:09 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.62 2001/03/02 20:18:10 todd Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.63 2001/03/05 18:48:50 todd Exp $
 XCOMM
 
 #ifdef Ports
@@ -45,7 +45,7 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 #define HasKrbIV		YES
 #endif
 
-#if !defined(PpcArchitecture) /* XXX fix this rsn */
+#if !defined(ppcArchitecture) /* XXX fix this rsn */
 
 #ifndef HasLibPthread
 #define HasLibPthread		NO
