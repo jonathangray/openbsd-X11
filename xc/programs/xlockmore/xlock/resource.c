@@ -2095,7 +2095,8 @@ checkResources(void)
 		mode = DEF_MODE;
 
 	if (!strcmp(old_default_mode, "")) {
-		(void) strcpy(old_default_mode, mode);
+		(void) strncpy(old_default_mode, mode, 20-1);
+		old_default_mode[20-1] = '\0';
 	}
 	for (i = 0; i < numprocs; i++) {
 		if (!strcmp(LockProcs[i].cmdline_arg, mode)) {
