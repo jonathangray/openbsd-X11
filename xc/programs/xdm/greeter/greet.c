@@ -46,6 +46,10 @@ from the X Consortium.
 #include "greet.h"
 #include "Login.h"
 
+#ifdef __OpenBSD__
+#include <syslog.h>
+#endif
+
 #if GREET_LIB
 /*
  * Function pointers filled in by the initial call ito the library
@@ -278,6 +282,13 @@ FailedLogin (d, greet)
     struct display	*d;
     struct greet_info	*greet;
 {
+#ifdef __OpenBSD__
+    syslog(LOG_NOTICE, "LOGIN FAILURE ON %s",
+	   d->name);
+    syslog(LOG_AUTHPRIV|LOG_NOTICE,
+	   "LOGIN FAILURE ON %s, %s",
+	   d->name, greet->name);
+#endif
     DrawFail (login);
     bzero (greet->name, strlen(greet->name));
     bzero (greet->password, strlen(greet->password));
@@ -337,6 +348,9 @@ greet_user_rtn GreetUser(d, dpy, verify, greet, dlfuncs)
 	LogError ("Cannot reopen display %s for greet window\n", d->name);
 	exit (RESERVER_DISPLAY);
     }
+#ifdef __OpenBSD__
+    openlog("xdm", LOG_ODELAY, LOG_AUTH);
+#endif
     for (;;) {
 	/*
 	 * Greet user, requesting name/password
