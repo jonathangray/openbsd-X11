@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.13 1998/12/22 11:23:02 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.39 1999/01/08 18:53:43 matthieu Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.40 1999/03/16 05:43:13 todd Exp $
 XCOMM
 
 #ifndef OSName
@@ -142,6 +142,7 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 
 #define StripInstalledPrograms	YES
 #define BuildCyrillicFonts	YES
+#define MakeLocalFontDir	YES
 #define GzipFontCompression	YES
 #define DefaultUserPath		/bin:/usr/bin:/usr/local/bin:$(BINDIR)
 #define DefaultSystemPath	/sbin:/usr/sbin:/bin:/usr/bin:$(BINDIR)
