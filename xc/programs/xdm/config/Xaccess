@@ -36,9 +36,13 @@
 # match, for Direct and Broadcast Query messages, only entries without
 # right hand sides can match.
 #
+# Note the XDMP can be disabled in xdm-config by setting 
+# DisplayManager.requestPort to 0, or starting the server with the 
+# -udpPort 0 option
+#
 
-localhost				# only localhost can get a login window
-#*					#any host can get a login window
+#localhost				# only localhost can get a login window
+*					#any host can get a login window
 
 #
 # To hardwire a specific terminal to a specific host, you can
