@@ -242,7 +242,7 @@ void	write_tables();
 int	verbose = FALSE;
 char	*storage_class = "";
 
-void main (argc, argv)
+int main (argc, argv)
 int argc;
 char** argv;
 {
