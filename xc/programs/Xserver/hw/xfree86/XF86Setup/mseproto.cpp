@@ -64,7 +64,7 @@ set ExtraMouseTypes [list \
 			$PnpMouseTypes 
 #elif defined(__OpenBSD__)
 set ExtraMouseTypes [ list \
-		    "usb" \
+		    "wsmouse" \
 ]
 #define MOUSE_TYPES $SerialMouseTypes $BusMouseTypes $StandardPS2Types \
 			$ExtraMouseTypes $PnpMouseTypes 
