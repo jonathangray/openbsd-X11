@@ -20,8 +20,6 @@ set fsdir=$DESTDIR
 cd $fsdir
 
 set lists=(xbase xserv)
-# SPECIAL: man misc
-# EXTRA SPECIAL (not done here): secr
 
 foreach setname ($lists)
 	echo -n "${setname}: "
@@ -29,6 +27,17 @@ foreach setname ($lists)
 	    pax -w -d | gzip -9 > ${tardir}/${setname}${RELEASE}.tar.gz
 	echo    "done."
 end
+
+if ( "$arch" == "hp300" || "$arch" == "pmax" ) then
+    set xvers=x11r5
+else
+    set xvers=x11r6
+endif
+set setname=xfont
+echo -n "${setname}: "
+cat $listsdir/$setname/mi $listsdir/$setname/md.${xvers} | sort | \
+    pax -w -d | gzip -9 > ${tardir}/${setname}${RELEASE}.tar.gz
+echo    "done."
 
 if ( "$arch" == "i386" ) then 
     set setname=xlink

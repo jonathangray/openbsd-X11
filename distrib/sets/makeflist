@@ -6,17 +6,24 @@ set listsdir=`pwd`/lists
 set TMPFILE=/tmp/_LIST.$$
 
 set lists=(xbase xserv)
-# SPECIAL: man misc
-# EXTRA SPECIAL (not done here): secr
 
 foreach setname ($lists)
 	cat $listsdir/$setname/mi $listsdir/$setname/md.${arch} >>! $TMPFILE
 end
 
+if ( "$arch" == "hp300" || "$arch" == "pmax" ) then
+    set xvers=x11r5
+else
+    set xvers=x11r6
+endif
+set setname=xfont
+cat $listsdir/$setname/mi $listsdir/$setname/md.${xvers} >>! $TMPFILE
+
 if ( "$arch" == "i386" ) then
     set setname=xlink
     cat $listsdir/$setname/mi $listsdir/$setname/md.${arch} >>! $TMPFILE
 endif
+
 
 sort $TMPFILE
 /bin/rm $TMPFILE
