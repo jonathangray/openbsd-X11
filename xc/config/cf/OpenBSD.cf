@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.32 1998/07/04 18:03:32 matthieu Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.33 1998/09/27 04:52:48 rahnds Exp $
 XCOMM
 
 #ifndef OSName
@@ -560,6 +560,11 @@ install:: fonts.alias							@@\
 
 #endif /* PmaxArchitecture */
 
+#ifdef ppcArchitecture
+# define HasSharedLibraries	NO
+# define UseElfFormat		YES
+# define BuildDynamicLoading	NO
+#endif
 
 /*
  * Definitions for the sparc architecture
