@@ -114,7 +114,7 @@ AddToMenu Utilities     "Utilities" Title
 +                       "Editres"       Exec exec editres
 +			""		Nop
 +			"XEmacs"	Exec exec xemacs
-+                       "Mail"          MailFunction xmh "-font fixed"
+#+                       "Mail"          MailFunction xmh "-font fixed"
 +			""		Nop
 +                       "XLock%mini.xlock.xpm%"         Exec exec xlock -mode random
 +			""		Nop
