@@ -58,10 +58,6 @@
 #endif
 #endif
 
-#if defined(__OpenBSD__) && defined(__i386__) /* XXXX && defined(OpenBSD2_9) */
-#define WSCONS_SUPPORT
-#endif
-
 #ifdef WSCONS_SUPPORT
 #include <dev/wscons/wsconsio.h>
 #endif
