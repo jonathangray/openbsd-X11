@@ -2,6 +2,7 @@
  * Host.def for building OpenBSD bindists
  *
  * $XFree86: xc/programs/Xserver/hw/xfree86/etc/bindist/OpenBSD-ix86/host.def,v 1.1.2.2 1998/03/01 12:54:36 dawes Exp $
+ * $OpenBSD: host.def,v 1.6 1998/04/05 10:05:51 matthieu Exp $
  */
 
 #define InstallEmptyHostDef
@@ -22,3 +23,14 @@
 #endif
 
 #define JoystickSupport		YES
+
+/* Enable this to build the docs in xc/programs/Xserver/hw/xfree86/doc/sgml */
+#if 0
+#define HasLinuxDoc			YES
+#define HasSgmlFmt			YES
+#define HasLatex			YES
+#define HasDvips			YES
+#define BuildLinuxDocHtml		YES
+#define BuildAllDocs			NO
+#define InstallJapaneseDocs       	NO
+#endif
