@@ -1,6 +1,6 @@
 /*
  * $XConsortium: sessreg.c /main/18 1996/01/25 18:45:57 kaleb $
- * $XFree86: xc/programs/xdm/sessreg.c,v 3.9.2.2 1999/07/23 13:23:18 hohndel Exp $
+ * $XFree86: xc/programs/xdm/sessreg.c,v 3.9.2.3 2000/02/11 21:36:29 dawes Exp $
  *
  * Copyright (c) 1990  X Consortium
  * 
@@ -77,9 +77,11 @@
 #define SYSV
 #endif
 
-#ifdef CSRG_BASED
+#if defined(CSRG_BASED)
 /* *BSD doesn't like a ':0' type entry in utmp */
+#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
 #define NO_UTMP
+#endif
 #endif
 
 #ifndef WTMP_FILE
