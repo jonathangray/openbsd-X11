@@ -474,6 +474,8 @@
 ./usr/X11R6/lib/X11/fonts/misc/6x9.pcf
 ./usr/X11R6/lib/X11/fonts/misc/7x13.pcf
 ./usr/X11R6/lib/X11/fonts/misc/7x13B.pcf
+./usr/X11R6/lib/X11/fonts/misc/7x13euro.pcf
+./usr/X11R6/lib/X11/fonts/misc/7x13euroB.pcf
 ./usr/X11R6/lib/X11/fonts/misc/7x14.pcf
 ./usr/X11R6/lib/X11/fonts/misc/7x14B.pcf
 ./usr/X11R6/lib/X11/fonts/misc/7x14rk.pcf
