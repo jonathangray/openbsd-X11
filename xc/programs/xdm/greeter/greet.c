@@ -239,7 +239,7 @@ Greet (d, greet)
     struct greet_info *greet;
 {
     XEvent		event;
-    Arg		arglist[2];
+    Arg		arglist[3];
 
     XtSetArg (arglist[0], XtNallowAccess, False);
     XtSetValues (login, arglist, 1);
@@ -258,7 +258,8 @@ Greet (d, greet)
 	greet->password = password;
 	XtSetArg (arglist[0], XtNsessionArgument, (char *) &(greet->string));
 	XtSetArg (arglist[1], XtNallowNullPasswd, (char *) &(greet->allow_null_passwd));
-	XtGetValues (login, arglist, 2);
+	XtSetArg (arglist[2], XtNallowRootLogin, (char *) &(greet->allow_root_login));
+	XtGetValues (login, arglist, 3);
 	Debug ("sessionArgument: %s\n", greet->string ? greet->string : "<NULL>");
     }
     return code;

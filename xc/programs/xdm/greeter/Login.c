@@ -144,7 +144,9 @@ static XtResource resources[] = {
     {XtNallowAccess, XtCAllowAccess, XtRBoolean, sizeof (Boolean),
 	offset(allow_access), XtRImmediate, False },
     {XtNallowNullPasswd, XtCAllowNullPasswd, XtRBoolean, sizeof (Boolean),
-	offset(allow_null_passwd), XtRImmediate, False}
+	offset(allow_null_passwd), XtRImmediate, False},
+    {XtNallowRootLogin, XtCAllowRootLogin, XtRBoolean, sizeof(Boolean),
+     offset(allow_root_login), XtRImmediate, False}
 };
 
 #undef offset

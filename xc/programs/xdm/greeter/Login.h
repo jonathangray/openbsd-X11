@@ -78,6 +78,7 @@ from the X Consortium.
 # define XtNsecureSession	"secureSession"
 # define XtNallowAccess		"allowAccess"
 # define XtNallowNullPasswd	"allowNullPasswd"
+# define XtNallowRootLogin	"allowRootLogin"
 
 #ifdef XPM
 /* added by Amit Margalit Oct 1996 */
@@ -111,6 +112,7 @@ from the X Consortium.
 # define XtCSecureSession	"SecureSession"
 # define XtCAllowAccess		"AllowAccess"
 # define XtCAllowNullPasswd	"AllowNullPasswd"
+# define XtCAllowRootLogin	"AllowRootLogin"
 
 /* notifyDone interface definition */
 

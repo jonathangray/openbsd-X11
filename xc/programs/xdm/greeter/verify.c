@@ -212,6 +212,14 @@ struct verify_info	*verify;
 done:
 #ifdef __OpenBSD__
 	/*
+	 * Only accept root logins if allowRootLogin resource is set
+	 */
+	if ((p->pw_uid == 0) && !greet->allow_root_login) {
+		Debug("root logins not allowed\n");
+		bzero(greet->password, strlen(greet->password));
+		return 0;
+	}
+	/*
 	 * Shell must be in /etc/shells 
 	 */
 	for (;;) {

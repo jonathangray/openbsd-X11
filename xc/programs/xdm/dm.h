@@ -259,6 +259,7 @@ struct greet_info {
 	int		version;	/* for dynamic greeter to see */
 	/* add new fields below this line, and preferably at the end */
 	Boolean		allow_null_passwd; /* allow null password on login */
+	Boolean		allow_root_login; /* allow direct root login */
 };
 
 /* setgroups is not covered by POSIX, arg type varies */
