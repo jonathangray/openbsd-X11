@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.21 1998/03/29 15:29:00 matthieu Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.22 1998/03/31 19:39:57 millert Exp $
 XCOMM
 
 #ifndef OSName
@@ -36,8 +36,10 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 #define HasShm          	YES
 #define HasWChar32		YES
 #define HasMkstemp		YES
-#define HasKrbIV		YES
 #define HasZlib			YES
+#ifndef HasKrbIV
+#define HasKrbIV		YES
+#endif
 
 
 /*
