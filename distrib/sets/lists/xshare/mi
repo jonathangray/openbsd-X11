@@ -475,6 +475,9 @@
 ./usr/X11R6/lib/X11/config/convex.cf
 ./usr/X11R6/lib/X11/config/cray.cf
 ./usr/X11R6/lib/X11/config/fujitsu.cf
+./usr/X11R6/lib/X11/config/gnu.cf
+./usr/X11R6/lib/X11/config/gnuLib.rules
+./usr/X11R6/lib/X11/config/gnuLib.tmpl
 ./usr/X11R6/lib/X11/config/generic.cf
 ./usr/X11R6/lib/X11/config/host.def
 ./usr/X11R6/lib/X11/config/hp.cf
@@ -752,6 +755,7 @@
 ./usr/X11R6/lib/X11/xkb/symbols/be
 ./usr/X11R6/lib/X11/xkb/symbols/bg
 ./usr/X11R6/lib/X11/xkb/symbols/ca
+./usr/X11R6/lib/X11/xkb/symbols/ca_enhanced
 ./usr/X11R6/lib/X11/xkb/symbols/cs
 ./usr/X11R6/lib/X11/xkb/symbols/ctrl
 ./usr/X11R6/lib/X11/xkb/symbols/de
@@ -786,6 +790,7 @@
 ./usr/X11R6/lib/X11/xkb/symbols/pl
 ./usr/X11R6/lib/X11/xkb/symbols/pt
 ./usr/X11R6/lib/X11/xkb/symbols/ru
+./usr/X11R6/lib/X11/xkb/symbols/ralt
 ./usr/X11R6/lib/X11/xkb/symbols/se
 ./usr/X11R6/lib/X11/xkb/symbols/sgi
 ./usr/X11R6/lib/X11/xkb/symbols/sgi/jp
