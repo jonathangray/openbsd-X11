@@ -13,11 +13,13 @@
  * Modifications:
  * 
  *   - Made get_boolean_resource() accept a third parameter, default_value,
- *     which determinse the result of get_boolean_resource if either (a)
+ *     which determines the result of get_boolean_resource if either (a)
  *     no such resource exists, or (b) the resource value does not conform
  *     to the syntax of a boolean resource.
  * 
  *   - Same for get_integer_resource().
+ * 
+ *   - 1999-Dec-24 Trimmed unused functions.
  */
 
 #ifndef __XSCREENSAVER_RESOURCES_H__

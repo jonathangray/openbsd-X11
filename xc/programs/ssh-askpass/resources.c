@@ -14,22 +14,23 @@
  * Modifications:
  * 
  *   - Made get_boolean_resource() accept a third parameter, default_value,
- *     which determinse the result of get_boolean_resource if either (a)
+ *     which determines the result of get_boolean_resource if either (a)
  *     no such resource exists, or (b) the resource value does not conform
  *     to the syntax of a boolean resource.
  * 
  *   - Same for get_integer_resource(), get_pixel_resource().
+ * 
+ *   - 1999-Dec-24 Moved header includes from utils.h to here.
+ *     Trimmed unused functions.
  */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
 #include <X11/Xlib.h>
 #include <X11/Xos.h>
 #include <X11/Xresource.h>
-
 #include "resources.h"
 
 
@@ -179,5 +180,4 @@ get_pixel_resource (char *res_name, char *res_class,
   if (s) free (s);
   return default_value;
 }
-
 

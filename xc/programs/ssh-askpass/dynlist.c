@@ -1,6 +1,6 @@
 /* dynlist.c: Dynamic lists and buffers in C.
  * created 1999-Jan-06 15:34 jmk
- * autodate: 1999-Nov-21 19:36
+ * autodate: 1999-Dec-24 00:12
  * 
  * by Jim Knoble <jmknoble@pobox.com>
  * Copyright © 1999 Jim Knoble
@@ -34,7 +34,7 @@
 int append_to_list(char ***list_ptr, int *list_len, int *i, char *item)
 {
    char **tmp_ptr;
-
+   
    if (*i >= *list_len)
     {
        *list_len += LIST_CHUNK_SIZE;
@@ -47,6 +47,7 @@ int append_to_list(char ***list_ptr, int *list_len, int *i, char *item)
 	} else {
 	   *list_ptr = tmp_ptr;
 	}
+       *list_ptr = tmp_ptr;
     }
    (*list_ptr)[*i] = item;
    (*i)++;
@@ -57,6 +58,7 @@ int append_to_list(char ***list_ptr, int *list_len, int *i, char *item)
 int append_to_buf(char **buf, int *buflen, int *i, int c)
 {
    char *tmp_buf;
+   
    if (*i >= *buflen)
     {
        *buflen += BUF_CHUNK_SIZE;
@@ -69,6 +71,7 @@ int append_to_buf(char **buf, int *buflen, int *i, int c)
 	} else {
 	   *buf = tmp_buf;
 	}
+       *buf = tmp_buf;
 #ifdef DEBUG
        printf("-->Allocated buffer of size %d\n", *buflen);
 #endif /* DEBUG */
