@@ -136,7 +136,9 @@ globally:
 .El
 .It Cm inputTimeout ( No class Cm InputTimeout )
 .Bl -inset -compact
-.It the number of seconds @NAME@ should wait for a key- or
+.It the number of seconds 
+.Nm 
+should wait for a key or
 button press before it gives up and exits.  A timeout of
 .Dq 0
 means wait forever.
