@@ -1,3 +1,4 @@
+/* $XFree86: xc/programs/Xserver/afb/afb.h,v 3.0 1996/08/18 01:45:22 dawes Exp $ */
 /* Combined Purdue/PurduePlus patches, level 2.0, 1/17/89 */
 /***********************************************************
 
@@ -284,6 +285,14 @@ extern void afbResolveColor(
 	unsigned short * /*pgreen*/,
 	unsigned short * /*pblue*/,
 	VisualPtr /*pVisual*/
+#endif
+);
+
+extern Bool afbSetVisualTypes(
+#if NeedFunctionPrototypes
+	int /*depth*/,
+	int /*visuals*/,
+	int /*bitsPerRGB*/
 #endif
 );
 
