@@ -453,7 +453,7 @@ xf86KbdGetMapping (pKeySyms, pModMap)
   break;
 #endif
 
-#if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT)
+#if (defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT)) && defined(GIO_KEYMAP)
   case SYSCONS:
   case PCVT:
     {
@@ -480,7 +480,7 @@ xf86KbdGetMapping (pKeySyms, pModMap)
       }
     }
     break;
-#endif /* SYSCONS || PCVT */
+#endif /* (SYSCONS || PCVT) && GIO_KEYMAP */
     
 #ifdef CODRV_SUPPORT
   case CODRV011:
@@ -522,6 +522,12 @@ xf86KbdGetMapping (pKeySyms, pModMap)
     }
     break;
 #endif /* CODRV */
+#ifdef WSCONS_SUPPORT
+  case WSCONS:
+    /* XXX need to fill this */
+    break;
+#endif /* WSCONS */
+
   } 
 #endif /* !bsdi */
 

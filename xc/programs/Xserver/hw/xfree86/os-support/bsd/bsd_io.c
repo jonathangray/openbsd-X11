@@ -70,6 +70,7 @@ int duration;
 #if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
 	    	case SYSCONS:
 		case PCVT:
+		case WSCONS:
 			ioctl(xf86Info.consoleFd, KDMKTONE,
 			      ((1193190 / pitch) & 0xffff) |
 			      (((unsigned long)duration*loudness/50)<<16));
@@ -96,6 +97,7 @@ int leds;
 #if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
 	case SYSCONS:
 	case PCVT:
+	case WSCONS:
 		ioctl(xf86Info.consoleFd, KDSETLED, leds);
 		break;
 #endif
@@ -120,6 +122,7 @@ int xf86GetKbdLeds()
 #if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
 	case SYSCONS:
 	case PCVT:
+	case WSCONS:
 		ioctl(xf86Info.consoleFd, KDGETLED, &leds);
 		break;
 #endif
@@ -147,6 +150,7 @@ char rad;
 #if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
 	case SYSCONS:
 	case PCVT:
+	case WSCONS:
 		ioctl(xf86Info.consoleFd, KDSETRAD, rad);
 		break;
 #endif
@@ -166,6 +170,7 @@ void xf86KbdInit()
 	case PCCONS:
 	case SYSCONS:
 	case PCVT:
+	case WSCONS:
 		tcgetattr(xf86Info.consoleFd, &kbdtty);
 		break;
 #endif
@@ -186,6 +191,7 @@ int xf86KbdOn()
 	case SYSCONS:
 	case PCCONS:
 	case PCVT:
+	case WSCONS:
 		nTty = kbdtty;
 		nTty.c_iflag = IGNPAR | IGNBRK;
 		nTty.c_oflag = 0;
@@ -217,6 +223,7 @@ int xf86KbdOff()
 #if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
 	case SYSCONS:
 	case PCVT:
+	case WSCONS:
 		ioctl(xf86Info.consoleFd, KDSKBMODE, K_XLATE);
 		/* FALL THROUGH */
 #endif

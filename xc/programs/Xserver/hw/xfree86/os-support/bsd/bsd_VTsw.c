@@ -46,7 +46,8 @@ void xf86VTRequest(sig)
 int sig;
 {
 #if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
-	if (xf86Info.consType == SYSCONS || xf86Info.consType == PCVT) {
+	if (xf86Info.consType == SYSCONS || xf86Info.consType == PCVT 
+	    || xf86Info.consType == WSCONS) {
 		xf86Info.vtRequestsPending = TRUE;
 	}	
 #endif
@@ -56,7 +57,8 @@ int sig;
 Bool xf86VTSwitchPending()
 {
 #if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
-	if (xf86Info.consType == SYSCONS || xf86Info.consType == PCVT) {
+	if (xf86Info.consType == SYSCONS || xf86Info.consType == PCVT
+	    || xf86Info.consType == WSCONS) {
 		return(xf86Info.vtRequestsPending ? TRUE : FALSE);
 	}
 #endif
@@ -66,7 +68,8 @@ Bool xf86VTSwitchPending()
 Bool xf86VTSwitchAway()
 {
 #if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
-	if (xf86Info.consType == SYSCONS || xf86Info.consType == PCVT) {
+	if (xf86Info.consType == SYSCONS || xf86Info.consType == PCVT 
+	    || xf86Info.consType == WSCONS) {
 		xf86Info.vtRequestsPending = FALSE;
 		if (ioctl(xf86Info.consoleFd, VT_RELDISP, 1) < 0)
 			return(FALSE);
@@ -80,7 +83,8 @@ Bool xf86VTSwitchAway()
 Bool xf86VTSwitchTo()
 {
 #if defined (SYSCONS_SUPPORT) || defined (PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
-	if (xf86Info.consType == SYSCONS || xf86Info.consType == PCVT) {
+	if (xf86Info.consType == SYSCONS || xf86Info.consType == PCVT
+	    || xf86Info.consType == WSCONS) {
 		xf86Info.vtRequestsPending = FALSE;
 		if (ioctl(xf86Info.consoleFd, VT_RELDISP, VT_ACKACQ) < 0)
 			return(FALSE);

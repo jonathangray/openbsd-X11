@@ -138,6 +138,7 @@ extern xf86InfoRec xf86Info;
 #define CODRV01X	   2
 #define SYSCONS		   8
 #define PCVT		  16
+#define WSCONS		  32
 #endif
 
 /* Values of xf86Info.mouseFlags */

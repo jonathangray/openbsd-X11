@@ -390,6 +390,12 @@ extern int errno;
       };
 #    endif /* PCVT_SUPPORT && SYSCONS_SUPPORT */
 #   endif /* PCVT_SUPPORT */
+#   if defined(WSCONS_SUPPORT)
+#    if !defined(PCVT_SUPPORT)
+     /* Wscons has a PCVT-compatibility module */
+#     include <dev/wscons/wsdisplay_usl_io.h>
+#    endif
+#   endif
 #   if defined(__FreeBSD__)
 #    undef MOUSE_GETINFO
 #    include <machine/mouse.h>
