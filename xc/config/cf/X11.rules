@@ -64,12 +64,16 @@ XCOMM $TOG: X11.rules /main/4 1997/04/30 15:23:24 kaleb $
 #endif
 #define LdPostLibs	LdPostLib XLdPostLibs
 
-#if ImportX11
+#if ImportX11 
 # define TopXInclude	-I$(TOP)/imports/x11/include
 #elif !UseInstalledX11
 # define TopXInclude	-I$(TOP)/exports/include
 #else
-# define TopXInclude	-I$(XPROJECTROOT)/include
+# ifdef XProjectRoot
+#  define TopXInclude	-I$(XPROJECTROOT)/include
+# else
+#  define TopXinclude	/**/
+# endif
 #endif
 #ifdef TopIncludes
 # undef TopIncludes
