@@ -226,10 +226,6 @@ void CreateNewManpage(), RemoveThisManpage(), Search(), ShowVersion();
 
 Boolean MakeHelpWidget(), OpenHelpfile();
 
-/* main.c */
-
-void main();
-
 /* man.c */
 
 int Man();
