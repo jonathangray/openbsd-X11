@@ -40,9 +40,6 @@ extern char *progname;
 extern char *progclass;
 extern XrmDatabase db;
 
-static unsigned int get_time_resource (char *res_name, char *res_class,
-				       Bool sec_p);
-
 #ifndef isupper
 # define isupper(c)  ((c) >= 'A' && (c) <= 'Z')
 #endif
