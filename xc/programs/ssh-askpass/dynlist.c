@@ -33,13 +33,19 @@
 /* For lists of pointers cast to char *. */
 int append_to_list(char ***list_ptr, int *list_len, int *i, char *item)
 {
+   char **tmp_ptr;
+
    if (*i >= *list_len)
     {
        *list_len += LIST_CHUNK_SIZE;
-       *list_ptr = realloc(*list_ptr, (sizeof(**list_ptr) * *list_len));
-       if (NULL == *list_ptr)
+       tmp_ptr = realloc(*list_ptr, (sizeof(**list_ptr) * *list_len));
+       if (NULL == tmp_ptr)
 	{
+	   free(*list_ptr);
+	   *list_ptr = NULL;
 	   return(APPEND_FAILURE);
+	} else {
+	   *list_ptr = tmp_ptr;
 	}
     }
    (*list_ptr)[*i] = item;
@@ -50,13 +56,18 @@ int append_to_list(char ***list_ptr, int *list_len, int *i, char *item)
 /* For single-dimensional buffers. */
 int append_to_buf(char **buf, int *buflen, int *i, int c)
 {
+   char *tmp_buf;
    if (*i >= *buflen)
     {
        *buflen += BUF_CHUNK_SIZE;
-       *buf = realloc(*buf, (sizeof(**buf) * *buflen));
-       if (NULL == *buf)
+       tmp_buf = realloc(*buf, (sizeof(**buf) * *buflen));
+       if (NULL == tmp_buf)
 	{
+	   free(*buf);
+	   *buf = NULL;
 	   return(APPEND_FAILURE);
+	} else {
+	   *buf = tmp_buf;
 	}
 #ifdef DEBUG
        printf("-->Allocated buffer of size %d\n", *buflen);
@@ -66,4 +77,3 @@ int append_to_buf(char **buf, int *buflen, int *i, int c)
    (*i)++;
    return(APPEND_SUCCESS);
 }
-
