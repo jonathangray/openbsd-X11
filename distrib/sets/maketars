@@ -24,7 +24,7 @@ set fsdir=$DESTDIR
 
 cd $fsdir
 
-set lists=(xbase xserv)
+set lists=(xbase xserv xshare)
 
 foreach setname ($lists)
 	echo -n "${setname}: "
