@@ -459,6 +459,9 @@ char *cpp_argv[ARGUMENTS] = {
 # ifdef __alpha
 	"-D__alpha",
 # endif
+# ifdef __amiga__
+	"-D__amiga__",
+# endif
 # ifdef __alpha__
 	"-D__alpha__",
 # endif
@@ -831,6 +834,9 @@ struct symtab	predefs[] = {
 #endif
 #ifdef __osf__
 	{"__osf__", "1"},
+#endif
+#ifdef __amiga__
+	{"__amiga__", "1"},
 #endif
 #ifdef __alpha
 	{"__alpha", "1"},
