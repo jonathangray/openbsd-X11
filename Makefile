@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.22 2000/04/28 19:46:48 espie Exp $
+#	$OpenBSD: Makefile,v 1.23 2000/05/04 19:34:07 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -30,6 +30,7 @@ RELEASEDIR?=`/bin/pwd`/rel
 DESTDIR?=`/bin/pwd`/dest
 
 LOCALAPPD=/usr/local/lib/X11/app-defaults
+LOCALAPPX=/usr/local/lib/X11
 REALAPPD=/var/X11/app-defaults
 
 
@@ -123,6 +124,7 @@ fix-appd:
 		mv $(DESTDIR)${LOCALAPPD}/* $(DESTDIR)${REALAPPD}; \
 		rmdir $(DESTDIR)${LOCALAPPD}; \
 	    fi; \
+	    mkdir -p ${DESTDIR}${LOCALAPPX}; \
 	    ln -s ${REALAPPD} ${DESTDIR}${LOCALAPPD}; \
     	fi
 
