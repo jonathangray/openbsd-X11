@@ -11,7 +11,7 @@
  */
 
 XCOMM Define these now or down further below, see below for explaination.
-#define XpmLibrary
+XCOMM  #define XpmLibrary /* On OpenBSD this is HasXpm */
 XCOMM  #define XmLibrary
 XCOMM  #define XawLibrary
 XCOMM  #define GLLibrary
@@ -48,14 +48,14 @@ XCOMM Only the image.c and bat.c modes use this.
 XCOMM If your system has libXpm, remove the 'XCOMM  ' from the next line.
 XCOMM  #define XpmLibrary
 
-#ifdef XpmLibrary
+#if HasXpm
 XPMDEF = -DUSE_XPM
 XCOMM Use the following if your xpm.h file is not in an X11 directory
 XCOMM  XPMDEF = -DUSE_XPMINC
 
 XCOMM If you get an error "Cannot find xpm.h" while compiling, set
 XCOMM XPMINC to the directory X11/xpm.h is in.  Below is a guess.
-XPMINC = -I/usr/local/include
+XCOMM XPMINC = -I/usr/local/include
 XCOMM SGI's ViewKit (use with -DUSE_XPMINC)
 XCOMM  XPMINC = -I/usr/include/Vk
 
@@ -276,11 +276,13 @@ PASSWDDEF = -DHAVE_SHADOW -Dlinux
 PASSWDLIB = -l/src/util/Lib/util
 #endif
 
+#if HasKrbIV
 XCOMM KERBEROS Ver. 4
 PASSWDDEF = -DHAVE_KRB4
 XCOMM  PASSWDINC = -I/usr/athena/include
 XCOMM  PASSWDLIB = -L/usr/athena/lib -lkrb -ldes -lresolv
 PASSWDLIB = -lkrb -ldes
+#endif
 XCOMM
 XCOMM KERBEROS Ver. 5
 XCOMM  PASSWDDEF = -DHAVE_KRB5
