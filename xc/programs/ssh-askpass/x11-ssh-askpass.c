@@ -1,6 +1,6 @@
 /* x11-ssh-askpass.c:  A generic X11-based password dialog for OpenSSH.
  * created 1999-Nov-17 03:40 Jim Knoble <jmknoble@jmknoble.cx>
- * autodate: 2000-Aug-28 01:57
+ * autodate: 2000-Nov-07 06:11
  * 
  * by Jim Knoble <jmknoble@jmknoble.cx>
  * Copyright (C) 1999,2000 Jim Knoble
@@ -34,6 +34,7 @@
  * provisions as those of the xscreensaver code.
  */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,6 +42,8 @@
 /* For (get|set)rlimit() ... */
 #include <sys/time.h>
 #include <sys/resource.h>
+/* ... end */
+/* For (get|set)rlimit(), sleep(), and getpid() ... */
 #include <unistd.h>
 /* ... end */
 
@@ -71,8 +74,8 @@ static char *defaults[] = {
 
 void outOfMemory(AppInfo *app, int line)
 {
-   fprintf(stderr, "%s: Aaahhh! I ran out of memory at line %d.\n",
-	   app->appName, line);
+   fprintf(stderr, "%s[%ld]: Aaahhh! I ran out of memory at line %d.\n",
+	   app->appName, (long) app->pid, line);
    exit(EXIT_STATUS_NO_MEMORY);
 }
 
@@ -119,6 +122,97 @@ char *getStringResourceWithDefault(char *instanceName, char *className,
    }
    return(s);
 }
+
+unsigned int getUnsignedIntegerResource(AppInfo *app, char *instanceName,
+					char *className,
+					unsigned int defaultValue)
+{
+   int n;
+   unsigned int value;
+   char c;
+   char *s = get_string_resource(instanceName, className);
+   char *cp = s;
+   
+   if (NULL == s) {
+      return(defaultValue);
+   }
+   while ((*cp) && isspace(*cp)) {
+      /* Skip whitespace. */
+      cp++;
+   }
+   if ('0' == cp[0]) {
+      if (('x' == cp[1]) || ('X' == cp[1])) {
+	 /* Hex */
+	 n = sscanf(cp + 2, "%x %c", &value, &c);
+      } else {
+	 /* Octal */
+	 n = sscanf(cp + 1, "%o %c", &value, &c);
+      }
+      if (1 == n) {
+	 free(s);
+	 return(value);
+      }
+   } else {
+      /* Unsigned Decimal */
+      n = sscanf(cp, "%u %c", &value, &c);
+      if (1 == n) {
+	 free(s);
+	 return(value);
+      }
+   }
+   /* If we get here, no conversion succeeded. */
+   fprintf(stderr, "%s[%ld]: invalid value '%s' for %s.\n",
+	   app->appName, (long) app->pid, s, instanceName);
+   return(defaultValue);
+}
+
+/* Default resolution is 75 dots/inch.  1 in = 2.54 cm. */
+#define DefaultResolution ((75 * 10000) / 254)
+long getResolutionResource(AppInfo *app, char *instanceName, char *className,
+			   char *defaultResolutionSpec)
+{
+   char units[3];
+   char *s;
+   int n;
+   long resolution;
+   unsigned int i;
+   
+   memset(units, 0, sizeof(units));
+   s = getStringResourceWithDefault(instanceName, className,
+				    defaultResolutionSpec);
+   /* NOTE: The width of the %s format must be one less than
+    * the length of the units[] array above!
+    */
+   n = sscanf(s, "%ld / %2s", &resolution, units);
+   if (n != 2) {
+      fprintf(stderr, "%s[%ld]: invalid value '%s' for %s.\n",
+	      app->appName, (long) app->pid, s, instanceName);
+      resolution = DefaultResolution;
+   } else {
+      if (resolution < 0) {
+	 /* Resolution specifications should not be negative. */
+	 resolution = -(resolution);
+      }
+      for (i = 0; i < (sizeof(units) - 1); i++) {
+	 units[i] = tolower(units[i]);
+      }
+      if ((0 == strcmp(units, "in")) ||
+	  (0 == strcmp(units, "i")) ||
+	  (0 == strcmp(units, "\""))) {
+	 /* dots/inch */
+	 resolution = resolution * 10000 / 254;
+      } else if ((0 == strcmp(units, "m")) ||
+		 (0 == strcmp(units, "me"))) {
+	 /* dots/meter; no conversion necessary */
+	 ;
+      } else {
+	 /* some unit we don't recognize; cringe and stare at the floor */
+	 resolution = DefaultResolution;
+      }
+   }
+   return(resolution);
+}
+#undef DefaultResolution
 
 void calcLabelTextExtents(LabelInfo *label)
 {
@@ -184,6 +278,36 @@ void calcButtonLabelPosition(ButtonInfo *button)
       + button->label.ascent;
 }
 
+Dimension scaleXDimension(AppInfo *app, Dimension unscaled)
+{
+   Dimension scaled;
+   
+   if (((app->defaultXResolution < app->xResolution) &&
+	((app->defaultXResolution + app->xFuzz) < app->xResolution)) ||
+       ((app->xResolution < app->defaultXResolution) &&
+	((app->xResolution + app->xFuzz) < app->defaultXResolution))) {
+      scaled = (unscaled * app->xResolution) / app->defaultXResolution;
+   } else {
+      scaled = unscaled;
+   }
+   return(scaled);
+}
+
+Dimension scaleYDimension(AppInfo *app, Dimension unscaled)
+{
+   Dimension scaled;
+   
+   if (((app->defaultYResolution < app->yResolution) &&
+	((app->defaultYResolution + app->yFuzz) < app->yResolution)) ||
+       ((app->yResolution < app->defaultYResolution) &&
+	((app->yResolution + app->yFuzz) < app->defaultYResolution))) {
+      scaled = (unscaled * app->yResolution) / app->defaultYResolution;
+   } else {
+      scaled = unscaled;
+   }
+   return(scaled);
+}
+
 void createDialog(AppInfo *app)
 {
    DialogInfo *d;
@@ -197,12 +321,29 @@ void createDialog(AppInfo *app)
    }
    memset(d, 0, sizeof(*d));
 
-   app->grabKeyboard =
+   app->grabKeyboard = 
       get_boolean_resource("grabKeyboard", "GrabKeyboard", True);
    app->grabPointer =
       get_boolean_resource("grabPointer", "GrabPointer", False);
    app->grabPointer =
       get_boolean_resource("grabServer", "GrabServer", False);
+
+   /* inputTimeout resource specified in seconds for easy human interface.
+    * Convert to milliseconds here.
+    */
+   app->inputTimeout = (unsigned long) 1000 *
+      getUnsignedIntegerResource(app, "inputTimeout", "InputTimeout", 0);
+   
+   app->defaultXResolution =
+      getResolutionResource(app, "defaultXResolution", "DefaultXResolution",
+			    "75/in");
+   app->defaultYResolution =
+      getResolutionResource(app, "defaultYResolution", "DefaultYResolution",
+			    "75/in");
+   app->xFuzz =
+      getResolutionResource(app, "xResolutionFuzz", "XResolutionFuzz", "20/in");
+   app->yFuzz =
+      getResolutionResource(app, "yResolutionFuzz", "YResolutionFuzz", "20/in");
    
    d->title =
       getStringResourceWithDefault("dialog.title", "Dialog.Title",
@@ -227,10 +368,10 @@ void createDialog(AppInfo *app)
    d->w3.borderWidth =
       get_integer_resource("borderWidth", "BorderWidth", 1);
    
-   d->w3.horizontalSpacing =
-      get_integer_resource("horizontalSpacing", "Spacing", 5);
-   d->w3.verticalSpacing =
-      get_integer_resource("verticalSpacing", "Spacing", 6);
+   d->w3.horizontalSpacing = scaleXDimension(app,
+      get_integer_resource("horizontalSpacing", "Spacing", 5));
+   d->w3.verticalSpacing = scaleYDimension(app,
+      get_integer_resource("verticalSpacing", "Spacing", 6));
    
    if (2 == app->argc) {
       d->label.text = strdup(app->argv[1]);
@@ -265,10 +406,10 @@ void createDialog(AppInfo *app)
 			 app->dpy, app->colormap, app->black);
    d->okButton.w3.borderWidth =
       get_integer_resource("okButton.borderWidth", "Button.BorderWidth", 1);
-   d->okButton.w3.horizontalSpacing = 
-      get_integer_resource("okButton.horizontalSpacing", "Button.Spacing", 4);
-   d->okButton.w3.verticalSpacing = 
-      get_integer_resource("okButton.verticalSpacing", "Button.Spacing", 2);
+   d->okButton.w3.horizontalSpacing = scaleXDimension(app,
+      get_integer_resource("okButton.horizontalSpacing", "Button.Spacing", 4));
+   d->okButton.w3.verticalSpacing = scaleYDimension(app,
+      get_integer_resource("okButton.verticalSpacing", "Button.Spacing", 2));
    d->okButton.label.text =
       getStringResourceWithDefault("okButton.label", "Button.Label", "OK");
    d->okButton.label.font =
@@ -300,12 +441,12 @@ void createDialog(AppInfo *app)
    d->cancelButton.w3.borderWidth =
       get_integer_resource("cancelButton.borderWidth", "Button.BorderWidth",
 			   1);
-   d->cancelButton.w3.horizontalSpacing = 
+   d->cancelButton.w3.horizontalSpacing = scaleXDimension(app,
       get_integer_resource("cancelButton.horizontalSpacing", "Button.Spacing",
-			   4);
-   d->cancelButton.w3.verticalSpacing = 
+			   4));
+   d->cancelButton.w3.verticalSpacing = scaleYDimension(app,
       get_integer_resource("cancelButton.verticalSpacing", "Button.Spacing",
-			   2);
+			   2));
    d->cancelButton.label.text =
       getStringResourceWithDefault("cancelButton.label", "Button.Label",
 				   "Cancel");
@@ -323,10 +464,10 @@ void createDialog(AppInfo *app)
    d->indicator.w3.w.background =
       get_pixel_resource("indicator.background", "Indicator.Background",
 			 app->dpy, app->colormap, app->white);
-   d->indicator.w3.w.width =
-      get_integer_resource("indicator.width", "Indicator.Width", 15);
-   d->indicator.w3.w.height =
-      get_integer_resource("indicator.height", "Indicator.Height", 7);
+   d->indicator.w3.w.width = scaleXDimension(app,
+      get_integer_resource("indicator.width", "Indicator.Width", 15));
+   d->indicator.w3.w.height = scaleYDimension(app,
+      get_integer_resource("indicator.height", "Indicator.Height", 7));
    d->indicator.w3.topShadowColor =
       get_pixel_resource("indicator.topShadowColor",
 			 "Indicator.TopShadowColor",
@@ -344,12 +485,12 @@ void createDialog(AppInfo *app)
    d->indicator.w3.borderWidth =
       get_integer_resource("indicator.borderWidth", "Indicator.BorderWidth",
 			   0);
-   d->indicator.w3.horizontalSpacing =
+   d->indicator.w3.horizontalSpacing = scaleXDimension(app,
       get_integer_resource("indicator.horizontalSpacing", "Indicator.Spacing",
-			   2);
-   d->indicator.w3.verticalSpacing =
+			   2));
+   d->indicator.w3.verticalSpacing =scaleYDimension(app,
       get_integer_resource("indicator.verticalSpacing", "Indicator.Spacing",
-			   4);
+			   4));
    d->indicator.minimumCount =
       get_integer_resource("indicator.minimumCount", "Indicator.MinimumCount",
 			   8);
@@ -528,11 +669,7 @@ void createDialogWindow(AppInfo *app)
    attrMask |= CWBorderPixel;
    attr.cursor = None;
    attrMask |= CWCursor;
-   attr.event_mask = 0;
-   attr.event_mask |= ExposureMask;
-   attr.event_mask |= ButtonPressMask;
-   attr.event_mask |= ButtonReleaseMask;
-   attr.event_mask |= KeyPressMask;
+   attr.event_mask = app->eventMask;
    attrMask |= CWEventMask;
 
    d->dialogWindow = XCreateWindow(app->dpy, app->rootWindow,
@@ -709,7 +846,23 @@ void paintButton(AppInfo *app, Drawable draw, ButtonInfo button)
 			       button.w3.bottomShadowColor);
       }
    }
-   paintLabel(app, draw, button.label);
+   if ((button.w3.shadowThickness > 0) && (button.pressed)) {
+      Dimension pressedAdjustment;
+      
+      pressedAdjustment = button.w3.shadowThickness / 2;
+      if (pressedAdjustment < 1) {
+	 pressedAdjustment = 1;
+      }
+      x = button.label.w.x;
+      y = button.label.w.y;
+      button.label.w.x += pressedAdjustment;
+      button.label.w.y += pressedAdjustment;
+      paintLabel(app, draw, button.label);
+      button.label.w.x = x;
+      button.label.w.y = y;
+   } else {
+      paintLabel(app, draw, button.label);
+   }
    if ((button.w3.shadowThickness <= 0) && (button.pressed)) {
       Pixel tmp = button.w3.w.background;
       button.w3.w.background = button.w3.w.foreground;
@@ -816,31 +969,77 @@ void paintDialog(AppInfo *app)
    XSync(app->dpy, False);
 }
 
-void grabKeyboard(AppInfo *app)
-{
-   if ((!(app->grabKeyboard)) || (app->isKeyboardGrabbed)) {
+void performGrab(AppInfo *app, int grabType, char *grabTypeName,
+		 Bool shouldGrab, Bool *isGrabbed) {
+   if ((!(shouldGrab)) || (*isGrabbed)) {
+      return;
+   } else if ((GRAB_KEYBOARD != grabType) && (GRAB_POINTER != grabType)) {
+      fprintf(stderr, "%s[%ld]: performGrab: invalid grab type (%d).\n",
+	      app->appName, (long) app->pid, grabType);
       return;
    } else {
-      int status;
+      int status = GrabInvalidTime;	/* keep gcc -Wall from complaining */
+      unsigned int seconds = 0;
+      int helpful_message = 0;
+      /* keyboard and pointer */
       Window grabWindow = app->dialog->dialogWindow;
       Bool ownerEvents = False;
       Bool pointerMode = GrabModeAsync;
       Bool keyboardMode = GrabModeAsync;
+      /* pointer only */
+      unsigned int eventMask = ButtonPressMask | ButtonReleaseMask;
+      Window confineTo = None;
+      Cursor cursor = None;
+      
+      *isGrabbed = True;
+      
+      if (NULL == grabTypeName) {
+	 fprintf(stderr, "%s[%ld]: performGrab: null grab type name.\n",
+		 app->appName, (long) app->pid);
+      }
 
-      app->isKeyboardGrabbed = True;
-      XSync(app->dpy, False);
-      status = XGrabKeyboard(app->dpy, grabWindow, ownerEvents,
-			     pointerMode, keyboardMode, CurrentTime);
-      XSync(app->dpy, False);
+      if (0 == app->grabFailTimeout) {
+	 /* Ensure we try to perform the grab at least once. */
+	 app->grabFailTimeout = 1;
+      }
+      while (seconds < app->grabFailTimeout) {
+	 XSync(app->dpy, False);
+	 switch (grabType) {
+	  case GRAB_KEYBOARD:
+	    status = XGrabKeyboard(app->dpy, grabWindow, ownerEvents,
+				   pointerMode, keyboardMode, CurrentTime);
+	    break;
+	  case GRAB_POINTER:
+	    status = XGrabPointer(app->dpy, grabWindow, ownerEvents,
+				  eventMask, pointerMode, keyboardMode,
+				  confineTo, cursor, CurrentTime);
+	    break;
+	 }
+	 XSync(app->dpy, False);
+	 if (GrabSuccess == status) {
+	    if (helpful_message) {
+	       fprintf(stderr, "%s[%ld]: Got %s.\n",
+		       app->appName, (long) app->pid, grabTypeName);
+	    }
+	    break;
+	 }
+	 if (!helpful_message) {
+	    fprintf(stderr, "%s[%ld]: Trying to grab %s ...\n",
+		    app->appName, (long) app->pid, grabTypeName);
+	    helpful_message = 1;
+	 }
+	 seconds += app->grabRetryInterval;
+	 sleep(app->grabRetryInterval);
+      }
       if (GrabSuccess != status) {
 	 char *reason = "reason unknown";
 	 
 	 switch (status) {
 	  case AlreadyGrabbed:
-	    reason = "someone else already has the keyboard";
+	    reason = "someone else already has it";
 	    break;
 	  case GrabFrozen:
-	    reason = "someone else has frozen the keyboard";
+	    reason = "someone else has frozen it";
 	    break;
 	  case GrabInvalidTime:
 	    reason = "bad grab time [this shouldn't happen]";
@@ -849,11 +1048,18 @@ void grabKeyboard(AppInfo *app)
 	    reason = "grab not viewable [this shouldn't happen]";
 	    break;
 	 }
-	 fprintf(stderr, "%s: Could not grab keyboard (%s)\n",
-		 app->appName, reason);
+	 fprintf(stderr, "%s[%ld]: Could not grab %s (%s)\n",
+		 app->appName, (long) app->pid, grabTypeName, reason);
 	 exitApp(app, EXIT_STATUS_ERROR);
       }
    }
+}
+		 
+
+void grabKeyboard(AppInfo *app)
+{
+   performGrab(app, GRAB_KEYBOARD, "keyboard", app->grabKeyboard,
+	       &(app->isKeyboardGrabbed));
 }
 
 void ungrabKeyboard(AppInfo *app)
@@ -865,46 +1071,8 @@ void ungrabKeyboard(AppInfo *app)
 
 void grabPointer(AppInfo *app)
 {
-   if ((!(app->grabPointer)) || (app->isPointerGrabbed)) {
-      return;
-   } else {
-      int status;
-      Window grabWindow = app->dialog->dialogWindow;
-      Bool ownerEvents = False;
-      unsigned int eventMask = ButtonPressMask | ButtonReleaseMask;
-      Bool pointerMode = GrabModeAsync;
-      Bool keyboardMode = GrabModeAsync;
-      Window confineTo = None;
-      Cursor cursor = None;
-
-      app->isPointerGrabbed = True;
-      XSync(app->dpy, False);
-      status = XGrabPointer(app->dpy, grabWindow, ownerEvents, eventMask,
-			    pointerMode, keyboardMode, confineTo, cursor,
-			    CurrentTime);
-      XSync(app->dpy, False);
-      if (GrabSuccess != status) {
-	 char *reason = "reason unknown";
-	 
-	 switch (status) {
-	  case AlreadyGrabbed:
-	    reason = "someone else already has the pointer";
-	    break;
-	  case GrabFrozen:
-	    reason = "someone else has frozen the pointer";
-	    break;
-	  case GrabInvalidTime:
-	    reason = "bad grab time [this shouldn't happen]";
-	    break;
-	  case GrabNotViewable:
-	    reason = "grab not viewable [this shouldn't happen]";
-	    break;
-	 }
-	 fprintf(stderr, "%s: Could not grab pointer (%s)\n",
-		 app->appName, reason);
-	 exitApp(app, EXIT_STATUS_ERROR);
-      }
-   }
+   performGrab(app, GRAB_POINTER, "pointer", app->grabPointer,
+	       &(app->isPointerGrabbed));
 }
 
 void ungrabPointer(AppInfo *app)
@@ -935,6 +1103,7 @@ void ungrabServer(AppInfo *app)
 
 void cleanUp(AppInfo *app)
 {
+   cancelInputTimeout(app);
    XDestroyWindow(app->dpy, app->dialog->dialogWindow);
    destroyGCs(app);
    destroyDialog(app);
@@ -1002,16 +1171,17 @@ void addToPassphrase(AppInfo *app, char c)
    updateIndicators(app, 1);
 }
 
-void handleKeyPress(AppInfo *app, XKeyEvent *event)
+void handleKeyPress(AppInfo *app, XEvent *event)
 {
    char s[2];
    int n;
    
-   if (event->send_event) {
+   if (event->xkey.send_event) {
       /* Pay no attention to synthetic key events. */
       return;
    }
-   n = XLookupString(event, s, 1, NULL, NULL);
+   cancelInputTimeout(app);
+   n = XLookupString(&(event->xkey), s, 1, NULL, NULL);
    
    if (1 != n) {
       return;
@@ -1039,26 +1209,45 @@ void handleKeyPress(AppInfo *app, XKeyEvent *event)
    }
 }
 
-Bool eventIsInsideButton(AppInfo *app, XButtonEvent *event, ButtonInfo button)
+Bool eventIsInsideButton(AppInfo *app, XEvent *event, ButtonInfo button)
 {
+   /* 'gcc -Wall' complains about 'app' being an unused parameter. 
+    * Tough.  We might want to use it later, and then we don't have
+    * to change it in each place it's called.  Performance won't suffer.
+    */
    int status = False;
+   int x, y;
    
-   if ((event->x >= (button.w3.w.x + button.w3.borderWidth)) &&
-       (event->x < (button.w3.w.x + button.w3.w.width -
-		    (2 * button.w3.borderWidth))) &&
-       (event->y >= (button.w3.w.y + button.w3.borderWidth)) &&
-       (event->y < (button.w3.w.y + button.w3.w.height -
-		    (2 * button.w3.borderWidth)))) {
+   switch(event->type) {
+    case ButtonPress:
+    case ButtonRelease:
+      x = event->xbutton.x;
+      y = event->xbutton.y;
+      break;
+    case MotionNotify:
+      x = event->xmotion.x;
+      y = event->xmotion.y;
+      break;
+    default:
+      return(False);
+   }
+   if ((x >= (button.w3.w.x + button.w3.borderWidth)) &&
+       (x < (button.w3.w.x + button.w3.w.width -
+	     (2 * button.w3.borderWidth))) &&
+       (y >= (button.w3.w.y + button.w3.borderWidth)) &&
+       (y < (button.w3.w.y + button.w3.w.height -
+	     (2 * button.w3.borderWidth)))) {
       status = True;
    }
    return(status);
 }
 
-void handleButtonPress(AppInfo *app, XButtonEvent *event)
+void handleButtonPress(AppInfo *app, XEvent *event)
 {
    DialogInfo *d = app->dialog;
-   
-   if (event->button != Button1) {
+
+   cancelInputTimeout(app);
+   if (event->xbutton.button != Button1) {
       return;
    }
    if (ButtonPress == event->type) {
@@ -1078,18 +1267,77 @@ void handleButtonPress(AppInfo *app, XButtonEvent *event)
 	 if (eventIsInsideButton(app, event, d->okButton)) {
 	    acceptAction(app);
 	 } else {
-	    d->okButton.pressed = False;
-	    paintButton(app, d->dialogWindow, d->okButton);
+	    if (d->okButton.pressed) {
+	       d->okButton.pressed = False;
+	       paintButton(app, d->dialogWindow, d->okButton);
+	    }
 	 }
       } else if (CANCEL_BUTTON == d->pressedButton) {
 	 if (eventIsInsideButton(app, event, d->cancelButton)) {
 	    cancelAction(app);
 	 } else {
+	    if (d->cancelButton.pressed) {
+	       d->cancelButton.pressed = False;
+	       paintButton(app, d->dialogWindow, d->cancelButton);
+	    }
+	 }
+      }
+      d->pressedButton = NO_BUTTON;
+   }
+}
+
+void handlePointerMotion(AppInfo *app, XEvent *event)
+{
+   DialogInfo *d = app->dialog;
+   
+   if (NO_BUTTON == d->pressedButton) {
+      return;
+   } else if (OK_BUTTON == d->pressedButton) {
+      if (eventIsInsideButton(app, event, d->okButton)) {
+	 if (!(d->okButton.pressed)) {
+	    d->okButton.pressed = True;
+	    paintButton(app, d->dialogWindow, d->okButton);
+	 }
+      } else {
+	 if (d->okButton.pressed) {
+	    d->okButton.pressed = False;
+	    paintButton(app, d->dialogWindow, d->okButton);
+	 }
+      }
+   } else if (CANCEL_BUTTON == d->pressedButton) {
+      if (eventIsInsideButton(app, event, d->cancelButton)) {
+	 if (!(d->cancelButton.pressed)) {
+	    d->cancelButton.pressed = True;
+	    paintButton(app, d->dialogWindow, d->cancelButton);
+	 }
+      } else {
+	 if (d->cancelButton.pressed) {
 	    d->cancelButton.pressed = False;
 	    paintButton(app, d->dialogWindow, d->cancelButton);
 	 }
       }
-      d->pressedButton = NO_BUTTON;
+   }
+}
+
+void handleInputTimeout(XtPointer data, XtIntervalId *timerId)
+{
+   /* 'gcc -Wall' complains about 'timerId' being an unused parameter.
+    * Tough.  Xt forces us to have it here.  Like it.
+    */
+   AppInfo *app = (AppInfo *) data;
+   if (app->inputTimeoutActive) {
+      app->inputTimeoutActive = False;
+      fprintf(stderr, "%s[%ld]: *Yawn*...timed out after %lu seconds.\n",
+	      app->appName, (long) app->pid, (app->inputTimeout / 1000));
+      exitApp(app, EXIT_STATUS_TIMEOUT);
+   }
+}
+
+void cancelInputTimeout(AppInfo *app)
+{
+   if (app->inputTimeoutActive) {
+      app->inputTimeoutActive = False;
+      XtRemoveTimeOut(app->inputTimeoutTimerId);
    }
 }
 
@@ -1118,6 +1366,13 @@ int main(int argc, char **argv)
    app.appClass = progclass;
    /* For resources.c. */
    db = app.resourceDb;
+   
+   /* Seconds after which keyboard/pointer grab fail. */
+   app.grabFailTimeout = 5;
+   /* Number of seconds to wait between grab attempts. */
+   app.grabRetryInterval = 1;
+   
+   app.pid = getpid();
 
    {
       struct rlimit resourceLimit;
@@ -1125,27 +1380,47 @@ int main(int argc, char **argv)
       
       status = getrlimit(RLIMIT_CORE, &resourceLimit);
       if (-1 == status) {
-	 fprintf(stderr, "%s: getrlimit failed (%s)\n", app.appName,
-		 strerror(errno));
+	 fprintf(stderr, "%s[%ld]: getrlimit failed (%s)\n", app.appName,
+		 (long) app.pid, strerror(errno));
 	 exit(EXIT_STATUS_ERROR);
       }
       resourceLimit.rlim_cur = 0;
       status = setrlimit(RLIMIT_CORE, &resourceLimit);
       if (-1 == status) {
-	 fprintf(stderr, "%s: setrlimit failed (%s)\n", app.appName,
-		 strerror(errno));
+	 fprintf(stderr, "%s[%ld]: setrlimit failed (%s)\n", app.appName,
+		 (long) app.pid, strerror(errno));
 	 exit(EXIT_STATUS_ERROR);
       }
    }
-
+   
+   app.xResolution =
+      WidthOfScreen(app.screen) * 1000 / WidthMMOfScreen(app.screen);
+   app.yResolution =
+      HeightOfScreen(app.screen) * 1000 / HeightMMOfScreen(app.screen);
+   
    createDialog(&app);
    createGCs(&app);
+   
+   app.eventMask = 0;
+   app.eventMask |= ExposureMask;
+   app.eventMask |= ButtonPressMask;
+   app.eventMask |= ButtonReleaseMask;
+   app.eventMask |= Button1MotionMask;
+   app.eventMask |= KeyPressMask;
+
    createDialogWindow(&app);
    
    XMapWindow(app.dpy, app.dialog->dialogWindow);
+   if (app.inputTimeout > 0) {
+      app.inputTimeoutActive = True;
+      app.inputTimeoutTimerId =
+	 XtAppAddTimeOut(app.appContext, app.inputTimeout,
+			 handleInputTimeout, (XtPointer) &app);
+   }
+
    
    while(True) {
-      XNextEvent(app.dpy, &event);
+      XtAppNextEvent(app.appContext, &event);
       switch (event.type) {
        case Expose:
 	 grabServer(&app);
@@ -1158,14 +1433,17 @@ int main(int argc, char **argv)
 	 break;
        case ButtonPress:
        case ButtonRelease:
-	 handleButtonPress(&app, &(event.xbutton));
+	 handleButtonPress(&app, &event);
 	 break;
+       case MotionNotify:
+	 handlePointerMotion(&app, &event);
        case KeyPress:
-	 handleKeyPress(&app, &(event.xkey));
+	 handleKeyPress(&app, &event);
 	 break;
        case ClientMessage:
 	 if ((32 == event.xclient.format) &&
-	     (event.xclient.data.l[0] == app.wmDeleteWindowAtom)) {
+	     ((unsigned long) event.xclient.data.l[0] ==
+	      app.wmDeleteWindowAtom)) {
 	    cancelAction(&app);
 	 }
 	 break;
@@ -1174,7 +1452,8 @@ int main(int argc, char **argv)
       }
    }
 
-   fprintf(stderr, "%s: This should not happen.\n", app.appName);
+   fprintf(stderr, "%s[%ld]: This should not happen.\n", app.appName,
+	   (long) app.pid);
    return(EXIT_STATUS_ANOMALY);
 }
 

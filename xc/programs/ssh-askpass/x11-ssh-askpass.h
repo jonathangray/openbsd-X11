@@ -1,6 +1,6 @@
 /* x11-ssh-askpass.h:  A generic X11-based password dialog for OpenSSH.
  * created 1999-Nov-17 03:40 Jim Knoble <jmknoble@jmknoble.cx>
- * autodate: 2000-Aug-28 01:29
+ * autodate: 2000-Nov-07 04:53
  * 
  * by Jim Knoble <jmknoble@jmknoble.cx>
  * Copyright (C) 1999,2000 Jim Knoble
@@ -45,6 +45,7 @@
 #define EXIT_STATUS_CANCEL	1
 #define EXIT_STATUS_NO_MEMORY	2
 #define EXIT_STATUS_ERROR	3
+#define EXIT_STATUS_TIMEOUT	4
 #define EXIT_STATUS_ANOMALY	127
 
 typedef struct
@@ -141,6 +142,8 @@ typedef struct
    int argc;
    char **argv;
    
+   pid_t pid;
+   
    char *buf;
    int bufSize;
    int bufIndex;
@@ -151,6 +154,14 @@ typedef struct
    Pixel black;
    Pixel white;
    Colormap colormap;
+
+   /* Resolution measurements are normalized to dots/meter. */
+   long xResolution;
+   long yResolution;
+   long defaultXResolution;
+   long defaultYResolution;
+   long xFuzz;
+   long yFuzz;
    
    XtAppContext appContext;
    Widget toplevelShell;
@@ -164,12 +175,20 @@ typedef struct
    GC brightGC;
    GC dimGC;
    
+   long eventMask;
+   
    Bool grabKeyboard;
    Bool grabPointer;
    Bool grabServer;
    Bool isKeyboardGrabbed;
    Bool isPointerGrabbed;
    Bool isServerGrabbed;
+   unsigned int grabFailTimeout;
+   unsigned int grabRetryInterval;
+   
+   unsigned long inputTimeout;
+   XtIntervalId inputTimeoutTimerId;
+   Bool inputTimeoutActive;
    
    DialogInfo *dialog;
 } AppInfo;
@@ -181,12 +200,20 @@ void freeFontIf(AppInfo *app, XFontStruct *f);
 XFontStruct *getFontResource(AppInfo *app, char *instanceName, char *className);
 char *getStringResourceWithDefault(char *instanceName, char *className,
 				   char *defaultText);
+unsigned int getUnsignedIntegerResource(AppInfo *app, char *instanceName,
+					char *className,
+					unsigned int defaultValue);
+long getResolutionResource(AppInfo *app, char *instanceName, char *className,
+			   char *defaultResolutionSpec);
 
 void calcLabelTextExtents(LabelInfo *label);
 void calcTotalButtonExtents(ButtonInfo *button);
 void calcButtonExtents(ButtonInfo *button);
 void balanceButtonExtents(ButtonInfo *button1, ButtonInfo *button2);
 void calcButtonLabelPosition(ButtonInfo *button);
+
+Dimension scaleXDimension(AppInfo *app, Dimension unscaled);
+Dimension scaleYDimension(AppInfo *app, Dimension unscaled);
 
 void createDialog(AppInfo *app);
 void destroyDialog(AppInfo *app);
@@ -200,6 +227,11 @@ void paintIndicator(AppInfo *app, Drawable draw, IndicatorElement indicator);
 void updateIndicatorElement(AppInfo *app, int i);
 void updateIndicators(AppInfo *app, int condition);
 void paintDialog(AppInfo *app);
+
+#define GRAB_KEYBOARD	0
+#define GRAB_POINTER	1
+void performGrab(AppInfo *app, int grabType, char *grabTypeName,
+		 Bool shouldGrab, Bool *isGrabbed);
 
 void grabKeyboard(AppInfo *app);
 void ungrabKeyboard(AppInfo *app);
@@ -218,8 +250,12 @@ void backspacePassphrase(AppInfo *app);
 void erasePassphrase(AppInfo *app);
 void addToPassphrase(AppInfo *app, char c);
 
-void handleKeyPress(AppInfo *app, XKeyEvent *event);
-Bool eventIsInsideButton(AppInfo *app, XButtonEvent *event, ButtonInfo button);
-void handleButtonPress(AppInfo *app, XButtonEvent *event);
+void handleKeyPress(AppInfo *app, XEvent *event);
+Bool eventIsInsideButton(AppInfo *app, XEvent *event, ButtonInfo button);
+void handleButtonPress(AppInfo *app, XEvent *event);
+void handlePointerMotion(AppInfo *app, XEvent *event);
+
+void handleInputTimeout(XtPointer data, XtIntervalId *timerId);
+void cancelInputTimeout(AppInfo *app);
 
 #endif /* H_X11_SSH_ASKPASS */

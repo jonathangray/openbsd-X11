@@ -128,11 +128,92 @@ globally:
 .It Default value:
 .Dq False . 
 .El
-.It Cm grabServer ( No class Cm GrabServer)
+.It Cm grabServer ( No class Cm GrabServer )
 .Bl -inset -compact
 .It specifies if the application should grab the server.
 .It Default value:
 .Dq False . 
+.El
+.It Cm inputTimeout ( No class Cm InputTimeout )
+.Bl -inset -compact
+.It the number of seconds @NAME@ should wait for a key- or
+button press before it gives up and exits.  A timeout of
+.Dq 0
+means wait forever.
+.It Default value:
+.Dq 0 .
+.El
+.It Cm defaultXResolution ( No class Cm DefaultXResolution )
+.Bl -inset -compact
+.It the number of pixels per unit length that horizontal
+spacing and width values are intended for.  If the actual
+horizontal (x) resolution of the X server is significantly
+greater or less than this value, portions of the dialog,
+indicator, and button widgets are stretched or shrunk
+horizontally to take the difference into account. The value
+is a positive integer, followed by a slash
+.Cm ( / )
+and a one- or two-character unit abbreviation.  Valid units
+are inches
+.Cm ( in
+or
+.Cm i )
+and meters
+.Cm ( m ) .
+.It Default value:
+.Dq 75/in
+(75 pixels per inch).
+.El
+.It Cm defaultYResolution ( No class Cm DefaultYResolution )
+.Bl -inset -compact
+.It the number of pixels per unit length that vertical
+spacing and height values are intended for.  If the actual
+vertical (y) resolution of the X server is significantly
+greater or less than this value, portions of the dialog,
+indicator, and button widgets are stretched or shrunk
+vertically to take the difference into account. Valid
+values are the same as for
+.Cm defaultXResolution
+above.
+.It Default value:
+.Dq 75/in
+(75 pixels per inch).
+.El
+.It Cm xResolutionFuzz ( No class Cm XResolutionFuzz )
+.Bl -inset -compact
+.It the range of
+.Dq fuzz
+around the value of
+.Cm defaultXResolution
+beyond which some widgets will be stretched or shrunk
+horizontally to fit the current actual horizontal
+resolution. Valid values are the same as for
+.Cm defaultXResolution .
+For example, if the default X resolution is
+.Dq 75/in ,
+and the X resolution fuzz is
+.Dq 50/in ,
+then widgets won't be scaled horizontally unless the actual
+horizontal resolution is less than 25 pixels per inch or
+greater than 125 pixels per inch.
+.It Default value:
+.Dq 20/in
+(20 pixels per inch).
+.El
+.It Cm yResolutionFuzz ( No class Cm YResolutionFuzz )
+.Bl -inset -compact
+.It the range of
+.Dq fuzz
+around the value of
+.Cm defaultYResolution
+beyond which some widgets will be stretched or shrunk
+vertically to fit the current actual vertical
+resolution. Valid values are the same as for
+.Cm defaultXResolution 
+above.
+.It Default value:
+.Dq 20/in
+(20 pixels per inch).
 .El
 .El
 .Pp
