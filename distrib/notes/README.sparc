@@ -19,4 +19,4 @@ And try starting again.
    in /etc/rc.conf.  You should disable the console getty in /etc/ttys.
 
 If you encounter a problem, you can browse the entire documentation at
-http://www.xfree86.org/XFree86/3.3.2/DocIndex
+http://www.xfree86.org/XFree86/3.3.4/

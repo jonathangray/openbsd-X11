@@ -10,4 +10,4 @@ Currently, only TGA video hardware is supported.
    in /etc/rc.conf.  You may need to disable the console getty.
 
 If you encounter a problem, you can browse the entire documentation at
-http://www.xfree86.org/XFree86/3.3.2/DocIndex
+http://www.xfree86.org/XFree86/3.3.4/
