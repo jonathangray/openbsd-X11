@@ -166,6 +166,7 @@
 ./usr/X11R6/lib/X11/fonts/PEX
 ./usr/X11R6/lib/X11/fonts/PEX/Roman.phont
 ./usr/X11R6/lib/X11/fonts/PEX/Roman_M.phont
+./usr/X11R6/lib/X11/xdm/libXdmGreet.so.1.0
 ./usr/X11R6/lib/X11/xkb
 ./usr/X11R6/lib/X11/xkb/compat
 ./usr/X11R6/lib/X11/xkb/compat.dir
