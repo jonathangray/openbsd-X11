@@ -104,6 +104,10 @@ static mutex print_lock;
 #endif
 #endif
 
+#if defined(CSRG_BASED) || defined(linux) || defined(SVR4)
+#define HAS_SAVED_IDS_AND_SETEUID
+#endif
+
 extern char *display;
 
 extern CARD32 defaultScreenSaverTime;	/* for parsing command line */
@@ -967,6 +971,24 @@ InsertFileIntoCommandLine(resargc, resargv, prefix_argc, prefix_argv,
     char           *buf;
     int             len;
     int             i;
+
+#ifdef HAS_SAVED_IDS_AND_SETEUID
+    uid_t euid = geteuid();
+    gid_t egid = getegid();
+    uid_t ruid = getuid();
+    gid_t rgid = getgid();
+    
+    if (setegid(rgid) == -1)
+	(void) fprintf(stderr, "setegid(%d): %s\n",
+		       (int) rgid, strerror(errno));
+    
+    if (seteuid(ruid) == -1)
+	(void) fprintf(stderr, "seteuid(%d): %s\n",
+		       (int) ruid, strerror(errno));
+#else
+    if (getuid() != geteuid()) 
+	FatalError("The server need to be run as root to use -config\n");
+#endif
 
     f = fopen(filename, "r");
     if (!f)
