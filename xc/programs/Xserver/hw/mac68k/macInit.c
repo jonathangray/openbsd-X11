@@ -1,78 +1,52 @@
-#include <servermd.h>
-#include "macbsd.h"
-#include "dixstruct.h"
-#include "dix.h"
-#include "opaque.h"
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <signal.h>
 #include <sys/mman.h>
 
+#include <errno.h>
+#include <fcntl.h>
+#include <servermd.h>
+#include <signal.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#include "dixstruct.h"
+#include "dix.h"
+#include "mac68k.h"
+#include "opaque.h"
 
 #define CATCH_BROKEN_MODE 1
 
+void	ProcessInputEvents();
+int	mac68k_mouseproc(DevicePtr, int);
+int	mac68k_kbdproc(DevicePtr, int);
+Bool	mac68kMonoInit(int, ScreenPtr, int, char **);
+void	mac68k_enqevents();
 
-void ProcessInputEvents(void);
-
-
-int mac_adbfd;
-
-Time mac_lasteventtime;
-
-int mac_scrs = 0;
-fbinfo_t mac_fbs[MAXSCREENS];
-
-DevicePtr macbsd_mouse;
-DevicePtr macbsd_kbd;
-
-int macbsd_mouseproc(
-	DevicePtr mouse,
-	int what);
-
-int macbsd_kbdproc(
-	DevicePtr mouse,
-	int what);
-
-Bool macbsdMonoInit(
-	int	index,
-	ScreenPtr	screen,
-	int	argc,
-	char	**argv);
-
-
-void macbsd_enqevents(
-	void);
-
-
-static void handle_sigio(
-	int flags)
+static void 
+handle_sigio(flags)
+	int flags;
 {
-	macbsd_enqevents();
+	mac68k_enqevents();
 }
 
-int initialize_desktop()
+int
+initialize_desktop()
 {
 	int				i, j;
 	struct imagedata		*id;
 	int				totalscreens;
 	int				argnum = 1;
 
-	mac_adbfd = open ("/dev/adb", O_RDWR);
-
+	mac_adbfd = open("/dev/adb", O_RDWR);
 	if (mac_adbfd == -1) {
 		ErrorF("Couldn't open /dev/adb...");
 		FatalError(sys_errlist[errno]);
 	}
 
-	macbsd_getmouse();	/* find mouse and set up or error */
-	macbsd_getkbd();	/* find keyboard and set up or error */
-
+	mac68k_getmouse();	/* find mouse and set up or error */
+	mac68k_getkbd();	/* find keyboard and set up or error */
 	signal(SIGIO, handle_sigio);
 }
 
-
+void
 choose_best_depths()
 {
 #if 0
@@ -110,37 +84,35 @@ choose_best_depths()
 #endif
 }
 
-
-Bool macbsd_screeninit(
-	ScreenPtr screen)
+Bool
+mac68k_screeninit(screen)
+	ScreenPtr screen;
 {
 	miDCInitialize(screen, &mac_mousefuncs);
-
 	return TRUE;
 }
 
-
-
-parse_args(
-	int argc,
-	char **argv)
+void
+parse_args(argc, argv)
+	int argc;
+	char **argv;
 {
 	/* try to match argv params to screens and depths */
 	/* BARF I really should do this, but not right now, */
 	/* while I am feverishly trying to finish the other X code. */
 }
 
-
-setup_screens(
-	ScreenInfo *xsi,
-	int argc,
-	char **argv)
+setup_screens(xsi, argc, argv)
+	ScreenInfo *xsi;
+	int argc;
+	char **argv;
 {
-	char	fname[128];
-	int	done = 0;
+	char		fname[128];
+	int		done;
+	int		scr;
 	unsigned char	*vaddr;
-	int	scr;
 	
+	done = 0;
 	do {
 		sprintf(fname, "/dev/grf%d", mac_scrs);
 #if DEBUG
@@ -215,10 +187,10 @@ setup_screens(
 			mac_fbs[scr].idata.psize = 1;
 #endif /* CATCH_BROKEN_MODE */
 		if(mac_fbs[scr].idata.psize == 1)
-			AddScreen(macbsdMonoInit, argc, argv);
+			AddScreen(mac68kMonoInit, argc, argv);
 		else
 #if COLOR_SUPPORT	/* Damn, I'm lazy! */
-			AddScreen(macbsdColorInit, argc, argv);
+			AddScreen(mac68kColorInit, argc, argv);
 #else
 			FatalError("I don't support color screens!\n");
 #endif
@@ -261,12 +233,12 @@ void InitInput(
 	else
 		dejavu = 1;
 
-	macbsd_mouse = mouse = AddInputDevice((DeviceProc)macbsd_mouseproc,
+	mac68k_mouse = mouse = AddInputDevice((DeviceProc)mac68k_mouseproc,
 		TRUE);
 	RegisterPointerDevice(mouse);
 	miRegisterPointerDevice(screenInfo.screens[0], mouse);
 
-	macbsd_kbd = kbd = AddInputDevice((DeviceProc)macbsd_kbdproc, TRUE);
+	mac68k_kbd = kbd = AddInputDevice((DeviceProc)mac68k_kbdproc, TRUE);
 	RegisterKeyboardDevice(kbd);
 
 	if (!mieqInit (kbd, mouse))
@@ -276,37 +248,38 @@ void InitInput(
 }
 
 
-void AbortDDX(void)
+void
+AbortDDX(void)
 {
 	close(mac_adbfd);
 }
 
-
-void ddxGiveUp(void)
+void
+ddxGiveUp(void)
 {
 }
 
-
-int ddxProcessArgument(
-	int argc,
-	char **argv,
-	int i)
+int
+ddxProcessArgument(argc, argv, i)
+	int argc;
+	char **argv;
+	int i;
 {
-	if(strcmp(argv[i], "-screen") == 0)
+	if (strcmp(argv[i], "-screen") == 0)
 		return(3);
 	return(0);
 }
 
-
-void ddxUseMsg(void)
+void
+ddxUseMsg()
 {
 	ErrorF("-screen S D\t\t\tuse depth <D> for screen <S>");
 	ErrorF("\t(use the 'console' program for screen information)");
 }
 
-
-void MessageF(
-	char *s)
+void
+MessageF(s)
+	char *s;
 {
 	ErrorF(s);
 }

@@ -18,7 +18,7 @@ OBJS = \
 
    DEFINES = $(SIGNAL_DEFINES) -DPASS_OPTION
    INCLUDES = -I.  -I../../include -I../../mi -I../../mfb \
-	      -I$(INCLUDESRC) -I$(FONTINCSRC) -I$(EXTINCSRC)
+	      -I../../../../include -I$(INCLUDESRC) -I$(FONTINCSRC) -I$(EXTINCSRC)
    LINTLIBS = ../../dix/llib-ldix.ln ../../os/llib-los.ln \
 	      ../../mfb/llib-lmfb.ln ../../mi/llib-lmi.ln ../../cfb/llib-lcfb.ln
 
@@ -28,16 +28,7 @@ all::
 
 lintlib:
 
-NormalLibraryTarget(macbsd,$(OBJS))
+NormalLibraryTarget(mac68k,$(OBJS))
 NormalLintTarget($(SRCS))
-#if 0
-InstallScript(X11R6,$(BINDIR))
-InstallNamedProg(X11R6.script,X11,$(BINDIR))
-InstallNamedNonExec(def.x11start,.x11start,$(LIBDIR))
-InstallNamedNonExec(xterm.tic,xterm,$(USRLIBDIR)/terminfo/x)
-InstallNamedNonExec(xterms.tic,xterms,$(USRLIBDIR)/terminfo/x)
-InstallNonExecFile(xterm.tic,$(LIBDIR))
-InstallNonExecFile(xterms.tic,$(LIBDIR))
-#endif
 DependTarget()
-InstallManPage(Xmacbsd,$(MANDIR))
+InstallManPage(Xmac68k,$(MANDIR))

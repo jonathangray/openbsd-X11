@@ -1,43 +1,42 @@
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include "macbsd.h"
-#include "Xproto.h"
+
 #include "inputstr.h"
+#include "mac68k.h"
+#include "Xproto.h"
 
+extern CARD8		*macIIModMap[];	/* Borrowed from A/UX code */
+extern KeySymsRec	macIIKeySyms[];	/* Borrowed from A/UX code */
 
-extern CARD8 *macIIModMap[];		/* Borrowed from A/UX code */
-extern KeySymsRec macIIKeySyms[];	/* Borrowed from A/UX code */
-
-
-void macbsd_bell()
+void
+mac68k_bell()
 {
 	printf("");
 	fflush(stdout);
 }
 
-
-void macbsd_kbdctrl()
+void
+mac68k_kbdctrl()
 {
 }
 
-
-int macbsd_kbdproc(
-	DevicePtr kbd,
-	int what)
+int
+mac68k_kbdproc(kbd, what)
+	DevicePtr kbd;
+	int what;
 {
-	switch(what){
+	switch (what) {
 		case DEVICE_INIT:
-			if(kbd != LookupKeyboardDevice()){
+			if (kbd != LookupKeyboardDevice()) {
 				ErrorF("Kbd routines can only handle DESKTOP"
 					" keyboards.\n");
 				return(!Success);
 			}
 
 			InitKeyboardDeviceStruct(kbd, &macIIKeySyms[0],
-				macIIModMap[1], macbsd_bell, macbsd_kbdctrl);
-
+				macIIModMap[1], mac68k_bell, mac68k_kbdctrl);
 			kbd->on = FALSE;
 			break;
 
@@ -57,21 +56,15 @@ int macbsd_kbdproc(
 	return(Success);
 }
 
-
-void macbsd_getkbd(
-	void)
+void
+mac68k_getkbd()
 {
-	int index;
-
-	/* Find out where there is a keyboard */
-
-	/* FatalError("Cannot run X server without a mouse.\n"); */
 }
 
-
-void macbsd_processkbd(
-	DevicePtr	kbd,
-	adb_event_t	*event)
+void
+mac68k_processkbd(kbd, event)
+	DevicePtr	kbd;
+	adb_event_t	*event;
 {
 	xEvent	xev;
 	int	d;
@@ -98,10 +91,10 @@ void macbsd_processkbd(
 	mieqEnqueue(&xev);
 }
 
-
-Bool LegalModifier(
-	unsigned int key,
-	DevicePtr dev)
+Bool
+LegalModifier(key, dev)
+	unsigned int key;
+	DevicePtr dev;
 {
 	return(TRUE);
 }

@@ -2,7 +2,7 @@
 
 #include "X.h"
 #include "misc.h"
-#include "Xproto.h"
+#include "X11/Xproto.h"
 #include "scrnintstr.h"
 #include "screenint.h"
 #include "inputstr.h"
@@ -29,20 +29,14 @@
 
 #define TVTOMILLI(tv)	((tv).tv_usec / 1000 + (tv).tv_sec * 1000)
 
-
 #if !defined(MAXSCREENS)
 #define MAXSCREENS	8	/* God forbid anyone should have more... */
 #endif
 
-
-extern int mac_adbfd;
-
-
-extern Time mac_lasteventtime;
-
-extern DevicePtr macbsd_mouse;
-extern DevicePtr macbsd_kbd;
-
+extern int		mac_adbfd;
+extern Time		mac_lasteventtime;
+extern DevicePtr	mac68k_mouse;
+extern DevicePtr	mac68k_kbd;
 
 typedef struct fbinfo_s {
 	int modenum;
@@ -52,7 +46,6 @@ typedef struct fbinfo_s {
 	int fd;
 } fbinfo_t;
 
-extern fbinfo_t mac_fbs[MAXSCREENS];
-extern int mac_scrs;
-
-extern miPointerScreenFuncRec mac_mousefuncs;
+extern fbinfo_t			mac_fbs[MAXSCREENS];
+extern int			mac_scrs;
+extern miPointerScreenFuncRec	mac_mousefuncs;
