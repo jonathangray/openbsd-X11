@@ -47,8 +47,10 @@ if { ![getuid] } {
 	    set lastlink $linkname
 	    set linkname [readlink $linkname]
 	}
-        if { [file type $linkname]=="link" && ![file exists $linkname] } {
+        catch {
+	    if { [file type $linkname]=="link" && ![file exists $linkname] } {
                 set lastlink [readlink $linkname]
+	    }
 	}
 
 	if { $nlinks < 20 } {
