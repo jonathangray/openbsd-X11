@@ -457,6 +457,7 @@
 ./usr/X11R6/lib/X11/config/NetBSD.cf
 ./usr/X11R6/lib/X11/config/Oki.cf
 ./usr/X11R6/lib/X11/config/OpenBSD.cf
+./usr/X11R6/lib/X11/config/OpenBSDLib.rules
 ./usr/X11R6/lib/X11/config/QNX.cf
 ./usr/X11R6/lib/X11/config/QNX.rules
 ./usr/X11R6/lib/X11/config/Server.tmpl
