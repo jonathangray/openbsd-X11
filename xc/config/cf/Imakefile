@@ -106,7 +106,6 @@ nto.cf \
 os2.cf \
 osf1.cf \
 pegasus.cf \
-ports.cf \
 sco.cf \
 sco5.cf \
 sequent.cf \
