@@ -37,7 +37,7 @@ void
 XdmcpDisposeARRAY16 (array)
     ARRAY16Ptr	array;
 {
-    if (array->data) 
+    if (array->data != 0) 
 	Xfree (array->data);
     array->length = 0;
     array->data = 0;
