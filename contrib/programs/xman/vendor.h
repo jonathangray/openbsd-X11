@@ -59,7 +59,7 @@ from the X Consortium.
 # define SEARCHOTHER CAT
 #endif
 
-#if (BSD >= 199103)
+#if (BSD >= 199103) && !defined(__OpenBSD__)
 # define MANCONF "/etc/man.conf"
 #endif
 
