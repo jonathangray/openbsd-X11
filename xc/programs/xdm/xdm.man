@@ -927,9 +927,9 @@ translation table is:
 
 .fi
 .IP "\fBxlogin.Login.allowRootLogin\fP"
-If set to ``true'', allow root (and any other user with uid = 0) to
+If set to ``false'', don't allow root (and any other user with uid = 0) to
 log in directly.
-The default is ``false'', so only normal users can log in.
+The default is ``true''.
 .IP "\fBxlogin.Login.allowNullPasswd\fP"
 If set to ``true'', allow an otherwise failing password match to succeed
 if the account does not require a password at all.
