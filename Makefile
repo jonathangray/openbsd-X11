@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.19 1999/10/16 00:03:14 todd Exp $
+#	$OpenBSD: Makefile,v 1.20 1999/10/29 06:08:25 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -24,6 +24,10 @@ ECHO?=/bin/echo
 RM?= /bin/rm
 
 MACHINE?=`uname -m`
+
+# Some defaults.
+RELEASEDIR?=`/bin/pwd`/rel
+DESTDIR?=`/bin/pwd`/dest
 
 all:
 	${RM} -f ${CONFHOSTDEF}
@@ -119,4 +123,4 @@ distclean:
 
 b-r:
 	@echo ${.CURDIR}/build-release
-	@${.CURDIR}/build-release
+	@env DESTDIR=${DESTDIR} RELEASEDIR=${RELEASEDIR} ${.CURDIR}/build-release
