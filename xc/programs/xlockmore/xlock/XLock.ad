@@ -13,8 +13,8 @@ XLock.font: -b&h-lucida-medium-r-normal-sans-24-*-*-*-*-*-iso8859-1
 XLock.background: Black
 XLock.foreground: White
 !XLock.foreground: AntiqueWhite
-!XLock.username: Name: 
-!XLock.password: Password: 
+!XLock.username: Name:
+!XLock.password: Password:
 !XLock.info: Enter password to unlock; select icon to lock.
 !XLock.validate: Validating login...
 !XLock.invalid: Invalid login.
@@ -44,7 +44,7 @@ XLock.timeout: 30
 !XLock.icongeometry: 4x4
 XLock.icongeometry: 64x64
 !XLock.icongeometry: 256x256
- 
+
 ! For bouboule, pyro, star, & worm modes
 XLock.use3d: off
 XLock.delta3d: 1.5
@@ -311,7 +311,7 @@ XLock.hop.rr: off
 XLock.hop.jong: off
 XLock.hop.sine: off
 XLock.hyper.delay: 100000
-XLock.hyper.count: -6 
+XLock.hyper.count: -6
 XLock.hyper.cycles: 300
 !XLock.hyper.size: 1
 XLock.hyper.saturation: 1.0
@@ -330,11 +330,16 @@ XLock.ifs.delay: 1000
 !XLock.ifs.cycles: 1
 !XLock.ifs.size: 1
 XLock.ifs.saturation: 1.0
-XLock.image.delay: 2000000
-XLock.image.count: -10
+XLock.image.delay: 3000000
+XLock.image.count: -20
 !XLock.image.cycles: 1
 !XLock.image.size: 1
 XLock.image.saturation: 1.0
+XLock.juggle.delay: 2000
+XLock.juggle.count: 30
+XLock.juggle.cycles: 30
+!XLock.juggle.size: 1
+XLock.juggle.saturation: 1.0
 XLock.julia.delay: 10000
 XLock.julia.count: 1000
 XLock.julia.cycles: 20
@@ -520,10 +525,10 @@ XLock.roll.count: 25
 !XLock.roll.cycles: 1
 XLock.roll.size: -64
 XLock.roll.saturation: 0.6
-XLock.rotor.delay: 10000
+XLock.rotor.delay: 500
 XLock.rotor.count: 4
-XLock.rotor.cycles: 20
-XLock.rotor.size: -6 
+XLock.rotor.cycles: 100
+XLock.rotor.size: -6
 XLock.rotor.saturation: 0.3
 XLock.rubik.delay: 10000
 XLock.rubik.count: -30
@@ -548,6 +553,11 @@ XLock.slip.count: 35
 XLock.slip.cycles: 50
 !XLock.slip.size: 1
 XLock.slip.saturation: 1.0
+XLock.solitare.delay: 2000000
+!XLock.solitare.count: 1
+!XLock.solitare.cycles: 1
+!XLock.solitare.size: 1
+XLock.solitare.saturation: 1.0
 XLock.sphere.delay: 5000
 !XLock.sphere.count: 1
 !XLock.sphere.cycles: 1
@@ -578,7 +588,7 @@ XLock.star.delay: 75000
 XLock.star.count: 100
 !XLock.star.cycles: 1
 XLock.star.size: 100
-XLock.star.saturation: 0.3 
+XLock.star.saturation: 0.3
 !XLock.star.saturation: 1.0
 XLock.star.straight: off
 XLock.star.rock: off
@@ -615,6 +625,11 @@ XLock.swirl.count: 5
 !XLock.swirl.cycles: 1
 !XLock.swirl.size: 1
 XLock.swirl.saturation: 1.0
+XLock.t3d.delay: 250000
+XLock.t3d.count: 1
+XLock.t3d.cycles: 60000
+XLock.t3d.size: 1
+XLock.t3d.saturation: 1.0
 XLock.tetris.delay: 50000
 !XLock.tetris.count: 1
 !XLock.tetris.cycles: 1

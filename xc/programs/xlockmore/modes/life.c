@@ -37,11 +37,11 @@ static const char sccsid[] = "@(#)life.c	4.07 98/01/18 xlockmore";
  *            Also Bob Andreen's rule (my own notation for consistency)
  *            B2a3a4b/S2a2b4a (original notation: 234'B/22'4S)
  *            <andreen@msmc.edu>
- *                  O O            O O            O . 
+ *                  O O            O O            O .
  *            3a:  . x O     3b:  . x .     3c:  . x O
  *                  . .            . O            O .
- * 
- *                  O O            O O            O O 
+ *
+ *                  O O            O O            O O
  *            4a:  . x O     4b:  . x O     4c:  . x .
  *                  . O            O .            O O
  *            Some other rules
@@ -154,14 +154,14 @@ static argtype vars[] =
 	{(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int},
 	{(caddr_t *) & rule, "rule", "Rule", DEF_RULE, t_String},
 	{(caddr_t *) & lifefile, "lifefile", "LifeFile", "", t_String},
-      {(caddr_t *) & callahan, "callahan", "Callahan", DEF_CALLAHAN, t_Bool},
+  {(caddr_t *) & callahan, "callahan", "Callahan", DEF_CALLAHAN, t_Bool},
 	{(caddr_t *) & andreen, "andreen", "Andreen", DEF_ANDREEN, t_Bool}
 };
 static OptionStruct desc[] =
 {
 	{"-neighbors num", "squares 4 or 8, hexagons 6, triangles 3, 9 or 12"},
-	{"-rule string", "S<survival_neighborhood>/B<birth_neighborhood> parameters                                                                                "},
-	{"-lifefile file", "life file"},
+	{"-rule string", "S<survival_neighborhood>/B<birth_neighborhood> parameters"},
+  {"-lifefile file", "life file"},
 	{"-/+callahan", "turn on/off Callahan's hex rule B2a/S2b34"},
 	{"-/+andreen", "turn on/off Andreen's hex rule B2a3a4b/S2a2m4a"}
 };
@@ -2448,11 +2448,11 @@ shooter(ModeInfo * mi)
 			temp = NRAND(temp) - temp / 2;
 			/* Take into account it is a 60 degree angle not 45 */
 			if ((lp->ncols + temp) * 1.35 > lp->nrows) {
-				hsp = ((lp->ncols + temp) * 1.35 - lp->nrows) / 2;
+				hsp = (int) ((lp->ncols + temp) * 1.35 - lp->nrows) / 2;
 				vsp = 0;
 			} else {
 				hsp = 0;
-				vsp = (lp->nrows - (lp->ncols - temp) * 1.35) / 2;
+				vsp = (int) (lp->nrows - (lp->ncols - temp) * 1.35) / 2;
 			}
 			switch NRAND(4) {
 				case 0:  /* Upper left */
@@ -2520,7 +2520,7 @@ shooter(ModeInfo * mi)
 						setcell(mi, hsp + 1 * hoff, vsp + 1 * voff, LIVE);
 						setcell(mi, hsp + 2 * hoff, vsp + 1 * voff, LIVE);
 						setcell(mi, hsp + 0 * hoff + hhex, vsp + 2 * voff, LIVE);
-						break;	
+						break;
 					case 1:
 						if (LRAND() & 1) {
 							setcell(mi, hsp + 0 * hoff + hhex, vsp + 0 * voff, LIVE);
@@ -2539,7 +2539,7 @@ shooter(ModeInfo * mi)
 							setcell(mi, hsp + 2 * hoff, vsp + 3 * voff, LIVE);
 							setcell(mi, hsp + 0 * hoff + hhex, vsp + 4 * voff, LIVE);
 						}
-						break;	
+						break;
 					case 2:
 						if (LRAND() & 1) {
 							setcell(mi, hsp + 1 * hoff + hhex, vsp + 0 * voff, LIVE);
@@ -2565,7 +2565,7 @@ shooter(ModeInfo * mi)
 						setcell(mi, hsp + 0 * hoff + hhex, vsp + 2 * voff, LIVE);
 						setcell(mi, hsp + 0 * hoff, vsp - 1 * voff, LIVE);
 						setcell(mi, hsp + 0 * hoff, vsp + 1 * voff, LIVE);
-						break;	
+						break;
 					case 1:
 						setcell(mi, hsp + 0 * hoff + hhex, vsp + 0 * voff, LIVE);
 						setcell(mi, hsp + 0 * hoff, vsp + 1 * voff, LIVE);
@@ -2574,7 +2574,7 @@ shooter(ModeInfo * mi)
 						setcell(mi, hsp + 2 * hoff, vsp - 1 * voff, LIVE);
 						setcell(mi, hsp + 2 * hoff + hhex, vsp + 0 * voff, LIVE);
 						setcell(mi, hsp + 2 * hoff, vsp + 1 * voff, LIVE);
-						break;	
+						break;
 					case 2:
 						setcell(mi, hsp + 0 * hoff, vsp - 1 * voff, LIVE);
 						setcell(mi, hsp + 1 * hoff + hhex, vsp + 2 * voff, LIVE);

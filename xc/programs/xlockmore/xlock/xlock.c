@@ -1,5 +1,5 @@
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)xlock.c	4.11 98/05/24 xlockmore";
+static const char sccsid[] = "@(#)xlock.c	4.16 2000/01/28 xlockmore";
 
 #endif
 
@@ -30,7 +30,7 @@ static const char sccsid[] = "@(#)xlock.c	4.11 98/05/24 xlockmore";
  *            his vizlock-1.0 patch.  Compile-time switch for this is
  *            GLOBAL_UNLOCK.  This is probably full of security holes when
  *            enabled... :)
- * 01-Jul-98: Eric Lassauge <lassauge@sagem.fr> &
+ * 01-Jul-98: Eric Lassauge <lassauge@mail.dotcom.fr> &
  *              Remi Cohen-Scali <remi.cohenscali@pobox.com>
  *            Added support for locking VT switching (-/+vtlock)
  *            Added code is enclosed in USE_VTLOCK
@@ -187,7 +187,7 @@ static const char sccsid[] = "@(#)xlock.c	4.11 98/05/24 xlockmore";
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  *
  * This file, along with xlockmore.h, make it possible to compile an xlockmore
@@ -738,7 +738,15 @@ extern char *locksound;
 extern char *infosound;
 extern char *validsound;
 extern char *invalidsound;
+#ifdef USE_ESOUND
+extern char *welcomesound;
+extern char *shutdownsound;
+#endif
 extern void play_sound(char *string);
+#ifdef USE_ESOUND
+extern int init_sound(void);
+extern void shutdown_sound(void);
+#endif
 extern Bool sound;
 
 #endif
@@ -1213,14 +1221,14 @@ inform()
 	- the time, in date(1) style, is generated with a combination of the
 	  time(2) and ctime(3C) system calls.
 	- the owner of the xlock process is learned with getlogin(3C).
-	- global_user is a global character array  that holds the username 
+	- global_user is a global character array  that holds the username
 	  of the person wishing to unlock the display.
 	- the hostname is learned with gethostname(2).
 	- the syslog(3B) call uses the syslog facility to log
 	  happenings at LOG_LEVEL to LOG_FACILITY
 	- yes, a system(3S) call is used...
 	- I never said it was pretty.
-	
+
 	*/
 
 	char Mail[256];
@@ -1232,7 +1240,7 @@ inform()
 #if defined( HAVE_SYSLOG_H ) /* && defined( USE_SYSLOG ) */
 	/* log this event to syslogd as defined */
 	syslog(LOG_FACILITY | LOG_LEVEL, "%s: %s unlocked %s's display",
-	  ProgramName, global_user, getlogin()); 
+	  ProgramName, global_user, getlogin());
 #endif
 	/* if (mailCmd && mailCmd[0]) { */
 		/* build a string suitable for use in system(3S) */
@@ -1246,10 +1254,10 @@ inform()
 #endif
 			ProgramName, getlogin(),
 			global_user, hostname, ctime(&unlock_time));
- 
+
 		if (debug)
 			(void) printf("%s\n", Mail);
-		(void) system(Mail); 
+		(void) system(Mail);
 	/* } */
 }
 #endif
@@ -2417,7 +2425,7 @@ justDisplay(Display * display)
 
 #ifdef USE_VTLOCK
         /* EL - RCS : lock VT switching */
-	/* 
+	/*
 	 * I think it has to be done here or 'switch/restore' modes won't
          * ever be usefull !
 	 */
@@ -2645,7 +2653,7 @@ read_plan(void)
 	char        buf[121];
 	const char *home = getenv("HOME");
 	char       *buffer;
-	int         i, j, len;
+	int         i, j, len = 0;
 
 	if (!home)
 		home = "";
@@ -2839,7 +2847,7 @@ main(int argc, char **argv)
 	/* do not exit on FPE */
 	fpsetmask(0);
 #endif
-        
+
 #ifdef OSF1_ENH_SEC
 	set_auth_parameters(argc, argv);
 #endif
@@ -3050,6 +3058,10 @@ main(int argc, char **argv)
 	screens = startscreen + 1;
 #endif
 
+#if defined( USE_SOUND ) && defined( USE_ESOUND )
+        sound =( init_sound() != -1 );
+#endif
+
 #ifdef USE_DTSAVER
 	/* The CDE Session Manager provides the windows for the screen saver
 	   to draw into. */
@@ -3107,7 +3119,7 @@ main(int argc, char **argv)
 		XGCValues		temp_gcv;
 		GC			temp_gc;
 		XWindowAttributes	temp_xgwa;
-		
+
 		temp_rw = (parentSet) ? parent : RootWindowOfScreen(scr);
 		(void) XGetWindowAttributes(dsp, temp_rw, &temp_xgwa);
 		temp_gcv.function = GXcopy;
@@ -3122,8 +3134,8 @@ main(int argc, char **argv)
 			  temp_gc, 0, 0, temp_xgwa.width, temp_xgwa.height,
 			  0, 0);
 		XFreeGC(dsp, temp_gc);
-						   
-/* End of MI_ROOT_PIXMAP hack */		
+
+/* End of MI_ROOT_PIXMAP hack */
 
 #ifdef ORIGINAL_XPM_PATCH
 		if (mailIcon && mailIcon[0]) {
@@ -3471,7 +3483,7 @@ main(int argc, char **argv)
 			cmd_pid = 0;
 		} else if (!cmd_pid) {
 #ifndef VMS
-			setpgid(0, 0);
+			(void) setpgid(0, 0);
 #endif
 #if 0
 #if (defined(sun) && defined(__svr4__)) || defined(sgi) || defined(__hpux) || defined(linux)
@@ -3527,6 +3539,12 @@ main(int argc, char **argv)
 			exit(0);
 		}
 	}
+
+#if defined( USE_SOUND ) && defined( USE_ESOUND )
+        shutdown_sound();
+        sound = 0;
+#endif
+
 #ifdef VMS
 	return 1;
 #else

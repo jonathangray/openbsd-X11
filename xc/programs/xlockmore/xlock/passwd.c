@@ -1032,7 +1032,7 @@ checkPasswd(char *buffer)
  */
 	pam_handle_t *pamh;
 	int         pam_error;
-#if BAD_PAM
+#ifdef BAD_PAM
 	uid_t       ruid;
 #define BAD_PAM_SETUID	seteuid(ruid);
 #else
@@ -1042,13 +1042,13 @@ checkPasswd(char *buffer)
 #define PAM_BAIL if (pam_error != PAM_SUCCESS) { \
     pam_end(pamh, 0); BAD_PAM_SETUID return 0; \
 }
-#if BAD_PAM
+#ifdef BAD_PAM
 	ruid = getuid();  /* the real user we are running as */
 #endif
 	PAM_password = buffer;
 	pam_error = pam_start("xlock", user, &PAM_conversation, &pamh);
 	PAM_BAIL;
-#if BAD_PAM
+#ifdef BAD_PAM
 	(void) seteuid(0); /* temporarily go to root so that pam can get shadow password */
 #endif
 	pam_error = pam_authenticate(pamh, 0);
@@ -1064,7 +1064,7 @@ checkPasswd(char *buffer)
 		pam_error = pam_authenticate(pamh, 0);
 		PAM_BAIL;
 	}
-#if BAD_PAM
+#ifdef BAD_PAM
 	(void) seteuid(ruid); /* back to user's privileges */
 #endif
 	/* Do not do account management or credentials; credentials

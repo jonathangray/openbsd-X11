@@ -89,52 +89,52 @@ XPMLIB = XpmLibrary
 XCOMM   *** END XPM CONFIG SECTION ***
 
 XCOMM   *** BEGIN XM CONFIG SECTION ***
- 
+
 XCOMM Only options.c and xmlock.c uses Motif.
 XCOMM If your system has libXm, remove the 'XCOMM  ' from the next line.
 XCOMM  #define XmLibrary
- 
+
 #ifdef XmLibrary
 XCOMM If its not with your X11 stuff you should set the following
 XCOMM  MOTIFHOME = /usr/local
 XCOMM  MOTIFHOME = /usr/dt
- 
+
 XCOMM If you get an error "Cannot find Xm/PanedW.h" while compiling, set
 XCOMM XMINC to the directory Xm/PanedW.h is in.  Below is a guess.
 XCOMM  XMINC = -I$(MOTIFHOME)/include
- 
+
 XCOMM If you get an error "Cannot find libXm" while linking, set XMLIBPATH
 XCOMM to the directory libXm.* is in.  Below is a guess.
 XCOMM  XMLIB = -L$(MOTIFHOME)/lib -lXm
 XMLIB = -lXm
- 
+
 XCOMM Debugging with editres
 XCOMM  EDITRESDEF = -DUSE_XMU
 XCOMM  EDITRESLIB = -lXmu
 #endif
- 
+
 XCOMM   *** END XM CONFIG SECTION ***
 
 XCOMM   *** BEGIN XAW CONFIG SECTION ***
- 
+
 XCOMM Only options.c and xalock.c uses Athena.
 XCOMM If your system has libsx, libXaw, and libXmu,
 XCOMM remove the 'XCOMM  ' from the next line.
 XCOMM  #define XawLibrary
- 
+
 #ifdef XawLibrary
 XCOMM If its not with your X11 stuff you should set the following
 XCOMM  ATHENAHOME = /usr/local
- 
+
 XCOMM Below is a guess.
 XCOMM  XAWINC = -I$(ATHENAHOME)/include
- 
+
 XCOMM Below is a guess.
 XCOMM  XAWLIB = -L$(ATHENAHOME)/lib -lsx -lXaw -lXmu
 XAWLIB = -lsx -lXaw -lXmu
- 
+
 #endif
- 
+
 XCOMM   *** END XAW CONFIG SECTION ***
 
 XCOMM   *** BEGIN MESAGL AND OPENGL CONFIG SECTION ***
@@ -171,7 +171,7 @@ XCOMM  GLLIB += -lpthread
 XCOMM   *** END MESAGL AND OPENGL CONFIG SECTION ***
 
 XCOMM   *** BEGIN CDE DT CONFIG SECTION ***
- 
+
 XCOMM COMMON DESKTOP ENVIRONMENT
 XCOMM if your system has libDtSvc, remove the 'XCOMM  ' from the next line
 XCOMM  #define DtSaverLibrary
@@ -185,7 +185,7 @@ DTSAVERLIB = -L/usr/dt/lib -lDtSvc
 XCOMM   *** END CDE DT CONFIG SECTION ***
 
 XCOMM   *** BEGIN DPMS CONFIG SECTION ***
- 
+
 XCOMM DISPLAY POWER MANAGEMENT SIGNALING
 XCOMM if your system has libXdpms, remove the 'XCOMM  ' from the next line
 XCOMM  #define DPMSLibrary
@@ -199,7 +199,7 @@ DPMSLIB = -lXdpms
 XCOMM   *** END DPMS CONFIG SECTION ***
 
 XCOMM   *** BEGIN SOUND CONFIG SECTION ***
- 
+
 XCOMM Only xlock.c and resource.c use this
 XCOMM if your system has these sound libraries, remove the 'XCOMM  '
 XCOMM  #define RplayLibrary
@@ -292,25 +292,25 @@ MODULELIB = -ldl
 XCOMM    *** END MODULES CONFIG SECTION ***
 
 XCOMM      *** BEGIN DEBUG CHECK SECTION ***
- 
+
 XCOMM #define Check
- 
+
 #ifdef Check
 XCOMM Very experimental
 CHECKDEF = -DDEBUG
 #endif
- 
+
 XCOMM      *** END DEBUG CHECK SECTION ***
 
 XCOMM      *** BEGIN UNSTABLE CHECK SECTION ***
- 
+
 XCOMM #define Unstable
- 
+
 #ifdef Unstable
 XCOMM Experimental modes
 UNSTABLEDEF = -DUSE_UNSTABLE
 #endif
- 
+
 XCOMM      *** END DEBUG CHECK SECTION ***
 
 #ifndef __QNX__
@@ -379,7 +379,7 @@ PASSWDDEF = -DHAVE_SHADOW
 PIXMAPTYPE = sun
 #endif
 BITMAPTYPE = sun
-#else 
+#else
 #if HasShadowPasswd
 PASSWDDEF = -DHAVE_SHADOW
 XCOMM  PASSWDLIB = -lshadow
@@ -491,8 +491,8 @@ XCOMM
 XCOMM For labs you may want to consider:
 XCOMM -DUSE_AUTO_LOGOUT=240     Enable auto-logout and set deadline (minutes)
 XCOMM -DDEF_AUTO_LOGOUT=\"120\" Set default auto-logout deadline (minutes)
-XCOMM -DUSE_BUTTON_LOGOUT=10    Enable logout button and set appear time (min) 
-XCOMM -DDEF_BUTTON_LOGOUT=\"5\" Set default logout button (minutes) 
+XCOMM -DUSE_BUTTON_LOGOUT=10    Enable logout button and set appear time (min)
+XCOMM -DDEF_BUTTON_LOGOUT=\"5\" Set default logout button (minutes)
 XCOMM -DUSE_BOMB                Enable automatic logout mode (does not come up
 XCOMM                           in random mode)
 XCOMM -DUSE_UNSTABLE            Enable unstable bubble3d GL mode

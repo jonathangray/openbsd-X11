@@ -1,7 +1,7 @@
-.\" @(#)xlock.man	4.13 99/03/08
+.\" @(#)xlock.man	4.16 2000/01/17
 .\" Copyright (c) 1991 - Patrick J. Naughton
 .\" xlockmore updates from David A. Bagley
-.TH XLOCK 1 "8 Mar 1999" "X11R6 Contrib"
+.TH XLOCK 1 "17 Jan 2000" "X11R6 Contrib"
 .SH NAME
 xlock \- Locks the local X display until a password is entered.
 .sp
@@ -446,16 +446,19 @@ Shows real plane iterated fractals.
 Shows spinning n-dimensional hypercubes.
 .TP 8
 .B ico
-Shows a bouncing polyhedron. 
+Shows a bouncing polyhedron.
 .TP 8
 .B ifs
-Shows a modified iterated function system. 
+Shows a modified iterated function system.
 .TP 8
 .B image
-Shows randomly appearing logos. 
+Shows randomly appearing logos.
+.TP 8
+.B juggle
+Shows a Juggler, juggling.
 .TP 8
 .B julia
-Shows the Julia set. 
+Shows the Julia set.
 .TP 8
 .B kaleid
 Shows Brewster's Kaleidoscope.
@@ -511,7 +514,7 @@ was configured.
 Shows Papo's mountain range.
 .TP 8
 .B munch
-Shows munching squares. 
+Shows munching squares.
 .TP 8
 .B nose
 Shows a man with a big nose runs around spewing out text.
@@ -548,14 +551,17 @@ Shows Tom's Roto-Rooter.
 Shows an auto-solving Rubik's Cube.  May not be available depending on how it
 was configured.
 .TP 8
-.B shape 
+.B shape
 Shows stippled rectangles, ellipses, and triangles.
 .TP 8
 .B sierpinski
 Shows a Sierpinski's triangle.
 .TP 8
 .B slip
-Shows slipping blits. 
+Shows slipping blits.
+.TP 8
+.B solitare
+Shows Klondike's game of solitare.
 .TP 8
 .B sphere
 Shows a bunch of shaded spheres.
@@ -574,10 +580,10 @@ May not be available depending on how it was configured.
 Shows Infinite Stairs, an Escher-like GL scene.
 May not be available depending on how it was configured.
 .TP 8
-.B star 
+.B star
 Shows a star field with a twist.
 .TP 8
-.B starfish 
+.B starfish
 Shows starfish.
 .TP 8
 .B strange
@@ -593,8 +599,14 @@ Shows a swarm of bees following a wasp.
 .B swirl
 Shows animated swirling patterns.
 .TP 8
+.B t3d
+Shows a Flying Balls Clock Demo.
+.TP 8
 .B tetris
 Shows an autoplaying tetris game.
+.TP 8
+.B text3d
+Shows 3D moving texts.
 .TP 8
 .B thornbird
 Shows an animated Bird in a Thorn Bush fractal map.
@@ -629,7 +641,7 @@ Shows spinning Earths.
 .B worm
 Shows wiggly worms.
 .TP 8
-.B xjack 
+.B xjack
 Shows Jack having one of those days.
 .TP 8
 .B blank
@@ -740,6 +752,8 @@ In ifs mode it means nothing.
 
 In image mode it means it is the number of logos on screen at once.
 
+In juggle mode it is speed.
+
 In julia mode it is the depth of recursion.
 
 In kaleid mode it is the number of pens.
@@ -772,9 +786,9 @@ In moebius mode it is means nothing.
 
 In morph3d mode it is the ith platonic solid.
 
-In mountain mode it is the number of mountains. 
+In mountain mode it is the number of mountains.
 
-In munch mode it means nothing. 
+In munch mode it means nothing.
 
 In nose mode it means nothing.
 
@@ -801,9 +815,11 @@ In rubik mode it is the number of moves.
 
 In shape mode it means nothing.
 
-In sierpinski mode it is the number of points. 
+In sierpinski mode it is the number of points.
 
 In slip mode it means nothing.
+
+In solitare mode it means nothing.
 
 In sphere mode it means nothing.
 
@@ -822,15 +838,21 @@ In starfish mode it means nothing.
 In strange mode it means nothing.
 
 In superquadrics mode its the number of horizontal and vertical lines in
-the superquadric. 
+the superquadric.
 
 In swirl mode it means the number of "knots".
 
 In swarm mode it is the number of bees.
 
+In t3d mode it means nothing.
+
+In tetris mode it means nothing.
+
+In text3d mode it means nothing.
+
 In thornbird mode it is the number of points.
 
-In triangular mode it is the number of mountains. 
+In triangular mode it is the number of mountains.
 
 In tube mode it is a rectangle (= 1), an ellipse (= 2), or a polygon if
 greater.
@@ -877,7 +899,7 @@ option sets the number of cycles until time out for ant, blot, braid,
 bug, clock, crystal, daisy, deco, demon, dilemma, discrete, eyes,
 flag, flow, forest, galaxy, helix, hop, hyper, ico,
 laser, life, life1d, life3d, lisa, lissie, loop, mandelbrot, mountain,
-petal, sierpinski, shape, spline +erase, thornbird, triangle, tube,
+petal, sierpinski, shape, spline +erase, t3d, thornbird, triangle, tube,
 voters, wator, and wire.  For worm it is the length of the lines,
 for atlantis it is the shark speed,
 for fadeplot, julia and spiral it is the length of the trail of dots,
@@ -890,7 +912,9 @@ for gears it is the number of degrees to increment the spin of each gear by,
 for pipes it is the number of systems to draw before clearing the screen,
 for rubik it is the number of steps to complete a 90 move,
 for superquadrics it is the number of frames it takes to morph from one
-shape to another.  For others it means nothing.
+shape to another.
+for text3d it is the number of times drawing a word before the next one,
+For others it means nothing.
 .TP 5
 .BI \-size \ num
 The
@@ -932,7 +956,7 @@ quad_wipe, circle_wipe, three_circle_wipe, squaretate, no_fade.
 .BI \-erasedelay \ usecs
 The
 .I erasedelay
-option sets the number of microseconds for steps of the 
+option sets the number of microseconds for steps of the
 .B erasemode
 (a setting of 0 and the
 .B erasemode
@@ -1002,7 +1026,7 @@ this option is that if
 is killed -KILL, the access control list is not lost.
 .TP 5
 .BI \-vtlock \ modename
-This option is used on a XFree86 system to manage VT switching in 
+This option is used on a XFree86 system to manage VT switching in
 [off|noswitch|switch|restore] mode.
 .TP 10
 .I off
@@ -1039,7 +1063,7 @@ The
 option causes
 .B xlock
 shows a mode description above password window.  The default is to
-show this description. 
+show this description.
 .TP 5
 .B -/+echokeys
 The
@@ -1048,7 +1072,7 @@ option causes
 .B xlock
 to echo '?' characters for each key typed into the password prompt.
 Some consider this a security risk, so the default is to not echo
-anything. 
+anything.
 .TP 5
 .B -/+enablesaver
 By default
@@ -1432,20 +1456,20 @@ compiled in.
 .TP 5
 .BI \-neighbors \ num
 The
-.I neighbors 
+.I neighbors
 option sets the number of neighbors of a cell to 3, 4, 6, 9 (may not have
 real mathematical meaning), or 12 for several automata modes
 .I (ant, bug, demon, dilemma, life, loop, voters, wator,
 and
 .I wire) (bug and loop
 do not span this full range).  Setting it to 0 typically randomizes this,
-except where bitmaps are used 
+except where bitmaps are used
 .I (dilemma, life, voters,
 and
 .I wator).
 .TP 5
 .BI -/+eyes
-Turn on and off eyes for 
+Turn on and off eyes for
 .I ant
 and
 .I bug.
@@ -1644,7 +1668,7 @@ Turn on and off oct mirrored/rotated mode similar to size 8 in
 .I kaleid.
 .TP 5
 .BI -/+linear
-Turn on and off Cartesian/Polar coordinate mode in 
+Turn on and off Cartesian/Polar coordinate mode in
 .I kaleid.
 .TP 5
 .BI -/+callahan
@@ -1682,7 +1706,7 @@ is divided by 64 to compute the number of lines, so as to be compatible
 when using -fullrandom.
 .TP 5
 .BI \-factory \ num
-Number of extra factory parts in 
+Number of extra factory parts in
 .I pipes.
 .TP 5
 .BI -/+fisheye
@@ -1692,7 +1716,7 @@ Turn on if you want a zoomed-in view of
 .BI -/+tightturns
 Turn on if you want the
 .I pipes
-to bend more often. 
+to bend more often.
 .TP 5
 .BI -/+rotatepipes
 Turn on if you want the pipe system rotated in
@@ -1744,6 +1768,32 @@ Set speed of cycling in
 .BI \-rotation \ num
 Set rotation velocity in
 .I starfish.
+.TP 5
+.BI \-ttfont \ filename
+Sets the True Type font file (or font directory) used for
+.I text3d
+.TP 5
+.BI \-extrusion \ num
+Sets length of the text extrusion for
+.I text3d
+.TP 5
+.BI \-rot_amplitude \ float
+Sets rotation amplitude value of each letter for
+.I text3d
+.TP 5
+.BI \-rot_frequency \ float
+Sets rotation frequency for
+.I text3d
+.TP 5
+.BI -/+no_split
+Turn on and off word splitting for
+.I text3d
+.TP 5
+.BI \-ttanimate \ function_name
+Sets the animation function used for
+.I text3d.
+Currently one of : \
+Random \ FullRandom \ Default \ Default2 \ None \ Crazy \ UpDown \ Extrude \ RotateXY \ RotateYZ \ Frequency \ Amplitude
 .TP 5
 .BI \-thickness \ num
 Set thickness in
@@ -1835,7 +1885,7 @@ NCD terminal,
 .B xlock
 will not work and you will need to reboot the terminal, or simply go into
 the SETUP menus, under 'Network Parameters', and turn off TCP/IP access
-control. 
+control.
 .br
 .SH "SEE ALSO"
 X(1), Xlib Documentation.
@@ -1869,15 +1919,15 @@ Mountain View, CA  94043
 with many additional contributors.
 .sp
 .SH COPYRIGHT
-Copyright (c) 1988-91 by Patrick J. Naughton
+Copyright (c) 1988-1991 by Patrick J. Naughton
 .br
-Copyright (c) 1993-98 by David A. Bagley
+Copyright (c) 1993-2000 by David A. Bagley
 .sp
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose and without fee is hereby granted,
 provided that the above copyright notice appear in all copies and that
 both that copyright notice and this permission notice appear in
-supporting documentation. 
+supporting documentation.
 .br
 The original BSD daemon is Copyright (c) 1988 Marshall Kirk McKusick.
 All Rights Reserved.
