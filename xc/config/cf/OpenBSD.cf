@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.20 1998/03/26 07:36:51 todd Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.21 1998/03/29 15:29:00 matthieu Exp $
 XCOMM
 
 #ifndef OSName
@@ -78,11 +78,11 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 #define GccGasOption 		-DGCCUSESGAS
 #define AsmDefines 		-DUSE_GAS
 
-
 #ifdef i386Architecture
 # define OptimizedCDebugFlags 	DefaultGcc2i386Opt
 # define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
 # define ServerExtraSysLibs	-li386
+# define LdPostLib		/**/
 #else
 # define OptimizedCDebugFlags 	-O2
 # if defined(SparcArchitecture) || defined(AlphaArchitecture) || defined(AmigaArchitecture) || defined(Sun3Architecture)
