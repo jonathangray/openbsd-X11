@@ -2524,7 +2524,7 @@ read_plan()
 	char        buf[121];
 	char       *home = getenv("HOME");
 	char       *buffer;
-	int         i, j, cr;
+	int         i, j, len;
 
 	if (!home)
 		home = "";
@@ -2587,13 +2587,12 @@ read_plan()
 	}
 	if (planf != NULL) {
 		for (i = 0; i < TEXTLINES; i++) {
-			if (fgets(buf, 120, planf)) {
-				cr = strlen(buf) - 1;
-				if (buf[cr] == '\n') {
-					buf[cr] = '\0';
+			if (fgets(buf, 120, planf) && (len = strlen(buf)) > 0) {
+				if (buf[len - 1] == '\n') {
+					buf[--len] = '\0';
 				}
 				/* this expands tabs to 8 spaces */
-				for (j = 0; j < cr; j++) {
+				for (j = 0; j < len; j++) {
 					if (buf[j] == '\t') {
 						int         k, tab = 8 - (j % 8);
 
@@ -2603,12 +2602,11 @@ read_plan()
 						for (k = j; k < j + tab; k++) {
 							buf[k] = ' ';
 						}
-						cr += tab;
-						if (cr > 120)
-							cr = 120;
+						len += tab;
+						if (len > 120)
+							len = 120;
 					}
 				}
-				buf[cr] = '\0';
 
 				plantext[i] = (char *) malloc(strlen(buf) + 1);
 				(void) strcpy(plantext[i], buf);
