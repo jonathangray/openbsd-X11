@@ -181,14 +181,7 @@ int type;
   }
 
   strcpy(tmp, MANTEMP);		/* get a temp file. */
-#ifndef HAS_MKSTEMP
   (void) mktemp(tmp);
-#else
-  {
-    int stemp = mkstemp(tmp);
-    close(stemp);
-  }
-#endif
   mantmp = tmp;
 
   /* set the command */

@@ -337,14 +337,7 @@ char * filename, * output;
  */
 
   strcpy(tmp, MANTEMP);		/* get a temp file. */
-#ifndef HAS_MKSTEMP
   (void) mktemp(tmp);
-#else
-  {
-    int stemp = mkstemp(tmp);
-    close(stemp);
-  }
-#endif
   strcpy(output, tmp);
 
 #ifdef GZIP_EXTENSION
@@ -403,14 +396,7 @@ char * entry;
   }
 
   strcpy(tmp,MANTEMP);		          /* Get a temp file. */
-#ifndef HAS_MKSTEMP
   (void) mktemp(tmp);
-#else
-  {
-    int stemp = mkstemp(tmp);
-    close(stemp);
-  }
-#endif
   strcpy(man_globals->tempfile, tmp);
   ParseEntry(entry, path, NULL, NULL);
 
