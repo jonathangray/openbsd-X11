@@ -944,7 +944,7 @@ error(const char *buf)
 #if defined( HAVE_SYSLOG_H ) && defined( USE_SYSLOG )
 	extern Display *dsp;
 
-	syslog(SYSLOG_WARNING, buf);
+	syslog(SYSLOG_WARNING, "%s", buf);
 	if (!nolock) {
 		if (strstr(buf, "unable to open display") == NULL)
 			syslogStop(XDisplayString(dsp));
@@ -953,7 +953,7 @@ error(const char *buf)
 		closelog();
 	}
 #else
-	(void) fprintf(stderr, buf);
+	(void) fprintf(stderr, "%s", buf);
 #endif
 	exit(1);
 }
