@@ -465,7 +465,7 @@ Shows the Julia set.
 .B kaleid
 Shows Brewster's Kaleidoscope.
 .TP 8
-.B kummpa
+.B kumppa
 Shows kumppa.
 .TP 8
 .B laser
