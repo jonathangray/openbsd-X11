@@ -15,7 +15,7 @@ XCOMM $XFree86: xc/programs/Imakefile,v 3.15.2.1 1997/05/03 09:44:32 dawes Exp $
        XFSSRCDIR = xfs
 #endif
 #if BuildXKBlib
-      XKBSRCDIRS = xkbcomp xkbevd xkbprint xkbutils
+      XKBSRCDIRS = xkbcomp xkbevd xkbprint xkbutils setxkbmap 
 #endif
 #if BuildScreenSaverExt
 SCREENSAVESRCDIR = beforelight
@@ -54,7 +54,7 @@ SUBDIRS = $(XSSRCDIR)
 SUBDIRS = \
 	appres bdftopcf bitmap $(SCREENSAVESRCDIR) editres fsinfo \
 	fslsfonts fstobdf \
-	iceauth mkfontdir oclock setxkbmap $(PROXYMGRSRCDIR) \
+	iceauth mkfontdir oclock $(PROXYMGRSRCDIR) \
 	$(RGBSRCDIR) $(RSTARTSRCDIR) $(SMPROXYSRCDIR) $(TWMSRCDIR) x11perf \
 	xauth xclipboard xclock xcmsdb $(XCONSOLESRCDIR) $(XDMSRCDIR) \
 	xdpyinfo $(XF86DGASRCDIR) xfd $(XFSSRCDIR) $(XFINDPROXYSRCDIR) \
