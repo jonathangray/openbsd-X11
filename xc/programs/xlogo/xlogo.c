@@ -99,9 +99,8 @@ static void Syntax(toplevel, call)
     }
     exit(1);
 }
-
-void 
-main(argc, argv)
+ 
+int main(argc, argv)
 int argc;
 char **argv;
 {
