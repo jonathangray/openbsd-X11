@@ -2386,7 +2386,8 @@ if (cidx[f]) XpmFree(cidx[f]);}
 		    int cc1 = xpmGetC(data);
 		    if (cc1 > 0 && cc1 < 256) {
 			int cc2 = xpmGetC(data);
-			if (cc2 > 0 && cc2 < 256 && cidx[cc1][cc2] != 0) {
+			if (cc2 > 0 && cc2 < 256 &&
+			    cidx[cc1] && cidx[cc1][cc2] != 0) {
 #ifndef FOR_MSW
 			    XPutPixel(image, x, y,
 				      image_pixels[cidx[cc1][cc2] - 1]);

@@ -47,6 +47,7 @@
 LFUNC(OpenReadFile, int, (char *filename, xpmData *mdata));
 LFUNC(xpmDataClose, void, (xpmData *mdata));
 
+#ifndef CXPMPROG
 int
 XpmReadFileToImage(display, filename,
 		   image_return, shapeimage_return, attributes)
@@ -116,6 +117,7 @@ XpmReadFileToXpmImage(filename, image, info)
 
     return (ErrorStatus);
 }
+#endif /* CXPMPROG */
 
 /*
  * open the given file to be read as an xpmData which is returned.
@@ -192,6 +194,10 @@ OpenReadFile(filename, mdata)
 #endif
     }
     mdata->CommentLength = 0;
+#ifdef CXPMPROG
+    mdata->lineNum = 0;
+    mdata->charNum = 0;
+#endif
     return (XpmSuccess);
 }
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 1989-95 GROUPE BULL
+#  Copyright (C) 1998 Arnaud LE HORS
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to
@@ -14,13 +14,13 @@
 #  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 #  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 #  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-#  GROUPE BULL BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-#  AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+#  Arnaud LE HORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+#  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-#  Except as contained in this notice, the name of GROUPE BULL shall not be
+#  Except as contained in this notice, the name of Arnaud LE HORS shall not be
 #  used in advertising or otherwise to promote the sale, use or other dealings
-#  in this Software without prior written authorization from GROUPE BULL.
+#  in this Software without prior written authorization from Arnaud LE HORS.
 #
 
 #
@@ -32,12 +32,6 @@ DESTBINDIR=/usr/local/bin/X11
 # where the man page will be installed
 MANDIR=/usr/local/man/manl
 
-# where the X11 libs are
-XLIBDIRS= -L/usr/X11/lib
-
-LIBDIRS= -L../lib
-LIBS= -lXpm -lXext -lXt -lX11
-
 CC = cc
 RM = rm -f
 # on sysV, define this as cp.
@@ -47,23 +41,24 @@ CDEBUGFLAGS= -O
 
 INCLUDES= -I..
 
-OBJS= sxpm.o
+OBJS= cxpm.o
 
 CFLAGS= $(CDEBUGFLAGS) $(INCLUDES) $(DEFINES)
 
-all: sxpm
+all: cxpm
 
 clean: 
-	$(RM) *.o sxpm
+	$(RM) *.o cxpm
 
-sxpm: sxpm.o
-	$(CC) $(CFLAGS) sxpm.o $(LIBDIRS) $(XLIBDIRS) $(LIBS) -o sxpm
+cxpm: cxpm.o
+	$(CC) $(CFLAGS) cxpm.o -o cxpm
 
 install:
-	$(INSTALL) -m 0755 sxpm $(DESTBINDIR)
+	$(INSTALL) -m 0755 cxpm $(DESTBINDIR)
 
 install.man:
-	$(INSTALL) -m 0644 sxpm.man $(MANDIR)/sxpm.l
+	$(INSTALL) -m 0644 cxpm.man $(MANDIR)/cxpm.l
 
 # Other dependencies.
-sxpm.o: ../lib/xpm.h
+cxpm.o: ../lib/XpmI.h ../lib/data.c ../lib/parse.c ../lib/RdFToI.c \
+  ../lib/hashtab.c ../lib/misc.c ../lib/Attrib.c ../lib/Image.c

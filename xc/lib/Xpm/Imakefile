@@ -68,7 +68,7 @@ XCOMM
 #define IHaveSubdirs
 #define PassCDebugFlags "CDEBUGFLAGS=$(CDEBUGFLAGS)" "DEFINES=$(DEFINES)"
 
-     SUBDIRS = lib sxpm
+     SUBDIRS = lib sxpm cxpm
 
 MakeSubdirs($(SUBDIRS))
 DependSubdirs($(SUBDIRS))

@@ -29,6 +29,20 @@
 * 									   *
 \**************************************************************************/
 
+3.4k    (98/03/18)
+
+    ENHANCEMENTS:
+	- A new program called cxpm is provided to check on XPM files and help
+	  figuring out where the file might be invalid.
+        - The FAQ and README are now in HTML.
+
+    BUGS CORRECTED:
+        - A bug in writing pixmaps out on an 32 bit depth visual and MSBFirst
+	  machine.
+		- patch from Uwe Langenkamp <Uwe.Langenkamp@t-online.de>
+        - A severe bug in parsing the pixels section when an unknown character
+	  is encountered.
+
 3.4j	(96/12/31)
 
     ENHANCEMENTS:
@@ -47,7 +61,7 @@
 	  reduction goes from 4 to 7% depending on the system)
 
     BUGS CORRECTED:
-	- fix severe bug (introduced in 3.4i as part of the sprintf
+	- A severe bug (introduced in 3.4i as part of the sprintf
 	  optimization) in code writing XPM extensions to a buffer
 	  XpmCreateBufferFromImage/Pixmap.
 	- The XpmAttributes definition in xpm.h was declaring nalloc_colors to

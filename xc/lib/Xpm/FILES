@@ -1,10 +1,10 @@
 CHANGES
 COPYRIGHT
-FAQ
+FAQ.html
 FILES
 Imakefile
 Makefile.noX
-README
+README.html
 README.AMIGA
 README.MSW
 namecvt
@@ -61,3 +61,8 @@ sxpm/plaid_ext.xpm
 sxpm/plaid_mask.xpm
 sxpm/sxpm.c
 sxpm/sxpm.man
+cxpm
+cxpm/Imakefile
+cxpm/Makefile.noX
+cxpm/cxpm.c
+cxpm/cxpm.man

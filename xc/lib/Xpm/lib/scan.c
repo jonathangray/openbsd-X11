@@ -734,7 +734,7 @@ GetImagePixels32(image, width, height, pmap)
 		pixel = ((unsigned long) addr[0] << 24 |
 			 (unsigned long) addr[1] << 16 |
 			 (unsigned long) addr[2] << 8 |
-			 addr[4]);
+			 addr[3]);
 		if (depth != 32)
 		    pixel &= lbt;
 		if (storePixel(pixel, pmap, iptr))

@@ -555,66 +555,34 @@ void
 Usage()
 {
     fprintf(stderr, "\nUsage:  %s [options...]\n", command[0]);
-    fprintf(stderr, "Where options are:\n\n");
-    fprintf(stderr,
-	    "[-d host:display]            Display to connect to.\n");
-    fprintf(stderr,
-	    "[-g geom]                    Geometry of window.\n");
-    fprintf(stderr,
-	    "[-hints]                     Set ResizeInc for window.\n");
-    fprintf(stderr,
-	    "[-icon filename]             Set pixmap for iconWindow.\n");
-    fprintf(stderr,
-	    "[-plaid]                     Read the included plaid pixmap.\n");
-    fprintf(stderr,
-	    "[filename]                   Read from file 'filename', and from \
-standard\n");
-    fprintf(stderr,
-	    "                             input if 'filename' is '-'.\n");
-    fprintf(stderr,
-	    "[-o filename]                Write to file 'filename', and to \
-standard\n");
-    fprintf(stderr,
-	    "                             output if 'filename' is '-'.\n");
-    fprintf(stderr,
-	    "[-pcmap]                     Use a private colormap.\n");
-    fprintf(stderr,
-	    "[-closecolors]               Try to use `close' colors.\n");
-    fprintf(stderr,
-	    "[-nod]                       Don't display in window.\n");
-    fprintf(stderr,
-	    "[-nom]                       Don't use clip mask if any.\n");
-    fprintf(stderr,
-	    "[-mono]                      Use the colors specified for a \
-monochrome visual.\n");
-    fprintf(stderr,
-	    "[-grey4]                     Use the colors specified for a 4 \
-greyscale visual.\n");
-    fprintf(stderr,
-	    "[-grey]                      Use the colors specified for a \
-greyscale visual.\n");
-    fprintf(stderr,
-	    "[-color]                     Use the colors specified for a color\
- visual.\n");
-    fprintf(stderr,
-	    "[-sc symbol color]           Override color defaults.\n");
-    fprintf(stderr,
-	    "[-sp symbol pixel]           Override color defaults.\n");
-    fprintf(stderr,
-	    "[-cp color pixel]            Override color defaults.\n");
-    fprintf(stderr,
-	    "[-rgb filename]              Search color names in the \
-rgb text file 'filename'.\n");
-    fprintf(stderr,
-	    "[-v]                         Verbose - print out extensions.\n");
-    fprintf(stderr,
-	    "[-version]                   Print out program's version \
-number\n");
-    fprintf(stderr,
-	    "                             and library's version number \
-if different.\n");
-    fprintf(stderr,
-	    "if no input is specified sxpm reads from standard input.\n\n");
+    fprintf(stderr, "Where options are:\n\
+\n\
+[-d host:display]            Display to connect to.\n\
+[-g geom]                    Geometry of window.\n\
+[-hints]                     Set ResizeInc for window.\n\
+[-icon filename]             Set pixmap for iconWindow.\n\
+[-plaid]                     Read the included plaid pixmap.\n\
+[filename]                   Read from file 'filename', and from standard\n\
+                             input if 'filename' is '-'.\n\
+[-o filename]                Write to file 'filename', and to standard\n\
+                             output if 'filename' is '-'.\n\
+[-pcmap]                     Use a private colormap.\n\
+[-closecolors]               Try to use `close' colors.\n\
+[-nod]                       Don't display in window.\n\
+[-nom]                       Don't use clip mask if any.\n\
+[-mono]                      Use the colors specified for a monochrome visual.\n\
+[-grey4]                     Use the colors specified for a 4 greyscale visual.\n\
+[-grey]                      Use the colors specified for a greyscale visual.\n\
+[-color]                     Use the colors specified for a color visual.\n\
+[-sc symbol color]           Override color defaults.\n\
+[-sp symbol pixel]           Override color defaults.\n\
+[-cp color pixel]            Override color defaults.\n\
+[-rgb filename]              Search color names in the rgb text file 'filename'.\n\
+[-v]                         Verbose - print out extensions.\n\
+[-version]                   Print out program's version number\n\
+                             and library's version number if different.\n\
+if no input is specified sxpm reads from standard input.\n\
+\n");
     exit(0);
 }
 
@@ -648,10 +616,10 @@ ErrorMessage(ErrorStatus, tag)
     }
 
     if (warning)
-	printf("%s Xpm Warning: %s.\n", tag, warning);
+	fprintf(stderr, "%s Xpm Warning: %s.\n", tag, warning);
 
     if (error) {
-	printf("%s Xpm Error: %s.\n", tag, error);
+	fprintf(stderr, "%s Xpm Error: %s.\n", tag, error);
 	Punt(1);
     }
 }

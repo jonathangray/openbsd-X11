@@ -1,4 +1,3 @@
-$!---------------descrip.mms for xpmlib----------------------------------------
 cc_defs = /define=(NEED_STRCASECMP,NEED_STRDUP,NO_ZPIPE)
 c_deb = 
 

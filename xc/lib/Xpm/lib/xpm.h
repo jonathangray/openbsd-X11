@@ -59,7 +59,7 @@
  */
 #define XpmFormat 3
 #define XpmVersion 4
-#define XpmRevision 10
+#define XpmRevision 11
 #define XpmIncludeVersion ((XpmFormat * 100 + XpmVersion) * 100 + XpmRevision)
 
 #ifndef XPM_NUMBERS
@@ -451,6 +451,10 @@ extern "C" {
     FUNC(XpmCreateBufferFromXpmImage, int, (char **buffer_return,
 					    XpmImage *image,
 					    XpmInfo *info));
+
+    FUNC(XpmGetParseError, int, (char *filename,
+				 int *linenum_return,
+				 int *charnum_return));
 
     FUNC(XpmFree, void, (void *ptr));
 

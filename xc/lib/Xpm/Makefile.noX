@@ -27,7 +27,10 @@
 # XPM Makefile - Arnaud LE HORS
 #
 
-SUBDIRS= lib sxpm
+# NOTE: if the build fails on your system using this Makefile, you need to check
+# and possibly edit each of the Makefile in the subdirs lib, sxpm, and cxpm.
+
+SUBDIRS= lib sxpm cxpm
 
 MAKE=make
 MFLAGS=-f Makefile.noX
