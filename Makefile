@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.14 1998/10/11 17:35:26 todd Exp $
+#	$OpenBSD: Makefile,v 1.15 1999/03/15 09:26:02 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -16,6 +16,8 @@ CP?= /bin/cp
 MKDIR?= /bin/mkdir -p
 LN?= /bin/ln
 CHOWN?=/usr/sbin/chown
+CHMOD?=/bin/chmod
+ECHO?=/bin/echo
 RM?= /bin/rm
 
 MACHINE?=`uname -m`
@@ -39,19 +41,22 @@ release:
 	@echo You must set DESTDIR and RELEASEDIR for a release.; exit 255
 .endif
 .if ${MACHINE} == hp300
-	@if [ -e ${XHP} ]; then \
+	@if [ ! -e ${XHP} ]; then \
 	  echo "${XHP} does not exist.  Please set XHP to the Xhp server.";\
 	  exit 1;\
 	fi
 .endif
 	${RM} -rf ${DESTDIR}/usr/X11R6/*
+	${RM} -rf ${DESTDIR}/var/X11/*
 	@if [ "`cd ${DESTDIR}/usr/X11R6;ls`" ]; then \
 		echo "Files found in ${DESTDIR}/usr/X11R6." \
 		echo "Cleanup before proceeding."; \
 		exit 255; \
 	fi
 	@${MKDIR} -p ${DESTDIR}/usr/X11R6
+	@${MKDIR} -p ${DESTDIR}/var/X11
 	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/usr/X11R6
+	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/var/X11
 	@${MAKE} install
 .if defined(MACHINE) && ${MACHINE} == hp300
 	@${CP} ${XHP} ${DESTDIR}/usr/X11R6/bin
@@ -94,5 +99,6 @@ clean:
 
 distclean:
 	${MAKE} clean
-	find xc contrib -name Makefile -mindepth 2 -exec rm -f '{}' ';'
+	find xc contrib -name Makefile -mindepth 2 -exec ${RM} -f '{}' ';'
+	find xc contrib -name .depend -exec ${RM} -f '{}' ';'
 	rm -f xc/xmakefile contrib/Makefile
