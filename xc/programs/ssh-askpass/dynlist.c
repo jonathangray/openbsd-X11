@@ -1,9 +1,9 @@
 /* dynlist.c: Dynamic lists and buffers in C.
  * created 1999-Jan-06 15:34 jmk
- * autodate: 1999-Dec-24 00:12
+ * autodate: 2000-Aug-28 01:29
  * 
- * by Jim Knoble <jmknoble@pobox.com>
- * Copyright © 1999 Jim Knoble
+ * by Jim Knoble <jmknoble@jmknoble.cx>
+ * Copyright (C) 1999,2000 Jim Knoble
  * 
  * Disclaimer:
  * 

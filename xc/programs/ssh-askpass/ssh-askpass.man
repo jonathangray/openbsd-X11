@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-askpass.man,v 1.3 2000/06/27 22:38:38 krw Exp $
+.\"	$OpenBSD: ssh-askpass.man,v 1.4 2000/08/29 09:36:26 matthieu Exp $
 .\"
 .Dd May 17, 2000
 .Dt SSH-ASKPASS 1 
@@ -9,6 +9,7 @@
 .Sh SYNOPSIS
 .Nm ssh-askpass
 .Op options
+.Op label
 .Sh DESCRIPTION
 .Nm
 is an X11-based pass-phrase dialog for use with OpenSSH.
@@ -17,9 +18,19 @@ It is intended to be called from the
 program and not invoked directly.
 .Pp
 .Nm
-supports all standard Toolkit command line arguments.
+supports most standard Toolkit command line arguments, with the
+exception of
+.Ar -geometry ,
+.Ar -borderwidth ,
+.Ar -iconic ,
+.Ar -rv ,
+and
+.Ar -title .
 See
 .Xr X 1 . 
+.Pp
+If exactly one non-option argument is provided on the command line, it
+is displayed in the dialog instead of the default label.
 .Pp
 The features of
 .Nm
@@ -132,8 +143,9 @@ The label displayed above the led indicators.
 The font to be used to display the label.
 .El
 .Pp
-The following Resources are recognized by the button and indicator
-widgets and the main widget to customize the 3D appearance:
+The following Resources are recognized by the dialog, button, and
+indicator widgets and the main widget to customize the 3D appearance
+(all measurements are in pixels):
 .Bl -tag -width 2n -offset indent
 .It Cm foreground ( No class Cm Foreground )
 The foreground color of the widget.
@@ -158,6 +170,14 @@ The width of the border around the widget.
 The space to leave on left and right sides of the widget.
 .It Cm verticalSpacing ( No class Cm VerticalSpacing )
 The space to leave on top and bottom sides of the widget.
+.El
+.Pp
+The following resources are recognized by the indicator widgets:
+.Bl -tag -width 2n -offset indent
+.It Cm minimumCount ( No class Cm MinimumCount )
+The minimum number of indicators to display in the dialog.
+.It Cm maximumCount ( No class Cm MaximumCount )
+The maximum number of indicators to display in the dialog.
 .El
 .Pp
 Each button uses the following resources to customize its label:
@@ -198,8 +218,8 @@ The remaining portions fall under the following copyright and license:
 .Pp
 .Nm
 by Jim Knoble 
-.Aq jmknoble@pobox.com
-Copyright \(co 1999 Jim Knoble
+.Aq jmknoble@jmknoble.cx
+Copyright \(co 1999,2000 Jim Knoble
 .Pp
 Permission to use, copy, modify, distribute, and sell this software
 and its documentation for any purpose is hereby granted without fee,
