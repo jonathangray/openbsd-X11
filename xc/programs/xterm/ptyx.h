@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: ptyx.h /main/67 1996/11/29 10:34:19 swick $
- *	$XFree86: xc/programs/xterm/ptyx.h,v 3.19.2.6 1998/10/22 04:31:16 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/ptyx.h,v 3.47 1999/01/23 09:56:23 dawes Exp $
  */
 
 /*
@@ -90,49 +90,49 @@
 ** allow for mobility of the pty master/slave directories
 */
 #ifndef PTYDEV
-#ifdef __hpux 
+#ifdef __hpux
 #define	PTYDEV		"/dev/ptym/ptyxx"
-#else	/* !__hpux */ 
+#else	/* !__hpux */
 #ifndef __osf__
 #define	PTYDEV		"/dev/ptyxx"
 #endif
-#endif	/* !__hpux */ 
+#endif	/* !__hpux */
 #endif	/* !PTYDEV */
 
 #ifndef TTYDEV
-#ifdef __hpux 
+#ifdef __hpux
 #define TTYDEV		"/dev/pty/ttyxx"
-#else	/* !__hpux */ 
+#else	/* !__hpux */
 #ifdef __osf__
 #define TTYDEV		"/dev/ttydirs/xxx/xxxxxxxxxxxxxx"
 #else
 #define	TTYDEV		"/dev/ttyxx"
 #endif
-#endif	/* !__hpux */ 
+#endif	/* !__hpux */
 #endif	/* !TTYDEV */
 
 #ifndef PTYCHAR1
-#ifdef __hpux 
+#ifdef __hpux
 #define PTYCHAR1	"zyxwvutsrqp"
-#else	/* !__hpux */ 
+#else	/* !__hpux */
 #ifdef __EMX__
 #define PTYCHAR1	"pq"
 #else
 #define	PTYCHAR1	"pqrstuvwxyzPQRSTUVWXYZ"
 #endif  /* !__EMX__ */
-#endif	/* !__hpux */ 
+#endif	/* !__hpux */
 #endif	/* !PTYCHAR1 */
 
 #ifndef PTYCHAR2
-#ifdef __hpux 
+#ifdef __hpux
 #define	PTYCHAR2	"fedcba9876543210"
-#else	/* !__hpux */ 
+#else	/* !__hpux */
 #ifdef __FreeBSD__
 #define	PTYCHAR2	"0123456789abcdefghijklmnopqrstuv"
 #else /* !__FreeBSD__ */
 #define	PTYCHAR2	"0123456789abcdef"
 #endif /* !__FreeBSD__ */
-#endif	/* !__hpux */ 
+#endif	/* !__hpux */
 #endif	/* !PTYCHAR2 */
 
 #ifndef TTYFORMAT
@@ -206,10 +206,14 @@ typedef Char **ScrnBuf;
 #define MAX_DECID 420			/* ...through VT420 */
 
 #ifndef DFT_DECID
-#define DFT_DECID 100			/* default VT100 */
+#define DFT_DECID "vt100"		/* default VT100 */
 #endif
 
-#define NMENUFONTS 9			/* entries in fontMenu */
+#ifndef DFT_KBD_DIALECT
+#define DFT_KBD_DIALECT "B"		/* default USASCII */
+#endif
+
+#define NMENUFONTS 9			/* font entries in fontMenu */
 
 #define	NBOX	5			/* Number of Points in box	*/
 #define	NPARAM	10			/* Max. parameters		*/
@@ -308,8 +312,20 @@ typedef struct {
 
 #define OPT_BLINK_CURS  0 /* FIXME: do this later (96/7/31) */
 
+#ifndef OPT_BOX_CHARS
+#define OPT_BOX_CHARS	1 /* true if xterm can simulate box-characters */
+#endif
+
 #ifndef OPT_DEC_CHRSET
 #define OPT_DEC_CHRSET  1 /* true if xterm is configured for DEC charset */
+#endif
+
+#ifndef OPT_DEC_SOFTFONT
+#define OPT_DEC_SOFTFONT 0 /* true if xterm is configured for VT220 softfonts */
+#endif
+
+#ifndef OPT_HP_FUNC_KEYS
+#define OPT_HP_FUNC_KEYS 0 /* true if xterm supports HP-style function keys */
 #endif
 
 #ifndef OPT_I18N_SUPPORT
@@ -375,7 +391,13 @@ typedef struct {
 /***====================================================================***/
 
 #if OPT_AIX_COLORS && !OPT_ISO_COLORS
-fixme: You must have ANSI/ISO colors to support AIX colors
+/* You must have ANSI/ISO colors to support AIX colors */
+#undef OPT_AIX_COLORS
+#endif
+
+#if OPT_PC_COLORS && !OPT_ISO_COLORS
+/* You must have ANSI/ISO colors to support PC colors */
+#undef OPT_PC_COLORS
 #endif
 
 /***====================================================================***/
@@ -421,15 +443,16 @@ fixme: You must have ANSI/ISO colors to support AIX colors
 
 #if OPT_DEC_CHRSET
 #define if_OPT_DEC_CHRSET(code) code
-	/* Use 3 bits for encoding the double high/wide sense of characters */
+	/* Use 2 bits for encoding the double high/wide sense of characters */
 #define CSET_SWL        0
 #define CSET_DHL_TOP    1
 #define CSET_DHL_BOT    2
-#define CSET_DWL        4
+#define CSET_DWL        3
+#define NUM_CHRSET      4
 	/* Use remaining bits for encoding the other character-sets */
 #define CSET_NORMAL(code)  ((code) == CSET_SWL)
 #define CSET_DOUBLE(code)  (!CSET_NORMAL(code) && !CSET_EXTEND(code))
-#define CSET_EXTEND(code)  ((code) >= 8)
+#define CSET_EXTEND(code)  ((code) > CSET_DWL)
 #define CurMaxCol(screen, row) \
 	(CSET_DOUBLE(SCRN_BUF_CSETS(screen, row)[0]) \
 	? (screen->max_col / 2) \
@@ -626,7 +649,11 @@ typedef struct {
 	Pixel		highlightcolor;	/* Highlight background color	*/
 #endif
 #if OPT_DEC_CHRSET
+	Boolean		font_doublesize;/* enable font-scaling		*/
 	Char		chrset;		/* character-set index & code	*/
+	XFontStruct *	double_fs[NUM_CHRSET];
+	GC		double_gc[NUM_CHRSET];
+	char *		double_fn[NUM_CHRSET];
 #endif
 	int		border;		/* inner border			*/
 	Cursor		arrow;		/* arrow cursor			*/
@@ -658,6 +685,7 @@ typedef struct {
 #endif /* NO_ACTIVE_ICON */
 	Cursor pointer_cursor;		/* pointer cursor in window	*/
 
+	String	answer_back;		/* response to ENQ		*/
 	String	printer_command;	/* pipe/shell command string	*/
 	Boolean printer_autoclose;	/* close printer when offline	*/
 	Boolean printer_extent;		/* print complete page		*/
@@ -668,6 +696,9 @@ typedef struct {
 #endif
 
 	Boolean		fnt_prop;	/* true if proportional fonts	*/
+	Boolean		fnt_boxes;	/* true if font has box-chars	*/
+	Dimension	fnt_wide;
+	Dimension	fnt_high;
 	XFontStruct	*fnt_norm;	/* normal font of terminal	*/
 	XFontStruct	*fnt_bold;	/* bold font of terminal	*/
 #ifndef NO_ACTIVE_ICON
@@ -727,14 +758,16 @@ typedef struct {
 	Boolean 	multiscroll;	/* true if multi-scroll		*/
 	int		scrolls;	/* outstanding scroll count,
 					    used only with multiscroll	*/
-	SavedCursor	sc;		/* data for restore cursor	*/
+	SavedCursor	sc[2];		/* data for restore cursor	*/
 	int		save_modes[24];	/* save dec/xterm private modes	*/
 
 	/* Improved VT100 emulation stuff.				*/
+	String		keyboard_dialect; /* default keyboard dialect	*/
 	char		gsets[4];	/* G0 through G3.		*/
 	char		curgl;		/* Current GL setting.		*/
 	char		curgr;		/* Current GR setting.		*/
 	char		curss;		/* Current single shift.	*/
+	String		term_id;	/* resource for terminal_id	*/
 	int		terminal_id;	/* 100=vt100, 220=vt220, etc.	*/
 	int		ansi_level;	/* 0=vt100, 1,2,3 = vt100 ... vt320 */
 	int		scroll_amt;	/* amount to scroll		*/
@@ -874,6 +907,9 @@ typedef struct _Misc {
     int icon_border_width;
     Pixel icon_border_pixel;
 #endif /* NO_ACTIVE_ICON */
+#if OPT_DEC_SOFTFONT
+    Boolean font_loadable;
+#endif
 } Misc;
 
 typedef struct {int foo;} XtermClassPart, TekClassPart;

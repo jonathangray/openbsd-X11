@@ -25,7 +25,7 @@
  * SOFTWARE.
  */
 
-/* $XFree86: xc/programs/xterm/screen.c,v 3.12.2.4 1998/12/18 11:56:41 dawes Exp $ */
+/* $XFree86: xc/programs/xterm/screen.c,v 3.33 1999/01/23 09:56:23 dawes Exp $ */
 
 /* screen.c */
 
@@ -35,6 +35,7 @@
 #include <xcharmouse.h>
 
 #include <signal.h>
+
 #ifdef SVR4
 #define SYSV
 #include <termios.h>
@@ -54,19 +55,17 @@
 #endif
 
 #ifdef SYSV
-#if !defined(DGUX)    /* Intel DG/ux uses termios.h */
+#if !defined(DGUX)			/* Intel DG/ux uses termios.h */
 #include <sys/termio.h>
 #endif /* DGUX */
 #ifdef USE_USG_PTYS
 #include <sys/stream.h>			/* get typedef used in ptem.h */
 #include <sys/ptem.h>
 #endif
-#else
-#if defined(sun) && !defined(SVR4)
+#elif defined(sun) && !defined(SVR4)
 #include <sys/ttycom.h>
 #ifdef TIOCSWINSZ
 #undef TIOCSSIZE
-#endif
 #endif
 #endif
 
@@ -685,7 +684,10 @@ ScrnRefresh (
 		 || (cb[col] != cs)
 #endif
 		 ) {
-		   TRACE(("%s @%d, calling drawXtermText %d..%d\n", __FILE__, __LINE__, lastind, col))
+		   TRACE(("%s @%d, calling drawXtermText %d..%d:%.*s\n",
+		   	__FILE__, __LINE__,
+		   	lastind, col,
+			col - lastind, &chars[lastind]))
 		   x = drawXtermText(screen, flags, gc, x, y,
 		   	cs,
 			&chars[lastind], col - lastind);
@@ -713,7 +715,10 @@ ScrnRefresh (
 			chars[col] = ' ';
 	   }
 
-	   TRACE(("%s @%d, calling drawXtermText %d..%d\n", __FILE__, __LINE__, lastind, col))
+	   TRACE(("%s @%d, calling drawXtermText %d..%d:%.*s\n",
+	   	__FILE__, __LINE__,
+		lastind, col,
+		col - lastind, &chars[lastind]))
 	   drawXtermText(screen, flags, gc, x, y,
 	   	cs,
 		&chars[lastind], col - lastind);
@@ -804,11 +809,9 @@ ScreenResize (
 	int move_down_by;
 #if defined(TIOCSSIZE) && (defined(sun) && !defined(SVR4))
 	struct ttysize ts;
-#else	/* not old SunOS */
-#ifdef TIOCSWINSZ
+#elif defined(TIOCSWINSZ)
 	struct winsize ws;
-#endif	/* TIOCSWINSZ */
-#endif	/* sun */
+#endif	/* sun vs TIOCSWINSZ */
 	Window tw = TextWindow (screen);
 
 	TRACE(("ScreenResize %dx%d\n", height, width))
@@ -936,8 +939,7 @@ ScreenResize (
 			kill_process_group(pgrp, SIGWINCH);
 	}
 #endif	/* SIGWINCH */
-#else	/* not old SunOS */
-#ifdef TIOCSWINSZ
+#elif defined(TIOCSWINSZ)
 	/* Set tty's idea of window size */
 	ws.ws_row = rows;
 	ws.ws_col = cols;
@@ -955,8 +957,7 @@ ScreenResize (
 #endif	/* SIGWINCH */
 #else
 	TRACE(("ScreenResize cannot do anything to pty\n"))
-#endif	/* TIOCSWINSZ */
-#endif	/* sun */
+#endif	/* sun vs TIOCSWINSZ */
 	return (0);
 }
 

@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: tabs.c,v 1.4 91/05/06 17:12:18 gildea Exp $
- *	$XFree86: xc/programs/xterm/tabs.c,v 3.2.4.3 1998/10/20 20:51:53 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/tabs.c,v 3.6 1998/10/25 07:12:48 dawes Exp $
  */
 
 /*

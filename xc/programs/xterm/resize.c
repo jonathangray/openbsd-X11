@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: resize.c,v 1.34 95/05/24 22:12:04 gildea Exp $
- *	$XFree86: xc/programs/xterm/resize.c,v 3.18.2.7 1998/10/20 20:51:51 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/resize.c,v 3.29 1998/11/22 10:37:49 dawes Exp $
  */
 
 /*
@@ -242,7 +242,7 @@ char *wsize[EMULATIONS] = {
 #endif	/* TIOCSWINSZ */
 #endif	/* sun */
 
-#include "proto.h"
+#include <proto.h>
 
 static SIGNAL_T onintr (int sig);
 static SIGNAL_T resize_timeout (int sig);
@@ -543,10 +543,8 @@ main (int argc, char **argv)
 			 setname, termcap);
 #endif /* USE_TERMCAP */
 #ifdef USE_TERMINFO
-#ifndef SVR4
 		printf ("%sCOLUMNS=%d;\nLINES=%d;\nexport COLUMNS LINES;\n",
 			setname, cols, rows);
-#endif /* !SVR4 */
 #endif	/* USE_TERMINFO */
 
 	} else {		/* not Bourne shell */
@@ -557,10 +555,8 @@ main (int argc, char **argv)
 			 setname, termcap);
 #endif /* USE_TERMCAP */
 #ifdef USE_TERMINFO
-#ifndef SVR4
 		printf ("set noglob;\n%ssetenv COLUMNS '%d';\nsetenv LINES '%d';\nunset noglob;\n",
 			setname, cols, rows);
-#endif /* !SVR4 */
 #endif	/* USE_TERMINFO */
 	}
 	exit(0);

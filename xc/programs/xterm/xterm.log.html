@@ -20,7 +20,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF   *
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.            *
  *****************************************************************************
-  $XFree86: xc/programs/xterm/xterm.log.html,v 1.1.2.8 1998/11/01 09:59:26 hohndel Exp $
+  $XFree86: xc/programs/xterm/xterm.log.html,v 1.16 1999/01/23 09:56:24 dawes Exp $
   -->
 <HTML>
 <HEAD>
@@ -41,6 +41,9 @@ in the XFree86 CHANGELOG (found in the unbundled tree,
 xc/programs/Xserver/hw/xfree86).
 
 <UL>
+<LI><A HREF="#xterm_91">Patch #91 - 1999/1/21 - XFree86 3.9Nw</A>
+<LI><A HREF="#xterm_90">Patch #90 - 1998/12/13 - XFree86 3.9Nq</A>
+<LI><A HREF="#xterm_89">Patch #89 - 1998/11/20 - XFree86 3.9Nm</A>
 <LI><A HREF="#xterm_88">Patch #88 - 1998/10/31 - XFree86 3.9Nk and 3.3.2h</A>
 <LI><A HREF="#xterm_87">Patch #87 - 1998/10/21 - XFree86 3.9Nj and 3.3.2f</A>
 <LI><A HREF="#xterm_86">Patch #86 - 1998/10/14 - XFree86 3.9Nj and 3.3.2e</A>
@@ -132,6 +135,128 @@ xc/programs/Xserver/hw/xfree86).
 <LI><A HREF="#xterm_01">Patch #1 - 1996/1/6</A>
 </UL>
 
+<H1><A NAME="xterm_91">Patch #91 - 1999/1/21 - XFree86 3.9Nw</A>/<H1>
+<ul>
+	<li>Implement logic to translate input characters which are mapped
+	  when in vt220 National Replacement Character mode (requested by
+	  Tomas Vanhala).
+	<li>Resync configure scripts with my patches to autoconf 2.13
+	<li>Change order of -lXmu and -lXext to accommodate cygwin32
+	  (reported by Vikas Vikas Agnihotri).
+	<li>Add "-ti" option to set terminal emulation level from command
+	  line rather than via resource.
+	<li>Simplify some of the preprocessor logic using #elif.
+</ul>
+
+<H1><A NAME="xterm_90">Patch #90 - 1998/12/13 - XFree86 3.9Nq</A></H1>
+This implements several small fixes and enhancements.  The chief one implements
+fallback support for line drawing characters with fonts that do not include
+those characters.  But I implemented that last.
+
+<ul>
+	<li>If any of the glyphs in positions 0-31 (used by xterm to implement
+	  the VT100 alternate character set) are zero-sized (i.e., missing),
+	  xterm will reserve a normal space for the glyph when drawing.  I
+	  implemented a simple stroke-drawing function to draw the line-drawing
+	  characters and a couple of the other (simpler) characters such as
+	  diamond.  (This was suggested by Vikas Agnihotri).
+
+	<li>Modify the computation of doublesize characters to work around font
+	  servers which shift the scaled characters up/down or do not give the
+	  correct width.
+
+	<li>Add popup menu item and corresponding resource settings to disable
+	  the font-scaling logic for doublesize characters to work around
+	  (older) font servers which simply do not draw the fonts scaled to the
+	  size that they said they would.  I see this problem on a SunOS system
+	  running X11R5; the X11R6 servers seem well behaved.
+
+	<li>Implement new escape sequence, private mode 1049, which combines
+	  the switch to/from alternate screen mode with screen clearing and
+	  cursor save/restore.  Unlike the existing escape sequence, this
+	  clears the alternate screen when switching to it rather than when
+	  switching to the normal screen, thus retaining the alternate screen
+	  contents for select/paste operations.
+
+	<p>When I implemented the popup menu entry to toggle between the normal
+	  and alternate screens, I considered only pasting from the normal
+	  screen to the alternate; this improvement allows either direction.
+
+	<li>Changed the termcap and terminfo for xterm-xfree86 and xterm-8bit
+	  to use the new 1049 private mode.
+
+	<li>Modify the logic which switches between normal and alternate
+	  screens so that the save/restore cursor operations apply only to the
+	  current screen.  That means that applications which use the terminfo
+	  smcur/rmcur or termcap ti/te capabilities will restore the cursor to
+	  the original position on the normal screen rather than to the most
+	  recent place where a save-cursor operation was performed.
+
+	<p>I note that a real VT100 terminal would not behave in this way,
+	  but it is a moot point since the VT100 does not implement alternate
+	  screen, and therefore the save/restore cursor sequence would not be
+	  used in this context.  I reviewed the logic which switches between
+	  normal and alternate screens based on some recent newsgroup postings
+	  as well as a proposed patch in the Debian group which attempts to
+	  do this (the patch has a bug, however, so I did not use it).
+
+	<li>Add popup menu entry for toggling the titeInhibit resource.
+
+	<li>Add new resource answerbackString, which overrides the default
+	  "xterm" returned by xterm when responding to an ENQ (control/E)
+	  character (request by Rajesh Vaidheeswarran &lt;rv@fore.com&gt;).
+
+	<li>Add new resource keyboardDialect for setting the NRC display
+	  character set (request by Tomas Vanhala, who notes that I should
+	  add logic to translate the keyboard as well).
+
+	<li>Add new command-line option and corresponding resources for making
+	  xterm generate escape sequences compatible with HP terminals.  Like
+	  the existing Sun escape sequences, this is available as a popup menu
+	  item.  It is enabled by the configure script with the option
+	  --enable-hp-fkeys (requested by Toni Mueller &lt;sales@oeko.net&gt;).
+
+	<li>Add configure script option --disable-boxchars to disable the
+	  fallback support for line drawing characters.
+
+	<li>Fix ifdef's for configure script --disable-ansi-color, and reviewed
+	  all configure options to ensure that all can be enabled/disabled
+	  appropriately.
+
+	<li>Update config.guess and config.sub, from Lynx.
+</ul>
+
+<H1><A NAME="xterm_89">Patch #89 - 1998/11/20 - XFree86 3.9Nm</A></H1>
+This patch completes the implementation of double-sized character support
+for the VT100 emulation, and fixes a few minor bugs:
+
+<ul>
+<li>corrected the cursor position in HideCursor, which did not multiply
+the column by two when in doublesize mode.
+This bug, which did not appear in normal use,
+dates back to my original <a href="#xterm_44">changes</a> to partly implement
+double-sized characters.
+I noticed it when cat'ing a typescript from vttest's double-sized character
+test.
+<li>ensure that the current line is repainted when switching between
+single and double width characters.
+<li>reduce the number of bits used for double-sized character coding
+from 3 to 2, to make more room for soft-font codes.
+<li>copy newer ifdef's from the XFree86 3.3.3 release's main.c,
+which address details of glibc and powerpc.
+<li>moved definition of DECL_ERRNO in xterm.h to match XFree86 3.3.3
+<li>modify <em>resize</em> to remove the ifdef on SVr4 that suppressed
+printing the script for $LINES and $COLUMNS.
+Solaris' resize utility does this; suppressing the behavior is unnecessary.
+</ul>
+I tested the double-sized characters using vttest and the xfsft patch.
+These fonts worked reasonably well:
+<pre>
+	-bitstream-courier-medium-r-normal--0-0-0-0-m-0-iso8859-1
+	9x15
+</pre>
+The iso8859 font does not include box characters, of course, but looks good.
+
 <H1><A NAME="xterm_88">Patch #88 - 1998/10/31 - XFree86 3.9Nk and 3.3.2h</A></H1>
 This refines my #85 patch by checking for a case where the font server
 returns a bold font that does not quite correspond to the normal font.
@@ -181,15 +306,15 @@ new 17" monitor):
 Several small fixes and enhancements, including a patch from
 Bjorn Helgaas:
 <ul>
-	<li>correct initialization of TERMCAP environment variable, which 
-	  was frequently set to garbage on non-Linux systems because 
-	  "termcap" and "newtc" contained random data from the stack. 
- 
-	<li>remove the LINEWRAPPED attribute from lines as they are cleared. 
-	  Previously, the attribute was set but never cleared. 
- 
-	<li>make word and line selections work even when lines are wrapped 
-	  by xterm.  Previously, selections were limited to one screen line. 
+	<li>correct initialization of TERMCAP environment variable, which
+	  was frequently set to garbage on non-Linux systems because
+	  "termcap" and "newtc" contained random data from the stack.
+
+	<li>remove the LINEWRAPPED attribute from lines as they are cleared.
+	  Previously, the attribute was set but never cleared.
+
+	<li>make word and line selections work even when lines are wrapped
+	  by xterm.  Previously, selections were limited to one screen line.
 </ul>
 as well as
 <ul>
@@ -287,7 +412,7 @@ This fixes a couple of items leftover or introduced by patch 79:
 	  (those keys are too valuable to give up for a fine point of
 	  emulation).
 
-	<li>corrected a couple of places in terminfo where I missed using the 
+	<li>corrected a couple of places in terminfo where I missed using the
 	  vt220-style editing-keypad codes for Find/Select (mapped to Home/End).
 
 	<li>checked termcap file against terminfo, fix several places where it
@@ -299,17 +424,17 @@ This fixes a couple of items leftover or introduced by patch 79:
 This patch fixes several small bugs:
 <ul>
 	<li>use X_EXTRA_LIBS in standalone Makefile.in (patch by Tomas Vanhala).
- 
+
 	<li>add new resource 'oldXtermFKeys' which provides backward compatibility
 	  for F1-F4 control sequences with TOG's xterm.
- 
+
 	<li>determine the server's default foreground/background Pixel values,
 	  needed if the -flipPixels X server option is used (reported by
 	  David Dawes).
 
 	<li>correct logic for F1-F4 function keys so that they generate VT100
 	  compatible escape sequences in VT220 mode, since that is what the
-	  numeric keypad is supposed to do (reported by Ron Johnson, Jr. 
+	  numeric keypad is supposed to do (reported by Ron Johnson, Jr.
 	  &lt;ronjohn@communique.net&gt;).
 
 	<li>modify logic for editing keypad to work more like VT220: don't
@@ -375,7 +500,7 @@ The rest of the patch fixes several minor bugs, and adds a few features:
 
 	<li>document SGR 8, 28 (invisible/visible), add corresponding
 	  capabilities to terminfo description.
-<p>	  
+<p>
 	  I would also add the 'prot protected capability, but the control
 	  sequences for that would not be recognized or properly ignored by the
 	  older xterm programs.
@@ -561,20 +686,20 @@ which I have cleaned up a little, and integrated into the configure script.
 <p>
 From his description:
 <blockquote>
- This set of patches is the latest incarnation of patches originally 
-written by Ian! D Allen, then of the University of Waterloo and now of 
-who knows where; I have been carrying them forward from xterm to xterm 
-ever since about X11R4.  What they do is add an option so that when an 
-iconified xterm receives output it prepends '*** ' to its icon title 
-and (optionally) beeps the bell; deiconifying the xterm removes the 
-'*** '. Over the years I've found this to be incredibly convenient for 
-monitoring all sorts of low-activity things. 
+ This set of patches is the latest incarnation of patches originally
+written by Ian! D Allen, then of the University of Waterloo and now of
+who knows where; I have been carrying them forward from xterm to xterm
+ever since about X11R4.  What they do is add an option so that when an
+iconified xterm receives output it prepends '*** ' to its icon title
+and (optionally) beeps the bell; deiconifying the xterm removes the
+'*** '. Over the years I've found this to be incredibly convenient for
+monitoring all sorts of low-activity things.
 </blockquote>
 
 <H1><A NAME="xterm_71">Patch #71 - 1998/4/12 - XFree86 3.9Ag and 3.3.2</A></H1>
 
 This patch is a slightly modified version of one by Richard Braakman, which
-prevents buffer overflow in the input-method and preedit-type parsing in xterm. 
+prevents buffer overflow in the input-method and preedit-type parsing in xterm.
 I changed a couple of details to make the code more maintainable, and looked
 for similar things - copying into a fixed-size buffer (found none, though I did
 spot an unused variable).

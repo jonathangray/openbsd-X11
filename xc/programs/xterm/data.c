@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: data.c,v 1.12 95/04/05 19:58:47 kaleb Exp $
- *	$XFree86: xc/programs/xterm/data.c,v 3.2.4.4 1998/10/20 20:51:44 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/data.c,v 3.12 1998/12/20 11:58:32 dawes Exp $
  */
 
 /*
@@ -86,9 +86,13 @@ int debug = 0; 		/* true causes error messages to be displayed */
 #endif	/* DEBUG */
 
 XtAppContext app_con;
-XtermWidget term;		/* master data structure for client */
+XtermWidget term;	/* master data structure for client */
 char *xterm_name;	/* argv[0] */
 Boolean sunFunctionKeys;
+
+#if OPT_HP_FUNC_KEYS
+Boolean hpFunctionKeys;
+#endif
 
 #if OPT_ZICONBEEP
 int zIconBeep;  /* non-zero means beep; see charproc.c for details -IAN! */

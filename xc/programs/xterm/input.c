@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: input.c /main/21 1996/04/17 15:54:23 kaleb $
- *	$XFree86: xc/programs/xterm/input.c,v 3.11.2.4 1998/10/20 20:51:46 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/input.c,v 3.26 1999/01/23 09:56:21 dawes Exp $
  */
 
 /*
@@ -45,6 +45,9 @@ static char *cur = "HDACB  FE";
 
 static int decfuncvalue (KeySym keycode);
 static int sunfuncvalue (KeySym keycode);
+#if OPT_HP_FUNC_KEYS
+static int hpfuncvalue (KeySym keycode);
+#endif
 
 static void
 AdjustAfterInput (register TScreen *screen)
@@ -142,6 +145,14 @@ Input (
 	reply.a_nparam = 0;
 	reply.a_inters = 0;
 
+	/* VT220 & up: National Replacement Characters */
+	if ((nbytes == 1)
+	 && (term->flags & NATIONAL)) {
+		keysym = xtermCharSetIn(keysym, screen->keyboard_dialect[0]);
+		if (keysym < 128)
+			strbuf[0] = keysym;
+	}
+
 	/* VT300 & up: backarrow toggle */
 	if ((nbytes == 1)
 	 && !isModified(event)
@@ -187,6 +198,13 @@ Input (
 	}
 #endif
 
+#if OPT_HP_FUNC_KEYS
+	if (hpFunctionKeys
+	 && (reply.a_final = hpfuncvalue (keysym)) != 0) {
+		reply.a_type = ESC;
+		unparseseq(&reply, pty);
+	} else
+#endif
 	if (IsPFKey(keysym)) {
 		reply.a_type = SS3;
 		reply.a_final = keysym-XK_KP_F1+'P';
@@ -368,6 +386,43 @@ decfuncvalue (KeySym keycode)
 	}
 }
 
+#if OPT_HP_FUNC_KEYS
+static int
+hpfuncvalue (KeySym  keycode)
+{
+  	switch (keycode) {
+		case XK_Up:		return('A');
+		case XK_Down:		return('B');
+		case XK_Right:		return('C');
+		case XK_Left:		return('D');
+		case XK_End:		return('F');
+		case XK_Clear:		return('J');
+		case XK_Delete:		return('P');
+		case XK_Insert:		return('Q');
+		case XK_Next:		return('S');
+		case XK_Prior:		return('T');
+		case XK_Home:		return('h');
+		case XK_F1:		return('p');
+		case XK_F2:		return('q');
+		case XK_F3:		return('r');
+		case XK_F4:		return('s');
+		case XK_F5:		return('t');
+		case XK_F6:		return('u');
+		case XK_F7:		return('v');
+		case XK_F8:		return('w');
+#ifdef XK_KP_Insert
+		case XK_KP_Delete:	return('P');
+		case XK_KP_Insert:	return('Q');
+#endif
+#ifdef DXK_Remove
+		case DXK_Remove:	return('P');
+#endif
+		case XK_Select:		return('F');
+		case XK_Find:		return('h');
+		default:		return 0;
+	}
+}
+#endif
 
 static int
 sunfuncvalue (KeySym  keycode)

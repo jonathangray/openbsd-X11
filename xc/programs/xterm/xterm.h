@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/xterm/xterm.h,v 3.9.2.4 1998/10/20 20:51:57 hohndel Exp $ */
+/* $XFree86: xc/programs/xterm/xterm.h,v 3.33 1999/01/23 09:56:24 dawes Exp $ */
 /*
  * Common/useful definitions for XTERM application.
  *
@@ -147,7 +147,8 @@ extern void SGR_Foreground (int color);
 #endif
 
 /* charsets.c */
-extern int xtermCharSets (Char *buf, Char *ptr, char charset);
+extern unsigned xtermCharSetIn (unsigned code, int charset);
+extern int xtermCharSetOut (Char *buf, Char *ptr, char charset);
 
 /* cursor.c */
 extern void CarriageReturn (TScreen *screen);
@@ -156,8 +157,8 @@ extern void CursorDown (TScreen *screen, int  n);
 extern void CursorForward (TScreen *screen, int  n);
 extern void CursorNextLine (TScreen *screen, int count);
 extern void CursorPrevLine (TScreen *screen, int count);
-extern void CursorRestore (XtermWidget tw, SavedCursor *sc);
-extern void CursorSave (XtermWidget tw, SavedCursor *sc);
+extern void CursorRestore (XtermWidget tw);
+extern void CursorSave (XtermWidget tw);
 extern void CursorSet (TScreen *screen, int row, int col, unsigned flags);
 extern void CursorUp (TScreen *screen, int  n);
 extern void Index (TScreen *screen, int amount);
@@ -167,6 +168,9 @@ extern void RevIndex (TScreen *screen, int amount);
 extern void xterm_DECDHL (Bool top);
 extern void xterm_DECSWL (void);
 extern void xterm_DECDWL (void);
+#if OPT_DEC_CHRSET
+extern GC xterm_DoubleGC(unsigned chrset, unsigned flags, GC old_gc);
+#endif
 
 /* input.c */
 extern void Input (TKeyboard *keyboard, TScreen *screen, XKeyEvent *event, Bool eightbit);
@@ -329,6 +333,7 @@ extern void useCurBackground (Bool flag);
 		/* FIXME: Reverse-Video? */
 #define getXtermBackground(flags, color) term->core.background_pixel
 #define getXtermForeground(flags, color) term->screen.foreground
+#define makeColorPair(fg, bg) 0
 #define xtermColorPair() 0
 
 #define useCurBackground(flag) /*nothing*/
