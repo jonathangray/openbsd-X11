@@ -61,13 +61,13 @@ AuthCheckSitePolicy(data_lengthP, dataP, client, reason)
     }
 
     permit = (*policy++ == 0);
-    nPolicies = *policy++;
+    nPolicies = (CARD8) *policy++;
 
     length -= 2;
 
     sitePolicies = SecurityGetSitePolicyStrings(&nSitePolicies);
 
-    while (nPolicies) {
+    while (nPolicies > 0) {
 	int strLen, sitePolicy;
 
 	if (length == 0) {
@@ -75,7 +75,7 @@ AuthCheckSitePolicy(data_lengthP, dataP, client, reason)
 	    return FALSE;
 	}
 
-	strLen = *policy++;
+	strLen = (CARD8) *policy++;
 	if (--length < strLen) {
 	    *reason = InvalidPolicyReason;
 	    return FALSE;
