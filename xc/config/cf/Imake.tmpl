@@ -997,6 +997,40 @@ TCLIBDIR = TclLibDir
 #define ExpandManNames YES
 #endif
 #endif
+#ifndef HasXpm
+#define HasXpm NO
+#endif
+#ifndef XpmLibName
+#if HasXpm
+#define XpmLibName Xpm
+#else
+#define XpmLibName
+#endif
+#endif
+XPMLIBNAME = XpmLibName
+#ifndef XpmLibDir
+#if HasXpm
+#define XpmLibDir UsrLibDir
+#else
+#define XpmLibDir
+#endif
+#endif
+XPMLIBDIR = XpmLibDir
+#ifndef XpmIncDir
+#ifdef HasXpm
+#define XpmIncDir IncRoot
+#else
+#define XpmIncDir
+#endif
+#endif
+XPMINCDIR = XpmIncDir
+#ifndef XpmLibrary
+#if HasXpm
+#define XpmLibrary Concat(-L,$(XPMLIBDIR)) Concat(-l,$(XPMLIBNAME))
+#else
+#define XpmLibrary
+#endif
+#endif
 #ifndef TOPDIR
 #define TOPDIR .
 #endif
