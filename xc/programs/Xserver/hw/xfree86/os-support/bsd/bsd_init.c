@@ -601,7 +601,7 @@ xf86OpenCodrv()
 }
 #endif /* CODRV_SUPPORT */
 
-#if defined(PCVT_SUPPORT) || defined(WSCONS_SUPPORT)
+#if defined(PCVT_SUPPORT)
 
 static int
 xf86OpenPcvt()
@@ -710,7 +710,9 @@ xf86OpenWscons()
     vtmode_t vtmode;
     char vtname[12], *vtprefix;
     struct stat status;
+#ifdef __NetBSD__
     struct pcvtid wscons_version;
+#endif
 
 #ifdef __NetBSD__
     vtprefix = "/dev/ttyE";
@@ -722,8 +724,10 @@ xf86OpenWscons()
 
     if (fd >= 0)
     {
+#ifdef __NetBSD__
 	if (ioctl(fd, VGAPCVTID, &wscons_version) >= 0)
 	{
+#endif
 	    if(ioctl(fd, VT_GETMODE, &vtmode) < 0)
 	    {
 		FatalError("%s: VT_GETMODE failed\n%s%s\n%s\n",
@@ -784,9 +788,16 @@ xf86OpenWscons()
 	    xf86Info.consType = WSCONS;
 	    if (xf86Verbose)
 	    {
-		ErrorF("Using wscons driver (version %d.%d)\n",
-		       wscons_version.rmajor, wscons_version.rminor);
+		ErrorF("Using wscons driver"
+#ifdef __NetBSD__
+			" (version %d.%d)\n",
+			wscons_version.rmajor, wscons_version.rminor
+#else
+			"\n"
+#endif
+			);
 	    }
+#ifdef __NetBSD__
 	}
 	else
 	{
@@ -794,6 +805,7 @@ xf86OpenWscons()
 	    close(fd);
 	    fd = -1;
 	}
+#endif
     }
     return fd;
 }
