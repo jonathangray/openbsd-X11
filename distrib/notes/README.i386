@@ -27,10 +27,8 @@ See the XF86Config user's guide in /usr/X11R6/lib/X11/doc/QuickStart.
 
 For manual configuration information, see /usr/X11R6/lib/X11/doc/Config.
 
-3. Start xdm, the X display manager, either
-
-a) manually, as root:		xdm -nodaemon
-b) or, uncomment the xdm lines regarding /etc/rc.local.
+3. Start xdm, the X display manager by activating the xdm_flags option
+   in /etc/rc.conf.  You do not need to disable the console getty.
 
 4. Optionally, if you want to be able to rebuild your server from the
    XFree86 link kit, install the xlink23.tar.gz from the CD and follow

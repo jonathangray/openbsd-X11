@@ -6,10 +6,8 @@ Post-installation instructions for XFree86 on OpenBSD/alpha
 Typical XFree86 use on Alpha machines requires no special configuration.
 Currently, only TGA video hardware is supported.
 
-2. Start xdm, the X display manager, either
-
-a) manually, as root:		xdm -nodaemon
-b) or, uncomment the xdm lines regarding /etc/rc.local.
+2. Start xdm, the X display manager by activating the xdm_flags option
+   in /etc/rc.conf.  You may need to disable the console getty.
 
 If you encounter a problem, you can browse the entire documentation at
 http://www.xfree86.org/XFree86/3.3.2/DocIndex

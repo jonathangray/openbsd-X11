@@ -15,10 +15,8 @@ b) run the X11R6 font server:	xfs
 	:0 local /usr/X11R6/bin/X -fp tcp/localhost:7100 vt05
       .. then start xdm as below.
 
-2. Start xdm, the X display manager, either
-
-a) manually, as root:		xdm -nodaemon
-b) or, uncomment the xdm lines regarding /etc/rc.local.
+2. Start xdm, the X display manager by activating the xdm_flags option
+   in /etc/rc.conf.  You may need to disable the console getty in /etc/ttys.
 
 If you encounter a problem, you can browse the entire documentation at
 http://www.xfree86.org/XFree86/3.3.2/DocIndex
