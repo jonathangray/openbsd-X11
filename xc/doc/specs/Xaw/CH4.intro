@@ -35,7 +35,7 @@ The Athena widget set provides three classes of Sme objects that may be
 used to build menus.
 .sp
 .IP \fBSme\fP 1i
-.IN "Sme object" "
+.IN "Sme object" ""
 The base class of all menu entries.  It may be used as a menu entry
 itself to provide blank space in a menu.  ``Sme'' means ``Simple Menu
 Entry.''

@@ -1827,8 +1827,8 @@ Superclass Chaining
 .LP
 .IN "Chaining" "superclass"
 .IN "Chaining" "Subclass"
-.IN "Superclass Chaining" "" "@DEF@
-.IN "Subclass Chaining" "" "@DEF@
+.IN "Superclass Chaining" "" "@DEF@"
+.IN "Subclass Chaining" "" "@DEF@"
 .IN "Inheritance"
 While most fields in a widget class structure are self-contained,
 some fields are linked to their corresponding fields in their superclass

@@ -516,7 +516,7 @@ To set the language procedure for use by
 use
 .PN XtSetLanguageProc .
 .IN XtSetLanguageProc "" "@DEF@"
-.IN "language procedure" "" "@DEF@
+.IN "language procedure" "" "@DEF@"
 .FD 0
 XtLanguageProc XtSetLanguageProc(\fIapp_context\fP, \fIproc\fP, \fIclient_data\fP)
 .br
