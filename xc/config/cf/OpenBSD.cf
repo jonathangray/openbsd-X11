@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.14 1999/12/01 12:49:09 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.51 2000/07/23 17:26:49 matthieu Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.52 2000/07/23 17:34:50 matthieu Exp $
 XCOMM
 
 #ifdef Ports
@@ -602,6 +602,10 @@ install:: fonts.alias							@@\
  * Definitions for the PowerPC architecture
  */
 #ifdef ppcArchitecture
+# if OSMajorVersion == 2 && OSMinorVersion < 7 
+    /* there were no shared libraries in OpenBSD/powerpc before 2.7 */
+#   define HasSharedLibraries	NO
+# endif
 # define UseElfFormat		YES
 # define BuildDynamicLoading	NO
 #endif
