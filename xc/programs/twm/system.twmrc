@@ -70,6 +70,8 @@ Button2 = : iconmgr : f.iconify
 menu "defops"
 {
 "Twm"	f.title
+"xterm"         !"xterm &"
+""		f.nop
 "Iconify"	f.iconify
 "Resize"	f.resize
 "Move"		f.move
