@@ -14,7 +14,7 @@ static const char sccsid[] = "@(#)s1_5.c	4.04 97/07/28 xlockmore";
 #include "xlock.h"
 #endif
 
-#ifdef USE_GL
+#ifdef MODE_sproingies
 
 #ifdef STANDALONE
 #include <GL/glx.h>
@@ -1052,6 +1052,6 @@ struct lwo  LWO_s1_5 =
 	s1_5_PNTS, s1_5_normals, s1_5_POLS, 0L
 };
 
-#endif /* USE_GL */
+#endif /* MODE_sproingies */
 
 /* End of s1_5.c */

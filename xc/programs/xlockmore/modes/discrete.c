@@ -46,6 +46,8 @@ static const char sccsid[] = "@(#)discrete.c 4.10 98/04/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_discrete
+
 ModeSpecOpt discrete_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -368,6 +370,8 @@ draw_discrete(ModeInfo * mi)
 				hp->i = ((LRAND() < MAXRAND / 2) ? -1 : 1) *
 					sqrt(((oldi - hp->a) +
 					      sqrt((oldi - hp->a) * (oldi - hp->a) + (oldj - hp->b) * (oldj - hp->b))) / 2);
+				if (hp->i < 0.00000001 && hp->i > -0.00000001)
+					hp->i = (hp->i > 0.0) ? 0.00000001 : -0.00000001;
 				hp->j = (oldj - hp->b) / (2 * hp->i);
 				break;
 		}
@@ -403,3 +407,5 @@ refresh_discrete(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_discrete */

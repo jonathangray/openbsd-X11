@@ -27,11 +27,11 @@ extern      "C" {
 } typedef struct {
 
 	/* global Parameters */
-	int         wire;
+	int         wire, counter;
 	float       extrusion;
 	float       rampl;
 	float       rfreq;
-	char       *words;
+	char       *words, *words_start;
 	/* per Screen variables */
 	GLint       WinH, WinW;
 	GLXContext *glx_context;

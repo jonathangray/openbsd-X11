@@ -10,7 +10,7 @@ static const char sccsid[] = "@(#)random.c	4.10 98/04/23 xlockmore";
  *
  * Revision History:
  *
- * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * Changes maintained by David Bagley <bagleyd@tux.org>
  * 23-Apr-96: Separated out of util.c
  *
  */

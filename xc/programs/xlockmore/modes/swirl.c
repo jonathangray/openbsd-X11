@@ -50,6 +50,8 @@ static const char sccsid[] = "@(#)swirl.c	4.07 97/11/24 xlockmore";
 #include "color.h"
 #endif /* !STANDALONE */
 
+#ifdef MODE_swirl
+
 ModeSpecOpt swirl_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -725,8 +727,9 @@ create_colourmap(ModeInfo * mi, SWIRL_P swirl)
 		swirl->fgcol.pixel = swirl->fg;
 		XQueryColor(display, MI_COLORMAP(mi), &(swirl->bgcol));
 		XQueryColor(display, MI_COLORMAP(mi), &(swirl->fgcol));
-		if (swirl->cmap)
+		if (swirl->cmap) {
 			XFreeColormap(display, swirl->cmap);
+		}
 		swirl->cmap =
 			XCreateColormap(display, swirl->win, swirl->visual, AllocAll);
 	}
@@ -1445,8 +1448,9 @@ release_swirl(ModeInfo * mi)
 		for (i = 0; i < MI_NUM_SCREENS(mi); i++) {
 			SWIRL_P     swirl = &(swirls[i]);
 
-			if (swirl->cmap != None)
+			if (swirl->cmap != None) {
 				XFreeColormap(MI_DISPLAY(mi), swirl->cmap);
+			}
 			if (swirl->rgb_values != NULL)
 				XFree((caddr_t) swirl->rgb_values);
 			if (swirl->ximage != NULL)
@@ -1474,3 +1478,5 @@ refresh_swirl(ModeInfo * mi)
 		swirl->drawing = False;
 	}
 }
+
+#endif /* MODE_swirl */

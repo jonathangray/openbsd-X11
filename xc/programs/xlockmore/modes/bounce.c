@@ -37,7 +37,7 @@ static const char sccsid[] = "@(#)bounce.c	4.07 97/11/24 xlockmore";
  *             <iarit@tara.mines.colorado.edu>
  * 22-Mar-94: got rid of flashing problem by only erasing parts of the image
  *             that will not be in the next image.
- * 2-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
+ * 2-Sep-93: xlock version David Bagley <bagleyd@tux.org>
  * 1986: Sun Microsystems
  */
 
@@ -91,6 +91,8 @@ static const char sccsid[] = "@(#)bounce.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 
 #endif /* STANDALONE */
+
+#ifdef MODE_bounce
 
 ModeSpecOpt bounce_opts =
 {0, NULL, 0, NULL, NULL};
@@ -222,8 +224,6 @@ drawball(ModeInfo * mi, ballstruct * ball)
 		XFillRectangle(display, window, MI_GC(mi),
 			       ball->x, ball->y, bp->xs, bp->ys);
 	} else {
-		bouncestruct *bp = &bounces[MI_SCREEN(mi)];
-
 		if (ball->xlast != -1) {
 			XSetForeground(display, bp->stippledGC, MI_BLACK_PIXEL(mi));
 			XSetStipple(display, bp->stippledGC, bp->pixmaps[ORIENTS]);
@@ -594,3 +594,5 @@ refresh_bounce(ModeInfo * mi)
 	MI_CLEARWINDOW(mi);
 	bounce_windows(mi, bp);
 }
+
+#endif /* MODE_bounce */

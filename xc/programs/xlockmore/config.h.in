@@ -71,9 +71,9 @@
 /* Define if you have the setreuid function.  */
 #undef HAVE_SETREUID
 
-/* Define one of these if they exist (usually not used any more).  */
-#undef HAVE_NANOSLEEP
+/* Define one of these if they exist, usleep prefered.  */
 #undef HAVE_USLEEP
+#undef HAVE_NANOSLEEP
 
 /* If left undefined will default to internal Random Number Generator */
 #undef SRAND
@@ -144,6 +144,15 @@
 /* Define if you have XPM (when its not under a X11 dir, not the norm).  */
 #undef USE_XPMINC
 
+/* Define if you have c++ */
+#undef HAVE_CXX
+
+/* Define if you have FreeType (libttf.a)  */
+#undef HAVE_TTF
+
+/* Define if you have GLTT (libgltt.a)  */
+#undef HAVE_GLTT
+
 /* Define if you have XMU (Editres).  */
 #undef USE_XMU
 
@@ -207,7 +216,7 @@
 /* Enable automatic logout mode (does not come up in random mode) */
 #undef USE_BOMB
 
-/* Enable unstable bubble3d mode */
+/* Enable unstable modes */
 #undef USE_UNSTABLE
 
 /* Define one of these with USE_AUTO_LOGOUT, USE_LOGOUT_BUTTON, and/or
@@ -248,8 +257,19 @@
 /* XResource customization, drawback -display option may not work  */
 #undef CUSTOMIZATION
 
+/* reporting language customization */
+#undef NL
+#undef FR
+#undef DE
+
+/* enabling original mail icon xpm patch */
+#undef ORIGINAL_XPM_PATCH
+
 /* Virtual Terminal Lock for XFree86 users  */
 #undef USE_VTLOCK
+
+/* Gtk Fontsel Widget */
+#undef HAVE_GTK_FONTSEL_WIDGET
 
 /* The FOLLOWING are NOT AUTOMATICALLY DETECTED YET */
 
@@ -282,3 +302,9 @@
    not work on TrueColor
  */
 /* #define COMPLIANT_COLORMAP */
+
+/* Gtk Fontsel Widget */
+#undef HAVE_GTK_FONTSEL_WIDGET
+
+/* Gtk Fontsel Widget */
+#undef HAVE_GTK_FONTSEL_WIDGET

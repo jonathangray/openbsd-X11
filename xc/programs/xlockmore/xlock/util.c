@@ -10,13 +10,13 @@ static const char sccsid[] = "@(#)util.c	4.10 98/04/23 xlockmore";
  *
  * Revision History:
  *
- * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * Changes maintained by David Bagley <bagleyd@tux.org>
  * 23-Apr-98: Separated stuff out of this file, changed name to util.c
  * 08-Jul-96: Bug in strcat_firstword fixed thanks to
  *            <Jeffrey_Doggett@caradon.com>.  Fix for ":not found" text
  *            that appears after about 40 minutes.
  * 04-Apr-96: Added procedures to handle wildcards on filenames
- *            J. Jansen <joukj@crys.chem.uva.nl>
+ *            J. Jansen <joukj@hrem.stm.tudelft.nl>
  * 15-May-95: random number generator added, moved hsbramp.c to utils.c .
  *            Also renamed file from usleep.c to utils.c .
  * 14-Mar-95: patches for rand and seconds for VMS
@@ -37,10 +37,11 @@ static const char sccsid[] = "@(#)util.c	4.10 98/04/23 xlockmore";
  */
 
 #include "xlock.h"
-
+#include "util.h"
 #include <sys/stat.h>
 
-#ifdef USE_OLD_EVENT_LOOP
+#if 1
+/* def USE_OLD_EVENT_LOOP */
 #if !defined( VMS ) || defined( XVMSUTILS ) || ( __VMS_VER >= 70000000 )
 #ifdef USE_XVMSUTILS
 #include <X11/unix_time.h>

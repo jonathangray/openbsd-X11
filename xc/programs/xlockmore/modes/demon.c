@@ -65,6 +65,8 @@ static const char sccsid[] = "@(#)demon.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "automata.h"
 
+#ifdef MODE_demon
+
 /*-
  * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
  */
@@ -897,3 +899,5 @@ refresh_demon(ModeInfo * mi)
 	dp->redrawing = 1;
 	dp->redrawpos = 0;
 }
+
+#endif /* MODE_demon */

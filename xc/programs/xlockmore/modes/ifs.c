@@ -24,6 +24,8 @@ static const char sccsid[] = "@(#)ifs.c	4.07 97/11/24 xlockmore";
  * If this mode is weird and you have an old MetroX server, it is buggy.
  * There is a free SuSE-enhanced MetroX X server that is fine.
  *
+ * When shown ifs, Diana Rose (4 years old) said, "It looks like dancing."
+ *
  * Revision History:
  * 10-May-97: jwz@jwz.org: turned into a standalone program.
  *            Made it render into an offscreen bitmap and then copy
@@ -42,6 +44,8 @@ static const char sccsid[] = "@(#)ifs.c	4.07 97/11/24 xlockmore";
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+
+#ifdef MODE_ifs
 
 ModeSpecOpt ifs_opts =
 {0, NULL, 0, NULL, NULL};
@@ -477,3 +481,5 @@ release_ifs(ModeInfo * mi)
 		Root = NULL;
 	}
 }
+
+#endif /* MODE_ifs */

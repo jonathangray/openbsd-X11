@@ -53,6 +53,8 @@ static const char sccsid[] = "@(#)lisa.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_lisa
+
 #define  DEF_ADDITIVE     "True"
 
 static Bool additive;
@@ -511,3 +513,5 @@ release_lisa(ModeInfo * mi)
 		Lisa = NULL;
 	}
 }
+
+#endif /* MODE_lisa */

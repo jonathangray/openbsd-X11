@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)slip.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * 10-May-97: Jamie Zawinski <jwz@jwz.org> compatible with xscreensaver
- * 01-Dec-95: Patched for VMS <joukj@crys.chem.uva.nl>
+ * 01-Dec-95: Patched for VMS <joukj@hrem.stm.tudelft.nl>
  */
 
 #ifdef STANDALONE
@@ -38,6 +38,8 @@ static const char sccsid[] = "@(#)slip.c	4.07 97/11/24 xlockmore";
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+
+#ifdef MODE_slip
 
 ModeSpecOpt slip_opts =
 {0, NULL, 0, NULL, NULL};
@@ -321,3 +323,5 @@ release_slip(ModeInfo * mi)
 		slips = NULL;
 	}
 }
+
+#endif /* MODE_slip */

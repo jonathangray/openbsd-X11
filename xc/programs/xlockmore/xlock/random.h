@@ -35,7 +35,13 @@
 #endif /* HAVE_RAND48 */
 
 #ifndef SRAND
+#ifdef __cplusplus
+  extern "C" {
+#endif
 extern void SetRNG(long int s);
+#ifdef __cplusplus
+  }
+#endif
 
 #define SRAND(X) SetRNG((long) X)
 #endif

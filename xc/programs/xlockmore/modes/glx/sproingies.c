@@ -31,7 +31,7 @@ static const char sccsid[] = "@(#)sproingies.c	4.04 97/07/28 xlockmore";
 #include "xlock.h"		/* from the xlockmore distribution */
 #endif /* !STANDALONE */
 
-#ifdef USE_GL
+#ifdef MODE_sproingies
 
 #include <GL/gl.h>
 #include <GL/glu.h>

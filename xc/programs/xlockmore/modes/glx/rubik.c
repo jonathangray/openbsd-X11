@@ -2,12 +2,11 @@
 /* rubik --- Shows a auto-solving Rubik's cube */
 
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)rubik.c	4.07 97/11/24 xlockmore";
+static const char sccsid[] = "@(#)rubik.c	4.14 99/04/27 xlockmore";
 
 #endif
 
 #undef DEBUG_LISTS
-#undef LMN
 
 /*-
  * Permission to use, copy, modify, and distribute this software and its
@@ -32,15 +31,14 @@ static const char sccsid[] = "@(#)rubik.c	4.07 97/11/24 xlockmore";
  * Since I'm not a native English speaker, my apologies for any grammatical
  * mistake.
  *
- * My e-mail addresses are
- * vianna@cat.cbpf.br 
- *         and
+ * My e-mail address is
  * m-vianna@usa.net
  *
  * Marcelo F. Vianna (Jul-31-1997)
  *
  * Revision History:
- * 26-Sep-98: Added some more movement (the cube do not stays in the screen
+ * 27-Apr-99: LxMxN stuff added.
+ * 26-Sep-98: Added some more movement (the cube does not stay in the screen
  *            center anymore. Also fixed the scale problem imediatelly after
  *            shuffling when the puzzle is solved.
  * 08-Aug-97: Now has some internals from xrubik by David Bagley
@@ -89,9 +87,9 @@ static const char sccsid[] = "@(#)rubik.c	4.07 97/11/24 xlockmore";
  *                       |0-->        |
  *                       ||           |
  *                       |v           |
- *                       |  BOTTOM(4) |  rp->faces[N][X+AVSIZE*Y]=
- *                       |            |         rp->cubeLoc[N][X+AVSIZE*Y]=
- *                       |            | 
+ *                       |  BOTTOM(4) |
+ *                       |            |
+ *                       |            |
  *                       |           8|         +---+---+---+
  *                       +------------+         |   |   |   |
  *                       |0-->        |         | 0 | 1 | 2 |
@@ -99,7 +97,7 @@ static const char sccsid[] = "@(#)rubik.c	4.07 97/11/24 xlockmore";
  *                       |v           |         |  xxxxx(N) |
  *                       |   BACK(5)  |         | 3 | 4 | 5 |
  *                       |            |         +---+---+---+
- *                       |            |         |   |   |  |
+ *                       |            |         |   |   |   |
  *                       |           8|         | 6 | 7 | 8 |
  *                       +------------+         +---+---+---+
  *
@@ -139,25 +137,40 @@ static const char sccsid[] = "@(#)rubik.c	4.07 97/11/24 xlockmore";
 #include "vis.h"
 #endif /* !STANDALONE */
 
-#ifdef USE_GL
+#ifdef MODE_rubik
 
+#define DEF_SIZEX     "0"
+#define DEF_SIZEY     "0"
+#define DEF_SIZEZ     "0"
 #define DEF_HIDESHUFFLING     "False"
 
+static int sizex;
+static int sizey;
+static int sizez;
 static Bool hideshuffling;
 
 static XrmOptionDescRec opts[] =
 {
-  {"-hideshuffling", ".rubik.hideshuffling", XrmoptionNoArg, (caddr_t) "on"},
-  {"+hideshuffling", ".rubik.hideshuffling", XrmoptionNoArg, (caddr_t) "off"}
+        {"-sizex", ".rubik.sizex", XrmoptionSepArg, (caddr_t) NULL},
+        {"-sizey", ".rubik.sizey", XrmoptionSepArg, (caddr_t) NULL},
+        {"-sizez", ".rubik.sizez", XrmoptionSepArg, (caddr_t) NULL},
+	{"-hideshuffling", ".rubik.hideshuffling", XrmoptionNoArg, (caddr_t) "on"},
+	{"+hideshuffling", ".rubik.hideshuffling", XrmoptionNoArg, (caddr_t) "off"}
 };
 
 static argtype vars[] =
 {
+	{(caddr_t *) & sizex, "sizex", "SizeX", DEF_SIZEX, t_Int},
+	{(caddr_t *) & sizey, "sizey", "SizeY", DEF_SIZEY, t_Int},
+	{(caddr_t *) & sizez, "sizez", "SizeZ", DEF_SIZEZ, t_Int},
 	{(caddr_t *) & hideshuffling, "hideshuffling", "Hideshuffling", DEF_HIDESHUFFLING, t_Bool}
 };
 
 static OptionStruct desc[] =
 {
+	{"-sizex num", "number of cubies along x axis (overrides size)"},
+	{"-sizey num", "number of cubies along y axis (overrides size)"},
+	{"-sizez num", "number of cubies along z axis (overrides size)"},
 	{"-/+hideshuffling", "turn on/off hidden shuffle phase"}
 };
 
@@ -190,26 +203,14 @@ ModStruct   rubik_description =
 /*************************************************************************/
 
 #define MINSIZE 2
-#ifdef LMN			/* LxMxN not completed yet... */
 #define MAXSIZEX (rp->sizex)
 #define MAXSIZEY (rp->sizey)
 #define MAXSIZEZ (rp->sizez)
-#define AVSIZE (rp->avsize)
-#define MAXSIZE (rp->maxsize)
-#define AVSIZESQ (rp->avsizeSq)
-#define MAXSIZESQ (rp->maxsizeSq)
-#else
-#define MAXSIZEX (rp->size)
-#define MAXSIZEY (rp->size)
-#define MAXSIZEZ (rp->size)
-#define AVSIZE (rp->size)
-#define MAXSIZE (rp->size)
-#define AVSIZESQ (rp->sizeSq)
-#define MAXSIZESQ (rp->sizeSq)
-#endif
+#define AVSIZE ((rp->sizex+rp->sizey+rp->sizez)/3.0)     /* Use of this should be minimized */
+#define MAXMAXSIZE (MAX(MAXSIZEX,MAX(MAXSIZEY,MAXSIZEZ)))
 #define MAXSIZEXY (MAXSIZEX*MAXSIZEY)
-#define MAXSIZEZY (MAXSIZEZ*MAXSIZEY)
-#define MAXSIZEXZ (MAXSIZEX*MAXSIZEZ)
+#define MAXSIZEYZ (MAXSIZEY*MAXSIZEZ)
+#define MAXSIZEZX (MAXSIZEZ*MAXSIZEX)
 #define LASTX (MAXSIZEX-1)
 #define LASTY (MAXSIZEY-1)
 #define LASTZ (MAXSIZEZ-1)
@@ -230,6 +231,7 @@ ModStruct   rubik_description =
 #define BOTTOM 2
 #define LEFT 3
 #define CW (MAXORIENT+1)
+#define CW2 (MAXORIENT+2) /* = CCW2 or half turn */
 #define CCW (2*MAXORIENT-1)
 
 #define TOP_FACE 0
@@ -240,7 +242,7 @@ ModStruct   rubik_description =
 #define BACK_FACE 5
 #define NO_FACE (MAXFACES)
 #define NO_ROTATION (2*MAXORIENT)
-#define NO_DEPTH MAXSIZE
+#define NO_DEPTH MAXMAXSIZE
 
 #define REVX(a) (MAXSIZEX - a - 1)
 #define REVY(a) (MAXSIZEY - a - 1)
@@ -306,8 +308,6 @@ static RubikLoc slideNextRow[MAXFACES][MAXORIENT] =
 /*-
  * Examine cubie 0 on each face, its 4 movements (well only 2 since the
  * other 2 will be opposites) and translate it into slice movements).
- * Beware.. using this for NxNxN makes some assumptions that referenced
- * cubes are along the diagonal top-left to bottom-right.
  * CW = DEEP Depth CCW == SHALLOW Depth with reference to faces 0, 1, and 2
  */
 static RubikLoc rotateSlice[MAXFACES][MAXORIENT / 2] =
@@ -358,9 +358,9 @@ static int  rowToRotate[MAXFACES][MAXORIENT] =
 static RubikRowNext rotateToRow[MAXFACES] =	/*CW to min face */
 {
 	{1, LEFT, TOP},
-	{0, BOTTOM, LEFT},
+	{0, BOTTOM, RIGHT},
 	{0, RIGHT, BOTTOM},
-	{0, TOP, RIGHT},
+	{0, TOP, LEFT},
 	{1, RIGHT, BOTTOM},
 	{0, LEFT, TOP}
 };
@@ -370,14 +370,10 @@ typedef struct {
 	GLfloat     step;
 	RubikMove  *moves;
 	int         storedmoves;
+	int         degreeTurn;
 	int         shufflingmoves;
-#ifdef LMN			/* Under construction */
 	int         sizex, sizey, sizez;
-	int         avsize, maxsize;
-	int         avsizeSq, maxsizeSq;
-#else
-	int         size, sizeSq;
-#endif
+	float       avsize, avsizeSq;
 	int         action;
 	int         done;
 	GLfloat     anglestep;
@@ -441,7 +437,7 @@ static float MaterialGray7[] =
 {0.7, 0.7, 0.7, 1.0};
 
 static rubikstruct *rubik = NULL;
-static GLuint objects;
+static GLuint objects = 0;
 
 #define ObjCubit        0
 
@@ -489,6 +485,65 @@ pickcolor(int C, int mono)
 	}
 }
 
+static void
+faceSizes(rubikstruct * rp, int face, int * sizeOnAxis1, int * sizeOnAxis2)
+{
+	switch (face) {
+		case 0: /* TOP */
+		case 4: /* BOTTOM */
+			*sizeOnAxis1 = MAXSIZEX;
+			*sizeOnAxis2 = MAXSIZEZ;
+			break;
+		case 1: /* LEFT */
+		case 3: /* RIGHT */
+			*sizeOnAxis1 = MAXSIZEZ;
+			*sizeOnAxis2 = MAXSIZEY;
+			break;
+		case 2: /* FRONT */
+		case 5: /* BACK */
+			*sizeOnAxis1 = MAXSIZEX;
+			*sizeOnAxis2 = MAXSIZEY;
+			break;
+	}
+}
+
+static Bool
+checkFaceSquare(rubikstruct * rp, int face)
+{
+	int sizeOnAxis1, sizeOnAxis2;
+
+	faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
+	return (sizeOnAxis1 == sizeOnAxis2);
+	/* Cubes can be made square with a 4x2 face where 90 degree turns
+         * should be permitted but that is kind of complicated for me.
+         * This can be done in 2 ways where the side of the cubies are
+         * the same size and one where one side (the side with half the
+         * number of cubies) is twice the size of the other.  The first is
+         * complicated because faces of cubies can go under other faces.
+         * The second way is similar to "banded cubes" where scotch tape
+         * restricts the moves of some cubes.  Here you have to keep track
+         * of the restrictions and show banded cubies graphically as one
+         * cube.
+         */
+}
+
+static int
+sizeFace(rubikstruct * rp, int face)
+{
+	int sizeOnAxis1, sizeOnAxis2;
+
+	faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
+	return (sizeOnAxis1 * sizeOnAxis2);
+}
+
+static int
+sizeColumn(rubikstruct * rp, int face)
+{
+	int sizeOnAxis1, sizeOnAxis2;
+
+	faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
+	return sizeOnAxis1;
+}
 
 static void
 draw_cubit(ModeInfo * mi,
@@ -725,25 +780,36 @@ draw_cubit(ModeInfo * mi,
 	}
 }
 
-
-static      RubikSlice
-convertMove(rubikstruct * rp, RubikMove move)
+/* Convert move to weird general notation */
+static void
+convertMove(rubikstruct * rp, RubikMove move, RubikSlice * slice)
 {
-	RubikSlice  slice;
 	RubikLoc    plane;
+	int         sizeOnAxis1, sizeOnAxis2;
 
 	plane = rotateSlice[(int) move.face][move.direction % 2];
-	slice.face = plane.face;
-	slice.rotation = plane.rotation;
-	if (slice.rotation == CW)	/* I just know this to be true... */
-		slice.depth = AVSIZESQ - 1 - move.position;
-	else
-		slice.depth = move.position;
-	slice.depth = slice.depth / AVSIZE;
-	/* If slice.depth = 0 then face 0, face 1, or face 2 moves */
+	(*slice).face = plane.face;
+	(*slice).rotation = plane.rotation;
+
+	faceSizes(rp, move.face, &sizeOnAxis1, &sizeOnAxis2);
+	if (plane.face == 1 || /* VERTICAL */
+	    (plane.face == 2 && (move.face == 1 || move.face == 3))) {
+		if ((*slice).rotation == CW)
+			(*slice).depth = sizeOnAxis1 - 1 - move.position %
+				sizeOnAxis1;
+		else
+			(*slice).depth = move.position % sizeOnAxis1;
+	} else { /* (plane.face == 0 ||  *//* HORIZONTAL *//*
+	             (plane.face == 2 && (move.face == 0 || move.face == 4))) */
+		if ((*slice).rotation == CW)
+			(*slice).depth = sizeOnAxis2 - 1 - move.position /
+				sizeOnAxis1;
+		else
+			(*slice).depth = move.position / sizeOnAxis1;
+	}
+	/* If (*slice).depth = 0 then face 0, face 1, or face 2 moves */
 	if (move.direction / 2)
-		slice.rotation = (plane.rotation == CW) ? CCW : CW;
-	return slice;
+		(*slice).rotation = ((*slice).rotation == CW) ? CCW : CW;
 }
 
 /* Assume for the moment that the size is at least 2 */
@@ -770,7 +836,7 @@ draw_cube(ModeInfo * mi)
 		slice.rotation = NO_ROTATION;
 		slice.depth = NO_DEPTH;
 	} else {
-		slice = convertMove(rp, rp->movement);
+		convertMove(rp, rp->movement, &slice);
 	}
 	rotatestep = (slice.rotation == CCW) ? rp->rotatestep : -rp->rotatestep;
 
@@ -1299,16 +1365,17 @@ draw_cube(ModeInfo * mi)
 static void
 readRC(rubikstruct * rp, int face, int dir, int h, int orient, int size)
 {
-	int         g;
+	int         g, sizeC;
 
+	sizeC = sizeColumn(rp, face);
 	if (dir == TOP || dir == BOTTOM)
 		for (g = 0; g < size; g++)
 			rp->rowLoc[orient][g] =
-				rp->cubeLoc[face][g * size + h];
+				rp->cubeLoc[face][g * sizeC + h];
 	else			/* dir == RIGHT || dir == LEFT */
 		for (g = 0; g < size; g++)
 			rp->rowLoc[orient][g] =
-				rp->cubeLoc[face][h * size + g];
+				rp->cubeLoc[face][h * sizeC + g];
 }
 
 static void
@@ -1337,17 +1404,18 @@ reverseRC(rubikstruct * rp, int orient, int size)
 static void
 writeRC(rubikstruct * rp, int face, int dir, int h, int orient, int size)
 {
-	int         g, position;
+	int         g, position, sizeC;
 
+	sizeC = sizeColumn(rp, face);
 	if (dir == TOP || dir == BOTTOM) {
 		for (g = 0; g < size; g++) {
-			position = g * size + h;
+			position = g * sizeC + h;
 			rp->cubeLoc[face][position] = rp->rowLoc[orient][g];
 			/* DrawSquare(face, position); */
 		}
 	} else {		/* dir == RIGHT || dir == LEFT */
 		for (g = 0; g < size; g++) {
-			position = h * size + g;
+			position = h * sizeC + g;
 			rp->cubeLoc[face][position] = rp->rowLoc[orient][g];
 			/* DrawSquare(face, position); */
 		}
@@ -1357,29 +1425,77 @@ writeRC(rubikstruct * rp, int face, int dir, int h, int orient, int size)
 static void
 rotateFace(rubikstruct * rp, int face, int direction)
 {
-	int         position, i, j;
+	int         position, i, j, sizeOnAxis1, sizeOnAxis2, sizeOnPlane;
 	RubikLoc   *faceLoc = NULL;
 
-	if ((faceLoc = (RubikLoc *) malloc(AVSIZESQ * sizeof (RubikLoc))) == NULL)
+	faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
+	sizeOnPlane = sizeOnAxis1 * sizeOnAxis2;
+	if ((faceLoc = (RubikLoc *) malloc(sizeOnPlane * sizeof (RubikLoc))) == NULL)
 		(void) fprintf(stderr,
 		 "Could not allocate memory for rubik face position info\n");
 	/* Read Face */
-	for (position = 0; position < AVSIZESQ; position++)
+	for (position = 0; position < sizeOnPlane; position++)
 		faceLoc[position] = rp->cubeLoc[face][position];
 	/* Write Face */
-	for (position = 0; position < AVSIZESQ; position++) {
-		i = position % AVSIZE;
-		j = position / AVSIZE;
-		rp->cubeLoc[face][position] = (direction == CW) ?
-			faceLoc[(AVSIZE - i - 1) * AVSIZE + j] :
-			faceLoc[i * AVSIZE + AVSIZE - j - 1];
+	for (position = 0; position < sizeOnPlane; position++) {
+		i = position % sizeOnAxis1;
+		j = position / sizeOnAxis1;
+		if (direction == CW)
+			rp->cubeLoc[face][position] =
+				faceLoc[(sizeOnAxis1 - i - 1) * sizeOnAxis1 + j];
+		else if (direction == CCW)
+			rp->cubeLoc[face][position] =
+				faceLoc[i * sizeOnAxis1 + sizeOnAxis2 - j - 1];
+		else /* (direction == CW2) */
+			rp->cubeLoc[face][position] =
+				faceLoc[sizeOnAxis1 - i - 1 + (sizeOnAxis2 - j - 1) * sizeOnAxis1];
 		rp->cubeLoc[face][position].rotation =
-			(rp->cubeLoc[face][position].rotation + direction - MAXORIENT) %
-			MAXORIENT;
+			(rp->cubeLoc[face][position].rotation +
+				direction - MAXORIENT) % MAXORIENT;
 		/* DrawSquare(face, position); */
 	}
 	if (faceLoc != NULL)
 		(void) free((void *) faceLoc);
+}
+
+/* Yeah this is big and ugly */
+slideRC(rubikstruct * rp, int face, int direction, int h, int sizeOnOppAxis,
+	int *newFace, int *newDirection, int *newH,
+	int *rotate, Bool *reverse)
+{
+	*newFace = slideNextRow[face][direction].face;
+	*rotate = slideNextRow[face][direction].rotation;
+	*newDirection = (*rotate + direction) % MAXORIENT;
+	switch (*rotate) {
+		case TOP:
+			*newH = h;
+			*reverse = False;
+			break;
+		case RIGHT:
+			if (*newDirection == TOP || *newDirection == BOTTOM) {
+				*newH = sizeOnOppAxis - 1 - h;
+				*reverse = False;
+			} else {	/* *newDirection == RIGHT || *newDirection == LEFT */
+				*newH = h;
+				*reverse = True;
+			}
+				break;
+		case BOTTOM:
+			*newH = sizeOnOppAxis - 1 - h;
+			*reverse = True;
+			break;
+		case LEFT:
+			if (*newDirection == TOP || *newDirection == BOTTOM) {
+				*newH = h;
+				*reverse = True;
+			} else {	/* *newDirection == RIGHT || *newDirection == LEFT */
+				*newH = sizeOnOppAxis - 1 - h;
+				*reverse = False;
+			}
+			break;
+		default:
+			(void) printf("slideRC: rotate %d\n", rotate);
+	}
 }
 
 static void
@@ -1387,25 +1503,41 @@ moveRubik(rubikstruct * rp, int face, int direction, int position)
 {
 	int         newFace, newDirection, rotate, reverse = False;
 	int         h, k, newH = 0;
-	int         i, j;
+	int         i, j, sizeOnAxis1, sizeOnAxis2, sizeOnAxis, sizeOnOppAxis;
 
+	faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
 	if (direction == CW || direction == CCW) {
 		direction = (direction == CCW) ?
 			(rotateToRow[face].direction + 2) % MAXORIENT :
 			rotateToRow[face].direction;
-		i = j = (rotateToRow[face].sideFace == RIGHT ||
-		      rotateToRow[face].sideFace == BOTTOM) ? AVSIZE - 1 : 0;
+		if (rotateToRow[face].sideFace == RIGHT) {
+			i = j = sizeOnAxis2 - 1;
+		} else if (rotateToRow[face].sideFace == BOTTOM) {
+			i = j = sizeOnAxis1 - 1;
+		} else {
+			i = j = 0;
+		}
 		face = rotateToRow[face].face;
-		position = j * AVSIZE + i;
+		position = j * sizeOnAxis1 + i;
 	}
-	i = position % AVSIZE;
-	j = position / AVSIZE;
+	i = position % sizeOnAxis1;
+	j = position / sizeOnAxis1;
 	h = (direction == TOP || direction == BOTTOM) ? i : j;
-	/* rotate sides CW or CCW */
-	if (h == AVSIZE - 1) {
+	if (direction == TOP || direction == BOTTOM) {
+		sizeOnAxis = sizeOnAxis2;
+		sizeOnOppAxis = sizeOnAxis1;
+	} else {
+		sizeOnAxis = sizeOnAxis1;
+		sizeOnOppAxis = sizeOnAxis2;
+	}
+	/* rotate sides CW or CCW or CW2 (half turn) */
+
+	if (h == sizeOnOppAxis - 1) {
 		newDirection = (direction == TOP || direction == BOTTOM) ?
 			TOP : RIGHT;
-		if (direction == TOP || direction == RIGHT)
+		if (rp->degreeTurn == 180)
+			rotateFace(rp, rowToRotate[face][newDirection], CW2);
+		else if (direction == TOP || direction == RIGHT)
 			rotateFace(rp, rowToRotate[face][newDirection], CW);
 		else		/* direction == BOTTOM || direction == LEFT */
 			rotateFace(rp, rowToRotate[face][newDirection], CCW);
@@ -1413,56 +1545,66 @@ moveRubik(rubikstruct * rp, int face, int direction, int position)
 	if (h == 0) {
 		newDirection = (direction == TOP || direction == BOTTOM) ?
 			BOTTOM : LEFT;
-		if (direction == TOP || direction == RIGHT)
+		if (rp->degreeTurn == 180)
+			rotateFace(rp, rowToRotate[face][newDirection], CW2);
+		else if (direction == TOP || direction == RIGHT)
 			rotateFace(rp, rowToRotate[face][newDirection], CCW);
 		else		/* direction == BOTTOM  || direction == LEFT */
 			rotateFace(rp, rowToRotate[face][newDirection], CW);
 	}
-	/* Slide rows */
-	readRC(rp, face, direction, h, 0, AVSIZE);
-	for (k = 1; k <= MAXORIENT; k++) {
-		newFace = slideNextRow[face][direction].face;
-		rotate = slideNextRow[face][direction].rotation;
-		newDirection = (rotate + direction) % MAXORIENT;
-		switch (rotate) {
-			case TOP:
-				newH = h;
-				reverse = False;
-				break;
-			case RIGHT:
-				if (newDirection == TOP || newDirection == BOTTOM) {
-					newH = AVSIZE - 1 - h;
-					reverse = False;
-				} else {	/* newDirection == RIGHT || newDirection == LEFT */
-					newH = h;
-					reverse = True;
-				}
-				break;
-			case BOTTOM:
-				newH = AVSIZE - 1 - h;
-				reverse = True;
-				break;
-			case LEFT:
-				if (newDirection == TOP || newDirection == BOTTOM) {
-					newH = h;
-					reverse = True;
-				} else {	/* newDirection == RIGHT || newDirection == LEFT */
-					newH = AVSIZE - 1 - h;
-					reverse = False;
-				}
-				break;
-			default:
-				(void) printf("moveRubik: rotate %d\n", rotate);
-		}
-		if (k != MAXORIENT)
-			readRC(rp, newFace, newDirection, newH, k, AVSIZE);
-		rotateRC(rp, rotate, k - 1, AVSIZE);
+	/* Slide rows or columns */
+	readRC(rp, face, direction, h, 0, sizeOnAxis);
+	if (rp->degreeTurn == 180) {
+		int sizeOnDepthAxis;
+
+		slideRC(rp, face, direction, h, sizeOnOppAxis,
+			&newFace, &newDirection, &newH, &rotate, &reverse);
+		sizeOnDepthAxis = sizeFace(rp, newFace) / sizeOnOppAxis;
+		readRC(rp, newFace, newDirection, newH, 1, sizeOnDepthAxis);
+		rotateRC(rp, rotate, 0, sizeOnAxis);
 		if (reverse == True)
-			reverseRC(rp, k - 1, AVSIZE);
-		writeRC(rp, newFace, newDirection, newH, k - 1, AVSIZE);
+			reverseRC(rp, 0, sizeOnAxis);
 		face = newFace;
 		direction = newDirection;
 		h = newH;
+		for (k = 2; k <= MAXORIENT + 1; k++) {
+			slideRC(rp, face, direction, h, sizeOnOppAxis,
+				&newFace, &newDirection, &newH, &rotate, &reverse);
+			if (k != MAXORIENT && k != MAXORIENT + 1)
+				readRC(rp, newFace, newDirection, newH, k,
+					(k % 2) ? sizeOnDepthAxis : sizeOnAxis);
+			rotateRC(rp, rotate, k - 2,
+					(k % 2) ? sizeOnDepthAxis : sizeOnAxis);
+			if (k != MAXORIENT + 1)
+				rotateRC(rp, rotate, k - 1,
+					(k % 2) ? sizeOnAxis : sizeOnDepthAxis);
+			if (reverse == True) {
+				reverseRC(rp, k - 2,
+					(k % 2) ? sizeOnDepthAxis : sizeOnAxis);
+				if (k != MAXORIENT + 1)
+					reverseRC(rp, k - 1,
+						(k % 2) ? sizeOnAxis : sizeOnDepthAxis);
+			}
+			writeRC(rp, newFace, newDirection, newH, k - 2,
+				(k % 2) ? sizeOnDepthAxis : sizeOnAxis);
+			face = newFace;
+			direction = newDirection;
+			h = newH;
+		}
+	} else {
+		for (k = 1; k <= MAXORIENT; k++) {
+			slideRC(rp, face, direction, h, sizeOnOppAxis,
+				&newFace, &newDirection, &newH, &rotate, &reverse);
+			if (k != MAXORIENT)
+				readRC(rp, newFace, newDirection, newH, k, sizeOnAxis);
+			rotateRC(rp, rotate, k - 1, sizeOnAxis);
+			if (reverse == True)
+				reverseRC(rp, k - 1, sizeOnAxis);
+			writeRC(rp, newFace, newDirection, newH, k - 1, sizeOnAxis);
+			face = newFace;
+			direction = newDirection;
+			h = newH;
+		}
 	}
 }
 
@@ -1470,13 +1612,14 @@ moveRubik(rubikstruct * rp, int face, int direction, int position)
 void
 printCube(rubikstruct * rp)
 {
-	int         face, position;
+	int         face, position, sizeOnAxis1, sizeOnAxis2;
 
 	for (face = 0; face < MAXFACES; face++) {
-		for (position = 0; position < AVSIZESQ; position++) {
+		faceSizes(rp, face, &sizeOnAxis1, &sizeOnAxis2);
+		for (position = 0; position < sizeOnAxis1 * sizeOnAxis2; position++) {
 			(void) printf("%d %d  ", rp->cubeLoc[face][position].face,
 				      rp->cubeLoc[face][position].rotation);
-			if (!((position + 1) % AVSIZE))
+			if (!((position + 1) % sizeOnAxis1))
 				(void) printf("\n");
 		}
 		(void) printf("\n");
@@ -1506,8 +1649,8 @@ compare_moves(rubikstruct * rp, RubikMove move1, RubikMove move2, Bool opp)
 {
 	RubikSlice  slice1, slice2;
 
-	slice1 = convertMove(rp, move1);
-	slice2 = convertMove(rp, move2);
+	convertMove(rp, move1, &slice1);
+	convertMove(rp, move2, &slice2);
 	if (slice1.face == slice2.face &&
 	    slice1.depth == slice2.depth) {
 		if (slice1.rotation == slice2.rotation) {	/* CW or CCW */
@@ -1528,30 +1671,51 @@ shuffle(ModeInfo * mi)
 	int         i, face, position;
 	RubikMove   move;
 
-	AVSIZE = MI_SIZE(mi);
-	if (AVSIZE < -MINSIZE)
-		AVSIZE = NRAND(-AVSIZE - MINSIZE + 1) + MINSIZE;
-	else if (AVSIZE < MINSIZE)
-		AVSIZE = MINSIZE;
-	/* Let me waste a little space for the moment */
-	/* Future cube to be LxMxN and not just NxNxN, but not done yet */
-	AVSIZESQ = AVSIZE * AVSIZE;
-#ifdef LMN
-	MAXSIZEX = AVSIZE;
-	MAXSIZEY = AVSIZE;
-	MAXSIZEZ = AVSIZE;
-	MAXSIZE = AVSIZE;
-	MAXSIZESQ = AVSIZESQ;
-#endif
+	if (sizex)
+		i = sizex;
+	else
+		i = MI_SIZE(mi);
+	if (i < -MINSIZE)
+		i = NRAND(-i - MINSIZE + 1) + MINSIZE;
+	else if (i < MINSIZE)
+		i = MINSIZE;
+
+	if (LRAND() % 2 && !sizey && !sizez) { /* Make normal (NxNxN) cubes more likely */
+		MAXSIZEX = MAXSIZEY = MAXSIZEZ = i;
+	} else {
+		MAXSIZEX = i;
+		if (sizey)
+			i = sizey;
+		else
+			i = MI_SIZE(mi);
+		if (i < -MINSIZE)
+			i = NRAND(-i - MINSIZE + 1) + MINSIZE;
+		else if (i < MINSIZE)
+			i = MINSIZE;
+		if (LRAND() % 2 && !sizez) { /* Make more MxNxN more likely than LxMxN */
+			MAXSIZEY = MAXSIZEZ = i;
+		} else {
+			MAXSIZEY = i;
+			if (sizez)
+				i = sizez;
+			else
+				i = MI_SIZE(mi);
+			if (i < -MINSIZE)
+				i = NRAND(-i - MINSIZE + 1) + MINSIZE;
+			else if (i < MINSIZE)
+				i = MINSIZE;
+			MAXSIZEZ = i;
+		}
+	}
 
 	for (face = 0; face < MAXFACES; face++) {
 		if (rp->cubeLoc[face] != NULL)
 			(void) free((void *) rp->cubeLoc[face]);
 		if ((rp->cubeLoc[face] =
-		  (RubikLoc *) malloc(AVSIZESQ * sizeof (RubikLoc))) == NULL)
+		  (RubikLoc *) malloc(sizeFace(rp, face) * sizeof (RubikLoc))) == NULL)
 			(void) fprintf(stderr,
-				       "Could not allocate memory for rubik cube position info\n");
-		for (position = 0; position < AVSIZESQ; position++) {
+				"Could not allocate memory for rubik cube position info\n");
+		for (position = 0; position < sizeFace(rp, face); position++) {
 			rp->cubeLoc[face][position].face = face;
 			rp->cubeLoc[face][position].rotation = TOP;
 		}
@@ -1559,8 +1723,9 @@ shuffle(ModeInfo * mi)
 	for (i = 0; i < MAXORIENT; i++) {
 		if (rp->rowLoc[i] != NULL)
 			(void) free((void *) rp->rowLoc[i]);
+		/* The following is reused so make it the biggest size */
 		if ((rp->rowLoc[i] =
-		     (RubikLoc *) malloc(AVSIZE * sizeof (RubikLoc))) == NULL)
+		     (RubikLoc *) malloc(MAXMAXSIZE * sizeof (RubikLoc))) == NULL)
 			(void) fprintf(stderr,
 				       "Could not allocate memory for rubik row position info\n");
 	}
@@ -1589,25 +1754,22 @@ shuffle(ModeInfo * mi)
 		do {
 			move.face = NRAND(6);
 			move.direction = NRAND(4);	/* Exclude CW and CCW, its ok */
-			/*
-			 * Randomize position along diagonal, each plane gets an equal chance.
-			 * This trick will only work for NxNxN cubes
-			 * draw_cube DEPENDS on that they are chosen this way.
-			 */
-			move.position = NRAND(AVSIZE) * (AVSIZE + 1);
-
+			move.position = NRAND(sizeFace(rp, move.face));
 
 			condition = 1;
-
-			if (i > 0)	/* avoid immediate undoing moves */
+			if (i > 0) {	/* avoid immediate undoing moves */
 				if (compare_moves(rp, move, rp->moves[i - 1], True))
 					condition = 0;
+				if (rp->degreeTurn == 180 &&
+				    compare_moves(rp, move, rp->moves[i - 1], False))
+					condition = 0;
+			}
 			if (i > 1)	/* avoid 3 consecutive identical moves */
 				if (compare_moves(rp, move, rp->moves[i - 1], False) &&
 				    compare_moves(rp, move, rp->moves[i - 2], False))
 					condition = 0;
 			/*
-			   * Still some silly moves being made....
+			 * Still some silly moves being made....
 			 */
 		} while (!condition);
 		if (hideshuffling)
@@ -1683,8 +1845,8 @@ init_rubik(ModeInfo * mi)
 	}
 	rp = &rubik[screen];
 	rp->step = NRAND(90);
-	rp->PX = ((float) LRAND() / (float) RAND_MAX) * 2 - 1;
-	rp->PY = ((float) LRAND() / (float) RAND_MAX) * 2 - 1;
+	rp->PX = ((float) LRAND() / (float) MAXRAND) * 2.0 - 1.0;
+	rp->PY = ((float) LRAND() / (float) MAXRAND) * 2.0 - 1.0;
 
 	if ((rp->glx_context = init_GL(mi)) != NULL) {
 
@@ -1743,8 +1905,8 @@ draw_rubik(ModeInfo * mi)
 		bounced = 1;
 	}
 	if (bounced) {
-		rp->VX += ((float) LRAND() / (float) RAND_MAX) * 0.02 - 0.01;
-		rp->VX += ((float) LRAND() / (float) RAND_MAX) * 0.02 - 0.01;
+		rp->VX += ((float) LRAND() / (float) MAXRAND) * 0.02 - 0.01;
+		rp->VX += ((float) LRAND() / (float) MAXRAND) * 0.02 - 0.01;
 		if (rp->VX > 0.06)
 			rp->VX = 0.06;
 		if (rp->VY > 0.06)
@@ -1786,8 +1948,14 @@ draw_rubik(ModeInfo * mi)
 					rp->done = 1;
 				}
 			} else {
+				if (rp->rotatestep == 0) {
+					if (rp->movement.direction == CW || rp->movement.direction == CCW)
+						rp->degreeTurn = (checkFaceSquare(rp, rp->movement.face)) ? 90 : 180;
+					else
+						rp->degreeTurn = (checkFaceSquare(rp, rowToRotate[rp->movement.face][rp->movement.direction])) ? 90 : 180;
+				}
 				rp->rotatestep += rp->anglestep;
-				if (rp->rotatestep > 90) {
+				if (rp->rotatestep > rp->degreeTurn) {
 					evalmovement(mi, rp->movement);
 					rp->shufflingmoves++;
 					rp->movement.face = NO_FACE;
@@ -1803,15 +1971,21 @@ draw_rubik(ModeInfo * mi)
 				if (rp->storedmoves > 0) {
 					rp->rotatestep = 0;
 					rp->movement = rp->moves[rp->storedmoves - 1];
-					rp->movement.direction = (rp->movement.direction + (MAXORIENT / 2)) %
-						MAXORIENT;
+					rp->movement.direction = (rp->movement.direction +
+						(MAXORIENT / 2)) % MAXORIENT;
 				} else {
 					rp->rotatestep = 0;
 					rp->done = 1;
 				}
 			} else {
+				if (rp->rotatestep == 0) {
+					if (rp->movement.direction == CW || rp->movement.direction == CCW)
+						rp->degreeTurn = (checkFaceSquare(rp, rp->movement.face)) ? 90 : 180;
+					else
+						rp->degreeTurn = (checkFaceSquare(rp, rowToRotate[rp->movement.face][rp->movement.direction])) ? 90 : 180;
+				}
 				rp->rotatestep += rp->anglestep;
-				if (rp->rotatestep > 90) {
+				if (rp->rotatestep > rp->degreeTurn) {
 					evalmovement(mi, rp->movement);
 					rp->storedmoves--;
 					rp->movement.face = NO_FACE;

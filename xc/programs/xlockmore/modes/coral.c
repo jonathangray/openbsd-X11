@@ -21,7 +21,7 @@ static const char sccsid[] = "@(#)coral.c 4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 29-Oct-97: xlock version (David Bagley <bagleyd@bigfoot.com>)
+ * 29-Oct-97: xlock version (David Bagley <bagleyd@tux.org>)
  * 15-Jul-97: xscreensaver version Frederick G.M. Roeber <roeber@netscape.com>
  */
 
@@ -51,6 +51,8 @@ static const char sccsid[] = "@(#)coral.c 4.07 97/11/24 xlockmore";
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+
+#ifdef MODE_coral
 
 ModeSpecOpt coral_opts =
 {0, NULL, 0, NULL, NULL};
@@ -326,3 +328,5 @@ release_coral(ModeInfo * mi)
 		reefs = NULL;
 	}
 }
+
+#endif /* MODE_coral */

@@ -46,6 +46,8 @@ static const char sccsid[] = "@(#)voters.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "automata.h"
 
+#ifdef MODE_voters
+
 /*-
  * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
  */
@@ -593,7 +595,7 @@ init_voters(ModeInfo * mi)
 	}
 
 	if (vp->neighbors == 6) {
-		int         nccols, ncrows, i;
+		int         nccols, ncrows, sides;
 
 		if (vp->width < 2)
 			vp->width = 2;
@@ -618,9 +620,10 @@ init_voters(ModeInfo * mi)
 		vp->nrows = 2 * (ncrows / 4);
 		vp->xb = (vp->width - vp->xs * nccols) / 2 + vp->xs / 2;
 		vp->yb = (vp->height - vp->ys * (ncrows / 2) * 2) / 2 + vp->ys;
-		for (i = 0; i < 6; i++) {
-			vp->hexagonList[i].x = (vp->xs - 1) * hexagonUnit[i].x;
-			vp->hexagonList[i].y = ((vp->ys - 1) * hexagonUnit[i].y / 2) * 4 / 3;
+		for (sides = 0; sides < 6; sides++) {
+			vp->hexagonList[sides].x = (vp->xs - 1) * hexagonUnit[sides].x;
+			vp->hexagonList[sides].y =
+				((vp->ys - 1) * hexagonUnit[sides].y / 2) * 4 / 3;
 		}
 	} else if (vp->neighbors == 4 || vp->neighbors == 8) {
 		if (vp->width < 2)
@@ -656,7 +659,7 @@ init_voters(ModeInfo * mi)
 		vp->xb = (vp->width - vp->xs * vp->ncols) / 2;
 		vp->yb = (vp->height - vp->ys * vp->nrows) / 2;
 	} else {		/* TRI */
-		int         orient, i;
+		int         orient, sides;
 
 		if (vp->width < 2)
 			vp->width = 2;
@@ -680,11 +683,11 @@ init_voters(ModeInfo * mi)
 		vp->xb = (vp->width - vp->xs * vp->ncols) / 2 + vp->xs / 2;
 		vp->yb = (vp->height - vp->ys * vp->nrows) / 2 + vp->ys / 2;
 		for (orient = 0; orient < 2; orient++) {
-			for (i = 0; i < 3; i++) {
-				vp->triangleList[orient][i].x =
-					(vp->xs - 2) * triangleUnit[orient][i].x;
-				vp->triangleList[orient][i].y =
-					(vp->ys - 2) * triangleUnit[orient][i].y;
+			for (sides = 0; sides < 3; sides++) {
+				vp->triangleList[orient][sides].x =
+					(vp->xs - 2) * triangleUnit[orient][sides].x;
+				vp->triangleList[orient][sides].y =
+					(vp->ys - 2) * triangleUnit[orient][sides].y;
 			}
 		}
 	}
@@ -802,3 +805,5 @@ release_voters(ModeInfo * mi)
 		voters = NULL;
 	}
 }
+
+#endif /* MODE_voters */

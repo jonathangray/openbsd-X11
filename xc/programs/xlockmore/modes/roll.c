@@ -43,6 +43,8 @@ static const char sccsid[] = "@(#)roll.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_roll
+
 ModeSpecOpt roll_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -306,3 +308,5 @@ refresh_roll(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_roll */

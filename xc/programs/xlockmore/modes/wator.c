@@ -46,6 +46,8 @@ static const char sccsid[] = "@(#)wator.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "automata.h"
 
+#ifdef MODE_wator
+
 /*-
  * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
  */
@@ -645,7 +647,7 @@ init_wator(ModeInfo * mi)
 	}
 
 	if (wp->neighbors == 6) {
-		int         nccols, ncrows, i;
+		int         nccols, ncrows, sides;
 
 		if (wp->width < 2)
 			wp->width = 2;
@@ -670,9 +672,10 @@ init_wator(ModeInfo * mi)
 		wp->nrows = 2 * (ncrows / 4);
 		wp->xb = (wp->width - wp->xs * nccols) / 2 + wp->xs / 2;
 		wp->yb = (wp->height - wp->ys * (ncrows / 2) * 2) / 2 + wp->ys;
-		for (i = 0; i < 6; i++) {
-			wp->shape.hexagon[i].x = (wp->xs - 1) * hexagonUnit[i].x;
-			wp->shape.hexagon[i].y = ((wp->ys - 1) * hexagonUnit[i].y / 2) * 4 / 3;
+		for (sides = 0; sides < 6; sides++) {
+			wp->shape.hexagon[sides].x = (wp->xs - 1) * hexagonUnit[sides].x;
+			wp->shape.hexagon[sides].y =
+				((wp->ys - 1) * hexagonUnit[sides].y / 2) * 4 / 3;
 		}
 	} else if (wp->neighbors == 4 || wp->neighbors == 8) {
 		if (wp->width < 2)
@@ -708,7 +711,7 @@ init_wator(ModeInfo * mi)
 		wp->xb = (wp->width - wp->xs * wp->ncols) / 2;
 		wp->yb = (wp->height - wp->ys * wp->nrows) / 2;
 	} else {		/* TRI */
-		int         orient, i;
+		int         orient, sides;
 
 		if (wp->width < 2)
 			wp->width = 2;
@@ -732,11 +735,11 @@ init_wator(ModeInfo * mi)
 		wp->xb = (wp->width - wp->xs * wp->ncols) / 2 + wp->xs / 2;
 		wp->yb = (wp->height - wp->ys * wp->nrows) / 2 + wp->ys / 2;
 		for (orient = 0; orient < 2; orient++) {
-			for (i = 0; i < 3; i++) {
-				wp->shape.triangle[orient][i].x =
-					(wp->xs - 2) * triangleUnit[orient][i].x;
-				wp->shape.triangle[orient][i].y =
-					(wp->ys - 2) * triangleUnit[orient][i].y;
+			for (sides = 0; sides < 3; sides++) {
+				wp->shape.triangle[orient][sides].x =
+					(wp->xs - 2) * triangleUnit[orient][sides].x;
+				wp->shape.triangle[orient][sides].y =
+					(wp->ys - 2) * triangleUnit[orient][sides].y;
 			}
 		}
 	}
@@ -972,3 +975,5 @@ refresh_wator(ModeInfo * mi)
 		wp->painted = False;
 	}
 }
+
+#endif /* MODE_wator */

@@ -85,6 +85,8 @@ static const char sccsid[] = "@(#)flag.c	4.07 97/11/24 xlockmore";
 #include "iostuff.h"
 #endif
 
+#ifdef MODE_flag
+
 #define DEF_INVERT  "False"
 
 static Bool invert;
@@ -233,6 +235,11 @@ affiche(ModeInfo * mi)
 						       MI_PIXEL(mi, (y + x + fp->sidx + fp->startcolor) %
 							    MI_NPIXELS(mi)));
 			} else {
+/*
+ * PURIFY sometimes reports thousands of Array Bounds Reads and Free Memory
+ * Reads on the XGetPixel call on the next line. Appears to do this if image
+ * loaded is small.
+ */
 				XSetForeground(display, fp->backGC, XGetPixel(fp->image, x, y));
 			}
 			if (fp->pointsize <= 1)
@@ -578,4 +585,11 @@ refresh_flag(ModeInfo * mi)
 	flagstruct *fp = &flags[MI_SCREEN(mi)];
 
 	MI_CLEARWINDOWCOLORMAP(mi, fp->backGC, fp->black);
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+	/* This is needed when another program changes the colormap. */
+	free_stuff(MI_DISPLAY(mi), fp);
+	init_stuff(mi);
+#endif
 }
+
+#endif /* MODE_flag */

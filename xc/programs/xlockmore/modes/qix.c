@@ -51,6 +51,8 @@ static const char sccsid[] = "@(#)qix.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_qix
+
 #define DEF_COMPLETE  "False"
 #define DEF_KALEID  "False"
 
@@ -391,3 +393,5 @@ refresh_qix(ModeInfo * mi)
 	qp->redrawing = 1;
 	qp->redrawpos = 0;
 }
+
+#endif /* MODE_qix */

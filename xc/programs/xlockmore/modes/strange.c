@@ -42,6 +42,8 @@ static const char sccsid[] = "@(#)strange.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* from the xlockmore distribution */
 #endif /* !STANDALONE */
 
+#ifdef MODE_strange
+
 ModeSpecOpt strange_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -413,3 +415,5 @@ release_strange(ModeInfo * mi)
 		Root = NULL;
 	}
 }
+
+#endif /* MODE_strange */

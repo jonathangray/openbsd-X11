@@ -58,7 +58,7 @@
 #define _VROOT_H_
 
 #if !defined( lint ) && !defined( SABER )
-static const char vroot_rcsid[] = "$Id: vroot.h,v 1.1.1.2 1998/09/30 13:54:15 matthieu Exp $";
+static const char vroot_rcsid[] = "$Id: vroot.h,v 1.1.1.3 1999/05/02 17:57:31 matthieu Exp $";
 
 #endif
 
@@ -67,14 +67,14 @@ static const char vroot_rcsid[] = "$Id: vroot.h,v 1.1.1.2 1998/09/30 13:54:15 ma
 #include <X11/Xlib.h>
 
 static      Window
-VirtualRootWindowOfScreen(Screen * screen)
+VirtualRootWindowOfScreen(Screen * s)
 {
 	static Screen *save_screen = (Screen *) 0;
 	static Window root = (Window) 0;
 
-	if (screen != save_screen) {
+	if (s != save_screen) {
 
-		root = RootWindowOfScreen(screen);
+		root = RootWindowOfScreen(s);
 
 		/* go look for a virtual root */
 #if 0
@@ -85,7 +85,7 @@ VirtualRootWindowOfScreen(Screen * screen)
 		if (inroot)
 #endif
 		{
-			Display    *dpy = DisplayOfScreen(screen);
+			Display    *dpy = DisplayOfScreen(s);
 			Atom        __SWM_VROOT = None;
 			int         i;
 			Window      rootReturn, parentReturn, *children;
@@ -113,7 +113,7 @@ VirtualRootWindowOfScreen(Screen * screen)
 					XFree((caddr_t) children);
 			}
 		}
-		save_screen = screen;
+		save_screen = s;
 	}
 	return root;
 }
@@ -122,7 +122,7 @@ VirtualRootWindowOfScreen(Screen * screen)
 #define RootWindowOfScreen(s) VirtualRootWindowOfScreen(s)
 
 #undef RootWindow
-#define RootWindow(dpy,screen) VirtualRootWindowOfScreen(ScreenOfDisplay(dpy,screen))
+#define RootWindow(dpy,s) VirtualRootWindowOfScreen(ScreenOfDisplay(dpy,s))
 
 #undef DefaultRootWindow
 #define DefaultRootWindow(dpy) VirtualRootWindowOfScreen(DefaultScreenOfDisplay(dpy))

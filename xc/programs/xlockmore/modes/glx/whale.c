@@ -76,7 +76,7 @@ static const char sccsid[] = "@(#)whale.c	1.3 98/06/18 xlockmore";
 #include "xlock.h"
 #endif
 
-#ifdef USE_GL
+#ifdef MODE_atlantis
 
 #ifdef STANDALONE
 #include <GL/glx.h>

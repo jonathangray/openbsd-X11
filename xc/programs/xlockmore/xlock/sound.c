@@ -68,7 +68,7 @@ play_sound(char *string)
 
 #ifdef USE_VMSPLAY
 /*-
- * Jouk Jansen <joukj@crys.chem.uva.nl> contributed this
+ * Jouk Jansen <joukj@hrem.stm.tudelft.nl> contributed this
  * which he found at http://axp616.gsi.de:8080/www/vms/mzsw.html
  *
  * quick hack for sounds in xlockmore on VMS
@@ -112,11 +112,14 @@ play_sound(char *filename)
 void
 play_sound(char *string)
 {
-	char        progrun[BUFSIZ];
+	char        *progrun = NULL;
 
-	(void) sprintf(progrun, "( %s%s ) 2>&1", DEF_PLAY, string);
-	/*(void) printf("( %s%s ) 2>&1\n", DEF_PLAY, string); */
-	(void) system(progrun);
+	if ((progrun = (char *) malloc(strlen(DEF_PLAY) + strlen(string) + 10)) != NULL) {
+		(void) sprintf(progrun, "( %s%s ) 2>&1", DEF_PLAY, string);
+		/*(void) printf("%s\n", progrun); */
+		(void) system(progrun);
+		(void) free((void *) progrun);
+	}
 }
 
 #endif

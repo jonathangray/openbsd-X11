@@ -1,5 +1,5 @@
 extern unsigned long allocPixel(Display * display, Colormap cmap,
-				char *name, char *def);
+				const char *name, const char *def);
 
 extern void setColormap(Display * display, Window window, Colormap map,
 			Bool inwindow);

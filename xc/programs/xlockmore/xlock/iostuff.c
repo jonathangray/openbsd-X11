@@ -10,7 +10,7 @@ static const char sccsid[] = "@(#)iostuff.c	4.10 98/10/23 xlockmore";
  *
  * Revision History:
  *
- * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * Changes maintained by David Bagley <bagleyd@tux.org>
  * 23-Apr-98: Separated out of util.c
  *
  */
@@ -48,7 +48,7 @@ readable(char *filename)
 }
 
 FILE       *
-my_fopen(char *filename, char *type)
+my_fopen(char *filename, const char *type)
 {
 	FILE       *fp = NULL;
 	int         s;
@@ -86,7 +86,7 @@ randomFileFromList(char *directory,
 extern Bool debug;
 
 /* index_dir emulation of FORTRAN's index in C. Author: J. Jansen */
-static int
+int
 index_dir(char *str1, char *substr)
 {
 	int         i, num, l1 = strlen(str1), ls = strlen(substr), found;
@@ -197,6 +197,8 @@ sel_image(struct dirent *name)
 	if (numfrag == -1) {
 		++numfrag;
 		while ((ip = index_dir(filename_tmp, "*"))) {
+			if (numfrag >= 64)
+				return 0;
 			frags[numfrag] = (char *) malloc(ip);
 			(void) strcpy(frags[numfrag], "\0");
 			(void) strncat(frags[numfrag], filename_tmp, ip - 1);
@@ -228,7 +230,7 @@ sel_image(struct dirent *name)
 #define _MEMBL_ 64
 int
 scan_dir(const char *directoryname, struct dirent ***namelist,
-	 int         (*select) (struct dirent *),
+	 int         (*specify) (struct dirent *),
 	 int         (*compare) (const void *, const void *))
 {
 	DIR        *dirp;
@@ -243,6 +245,10 @@ scan_dir(const char *directoryname, struct dirent ***namelist,
 		return (-1);
 	}
 	size_tmp = _MEMBL_;
+/*-
+ * PURIFY on SunOS4 and on Solaris 2 reports a cumulative memory leak on
+ * the next line when used with the modes/glx/text3d.cc file. It only
+ * leaks like this for the C++ modes, and is OK in the C modes. */
 	namelist_tmp = (struct dirent **) malloc(size_tmp * sizeof (struct dirent *));
 
 	if (namelist_tmp == NULL) {
@@ -256,7 +262,7 @@ scan_dir(const char *directoryname, struct dirent ***namelist,
 		if (!strcmp(new_entry->d_name, ".") || !strcmp(new_entry->d_name, ".."))
 			continue;
 #endif
-		if (select != NULL && !(*select) (new_entry))
+		if (specify != NULL && !(*specify) (new_entry))
 			continue;
 		if (++num_list_tmp >= size_tmp) {
 			size_tmp = size_tmp + _MEMBL_;
@@ -303,11 +309,6 @@ getRandomImageFile(char *randomfile, char *randomfile_local)
 	extern struct dirent **image_list;
 	extern int  num_list;
 	extern char filename_r[MAXNAMLEN];
-	extern void get_dir(char *fullpath, char *dir, char *filename);
-	extern int  sel_image(struct dirent *name);
-	extern int  scan_dir(const char *directoryname, struct dirent ***namelist,
-			     int         (*select) (struct dirent *),
-			int         (*compare) (const void *, const void *));
 
 	get_dir(randomfile, directory_r, filename_r);
 	if (image_list != NULL) {

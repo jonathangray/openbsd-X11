@@ -48,7 +48,7 @@ all:: $(XLOCKGLOBJS)
 
 DependTarget()
 
-XLOCKINC = -I. -I../../xlock
+XLOCKINC = -I. -I../.. -I../../xlock
 
 DependTarget()
 LintTarget()

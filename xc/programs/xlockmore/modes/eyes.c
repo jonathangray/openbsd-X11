@@ -56,6 +56,8 @@ static const char sccsid[] = "@(#)eyes.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "iostuff.h"
 
+#ifdef MODE_eyes
+
 ModeSpecOpt eyes_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -267,8 +269,8 @@ extern double hypot(double, double);
 
 #endif
 
-static      TPoint
-computePupil(int num, TPoint mouse)
+static  void 
+computePupil(int num, TPoint mouse, TPoint *ret)
 {
 	double      cx, cy;
 	double      dist;
@@ -277,7 +279,6 @@ computePupil(int num, TPoint mouse)
 	double      h;
 	double      dx, dy;
 	double      cosa, sina;
-	TPoint      ret;
 
 	dx = mouse.x - EYE_X(num);
 	dy = mouse.y - EYE_Y(num);
@@ -304,9 +305,8 @@ computePupil(int num, TPoint mouse)
 			cy = dist * sina + EYE_Y(num);
 		}
 	}
-	ret.x = cx;
-	ret.y = cy;
-	return ret;
+	(*ret).x = cx;
+	(*ret).y = cy;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -786,8 +786,8 @@ paint_eyes(ModeInfo * mi, Eyes * e, Fly * f, Eyes * eyes, int num_eyes)
 	/* set the point to look at and compute the pupil position  */
 	point.x = Tx(focusx, focusy, &e->transform);
 	point.y = Ty(focusx, focusy, &e->transform);
-	e->pupil[0] = computePupil(0, point);
-	e->pupil[1] = computePupil(1, point);
+	computePupil(0, point, &(e->pupil[0]));
+	computePupil(1, point, &(e->pupil[1]));
 
 	if (e->painted) {
 		/* if still looking at the same point, do nothing further */
@@ -1042,5 +1042,4 @@ refresh_eyes(ModeInfo * mi)
 	}
 }
 
-/* ---------------------------------------------------------------------- */
-/* ---------------------------------------------------------------------- */
+#endif /* MODE_eyes */

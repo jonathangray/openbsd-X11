@@ -59,6 +59,8 @@ static const char sccsid[] = "@(#)vines.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_vines
+
 ModeSpecOpt vines_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -177,3 +179,5 @@ release_vines(ModeInfo * mi)
 		vines = NULL;
 	}
 }				/* release_vines */
+
+#endif /* MODE_vines */

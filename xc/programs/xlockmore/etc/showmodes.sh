@@ -19,7 +19,8 @@
 # xlock-show-modes Copyright (C)  1998 Andrea Arcangeli
 # 		by Andrea Arcangeli <arcangeli@mbox.queen.it>
 #
-# Does not work on my Sun (DAB)
+# awk fails on Solaris but nawk is OK
+
 function listmodes
 {
 	xlock --help 2>&1 | \

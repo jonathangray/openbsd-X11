@@ -100,12 +100,12 @@ static const char sccsid[] = "@(#)lament.c       4.12 98/09/15 xlockmore";
 #include "vis.h"
 #endif /* !STANDALONE */
 
-#if defined( USE_GL ) && (defined( USE_XPM ) || defined( USE_XPMINC )) && defined( USE_UNSTABLE )
+#ifdef MODE_lament
 
 #undef HAVE_XPM
 #define HAVE_XPM
 #undef countof
-#define countof(x) (sizeof((x))/sizeof((*x)))
+#define countof(x) ((int)(sizeof((x))/sizeof((*x))))
 
 #define DEF_TEXTURE "True"
 
@@ -240,13 +240,13 @@ parse_image_data(ModeInfo * mi)
 	   0xFF in the fourth slot, as GL will interpret that as "alpha".
 	 */
 	XpmImage    xpm_image;
-	XpmInfo     xpm_info;
+	XpmInfo     *xpm_info = NULL;
 	int         result;
 	int         x, y, i;
 	int         bpl, wpl;
 	XColor      colors[255];
 
-	result = XpmCreateXpmImageFromData(lament_faces, &xpm_image, &xpm_info);
+	result = XpmCreateXpmImageFromData(lament_faces, &xpm_image, xpm_info);
 	if (result != XpmSuccess) {
 		(void) fprintf(stderr, "unable to parse xpm data (%d).\n", result);
 		return;
@@ -302,7 +302,7 @@ parse_image_data(ModeInfo * mi)
 
 	/* I sure hope these only free the contents, and not the args. */
 	XpmFreeXpmImage(&xpm_image);
-	XpmFreeXpmInfo(&xpm_info);
+	XpmFreeXpmInfo(xpm_info);
 
 #else /* !HAVE_XPM */
 	(void) fprintf(stderr, "not compiled with XPM support.\n");
@@ -621,12 +621,12 @@ star(ModeInfo * mi, Bool top, Bool wire)
 		/* Connecting faces.
 		 */
 		for (j = 3; j >= 0; j--) {
-			int         k = (j == 0 ? 3 : j - 1);
+			int         l = (j == 0 ? 3 : j - 1);
 			Bool        front_p = (j == 3);
 			GLfloat     x1 = points[(i * 4) + j][0] / 255.0L;
 			GLfloat     y1 = points[(i * 4) + j][1] / 255.0L;
-			GLfloat     x2 = points[(i * 4) + k][0] / 255.0L;
-			GLfloat     y2 = points[(i * 4) + k][1] / 255.0L;
+			GLfloat     x2 = points[(i * 4) + l][0] / 255.0L;
+			GLfloat     y2 = points[(i * 4) + l][1] / 255.0L;
 
 			GLfloat     tx1 = 0.0, tx2 = 1.0, ty1 = 0.0, ty2 = 1.0;
 
@@ -725,7 +725,8 @@ star(ModeInfo * mi, Bool top, Bool wire)
 #endif /* HAVE_GLBINDTEXTURE */
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, interior_color);
 
-	i = countof(points) - 3;
+/* Range changed from "countof(points) - 3" to avoid Stack array bounds read */
+	i = countof(points) - 9;
 	do_normal(points[i + 0][0], points[i + 0][1], 0,
 		  points[i + 4][0], points[i + 4][1], 0,
 		  points[i + 8][0], points[i + 8][1], 0);
@@ -872,7 +873,6 @@ tetra(ModeInfo * mi, Bool wire)
 		      0.0, 0.0, 0.5, -0.5, 0.5,
 		      0.0, 0.0, 0.5, 0.5, -0.5,
 		      0.0, 0.0, -0.5, -0.5, -0.5);
-		glEnd();
 	}
 	glEndList();
 
@@ -1819,33 +1819,33 @@ draw(ModeInfo * mi)
 				case LAMENT_TETRA_DWN:
 				case LAMENT_TETRA_DSE:
 					{
-						int         magic;
-						GLfloat     x, y, z;
+						unsigned int         magic;
+						GLfloat     tx, ty, tz;
 
 						switch (lc->type) {
 							case LAMENT_TETRA_UNE:
 								magic = lc->tetra_une;
-								x = 1.0;
-								y = 1.0;
-								z = 1.0;
+								tx = 1.0;
+								ty = 1.0;
+								tz = 1.0;
 								break;
 							case LAMENT_TETRA_USW:
 								magic = lc->tetra_usw;
-								x = 1.0;
-								y = 1.0;
-								z = -1.0;
+								tx = 1.0;
+								ty = 1.0;
+								tz = -1.0;
 								break;
 							case LAMENT_TETRA_DWN:
 								magic = lc->tetra_dwn;
-								x = 1.0;
-								y = -1.0;
-								z = 1.0;
+								tx = 1.0;
+								ty = -1.0;
+								tz = 1.0;
 								break;
 							case LAMENT_TETRA_DSE:
 								magic = lc->tetra_dse;
-								x = -1.0;
-								y = 1.0;
-								z = 1.0;
+								tx = -1.0;
+								ty = 1.0;
+								tz = 1.0;
 								break;
 							default:
 								abort();
@@ -1860,7 +1860,7 @@ draw(ModeInfo * mi)
 							glCallList(lc->tetra_dwn);
 						if (magic != lc->tetra_dse)
 							glCallList(lc->tetra_dse);
-						glRotatef(lc->anim_r, x, y, z);
+						glRotatef(lc->anim_r, tx, ty, tz);
 						glCallList(magic);
 					}
 					break;
@@ -1933,7 +1933,7 @@ static void
 animate(ModeInfo * mi)
 {
 	lament_configuration *lc = &lcs[MI_SCREEN(mi)];
-	int         pause = 10;
+	int         pause1 = 10;
 
 /*  int pause2 = 60; */
 	int         pause3 = 120;
@@ -1965,7 +1965,7 @@ animate(ModeInfo * mi)
 
 					state = 0;
 					for (i = 0; i < countof(states); i++) {
-						int         a = random() % countof(states);
+						int         a = LRAND() % countof(states);
 						lament_type swap = states[a];
 
 						states[a] = states[i];
@@ -1989,7 +1989,7 @@ animate(ModeInfo * mi)
 			if (lc->anim_z >= 1.0) {
 				lc->anim_z = 1.0;
 				lc->type = LAMENT_STAR_ROT;
-				lc->anim_pause = pause;
+				lc->anim_pause = pause1;
 			}
 			break;
 
@@ -1998,7 +1998,7 @@ animate(ModeInfo * mi)
 			if (lc->anim_r >= 45.0) {
 				lc->anim_r = 45.0;
 				lc->type = LAMENT_STAR_ROT_IN;
-				lc->anim_pause = pause;
+				lc->anim_pause = pause1;
 			}
 			break;
 
@@ -2007,7 +2007,7 @@ animate(ModeInfo * mi)
 			if (lc->anim_z <= 0.0) {
 				lc->anim_z = 0.0;
 				lc->type = LAMENT_STAR_ROT_OUT;
-				lc->anim_pause = pause3 * (1 + (random() % 4) + (random() % 4));
+				lc->anim_pause = pause3 * (1 + (LRAND() % 4) + (LRAND() % 4));
 			}
 			break;
 
@@ -2016,7 +2016,7 @@ animate(ModeInfo * mi)
 			if (lc->anim_z >= 1.0) {
 				lc->anim_z = 1.0;
 				lc->type = LAMENT_STAR_UNROT;
-				lc->anim_pause = pause;
+				lc->anim_pause = pause1;
 			}
 			break;
 
@@ -2025,7 +2025,7 @@ animate(ModeInfo * mi)
 			if (lc->anim_r <= 0.0) {
 				lc->anim_r = 0.0;
 				lc->type = LAMENT_STAR_IN;
-				lc->anim_pause = pause;
+				lc->anim_pause = pause1;
 			}
 			break;
 
@@ -2052,10 +2052,10 @@ animate(ModeInfo * mi)
 				lc->anim_pause = pause3;
 			} else if (lc->anim_r > 119.0 && lc->anim_r <= 120.0) {
 				lc->anim_r = 120.0;
-				lc->anim_pause = pause;
+				lc->anim_pause = pause1;
 			} else if (lc->anim_r > 239.0 && lc->anim_r <= 240.0) {
 				lc->anim_r = 240.0;
-				lc->anim_pause = pause;
+				lc->anim_pause = pause1;
 			}
 			break;
 
@@ -2114,7 +2114,7 @@ animate(ModeInfo * mi)
 			if (lc->anim_z >= 0.25) {
 				lc->anim_z = 0.25;
 				lc->type = LAMENT_TASER_SLIDE;
-				lc->anim_pause = pause * (1 + (random() % 5) + (random() % 5));
+				lc->anim_pause = pause1 * (1 + (LRAND() % 5) + (LRAND() % 5));
 			}
 			break;
 
@@ -2123,7 +2123,7 @@ animate(ModeInfo * mi)
 			if (lc->anim_y >= 0.23) {
 				lc->anim_y = 0.23;
 				lc->type = LAMENT_TASER_SLIDE_IN;
-				lc->anim_pause = pause3 * (1 + (random() % 5) + (random() % 5));
+				lc->anim_pause = pause3 * (1 + (LRAND() % 5) + (LRAND() % 5));
 			}
 			break;
 
@@ -2132,7 +2132,7 @@ animate(ModeInfo * mi)
 			if (lc->anim_y <= 0.0) {
 				lc->anim_y = 0.0;
 				lc->type = LAMENT_TASER_IN;
-				lc->anim_pause = pause;
+				lc->anim_pause = pause1;
 			}
 			break;
 
@@ -2183,11 +2183,11 @@ rotate(GLfloat * pos, GLfloat * v, GLfloat * dv, GLfloat max_v)
 	}
 	/* If it stops, start it going in the other direction. */
 	else if (*v < 0) {
-		if (random() % 4) {
+		if (LRAND() % 4) {
 			*v = 0;
 
 			/* keep going in the same direction */
-			if (random() % 2)
+			if (LRAND() % 2)
 				*dv = 0;
 			else if (*dv < 0)
 				*dv = -*dv;
@@ -2199,14 +2199,14 @@ rotate(GLfloat * pos, GLfloat * v, GLfloat * dv, GLfloat max_v)
 		}
 	}
 	/* Alter direction of rotational acceleration randomly. */
-	if (!(random() % 120))
+	if (!(LRAND() % 120))
 		*dv = -*dv;
 
 	/* Change acceleration very occasionally. */
-	if (!(random() % 200)) {
+	if (!(LRAND() % 200)) {
 		if (*dv == 0)
 			*dv = 0.00001;
-		else if (random() & 1)
+		else if (LRAND() & 1)
 			*dv *= 1.2;
 		else
 			*dv *= 0.8;
@@ -2310,6 +2310,28 @@ gl_init(ModeInfo * mi)
 	if (do_texture) {
 #ifdef HAVE_GLBINDTEXTURE
 		int         i;
+#if ((MESA_MAJOR_VERSION < 3 ) || (( MESA_MAJOR_VERSION == 3 ) && (MESA_MINOR_VERSION == 0 )))
+		/* E.Lassauge - 11/23/98
+		 * It looks like there's a bug in MESA (up to 3.1beta1) for the
+		 * "Default" texture (named '0'). For this texture
+		 * I added a glBindTexture and the same glTexParameteri
+		 * as for the specific textures. Now it does'nt core
+		 * anymore.
+		 * 
+		 * 22-mar-99 for latest version of Mesa this codes wipes
+		 * out the structure on the sides of the cube. Leaving the code
+		 * out did not crash the mode on my VMS system.
+	 	 *      Jouk
+		 */
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, interior_color);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+#endif /* MESA */
 
 		for (i = 0; i < 6; i++)
 			glGenTextures(1, &lc->texids[i]);
@@ -2406,7 +2428,7 @@ init_lament(ModeInfo * mi)
 	lc->ddz = 0.00001;
 
 	lc->type = LAMENT_BOX;
-	lc->anim_pause = 300 + (random() % 100);
+	lc->anim_pause = 300 + (LRAND() % 100);
 
 	if ((lc->glx_context = init_GL(mi)) != NULL) {
 		reshape(MI_WIDTH(mi), MI_HEIGHT(mi));
@@ -2470,6 +2492,12 @@ release_lament(ModeInfo * mi)
 
 			if (lc->texture)
 				XDestroyImage(lc->texture);
+			if (lc->glx_context) {
+				glXMakeCurrent(MI_DISPLAY(mi), MI_WINDOW(mi), *(lc->glx_context));
+
+				if (glIsList(lc->box))
+					glDeleteLists(lc->box, 16);
+			}
 		}
 		(void) free((void *) lcs);
 		lcs = NULL;

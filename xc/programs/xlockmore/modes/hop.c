@@ -68,6 +68,8 @@ static const char sccsid[] = "@(#)hop.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_hop
+
 #define DEF_MARTIN "False"
 #define DEF_POPCORN "False"
 #define DEF_EJK1 "False"
@@ -546,3 +548,5 @@ refresh_hop(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_hop */

@@ -35,7 +35,7 @@ static const char sccsid[] = "@(#)cartoon.c	4.07 97/11/24 xlockmore";
  *            I draw the 8 cartoons like they are.
  *            Lorenzo Patocchi <patol@info.isbiel.ch>
  *            David monkeyed around with the cmap stuff to get it to work.
- * 2-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
+ * 2-Sep-93: xlock version David Bagley <bagleyd@tux.org>
  * 1986: Sun Microsystems
  */
 
@@ -88,7 +88,7 @@ puzzle.c has the same disease.
 #endif /* STANDALONE */
 #include "iostuff.h"
 
-#if defined( USE_XPM ) || defined( USE_XPMINC )
+#ifdef MODE_cartoon
 
 ModeSpecOpt cartoon_opts =
 {0, NULL, 0, NULL, NULL};
@@ -405,4 +405,4 @@ release_cartoon(ModeInfo * mi)
 	}
 }				/* release_cartoon */
 
-#endif
+#endif /* MODE_cartoon */

@@ -39,6 +39,8 @@ static const char sccsid[] = "@(#)lightning.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_lightning
+
 ModeSpecOpt lightning_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -122,7 +124,7 @@ static int  setup_multi_strike(void);
 static int  flashing_strike(void);
 static void flash_duration(int *start, int *end, int total_duration);
 static void random_storm(Storm * st);
-static void generate(XPoint A, XPoint B, int iter, XPoint * verts, int *index);
+static void generate(XPoint A, XPoint B, int iter, XPoint * verts, int *vert_index);
 static void create_fork(Fork * f, XPoint start, XPoint end, int level);
 
 static void first_strike(Lightning bolt, ModeInfo * mi);
@@ -132,7 +134,7 @@ static void level1_strike(Lightning bolt, ModeInfo * mi);
 static void level2_strike(Lightning bolt, ModeInfo * mi);
 
 static int  storm_active(Storm * st);
-static void update_bolt(Lightning * bolt, int time);
+static void update_bolt(Lightning * bolt, int time_now);
 static void wiggle_bolt(Lightning * bolt);
 static void wiggle_line(XPoint * p, int number, int wiggle_amount);
 
@@ -229,7 +231,7 @@ random_storm(Storm * st)
 }
 
 static void
-generate(XPoint A, XPoint B, int iter, XPoint * verts, int *index)
+generate(XPoint A, XPoint B, int iter, XPoint * verts, int *vert_index)
 {
 	XPoint      mid;
 
@@ -237,13 +239,13 @@ generate(XPoint A, XPoint B, int iter, XPoint * verts, int *index)
 	mid.y = (A.y + B.y) / 2 + NRAND(HEIGHT_VARIATION) - HEIGHT_VARIATION / 2;
 
 	if (!iter) {
-		verts[*index].x = mid.x;
-		verts[*index].y = mid.y;
-		(*index)++;
+		verts[*vert_index].x = mid.x;
+		verts[*vert_index].y = mid.y;
+		(*vert_index)++;
 		return;
 	}
-	generate(A, mid, iter - 1, verts, index);
-	generate(mid, B, iter - 1, verts, index);
+	generate(A, mid, iter - 1, verts, vert_index);
+	generate(mid, B, iter - 1, verts, vert_index);
 }
 
 /*------------------------------------------------------------------------*/
@@ -279,30 +281,30 @@ create_fork(Fork * f, XPoint start, XPoint end, int level)
 /*------------------------------------------------------------------------*/
 
 static void
-update_bolt(Lightning * bolt, int time)
+update_bolt(Lightning * bolt, int time_now)
 {
 	wiggle_bolt(bolt);
 	if ((bolt->wiggle_amount == 0) && (bolt->wiggle_number > 2))
 		bolt->wiggle_number = 0;
-	if (((time % 3) == 0))
+	if (((time_now % 3) == 0))
 		bolt->wiggle_amount++;
 
-	if (((time >= bolt->delay_time) && (time < bolt->flash_begin)) ||
-	    (time > bolt->flash_stop))
+	if (((time_now >= bolt->delay_time) && (time_now < bolt->flash_begin)) ||
+	    (time_now > bolt->flash_stop))
 		bolt->visible = 1;
 	else
 		bolt->visible = 0;
 
-	if (time == bolt->delay_time)
+	if (time_now == bolt->delay_time)
 		bolt->strike_level = FIRST_LEVEL_STRIKE;
-	else if (time == (bolt->delay_time + 1))
+	else if (time_now == (bolt->delay_time + 1))
 		bolt->strike_level = LEVEL_ONE_STRIKE;
-	else if ((time > (bolt->delay_time + 1)) &&
-		 (time <= (bolt->delay_time + bolt->flash_begin - 2)))
+	else if ((time_now > (bolt->delay_time + 1)) &&
+		 (time_now <= (bolt->delay_time + bolt->flash_begin - 2)))
 		bolt->strike_level = LEVEL_TWO_STRIKE;
-	else if (time == (bolt->delay_time + bolt->flash_begin - 1))
+	else if (time_now == (bolt->delay_time + bolt->flash_begin - 1))
 		bolt->strike_level = LEVEL_ONE_STRIKE;
-	else if (time == (bolt->delay_time + bolt->flash_stop + 1))
+	else if (time_now == (bolt->delay_time + bolt->flash_stop + 1))
 		bolt->strike_level = LEVEL_ONE_STRIKE;
 	else
 		bolt->strike_level = LEVEL_TWO_STRIKE;
@@ -602,3 +604,5 @@ refresh_lightning(ModeInfo * mi)
 {
 	/* Do nothing, it will refresh by itself */
 }
+
+#endif /* MODE_lightning */

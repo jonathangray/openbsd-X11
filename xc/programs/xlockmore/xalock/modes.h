@@ -11,7 +11,7 @@ static char *LockProcs[] =
 "bounce",
 "braid",
 "bubble",
-#ifdef USE_GL
+#if defined( USE_GL ) && defined( HAVE_CXX )
 "bubble3d",
 #endif
 "bug",
@@ -26,6 +26,7 @@ static char *LockProcs[] =
 "crystal",
 "daisy",
 "dclock",
+"decay",
 "deco",
 "demon",
 "dilemma",
@@ -49,9 +50,13 @@ static char *LockProcs[] =
 "ico",
 "ifs",
 "image",
+"invert",
 "julia",
 "kaleid",
 "kumppa",
+#if defined( USE_GL ) && ( defined( USE_XPM ) || defined( USE_XPMINC ))
+"lament",
+#endif
 "laser",
 "life",
 "life1d",
@@ -60,6 +65,7 @@ static char *LockProcs[] =
 "lisa",
 "lissie",
 "loop",
+"lyapunov",
 "mandelbrot",
 "marquee",
 "maze",
@@ -106,6 +112,7 @@ static char *LockProcs[] =
 #endif
 "swarm",
 "swirl",
+"tetris",
 "thornbird",
 "triangle",
 "tube",
@@ -116,6 +123,7 @@ static char *LockProcs[] =
 "wire",
 "world",
 "worm",
+"xjack",
 "blank",
 
 #ifdef USE_BOMB

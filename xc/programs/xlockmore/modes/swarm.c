@@ -42,6 +42,8 @@ static const char sccsid[] = "@(#)swarm.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* from the xlockmore distribution */
 #endif /* !STANDALONE */
 
+#ifdef MODE_swarm
+
 ModeSpecOpt swarm_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -347,3 +349,5 @@ refresh_swarm(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_swarm */

@@ -53,7 +53,7 @@
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 #ifdef HAVE_GTK_FONTSEL_WIDGET
-#include <gtkfontsel.h>
+#include <gtk/gtkfontsel.h>
 #endif
 
 #include "lmode.h"

@@ -21,7 +21,9 @@ static const char sccsid[] = "@(#)xbm.c	4.00 97/01/01 xlockmore";
 
 #include <X11/Xutil.h>
 
-extern FILE *my_fopen(char *, char *);
+extern int XbmReadFileToImage(char *filename,
+		   int *width, int *height, unsigned char **bits);
+extern FILE *my_fopen(char *, const char *);
 
 int
 XbmReadFileToImage(char *filename,

@@ -59,6 +59,8 @@ static const char sccsid[] = "@(#)julia.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_julia
+
 ModeSpecOpt julia_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -389,3 +391,5 @@ refresh_julia(ModeInfo * mi)
 	jp->redrawing = 1;
 	jp->redrawpos = 0;
 }
+
+#endif /* MODE_julia */

@@ -40,6 +40,8 @@ static const char sccsid[] = "@(#)laser.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_laser
+
 ModeSpecOpt laser_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -334,3 +336,5 @@ refresh_laser(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_laser */

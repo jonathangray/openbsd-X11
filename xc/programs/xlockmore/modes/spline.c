@@ -27,7 +27,7 @@ static const char sccsid[] = "@(#)spline.c	4.07 97/11/24 xlockmore";
  * 17-Jan-96: added compile time option, FOLLOW to erase old splines like Qix
  *           thanks to Richard Duran <rduran@cs.utep.edu>
  * 9-Mar-95: changed how batchcount is used
- * 2-Sep-93: xlock version: David Bagley <bagleyd@bigfoot.com>
+ * 2-Sep-93: xlock version: David Bagley <bagleyd@tux.org>
  *           reminds me of a great "Twilight Zone" episode.
  * 1992:     X11 version Jef Poskanzer <jef@netcom.com>, <jef@well.sf.ca.us>
  *
@@ -65,6 +65,7 @@ static const char sccsid[] = "@(#)spline.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_spline
 
 #define DEF_ERASE  "False"
 
@@ -424,3 +425,5 @@ refresh_spline(ModeInfo * mi)
 		MI_CLEARWINDOW(mi);
 	}
 }
+
+#endif /* MODE_spline */

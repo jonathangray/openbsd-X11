@@ -19,7 +19,7 @@ N =
 O = .o
 #O = .obj
 C = .c
-#C = .cc
+CX = .cc
 S = $(N) $(N)
 #S = ,
 
@@ -35,9 +35,11 @@ OG = $(O)$(S)$(DOG)
 CM = $(C) $(DM)
 CU = $(C) $(DU)
 CG = $(C) $(DG)
+CXG = $(CX) $(DG)
 
 # please define
 # C as the C source code extension
+# CX as the C++ source code extension
 # O as the object extension
 # S as the separator for object code
 
@@ -52,29 +54,30 @@ XLOCKUTILOBJS = $(DOU)xlock$(OU)passwd$(OU)resource$(O)$(S)\
 $(DOU)util$(OU)logout$(OU)mode$(OU)ras$(OU)xbm$(O)$(S)\
 $(DOU)vis$(OU)color$(OU)random$(OU)iostuff$(OU)automata$(O)$(S)\
 $(DOU)spline$(OU)sound$(OU)erase$(O)$(S)\
-$(DOU)vtlock$(O)$(S)$(XLOCKCHECKOBJS)
+$(DOU)vtlock$(OU)vtlock_proc$(O)$(S)$(XLOCKCHECKOBJS)
 
 XLOCKMODEOBJS = $(DOM)ant$(OM)ball$(OM)bat$(OM)blot$(OM)\
 bouboule$(OM)bounce$(OM)braid$(OM)bubble$(OM)bug$(OM)\
 clock$(OM)coral$(OM)crystal$(OM)\
-daisy$(OM)deco$(OM)dclock$(OM)demon$(OM)\
+daisy$(OM)dclock$(OM)decay$(OM)deco$(OM)demon$(OM)\
 dilemma$(OM)discrete$(OM)drift$(OM)\
 eyes$(OM)fadeplot$(OM)flag$(OM)flame$(OM)flow$(OM)forest$(OM)\
 galaxy$(OM)goop$(OM)grav$(OM)\
 helix$(OM)hop$(OM)hyper$(OM)\
 ico$(OM)ifs$(OM)image$(OM)julia$(OM)kaleid$(OM)kumppa$(OM)\
 laser$(OM)life$(OM)life1d$(OM)life3d$(OM)\
-lightning$(OM)lisa$(OM)lissie$(OM)loop$(OM)\
-mandelbrot$(OM)marquee$(OM)maze$(OM)mountain$(OM)munch$(OM)nose$(OM)\
+lightning$(OM)lisa$(OM)lissie$(OM)loop$(OM)lyapunov$(OM)\
+mandelbrot$(OM)marquee$(OM)matrix$(OM)maze$(OM)\
+mountain$(OM)munch$(OM)nose$(OM)\
 pacman$(OM)penrose$(OM)petal$(OM)puzzle$(OM)pyro$(OM)\
 qix$(OM)roll$(OM)rotor$(OM)\
 shape$(OM)sierpinski$(OM)slip$(OM)\
 sphere$(OM)spiral$(OM)spline$(OM)\
 star$(OM)starfish$(OM)strange$(OM)swarm$(OM)swirl$(OM)\
-thornbird$(OM)triangle$(OM)tube$(OM)turtle$(OM)\
+tetris$(OM)thornbird$(OM)triangle$(OM)tube$(OM)turtle$(OM)\
 vines$(OM)voters$(OM)\
-wator$(OM)wire$(OM)world$(OM)worm$(O)
-@UNSTABLE@XLOCKUNSTABLEOBJS =
+wator$(OM)wire$(OM)world$(OM)worm$(OM)xjack$(O)
+@UNSTABLE@XLOCKUNSTABLEOBJS = space$(O)
 @XPM@XLOCKXPMOBJS = $(DOM)cartoon$(O)
 @GL@XLOCKGLOBJS = $(DOG)cage$(OG)gears$(O)$(S)\
 @GL@$(DOG)moebius$(OG)morph3d$(O)$(S)\
@@ -84,47 +87,56 @@ wator$(OM)wire$(OM)world$(OM)worm$(O)
 @GL@$(DOG)s1_1$(OG)s1_2$(OG)s1_3$(OG)s1_4$(OG)s1_5$(OG)s1_6$(O)$(S)\
 @GL@$(DOG)atlantis$(OG)dolphin$(OG)shark$(OG)swim$(OG)whale$(O)$(S)\
 @GL@$(DOG)bubble3d$(OG)b_draw$(OG)b_sphere$(OG)b_lockglue$(O)
-@UNSTABLE@@GL@XLOCKUNSTABLEGLOBJS = $(DOG)lament$(O)
+@XPM@@GL@XLOCKXPMGLOBJS = $(DOG)lament$(O)
+@CCC@@GL@XLOCKCPPGLOBJS = $(DOG)invert$(OG)i_figureeight$(OG)i_linkage$(O)$(S)\
+@CCC@@GL@$(DOG)i_sphere$(OG)i_spline$(O)$(S)\
+@CCC@@GL@$(DOG)i_threejet$(OG)i_threejetvec$(O)$(S)\
+@CCC@@GL@$(DOG)i_twojet$(OG)i_twojetvec$(O)
+@UNSTABLE@@CCC@@GL@@GLTT@XLOCKUNSTABLETEXTGLOBJS = $(DOG)text3d$(O)
+@UNSTABLE@@GL@XLOCKUNSTABLEGLOBJS =
 @BOMB@XLOCKBOMBOBJS = $(DOM)bomb$(O)
 XLOCKUTILMODEOBJS = $(XLOCKBOMBOBJS)$(S)$(DOM)blank$(OM)random$(O)
 XLOCKALLMODEOBJS = $(XLOCKMODEOBJS)$(S)$(XLOCKUNSTABLEOBJS)$(S)\
-$(XLOCKXPMOBJS)$(S)$(XLOCKGLOBJS)$(S)$(XLOCKUNSTABLEGLOBJS)$(S)\
+$(XLOCKXPMOBJS)$(S)$(XLOCKGLOBJS)$(S)\
+$(XLOCKXPMGLOBJS)$(S)$(XLOCKCPPGLOBJS)$(S)\
+$(XLOCKUNSTABLEGLOBJS)$(S)$(XLOCKUNSTABLETEXTGLOBJS)$(S)\
 $(XLOCKUTILMODEOBJS)
 XLOCKALLUTILOBJS = $(XLOCKUTILOBJS)$(XLOCKDEBUGOBJS)
 XLOCKOBJS = $(XLOCKALLUTILOBJS)$(S)$(XLOCKALLMODEOBJS)
 
 # List of source files
-BITMAPS = eyes.xbm flag.xbm ghost.xbm image.xbm life.xbm life1d.xbm \
-maze.xbm puzzle.xbm
-PIXMAPS = flag.xpm image.xpm maze.xpm puzzle.xpm
+BITMAPS = decay.xbm eyes.xbm flag.xbm ghost.xbm image.xbm \
+life.xbm life1d.xbm maze.xbm puzzle.xbm
+PIXMAPS = decay.xpm flag.xpm image.xpm maze.xpm puzzle.xpm
 XLOCKUTILHDRS = xlock.h mode.h vroot.h ras.h version.h config.h
 XLOCKCHECKSRCS = $(DU)memcheck$(C)
 XLOCKUTILSRCS = $(DU)xlock$(CU)passwd$(CU)resource$(C) \
 $(DU)util$(CU)logout$(CU)mode$(CU)ras$(CU)xbm$(C) \
 $(DU)vis$(CU)color$(CU)random$(CU)iostuff$(CU)automata$(C) \
 $(DU)spline$(CU)sound$(CU)erase$(C) \
-$(DU)vtlock$(C) $(XLOCKCHECKSRCS)
+$(DU)vtlock$(CU)vtlock_proc$(C) $(XLOCKCHECKSRCS)
 
 XLOCKMODESRCS = $(DM)ant$(CM)ball$(CM)bat$(CM)blot$(C) \
 $(DM)bouboule$(CM)bounce$(CM)braid$(CM)bubble$(CM)bug$(C) \
 $(DM)clock$(CM)coral$(CM)crystal$(C) \
-$(DM)daisy$(CM)dclock$(CM)deco$(CM)demon$(C) \
+$(DM)daisy$(CM)dclock$(CM)decay$(CM)deco$(CM)demon$(C) \
 $(DM)dilemma$(CM)discrete$(CM)drift$(CM)eyes$(C) \
 $(DM)fadeplot$(CM)flag$(CM)flame$(CM)flow$(CM)forest$(C) \
 $(DM)galaxy$(CM)goop$(CM)grav$(C) \
 $(DM)helix$(CM)hop$(CM)hyper$(C) \
 $(DM)ico$(CM)ifs$(CM)image$(CM)julia$(CM)kaleid$(CM)kumppa$(C) \
 $(DM)laser$(CM)life$(CM)life1d$(CM)life3d$(C) \
-$(DM)lightning$(CM)lisa$(CM)lissie$(CM)loop$(C) \
-$(DM)mandelbrot$(CM)marquee$(CM)maze$(CM)mountain$(CM)munch$(CM)nose$(C) \
+$(DM)lightning$(CM)lisa$(CM)lissie$(CM)loop$(CM)lyapunov$(C) \
+$(DM)mandelbrot$(CM)marquee$(CM)matrix$(CM)maze$(C) \
+$(DM)mountain$(CM)munch$(CM)nose$(C) \
 $(DM)pacman$(CM)penrose$(CM)petal$(CM)puzzle$(CM)pyro$(C) \
 $(DM)qix$(CM)roll$(CM)rotor$(C) \
 $(DM)shape$(CM)sierpinski$(CM)slip$(C) \
-$(DM)sphere$(CM)spiral$(CM)spline$(C) \
+$(DM)space$(CM)sphere$(CM)spiral$(CM)spline$(C) \
 $(DM)star$(CM)starfish$(CM)strange$(CM)swarm$(CM)swirl$(C) \
-$(DM)thornbird$(CM)triangle$(CM)tube$(CM)turtle$(C) \
+$(DM)tetris$(CM)thornbird$(CM)triangle$(CM)tube$(CM)turtle$(C) \
 $(DM)vines$(CM)voters$(C) \
-$(DM)wator$(CM)wire$(CM)world$(CM)worm$(C)
+$(DM)wator$(CM)wire$(CM)world$(CM)worm$(CM)xjack$(C)
 @XPM@XLOCKXPMSRCS = $(DM)cartoon$(C)
 @GL@XLOCKGLSRCS = $(DG)cage$(CG)gears$(C) \
 @GL@$(DG)lament$(CG)moebius$(CG)morph3d$(C) \
@@ -133,7 +145,7 @@ $(DM)wator$(CM)wire$(CM)world$(CM)worm$(C)
 @GL@$(DG)sproingies$(CG)sproingiewrap$(CG)s1_b$(C) \
 @GL@$(DG)s1_1$(CG)s1_2$(CG)s1_3$(CG)s1_4$(CG)s1_5$(CG)s1_6$(C) \
 @GL@$(DG)atlantis$(CG)dolphin$(CG)shark$(CG)swim$(CG)whale$(C) \
-@GL@$(DG)bubble3d$(CG)b_draw$(CG)b_sphere$(CG)b_lockglue$(C)
+@GL@$(DG)bubble3d$(CG)text3d$(CXG)b_draw$(CG)b_sphere$(CG)b_lockglue$(C)
 @BOMB@XLOCKBOMBSRCS = $(DM)bomb$(C)
 XLOCKUTILMODESRCS = $(XLOCKBOMBSRCS) $(DM)blank$(CM)random$(C)
 XLOCKSRCS = $(XLOCKUTILSRCS) $(XLOCKXPMSRCS) $(XLOCKGLSRCS) \
@@ -169,9 +181,10 @@ INSTPGMFLAGS = @INSTPGMFLAGS@
 #CC = acc -g
 #CC = CC -g
 #CC = gcc -g -Wall -ansi -pedantic
-#CC = gcc -g -Wall
+#CC = gcc -g -Wall -W -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wmissing-prototypes -Wstrict-prototypes
 #CC = g++ -g -Wall
 CC = @CC@
+CXX = @CXX@
 
 LINT = lint
 #LINT = alint
@@ -195,6 +208,9 @@ LARGEBITMAP = l-$(BITMAPTYPE)
 MEDIUMPIXMAP = m-$(PIXMAPTYPE)
 LARGEPIXMAP = l-$(PIXMAPTYPE)
 
+#DECAYBITMAP = $(LARGEBITMAP)
+DECAYBITMAP = l-xlock
+#DECAYBITMAP = l-linux
 #EYESBITMAP = $(MEDIUMBITMAP)
 EYESBITMAP = m-grelb
 FLAGBITMAP = $(MEDIUMBITMAP)
@@ -211,6 +227,9 @@ PACMANBITMAP = m-ghost
 #PUZZLEBITMAP = $(LARGEBITMAP)
 PUZZLEBITMAP = l-xlock
 #PUZZLEBITMAP = l-linux
+#DECAYPIXMAP = $(LARGEPIXMAP)
+DECAYPIXMAP = l-xlock
+#DECAYPIXMAP = l-linux
 FLAGPIXMAP = $(MEDIUMPIXMAP)
 #FLAGPIXMAP = m-xlock
 IMAGEPIXMAP = $(MEDIUMPIXMAP)
@@ -235,6 +254,7 @@ DEFINES = -DDEF_FILESEARCHPATH=\"$(xapploaddir)/%N%C%S:$(xapploaddir)/%N%S\" $(C
 DEFS = @DEFS@ $(DEFINES)
 XLOCKINC = -I. -I.. -I$(UTILDIR) -I../.. @XLOCKINC@
 CFLAGS = @CFLAGS@
+CXXFLAGS = @CXXFLAGS@
 #CFLAGS = -O
 #CFLAGS = -g
 XLOCKLDFLAGS = @XLOCKLDFLAGS@ $(CHECKLDFLAG)
@@ -265,19 +285,12 @@ PURIFY = @PURIFY@
 xlock : $(UTILOBJDIR)xlock
 
 $(UTILOBJDIR)xlock : $(XLOCKOBJS)
-	$(PURIFY) $(CC) -o $@ $(XLOCKOBJS) $(XLOCKLDFLAGS) $(XLOCKLIBS)
+	$(PURIFY) $(CXX) $(CFLAGS) -o $@ $(XLOCKOBJS) $(XLOCKLDFLAGS) $(XLOCKLIBS)
 	@ $(ECHO) "$@ BUILD COMPLETE"
 	@ $(ECHO) ""
 
-eyes$(O) : eyes$(C) eyes.xbm
-life$(O) : life$(C) life.xbm
-life1d$(O) : life1d$(C) life1d.xbm
-pacman$(O) : pacman$(C) ghost.xbm
-# Do not need xpm files if not using them but not worth figuring out
-flag$(O) : flag$(C) flag.xbm flag.xpm
-image$(O) : image$(C) image.xbm image.xpm
-maze$(O) : maze$(C) maze.xbm maze.xpm
-puzzle$(O) : puzzle$(C) puzzle.xbm puzzle.xpm
+decay.xbm : $(BITMAPDIR)$(DECAYBITMAP).xbm
+	$(RM) decay.xbm ; $(LN_S) $(BITMAPDIR)$(DECAYBITMAP).xbm decay.xbm
 
 eyes.xbm : $(BITMAPDIR)$(EYESBITMAP).xbm
 	$(RM) eyes.xbm ; $(LN_S) $(BITMAPDIR)$(EYESBITMAP).xbm eyes.xbm
@@ -302,6 +315,9 @@ maze.xbm : $(BITMAPDIR)$(MAZEBITMAP).xbm
 
 puzzle.xbm : $(BITMAPDIR)$(PUZZLEBITMAP).xbm
 	$(RM) puzzle.xbm ; $(LN_S) $(BITMAPDIR)$(PUZZLEBITMAP).xbm puzzle.xbm
+
+decay.xpm : $(PIXMAPDIR)$(DECAYPIXMAP).xpm
+	$(RM) decay.xpm ; $(LN_S) $(PIXMAPDIR)$(DECAYPIXMAP).xpm decay.xpm
 
 flag.xpm : $(PIXMAPDIR)$(FLAGPIXMAP).xpm
 	$(RM) flag.xpm ; $(LN_S) $(PIXMAPDIR)$(FLAGPIXMAP).xpm flag.xpm
@@ -332,6 +348,7 @@ $(UTILOBJDIR)spline.o : $(UTILDIR)spline.c
 $(UTILOBJDIR)sound.o : $(UTILDIR)sound.c
 $(UTILOBJDIR)erase.o : $(UTILDIR)erase.c
 $(UTILOBJDIR)vtlock.o : $(UTILDIR)vtlock.c
+$(UTILOBJDIR)vtlock_proc.o : $(UTILDIR)vtlock_proc.c
 $(UTILOBJDIR)memcheck.o : $(UTILDIR)memcheck.c
 
 #$(XLOCKUTILOBJS) :
@@ -341,6 +358,7 @@ $(UTILOBJDIR)memcheck.o : $(UTILDIR)memcheck.c
 $(GLOBJDIR)cage.o : $(GLDIR)cage.c
 $(GLOBJDIR)gears.o : $(GLDIR)gears.c
 $(GLOBJDIR)lament.o : $(GLDIR)lament.c
+$(GLOBJDIR)text3d.o : $(GLDIR)text3d.cc
 $(GLOBJDIR)moebius.o : $(GLDIR)moebius.c
 $(GLOBJDIR)morph3d.o : $(GLDIR)morph3d.c
 $(GLOBJDIR)rubik.o : $(GLDIR)rubik.c
@@ -363,10 +381,13 @@ $(GLOBJDIR)s1_6.o : $(GLDIR)s1_6.c
 #	cd $(GLOBJDIR) ; \
 #$(MAKE) $(@F) CC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
-.SUFFIXES : $(C) $(O)
+.SUFFIXES : $(C) $(CX) $(O)
 
 $(C)$(O) :
 	$(CC) -c -o $@ $(CPPFLAGS) $(DEFS) $(XLOCKINC) $(CFLAGS) $<
+
+$(CX)$(O) :
+	$(CXX) -c -o $@ $(CPPFLAGS) $(DEFS) $(XLOCKINC) $(CXXFLAGS) $<
 
 install : install-program install-man install-ad
 	@ $(ECHO) "$@ COMPLETE"
@@ -459,6 +480,7 @@ $(UTILOBJDIR)/xlock.o: $(UTILDIR)/random.h
 $(UTILOBJDIR)/xlock.o: $(UTILDIR)/color.h
 $(UTILOBJDIR)/xlock.o: $(UTILDIR)/util.h
 $(UTILOBJDIR)/xlock.o: $(UTILDIR)/iostuff.h
+$(UTILOBJDIR)/xlock.o: $(UTILDIR)/passwd.h
 $(UTILOBJDIR)/xlock.o: $(BITMAPDIR)/mailempty.xbm
 $(UTILOBJDIR)/xlock.o: $(BITMAPDIR)/mailfull.xbm
 $(UTILOBJDIR)/xlock.o: $(UTILDIR)/vroot.h
@@ -466,6 +488,8 @@ $(UTILOBJDIR)/passwd.o: $(UTILDIR)/xlock.h
 $(UTILOBJDIR)/passwd.o: ../config.h
 $(UTILOBJDIR)/passwd.o: $(UTILDIR)/mode.h
 $(UTILOBJDIR)/passwd.o: $(UTILDIR)/random.h
+$(UTILOBJDIR)/passwd.o: $(UTILDIR)/iostuff.h
+$(UTILOBJDIR)/passwd.o: $(UTILDIR)/passwd.h
 $(UTILOBJDIR)/resource.o: $(UTILDIR)/xlock.h
 $(UTILOBJDIR)/resource.o: ../config.h
 $(UTILOBJDIR)/resource.o: $(UTILDIR)/mode.h
@@ -477,10 +501,12 @@ $(UTILOBJDIR)/util.o: $(UTILDIR)/xlock.h
 $(UTILOBJDIR)/util.o: ../config.h
 $(UTILOBJDIR)/util.o: $(UTILDIR)/mode.h
 $(UTILOBJDIR)/util.o: $(UTILDIR)/random.h
+$(UTILOBJDIR)/util.o: $(UTILDIR)/util.h
 $(UTILOBJDIR)/logout.o: $(UTILDIR)/xlock.h
 $(UTILOBJDIR)/logout.o: ../config.h
 $(UTILOBJDIR)/logout.o: $(UTILDIR)/mode.h
 $(UTILOBJDIR)/logout.o: $(UTILDIR)/random.h
+$(UTILOBJDIR)/logout.o: $(UTILDIR)/iostuff.h
 $(UTILOBJDIR)/mode.o: $(UTILDIR)/xlock.h
 $(UTILOBJDIR)/mode.o: ../config.h
 $(UTILOBJDIR)/mode.o: $(UTILDIR)/mode.h
@@ -505,6 +531,7 @@ $(UTILOBJDIR)/color.o: ../config.h
 $(UTILOBJDIR)/color.o: $(UTILDIR)/mode.h
 $(UTILOBJDIR)/color.o: $(UTILDIR)/random.h
 $(UTILOBJDIR)/color.o: $(UTILDIR)/color.h
+$(UTILOBJDIR)/color.o: $(UTILDIR)/vis.h
 $(UTILOBJDIR)/iostuff.o: $(UTILDIR)/xlock.h
 $(UTILOBJDIR)/iostuff.o: ../config.h
 $(UTILOBJDIR)/iostuff.o: $(UTILDIR)/mode.h
@@ -531,10 +558,14 @@ $(UTILOBJDIR)/erase.o: $(UTILDIR)/xlock.h
 $(UTILOBJDIR)/erase.o: ../config.h
 $(UTILOBJDIR)/erase.o: $(UTILDIR)/mode.h
 $(UTILOBJDIR)/erase.o: $(UTILDIR)/random.h
-$(UTILOBJDIR)/lockvt.o: $(UTILDIR)/xlock.h
-$(UTILOBJDIR)/lockvt.o: ../config.h
-$(UTILOBJDIR)/lockvt.o: $(UTILDIR)/mode.h
-$(UTILOBJDIR)/lockvt.o: $(UTILDIR)/random.h
+$(UTILOBJDIR)/vtlock.o: $(UTILDIR)/xlock.h
+$(UTILOBJDIR)/vtlock.o: ../config.h
+$(UTILOBJDIR)/vtlock.o: $(UTILDIR)/mode.h
+$(UTILOBJDIR)/vtlock.o: $(UTILDIR)/random.h
+$(UTILOBJDIR)/vtlock_proc.o: $(UTILDIR)/xlock.h
+$(UTILOBJDIR)/vtlock_proc.o: ../config.h
+$(UTILOBJDIR)/vtlock_proc.o: $(UTILDIR)/mode.h
+$(UTILOBJDIR)/vtlock_proc.o: $(UTILDIR)/random.h
 cartoon.o: $(UTILDIR)/xlock.h
 cartoon.o: ../config.h
 cartoon.o: $(UTILDIR)/mode.h
@@ -567,6 +598,7 @@ $(GLOBJDIR)/lament.o: ../config.h
 $(GLOBJDIR)/lament.o: $(UTILDIR)/mode.h
 $(GLOBJDIR)/lament.o: $(UTILDIR)/random.h
 $(GLOBJDIR)/lament.o: $(UTILDIR)/vis.h
+$(GLOBJDIR)/lament.o: $(PIXMAPDIR)/lament.xpm
 $(GLOBJDIR)/moebius.o: $(UTILDIR)/xlock.h
 $(GLOBJDIR)/moebius.o: ../config.h
 $(GLOBJDIR)/moebius.o: $(UTILDIR)/mode.h
@@ -686,6 +718,12 @@ $(GLOBJDIR)/bubble3d.o: $(UTILDIR)/xlock.h
 $(GLOBJDIR)/bubble3d.o: ../config.h
 $(GLOBJDIR)/bubble3d.o: $(UTILDIR)/mode.h
 $(GLOBJDIR)/bubble3d.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/text3d.o: $(UTILDIR)/xlock.h
+$(GLOBJDIR)/text3d.o: ../config.h
+$(GLOBJDIR)/text3d.o: $(UTILDIR)/mode.h
+$(GLOBJDIR)/text3d.o: $(UTILDIR)/random.h
+$(GLOBJDIR)/text3d.o: $(UTILDIR)/vis.h
+$(GLOBJDIR)/text3d.o: $(GLDIR)/text3d.h
 $(GLOBJDIR)/b_draw.o: $(GLDIR)/bubble3d.h
 $(GLOBJDIR)/b_draw.o: $(UTILDIR)/xlock.h
 $(GLOBJDIR)/b_draw.o: ../config.h
@@ -781,6 +819,14 @@ dclock.o: $(UTILDIR)/mode.h
 dclock.o: $(UTILDIR)/random.h
 dclock.o: $(UTILDIR)/util.h
 dclock.o: $(UTILDIR)/iostuff.h
+decay.o: $(UTILDIR)/xlock.h
+decay.o: ../config.h
+decay.o: $(UTILDIR)/mode.h
+decay.o: $(UTILDIR)/random.h
+decay.o: $(UTILDIR)/iostuff.h
+decay.o: $(UTILDIR)/color.h
+decay.o: decay.xbm
+decay.o: decay.xpm
 deco.o: $(UTILDIR)/xlock.h
 deco.o: ../config.h
 deco.o: $(UTILDIR)/mode.h
@@ -810,6 +856,7 @@ eyes.o: ../config.h
 eyes.o: $(UTILDIR)/mode.h
 eyes.o: $(UTILDIR)/random.h
 eyes.o: $(UTILDIR)/iostuff.h
+eyes.o: eyes.xbm
 fadeplot.o: $(UTILDIR)/xlock.h
 fadeplot.o: ../config.h
 fadeplot.o: $(UTILDIR)/mode.h
@@ -820,6 +867,8 @@ flag.o: $(UTILDIR)/mode.h
 flag.o: $(UTILDIR)/random.h
 flag.o: $(UTILDIR)/color.h
 flag.o: $(UTILDIR)/iostuff.h
+flag.o: flag.xbm
+flag.o: flag.xpm
 flame.o: $(UTILDIR)/xlock.h
 flame.o: ../config.h
 flame.o: $(UTILDIR)/mode.h
@@ -871,6 +920,8 @@ image.o: $(UTILDIR)/mode.h
 image.o: $(UTILDIR)/random.h
 image.o: $(UTILDIR)/color.h
 image.o: $(UTILDIR)/iostuff.h
+image.o: image.xbm
+image.o: image.xpm
 julia.o: $(UTILDIR)/xlock.h
 julia.o: ../config.h
 julia.o: $(UTILDIR)/mode.h
@@ -894,6 +945,7 @@ life.o: $(UTILDIR)/random.h
 life.o: $(UTILDIR)/color.h
 life.o: $(UTILDIR)/iostuff.h
 life.o: $(UTILDIR)/automata.h
+life.o: life.xbm
 life1d.o: $(UTILDIR)/xlock.h
 life1d.o: ../config.h
 life1d.o: $(UTILDIR)/mode.h
@@ -901,6 +953,7 @@ life1d.o: $(UTILDIR)/random.h
 life1d.o: $(UTILDIR)/color.h
 life1d.o: $(UTILDIR)/automata.h
 life1d.o: $(UTILDIR)/iostuff.h
+life1d.o: life1d.xbm
 life3d.o: $(UTILDIR)/xlock.h
 life3d.o: ../config.h
 life3d.o: $(UTILDIR)/mode.h
@@ -923,6 +976,12 @@ loop.o: ../config.h
 loop.o: $(UTILDIR)/mode.h
 loop.o: $(UTILDIR)/random.h
 loop.o: $(UTILDIR)/automata.h
+lyapunov.o: $(UTILDIR)/xlock.h
+lyapunov.o: ../config.h
+lyapunov.o: $(UTILDIR)/mode.h
+lyapunov.o: $(UTILDIR)/random.h
+lyapunov.o: $(UTILDIR)/vis.h
+lyapunov.o: $(UTILDIR)/color.h
 mandelbrot.o: $(UTILDIR)/xlock.h
 mandelbrot.o: ../config.h
 mandelbrot.o: $(UTILDIR)/mode.h
@@ -934,6 +993,10 @@ marquee.o: ../config.h
 marquee.o: $(UTILDIR)/mode.h
 marquee.o: $(UTILDIR)/random.h
 marquee.o: $(UTILDIR)/iostuff.h
+matrix.o: $(UTILDIR)/xlock.h
+matrix.o: ../config.h
+matrix.o: $(UTILDIR)/mode.h
+matrix.o: $(UTILDIR)/random.h
 maze.o: $(UTILDIR)/xlock.h
 maze.o: ../config.h
 maze.o: $(UTILDIR)/mode.h
@@ -941,6 +1004,8 @@ maze.o: $(UTILDIR)/random.h
 maze.o: $(UTILDIR)/color.h
 maze.o: $(UTILDIR)/iostuff.h
 maze.o: $(BITMAPDIR)/gray1.xbm
+maze.o: maze.xbm
+maze.o: maze.xpm
 mountain.o: $(UTILDIR)/xlock.h
 mountain.o: ../config.h
 mountain.o: $(UTILDIR)/mode.h
@@ -970,6 +1035,7 @@ pacman.o: ../config.h
 pacman.o: $(UTILDIR)/mode.h
 pacman.o: $(UTILDIR)/random.h
 pacman.o: $(UTILDIR)/iostuff.h
+pacman.o: ghost.xbm
 penrose.o: $(UTILDIR)/xlock.h
 penrose.o: ../config.h
 penrose.o: $(UTILDIR)/mode.h
@@ -984,6 +1050,8 @@ puzzle.o: $(UTILDIR)/mode.h
 puzzle.o: $(UTILDIR)/random.h
 puzzle.o: $(UTILDIR)/color.h
 puzzle.o: $(UTILDIR)/iostuff.h
+puzzle.o: puzzle.xbm
+puzzle.o: puzzle.xpm
 pyro.o: $(UTILDIR)/xlock.h
 pyro.o: ../config.h
 pyro.o: $(UTILDIR)/mode.h
@@ -1024,6 +1092,10 @@ slip.o: $(UTILDIR)/xlock.h
 slip.o: ../config.h
 slip.o: $(UTILDIR)/mode.h
 slip.o: $(UTILDIR)/random.h
+space.o: $(UTILDIR)/xlock.h
+space.o: ../config.h
+space.o: $(UTILDIR)/mode.h
+space.o: $(UTILDIR)/random.h
 sphere.o: $(UTILDIR)/xlock.h
 sphere.o: ../config.h
 sphere.o: $(UTILDIR)/mode.h
@@ -1062,6 +1134,27 @@ swirl.o: $(UTILDIR)/mode.h
 swirl.o: $(UTILDIR)/random.h
 swirl.o: $(UTILDIR)/vis.h
 swirl.o: $(UTILDIR)/color.h
+tetris.o: $(UTILDIR)/xlock.h
+tetris.o: ../config.h
+tetris.o: $(UTILDIR)/mode.h
+tetris.o: $(UTILDIR)/random.h
+tetris.o: $(UTILDIR)/color.h
+tetris.o: $(BITMAPDIR)/rot00.xbm
+tetris.o: $(BITMAPDIR)/rot01.xbm
+tetris.o: $(BITMAPDIR)/rot02.xbm
+tetris.o: $(BITMAPDIR)/rot03.xbm
+tetris.o: $(BITMAPDIR)/rot04.xbm
+tetris.o: $(BITMAPDIR)/rot05.xbm
+tetris.o: $(BITMAPDIR)/rot06.xbm
+tetris.o: $(BITMAPDIR)/rot07.xbm
+tetris.o: $(BITMAPDIR)/rot08.xbm
+tetris.o: $(BITMAPDIR)/rot09.xbm
+tetris.o: $(BITMAPDIR)/rot10.xbm
+tetris.o: $(BITMAPDIR)/rot11.xbm
+tetris.o: $(BITMAPDIR)/rot12.xbm
+tetris.o: $(BITMAPDIR)/rot13.xbm
+tetris.o: $(BITMAPDIR)/rot14.xbm
+tetris.o: $(BITMAPDIR)/rot15.xbm
 thornbird.o: $(UTILDIR)/xlock.h
 thornbird.o: ../config.h
 thornbird.o: $(UTILDIR)/mode.h
@@ -1156,6 +1249,11 @@ worm.o: $(UTILDIR)/xlock.h
 worm.o: ../config.h
 worm.o: $(UTILDIR)/mode.h
 worm.o: $(UTILDIR)/random.h
+xjack.o: $(UTILDIR)/xlock.h
+xjack.o: ../config.h
+xjack.o: $(UTILDIR)/mode.h
+xjack.o: $(UTILDIR)/random.h
+xjack.o: $(UTILDIR)/iostuff.h
 bomb.o: $(UTILDIR)/xlock.h
 bomb.o: ../config.h
 bomb.o: $(UTILDIR)/mode.h

@@ -1,5 +1,5 @@
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)vtlock.c	1.00 98/07/01 xlockmore";
+static const char sccsid[] = "@(#)vtlock.c	1.2 98/10/01 xlockmore";
 
 #endif
 
@@ -23,84 +23,150 @@ static const char sccsid[] = "@(#)vtlock.c	1.00 98/07/01 xlockmore";
  *
  * My e-mail address is lassauge@sagem.fr
  *
+ * REVISION HISTORY:
+ *       98/10/01: Eric Lassauge - vtlock renamed from lockvt.
+ *                 Merge changes from Remi and David. 
+ *       98/09/07: Remi Cohen-Scali - A problem stayed in the vtlock process:
+ * 	If a user has switched vt while an xautolock is running, it could
+ * 	be possible that the vt is locked. Then the user cannot unlock
+ * 	vt switch without the vtswitch command I wrote to test.
+ * 	(if you want it just send me a mail to remi.cohenscali@pobox.com
+ * 	and I will send it back).
+ * 	In order to avoid it, we need to know the active vt (this is easily
+ * 	achieved with VT_GETSTATE ioctl), and, more dificult, we need to
+ * 	know the vt used by the X server.The vt used by X is known as an 
+ *      internal variable in the xf86Info structure (xf86InfoRec defined in 
+ *	xc/programs/Xserver/hw/xfree86/common/xf86Priv.h).
+ * 	The problem is that this structure in not accessible to the clients.
+ * 	In order to access this information, the workaround is to use
+ * 	the proc filesystem.
+ * 	All proc specific routines are implemented in vtlock_proc.c
+ * 	in order to help porting to other procfs.
+ * 	The method is explained in the vtlock_proc.c file.
+ *	PS from E.L: all this stuff is significant for Linux only. For other
+ *      OSs the problem remains the same but the details are different !
  */
 
 
 #include "xlock.h"
 
-
 #ifdef USE_VTLOCK
-#include <stdio.h>
-#include <unistd.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <sys/ioctl.h>
-#include <linux/vt.h>
+
+#if defined( __linux__ ) 
+#include <linux/vt.h>		/* for VT_LOCKSWITCH/VT_UNLOCKSWITCH */
+#else
+#error Sorry ! You must adapt this file to your system !
+#endif
+
 
 #define CONSOLE "/dev/console"
 
+#define DISPLAY_NR(name)        (*(strchr( (name), ':' ) +1) -'0')
+
 int         vtlocked = 0;
+int         myvt = 0;
 
 static uid_t ruid;
+static int display_nr = -1;
+
+	/* from vtlock_proc.c */
+extern int is_x_vt_active(int);
+extern int restore_vt_active(int);
+extern int set_x_vt_active(int);
+	/* from ressource.c */
+extern Bool vtlock_set_active;
+extern Bool vtlock_restore;
+extern Bool debug;
+
+extern void dovtlock(void);
+extern void dovtunlock(void);
 
 static void
-getrootprivs()
+getrootprivs(void)
 {
-	ruid = getuid();
+        ruid = getuid();
 
-	(void) seteuid(0);
+        (void) seteuid(0);
 }
 
 /* revoke root privs, if there were any */
 static void
-revokerootprivs()
+revokerootprivs(void)
 {
-	(void) seteuid(ruid);
+        (void) seteuid(ruid);
 }
 
 static void
-vtlock(Bool lock)
+lockvt(Bool lock)
 {
-	int         consfd = -1;
-	struct stat consstat;
+        int         consfd = -1;
+        struct stat consstat;
 
-	if (stat(CONSOLE, &consstat) == -1) {
-		return;
-	}
-	getrootprivs();
+        if (stat(CONSOLE, &consstat) == -1 || ruid != consstat.st_uid) return;
 
-	if (ruid != consstat.st_uid) {
-		revokerootprivs();
-		return;
-	}
-	/* Open console */
-	if ((consfd = open(CONSOLE, O_RDWR)) == -1) {
-		revokerootprivs();
-		return;
-	}
-	/* Do it */
-	if (ioctl(consfd, lock ? VT_LOCKSWITCH : VT_UNLOCKSWITCH) == -1) {
-		revokerootprivs();
-		(void) close(consfd);
-		return;
-	}
-	/* Terminate */
-	(void) close(consfd);
-	vtlocked = lock;
-	revokerootprivs();
+        /* Open console */
+        if ((consfd = open(CONSOLE, O_RDWR)) == -1) return;
+
+        /* Do it */
+        if (ioctl(consfd, lock ? VT_LOCKSWITCH : VT_UNLOCKSWITCH) == -1) {
+                close(consfd);
+                return;
+        }
+        /* Terminate */
+        close(consfd);
+        vtlocked = lock;
 }
 
 void
-dovtlock()
+dovtlock(void)
 {
-	vtlock(True);
+    char *dispname = XDisplayName( (char *)NULL );
+    Bool x_vt_active = 0;
+
+    if (debug)
+      (void) fprintf(stderr,"dovtlock start\n");
+    if ( display_nr == -1 )
+      if ( dispname )
+        display_nr = DISPLAY_NR( dispname );
+      else
+        display_nr = 0;
+    getrootprivs();
+    x_vt_active = is_x_vt_active(display_nr);
+    if ( ! x_vt_active ) {
+        if ( vtlock_set_active )
+          if ( set_x_vt_active( display_nr ) != -1 )
+            lockvt(True);
+    }
+    else
+      lockvt(True);
+    if (debug)
+      (void) fprintf(stderr,"dovtlock: %d\n",vtlocked);
+
+    revokerootprivs();
 }
 
 void
-dounvtlock()
+dovtunlock(void)
 {
-	vtlock(False);
+    char *dispname = XDisplayName( (char *)NULL );
+
+    if (debug)
+      (void) fprintf(stderr,"dovtunlock start\n");
+    if ( display_nr == -1 )
+      if ( dispname )
+        display_nr = DISPLAY_NR( dispname );
+      else
+        display_nr = 0;
+    getrootprivs();
+    if (is_x_vt_active(display_nr))
+      lockvt(False);
+    if ( vtlock_set_active && vtlock_restore )
+      (void)restore_vt_active(display_nr);
+    revokerootprivs();
 }
 
 #endif

@@ -41,6 +41,8 @@ static const char sccsid[] = "@(#)fadeplot.c  4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_fadeplot
+
 ModeSpecOpt fadeplot_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -202,3 +204,5 @@ release_fadeplot(ModeInfo * mi)
 		fadeplots = NULL;
 	}
 }
+
+#endif /* MODE_fadeplot */

@@ -23,8 +23,25 @@
 #define IS_XPMFILE 5
 #define IS_RASTERFILE 6
 
-extern FILE *my_fopen(char *, char *);
+extern FILE *my_fopen(char *, const char *);
 
+extern void get_dir(char *fullpath, char *dir, char *filename);
+#if HAVE_DIRENT_H
+extern int  sel_image(struct dirent *name);
+extern int scan_dir(const char *directoryname, struct dirent ***namelist,
+   int         (*specify) (struct dirent *),
+   int         (*compare) (const void *, const void *));
+#endif
+
+extern int isRibbon(void);
+extern char * getWords(int screen, int screens);
+extern XFontStruct * getFont(Display * display);
+
+extern void pickPixmap(Display * display, Drawable drawable, char *name,
+   int default_width, int default_height,
+	 unsigned char *default_bits,
+   int *width, int *height, Pixmap * pixmap,
+   int *graphics_format);
 extern void getImage(ModeInfo * mi, XImage ** logo,
 	  int default_width, int default_height, unsigned char *default_bits,
 #if defined( USE_XPM ) || defined( USE_XPMINC )

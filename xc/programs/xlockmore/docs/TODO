@@ -8,6 +8,22 @@ General problems:
     2 of the writeable modes: mandelbrot, tube-> get them to RUN (compile ok)
     XPM  capability needs to be improved.
 
+  o Add a way to get xlock to switch to "blank" mode after X minutes
+    of (keyboard) inactivity, and to switch back to whatever mode list was
+    being used when activity is detected.  This would be good for
+    users using DPMS to power down the monitor without using precious cpu
+    when the modes are not visible.
+
+  o gentlerandom mode option.  Switching to next mode when mode completed
+      what it was working on.
+
+  o On a PsuedoColor display
+      xlock -mode life -install &
+      sleep 5 ; xlock -mode life -install
+    Colors will all be messed up after the second one tries to run.
+    This can easily happen if you are using xautolock and decide to lock
+    the display manually.
+
   o -wireframe should be a mode option (i.e. you should be able to turn it
     on and off for a particular mode).  Also a linewidth mode option would be
     nice
@@ -17,6 +33,7 @@ General problems:
     (all the gl modes are messed up anyway... all mono)
 
   o some configurations of linux: swarm has noise when bees go beyond screen
+    Sun Ultra5 PCI Bus 24 bit display: flow has some noise (usually red)
 
   o A few unintialized memory reads and memory leaks were detected in some
    of the code.  grep for "PURIFY" in the source files to see where the
@@ -83,6 +100,13 @@ General problems:
 
   o "-visual" commandline argument should accept "best" as well as
    PseudoColor, TrueColor, default, etc.
+
+  o Is there any chance the "visual" selection code could be made
+   mode-dependent?  Most Xservers that support TrueColor, etc, visuals also
+   support PseudoColor visuals and it would be nice to have color-cycling
+   modes like "starfish" and "swirl" pick a PseudoColor visual if available,
+   while modes like "cartoon" could prevent colormap flashing by picking a
+   TrueColor visual.
 
   o modes from xscreensaver :) : bubbles, moire, LMorph, halo, ImsMap, BlitSpin
 
@@ -180,15 +204,11 @@ New mode ideas... (some may be very hard :) ):
       with a turning  prism and rainbow effect.
   o "graph" a random planar graph drawn ... filled in by a 5 (or 4 :) )
       coloring algorithm.
-  o "invert" a demonstration of turning a sphere inside out without creating
-      any kinks (two surfaces can occupy the same space at the same time).
-      Randomize the viewing angle.
   o "minimal" a random minimal surface generator.
   o "snow" mode with a nice Winter scene picture background and snowflakes
       falling
   o "squig" mode from squig/xsquig (xsquig is too slow)
   o A NT-like GL 3d Maze, where you are inside the maze
-  o A NT-like GL wobbling Text (OS by default like flag)
   o NT-like GL FlowerBox spring and Flying Objects
   o A GL 4d ico where the 6 4D "platonic" objects "roll" around in 3d space.
   o GL modes based on demos: isosurf, reflect, bounce, stex3d

@@ -27,7 +27,7 @@ static const char sccsid[] = "@(#)helix.c	4.07 97/11/24 xlockmore";
  * 11-Aug-95: found some typos, looks more interesting now
  * 08-Aug-95: speed up thanks to Heath A. Kehoe <hakehoe@icaen.uiowa.edu>
  * 17-Jun-95: removed sleep statements
- * 2-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
+ * 2-Sep-93: xlock version David Bagley <bagleyd@tux.org>
  * 1992:     xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
@@ -58,6 +58,8 @@ static const char sccsid[] = "@(#)helix.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 
 #endif /* STANDALONE */
+
+#ifdef MODE_helix
 
 #define DEF_ELLIPSE "False"
 
@@ -367,3 +369,5 @@ refresh_helix(ModeInfo * mi)
 		hp->painted = False;
 	}
 }
+
+#endif /* MODE_helix */

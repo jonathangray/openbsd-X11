@@ -530,7 +530,7 @@ sleep between scenes.
 ------------------------
 
    The official xlockmore maintainer is David Bagley.  He can be
-reached at bagleyd@bigfoot.com.  The current release of xlockmore
+reached at bagleyd@tux.org.  The current release of xlockmore
 is available by anonymous ftp at ftp.x.org in /contrib/applications.
 Alpha versions are available at
 ftp://ftp.tux.org/pub/X-Windows/xlockmore/index.html
@@ -568,6 +568,7 @@ etc/system.fvwm2rc.xlock                    fvwm2 menu
 etc/system.fvwmrc.xlock                     fvwm menu
 etc/system.olwmrc.xlock                     Openwin menu
 etc/system.mwmrc.xlock                      Motif menu
+etc/system.wmrc.xlock                       GNU WindowMaker menu
 etc/dtscreen.dt                             Screensaver actions for CDE (descr)
 etc/dtprofile                               CDE profile
 docs/Revisions                              Give credit

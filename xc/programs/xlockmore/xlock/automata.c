@@ -10,7 +10,7 @@ static const char sccsid[] = "@(#)automata.c	4.10 98/04/28 xlockmore";
  *
  * Revision History:
  *
- * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * Changes maintained by David Bagley <bagleyd@tux.org>
  * 20-Apr-98: Separated out of util.c
  *
  */

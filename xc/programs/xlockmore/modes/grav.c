@@ -42,6 +42,8 @@ static const char sccsid[] = "@(#)grav.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_grav
+
 #define DEF_DECAY "False"	/* Damping for decaying orbits */
 #define DEF_TRAIL "False"	/* For trails (works good in mono only) */
 
@@ -335,3 +337,5 @@ refresh_grav(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_grav */

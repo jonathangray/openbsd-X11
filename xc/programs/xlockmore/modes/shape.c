@@ -29,7 +29,7 @@ static const char sccsid[] = "@(#)shape.c	4.07 97/11/24 xlockmore";
  * 27-Jun-95: added ellipses
  * 27-Feb-95: patch for VMS
  * 29-Sep-94: multidisplay bug fix <epstein_caleb@jpmorgan.com>
- * 15-Jul-94: xlock version David Bagley <bagleyd@bigfoot.com>
+ * 15-Jul-94: xlock version David Bagley <bagleyd@tux.org>
  * 1992:      xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
@@ -60,6 +60,8 @@ static const char sccsid[] = "@(#)shape.c	4.07 97/11/24 xlockmore";
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+
+#ifdef MODE_shape
 
 #ifndef STIPPLING
 /*-
@@ -410,3 +412,5 @@ refresh_shape(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_shape */

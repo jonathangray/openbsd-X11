@@ -56,6 +56,8 @@ static const char sccsid[] = "@(#)petal.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_petal
+
 ModeSpecOpt petal_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -352,3 +354,5 @@ refresh_petal(ModeInfo * mi)
 		pp->painted = False;
 	}
 }
+
+#endif /* MODE_petal */

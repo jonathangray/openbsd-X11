@@ -46,6 +46,8 @@ static const char sccsid[] = "@(#)drift.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_drift
+
 #define DEF_GROW "False"	/* Grow fractals instead of animating one at a time,
 				   would then be like flame */
 #define DEF_LISS "False"	/* if this is defined then instead of a point
@@ -642,3 +644,5 @@ refresh_drift(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_drift */

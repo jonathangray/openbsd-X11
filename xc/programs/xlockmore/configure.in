@@ -4,30 +4,48 @@ dnl configure.in --- xscreensaver, Copyright (c) 1997 Jamie Zawinski.
 dnl
 
 AC_INIT(config.h.in)
+AC_CONFIG_HEADER(config.h)
+AC_CANONICAL_HOST
+canonical=$host
+
+AC_PROG_CC
+dnl Check if C++ compiler is present. If not set CXX to the C-compiler used
+dnl for the other compilations. Check for g++ before c++ so that Purify works.
+AC_CHECK_PROGS(CXX, $CCC g++ c++ CC cxx cc++ xlC $CC, gcc)
+AC_PROG_CXX
+if test "${CXX}" = "xlC" ; then
+  CXXFLAGS="${CXXFLAGS} -+"
+fi
+
+dnl These 2 assume for now c++ exists....
+AC_DEFINE(HAVE_CXX)
+CCC=
 
 PACKAGE=xlockmore
 AC_SUBST(PACKAGE)
 AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
-VERSION=4.12
+VERSION=4.13
 AC_SUBST(VERSION)
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
 
 dnl Checks for programs.
-AC_ARG_WITH(gcc,
-[  --without-gcc           use CC to compile])
+dnl AC_ARG_WITH(gcc,
+dnl[  --without-gcc           use CC to compile])
 
-test -n "$CC" && cc_specified=yes
-case ${with_gcc} in
-  yes ) CC=gcc ;;
-dnl yes ) CC=g++ ;;
-  no  ) CC=cc ;;
-  *   ) AC_PROG_CC;;
+dnl test -n "$CC" && cc_specified=yes
+dnl case ${with_gcc} in
+dnl   yes ) CC=gcc ;;
+dnl dnl yes ) CC=g++ ;;
+dnl  no  ) CC=cc ;;
+dnl  *   ) AC_PROG_CC;;
 dnl  *   ) AC_PROG_CXX ;;
-esac
+dnl esac
 
-if test "${CC}" = "gcc" ; then
-  CFLAGS="${CFLAGS} -Wall"
-fi
+dnl This creates a lot of noise.
+dnl if test "${CC}" = "gcc" ; then
+dnl   CFLAGS="${CFLAGS} -Wall -W -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Wmissing-prototypes -Wstrict-prototypes"
+dnl -Waggregate-return
+dnl fi
 
 opt_purify=no
 AC_ARG_WITH(purify, [  --with-purify           configure to postprocess with purify], opt_purify=$withval)
@@ -84,8 +102,6 @@ AC_CHECK_FUNC(vfork, AC_DEFINE(HAVE_VFORK))
 AC_CHECK_FUNC(seteuid, AC_DEFINE(HAVE_SETEUID),
 AC_CHECK_FUNC(setreuid, AC_DEFINE(HAVE_SETREUID)))
 
-AC_CANONICAL_HOST
-canonical=$host
 
 # Configure paths for GTK+
 # Owen Taylor     97-11-3
@@ -283,6 +299,8 @@ else
   fi
   XLOCKLIBS="${X_PRE_LIBS} ${X_EXTRA_LIBS} ${XLOCKLIBS}"
   XMLOCKLIBS="-lXt ${XMLOCKLIBS}"
+#  if you need regex and regcmp
+#  XMLOCKLIBS="-lXt ${XMLOCKLIBS} -lgen"
   XALOCKLIBS="-lXt ${XALOCKLIBS}"
 dnl AC_DEFINE(X11) /* If there is no X, its not going to go */
 fi
@@ -310,16 +328,38 @@ AC_DEFUN(AC_PATH_X_APP_DEFAULTS_DIRECT,
 [  # Look for the directory under a standard set of common directories.
   # Check X11 before X11Rn because it's often a symlink to the current release.
   for ac_dir in         \
-    ${prefix}/lib/X11/app-defaults \
-    ${prefix}/lib/app-defaults \
-    ${prefix}/lib/X11R6/app-defaults \
-    ${prefix}/lib/X11R6/X11/app-defaults \
-    ${prefix}/lib/X11R5/app-defaults \
-    ${prefix}/lib/X11R5/X11/app-defaults \
-    ${prefix}/lib/X11R4/app-defaults \
-    ${prefix}/lib/X11R4/X11/app-defaults \
-            \
+    /lib/X11/app-defaults \
+    /lib/app-defaults \
+    /lib/X11R6.3/app-defaults \
+    /lib/X11R6.3/X11/app-defaults \
+    /lib/X11R6.2/app-defaults \
+    /lib/X11R6.2/X11/app-defaults \
+    /lib/X11R6.1/app-defaults \
+    /lib/X11R6.1/X11/app-defaults \
+    /lib/X11R6/app-defaults \
+    /lib/X11R6/X11/app-defaults \
+    /lib/X11R5/app-defaults \
+    /lib/X11R5/X11/app-defaults \
+    /lib/X11R4/app-defaults \
+    /lib/X11R4/X11/app-defaults \
+    ; \
+  do
+    found=""
+    if test -d "${prefix}$ac_dir"; then
+      ac_x_app_defaults=\\\$\\\{prefix\\\}$ac_dir
+    found="1"
+      break
+    fi
+  done
+  if test -z "$found"; then
+  for ac_dir in         \
     /usr/X11/lib/app-defaults     \
+    /usr/X11R6.3/lib/app-defaults     \
+    /usr/X11R6.3/lib/X11/app-defaults   \
+    /usr/X11R6.2/lib/app-defaults     \
+    /usr/X11R6.2/lib/X11/app-defaults   \
+    /usr/X11R6.1/lib/app-defaults     \
+    /usr/X11R6.1/lib/X11/app-defaults   \
     /usr/X11R6/lib/app-defaults     \
     /usr/X11R6/lib/X11/app-defaults   \
     /usr/X11R5/lib/app-defaults     \
@@ -328,12 +368,21 @@ AC_DEFUN(AC_PATH_X_APP_DEFAULTS_DIRECT,
     /usr/X11R4/lib/X11/app-defaults   \
             \
     /usr/lib/X11/app-defaults     \
+    /usr/lib/X11R6.3/app-defaults     \
+    /usr/lib/X11R6.2/app-defaults     \
+    /usr/lib/X11R6.1/app-defaults     \
     /usr/lib/X11R6/app-defaults     \
     /usr/lib/X11R5/app-defaults     \
     /usr/lib/X11R4/app-defaults     \
             \
     /usr/local/X11/lib/app-defaults   \
     /usr/remote/X11/lib/app-defaults   \
+    /usr/local/X11R6.3/lib/app-defaults   \
+    /usr/local/X11R6.3/lib/X11/app-defaults   \
+    /usr/local/X11R6.2/lib/app-defaults   \
+    /usr/local/X11R6.2/lib/X11/app-defaults   \
+    /usr/local/X11R6.1/lib/app-defaults   \
+    /usr/local/X11R6.1/lib/X11/app-defaults   \
     /usr/local/X11R6/lib/app-defaults   \
     /usr/local/X11R6/lib/X11/app-defaults   \
     /usr/local/X11R5/lib/app-defaults   \
@@ -343,6 +392,12 @@ AC_DEFUN(AC_PATH_X_APP_DEFAULTS_DIRECT,
             \
     /usr/local/lib/X11/app-defaults   \
     /usr/remote/lib/X11/app-defaults   \
+    /usr/local/lib/X11R6.3/app-defaults   \
+    /usr/local/lib/X11R6.3/X11/app-defaults \
+    /usr/local/lib/X11R6.2/app-defaults   \
+    /usr/local/lib/X11R6.2/X11/app-defaults \
+    /usr/local/lib/X11R6.1/app-defaults   \
+    /usr/local/lib/X11R6.1/X11/app-defaults \
     /usr/local/lib/X11R6/app-defaults   \
     /usr/local/lib/X11R6/X11/app-defaults \
     /usr/local/lib/X11R5/app-defaults   \
@@ -368,6 +423,9 @@ AC_DEFUN(AC_PATH_X_APP_DEFAULTS_DIRECT,
     /usr/openwin/share/lib/app-defaults   \
     /usr/openwin/share/lib/X11/app-defaults \
             \
+    /X11R6.3/lib/app-defaults     \
+    /X11R6.2/lib/app-defaults     \
+    /X11R6.1/lib/app-defaults     \
     /X11R6/lib/app-defaults     \
     /X11R5/lib/app-defaults     \
     /X11R4/lib/app-defaults     \
@@ -378,6 +436,7 @@ AC_DEFUN(AC_PATH_X_APP_DEFAULTS_DIRECT,
       break
     fi
   done
+    fi
 ])
 
 
@@ -438,18 +497,30 @@ test -z "$motif_direct_test_include" && motif_direct_test_include=Xm/Xm.h
                               \
     /usr/motif/include        \
                               \
+    /usr/X11R6.3/include      \
+    /usr/X11R6.2/include      \
+    /usr/X11R6.1/include      \
     /usr/X11R6/include        \
     /usr/X11R5/include        \
     /usr/X11R4/include        \
                               \
+    /usr/include/X11R6.3      \
+    /usr/include/X11R6.2      \
+    /usr/include/X11R6.1      \
     /usr/include/X11R6        \
     /usr/include/X11R5        \
     /usr/include/X11R4        \
                               \
+    /usr/local/X11R6.3/include  \
+    /usr/local/X11R6.2/include  \
+    /usr/local/X11R6.1/include  \
     /usr/local/X11R6/include  \
     /usr/local/X11R5/include  \
     /usr/local/X11R4/include  \
                               \
+    /usr/local/include/X11R6.3  \
+    /usr/local/include/X11R6.2  \
+    /usr/local/include/X11R6.1  \
     /usr/local/include/X11R6  \
     /usr/local/include/X11R5  \
     /usr/local/include/X11R4  \
@@ -493,18 +564,30 @@ for ac_dir in `echo "$ac_motif_includes" | sed s/include/lib/` \
                           \
     /usr/motif/lib        \
                           \
+    /usr/X11R6.3/lib      \
+    /usr/X11R6.2/lib      \
+    /usr/X11R6.1/lib      \
     /usr/X11R6/lib        \
     /usr/X11R5/lib        \
     /usr/X11R4/lib        \
                           \
+    /usr/lib/X11R6.3      \
+    /usr/lib/X11R6.2      \
+    /usr/lib/X11R6.1      \
     /usr/lib/X11R6        \
     /usr/lib/X11R5        \
     /usr/lib/X11R4        \
                           \
+    /usr/local/X11R6.3/lib  \
+    /usr/local/X11R6.2/lib  \
+    /usr/local/X11R6.1/lib  \
     /usr/local/X11R6/lib  \
     /usr/local/X11R5/lib  \
     /usr/local/X11R4/lib  \
                           \
+    /usr/local/lib/X11R6.3  \
+    /usr/local/lib/X11R6.2  \
+    /usr/local/lib/X11R6.1  \
     /usr/local/lib/X11R6  \
     /usr/local/lib/X11R5  \
     /usr/local/lib/X11R4  \
@@ -597,18 +680,30 @@ AC_DEFUN(AC_PATH_ATHENA_DIRECT,
 test -z "$athena_direct_test_function" && athena_direct_test_function=XawInitializeWidgetSet
 test -z "$athena_direct_test_include" && athena_direct_test_include=X11/Xaw/XawInit.h
   for ac_dir in               \
+    /usr/X11R6.3/include      \
+    /usr/X11R6.2/include      \
+    /usr/X11R6.1/include      \
     /usr/X11R6/include        \
     /usr/X11R5/include        \
     /usr/X11R4/include        \
                               \
+    /usr/include/X11R6.3      \
+    /usr/include/X11R6.2      \
+    /usr/include/X11R6.1      \
     /usr/include/X11R6        \
     /usr/include/X11R5        \
     /usr/include/X11R4        \
                               \
+    /usr/local/X11R6.3/include  \
+    /usr/local/X11R6.2/include  \
+    /usr/local/X11R6.1/include  \
     /usr/local/X11R6/include  \
     /usr/local/X11R5/include  \
     /usr/local/X11R4/include  \
                               \
+    /usr/local/include/X11R6.3  \
+    /usr/local/include/X11R6.2  \
+    /usr/local/include/X11R6.1  \
     /usr/local/include/X11R6  \
     /usr/local/include/X11R5  \
     /usr/local/include/X11R4  \
@@ -651,18 +746,30 @@ LIBS="-l$athena_direct_test_library $LIBS"
 # First see if replacing the include by lib works.
 for ac_dir in `echo "$ac_athena_includes" | sed s/include/lib/` \
                           \
+    /usr/X11R6.3/lib      \
+    /usr/X11R6.2/lib      \
+    /usr/X11R6.1/lib      \
     /usr/X11R6/lib        \
     /usr/X11R5/lib        \
     /usr/X11R4/lib        \
                           \
+    /usr/lib/X11R6.3      \
+    /usr/lib/X11R6.2      \
+    /usr/lib/X11R6.1      \
     /usr/lib/X11R6        \
     /usr/lib/X11R5        \
     /usr/lib/X11R4        \
                           \
+    /usr/local/X11R6.3/lib  \
+    /usr/local/X11R6.2/lib  \
+    /usr/local/X11R6.1/lib  \
     /usr/local/X11R6/lib  \
     /usr/local/X11R5/lib  \
     /usr/local/X11R4/lib  \
                           \
+    /usr/local/lib/X11R6.3  \
+    /usr/local/lib/X11R6.2  \
+    /usr/local/lib/X11R6.1  \
     /usr/local/lib/X11R6  \
     /usr/local/lib/X11R5  \
     /usr/local/lib/X11R4  \
@@ -758,18 +865,30 @@ AC_DEFUN(AC_PATH_SX_DIRECT,
 test -z "$sx_direct_test_function" && sx_direct_test_function=OpenWindow
 test -z "$sx_direct_test_include" && sx_direct_test_include=X11/libsx.h
   for ac_dir in               \
+    /usr/X11R6.3/include      \
+    /usr/X11R6.2/include      \
+    /usr/X11R6.1/include      \
     /usr/X11R6/include        \
     /usr/X11R5/include        \
     /usr/X11R4/include        \
                               \
+    /usr/include/X11R6.3      \
+    /usr/include/X11R6.2      \
+    /usr/include/X11R6.1      \
     /usr/include/X11R6        \
     /usr/include/X11R5        \
     /usr/include/X11R4        \
                               \
+    /usr/local/X11R6.3/include  \
+    /usr/local/X11R6.2/include  \
+    /usr/local/X11R6.1/include  \
     /usr/local/X11R6/include  \
     /usr/local/X11R5/include  \
     /usr/local/X11R4/include  \
                               \
+    /usr/local/include/X11R6.3  \
+    /usr/local/include/X11R6.2  \
+    /usr/local/include/X11R6.1  \
     /usr/local/include/X11R6  \
     /usr/local/include/X11R5  \
     /usr/local/include/X11R4  \
@@ -809,14 +928,23 @@ LIBS="-l$sx_direct_test_library $LIBS"
 # First see if replacing the include by lib works.
 for ac_dir in `echo "$ac_sx_includes" | sed s/include/lib/` \
                           \
+    /usr/X11R6.3/lib      \
+    /usr/X11R6.2/lib      \
+    /usr/X11R6.1/lib      \
     /usr/X11R6/lib        \
     /usr/X11R5/lib        \
     /usr/X11R4/lib        \
                           \
+    /usr/lib/X11R6.3      \
+    /usr/lib/X11R6.2      \
+    /usr/lib/X11R6.1      \
     /usr/lib/X11R6        \
     /usr/lib/X11R5        \
     /usr/lib/X11R4        \
                           \
+    /usr/local/X11R6.3/lib  \
+    /usr/local/X11R6.2/lib  \
+    /usr/local/X11R6.1/lib  \
     /usr/local/X11R6/lib  \
     /usr/local/X11R5/lib  \
     /usr/local/X11R4/lib  \
@@ -914,22 +1042,34 @@ AC_DEFUN(AC_PATH_EDITRES_DIRECT,
 test -z "$editres_direct_test_function" && editres_direct_test_function=_XEditResCheckMessages
 test -z "$editres_direct_test_include" && editres_direct_test_include=X11/Xmu/Editres.h
   for ac_dir in               \
+    /usr/include/X11R6.3      \
+    /usr/include/X11R6.2      \
+    /usr/include/X11R6.1      \
     /usr/X11R6/include        \
     /usr/X11R5/include        \
     /usr/X11R4/include        \
     /usr/X11/include          \
                               \
     /usr/include/X11          \
+    /usr/include/X11R6.3      \
+    /usr/include/X11R6.2      \
+    /usr/include/X11R6.1      \
     /usr/include/X11R6        \
     /usr/include/X11R5        \
     /usr/include/X11R4        \
                               \
     /usr/local/X11/include    \
+    /usr/local/X11R6.3/include  \
+    /usr/local/X11R6.2/include  \
+    /usr/local/X11R6.1/include  \
     /usr/local/X11R6/include  \
     /usr/local/X11R5/include  \
     /usr/local/X11R4/include  \
                               \
     /usr/local/include/X11    \
+    /usr/local/include/X11R6.3  \
+    /usr/local/include/X11R6.2  \
+    /usr/local/include/X11R6.1  \
     /usr/local/include/X11R6  \
     /usr/local/include/X11R5  \
     /usr/local/include/X11R4  \
@@ -966,21 +1106,33 @@ LIBS="-l$editres_direct_test_library $LIBS"
 for ac_dir in `echo "$ac_editres_includes" | sed s/include/lib/` \
                           \
     /usr/X11/lib          \
+    /usr/X11R6.3/lib        \
+    /usr/X11R6.2/lib        \
+    /usr/X11R6.1/lib        \
     /usr/X11R6/lib        \
     /usr/X11R5/lib        \
     /usr/X11R4/lib        \
                           \
     /usr/lib/X11          \
+    /usr/lib/X11R6.3        \
+    /usr/lib/X11R6.2        \
+    /usr/lib/X11R6.1        \
     /usr/lib/X11R6        \
     /usr/lib/X11R5        \
     /usr/lib/X11R4        \
                           \
     /usr/local/X11/lib    \
+    /usr/local/X11R6.3/lib  \
+    /usr/local/X11R6.2/lib  \
+    /usr/local/X11R6.1/lib  \
     /usr/local/X11R6/lib  \
     /usr/local/X11R5/lib  \
     /usr/local/X11R4/lib  \
                           \
     /usr/local/lib/X11    \
+    /usr/local/lib/X11R6.3  \
+    /usr/local/lib/X11R6.2  \
+    /usr/local/lib/X11R6.1  \
     /usr/local/lib/X11R6  \
     /usr/local/lib/X11R5  \
     /usr/local/lib/X11R4  \
@@ -1073,22 +1225,34 @@ AC_DEFUN(AC_PATH_XPM_DIRECT,
 test -z "$xpm_direct_test_function" && xpm_direct_test_function=XpmCreateImageFromData
 test -z "$xpm_direct_test_include" && xpm_direct_test_include=xpm.h
   for ac_dir in                   \
+    /usr/X11R6.3/include/X11      \
+    /usr/X11R6.2/include/X11      \
+    /usr/X11R6.1/include/X11      \
     /usr/X11R6/include/X11        \
     /usr/X11R5/include/X11        \
     /usr/X11R4/include/X11        \
     /usr/X11/include/X11          \
                                   \
     /usr/include/X11/X11          \
+    /usr/include/X11R6.3/X11      \
+    /usr/include/X11R6.2/X11      \
+    /usr/include/X11R6.1/X11      \
     /usr/include/X11R6/X11        \
     /usr/include/X11R5/X11        \
     /usr/include/X11R4/X11        \
                                   \
     /usr/local/X11/include/X11    \
+    /usr/local/X11R6.3/include/X11  \
+    /usr/local/X11R6.2/include/X11  \
+    /usr/local/X11R6.1/include/X11  \
     /usr/local/X11R6/include/X11  \
     /usr/local/X11R5/include/X11  \
     /usr/local/X11R4/include/X11  \
                                   \
     /usr/local/include/X11/X11    \
+    /usr/local/include/X11R6.3/X11  \
+    /usr/local/include/X11R6.2/X11  \
+    /usr/local/include/X11R6.1/X11  \
     /usr/local/include/X11R6/X11  \
     /usr/local/include/X11R5/X11  \
     /usr/local/include/X11R4/X11  \
@@ -1129,11 +1293,17 @@ LIBS="-l$xpm_direct_test_library $LIBS"
 for ac_dir in `echo "$ac_xpm_includes" | sed s%/X11$%% | sed s/include/lib/` \
                           \
     /usr/X11/lib          \
+    /usr/X11R6.3/lib        \
+    /usr/X11R6.2/lib        \
+    /usr/X11R6.1/lib        \
     /usr/X11R6/lib        \
     /usr/X11R5/lib        \
     /usr/X11R4/lib        \
                           \
     /usr/lib/X11          \
+    /usr/lib/X11R6.3        \
+    /usr/lib/X11R6.2        \
+    /usr/lib/X11R6.1        \
     /usr/lib/X11R6        \
     /usr/lib/X11R5        \
     /usr/lib/X11R4        \
@@ -1144,6 +1314,9 @@ for ac_dir in `echo "$ac_xpm_includes" | sed s%/X11$%% | sed s/include/lib/` \
     /usr/local/X11R4/lib  \
                           \
     /usr/local/lib/X11    \
+    /usr/local/X11R6.3/lib  \
+    /usr/local/X11R6.2/lib  \
+    /usr/local/X11R6.1/lib  \
     /usr/local/lib/X11R6  \
     /usr/local/lib/X11R5  \
     /usr/local/lib/X11R4  \
@@ -1228,6 +1401,368 @@ if test "x$xpm_libraries" != x && test "x$xpm_libraries" != xNONE ; then
 fi
 if test "x$xpm_includes" != x && test "x$xpm_includes" != xNONE ; then
   XLOCKINC="${XLOCKINC} -I$xpm_includes"
+fi
+
+gltt=no
+dnl gltt GLTT
+
+AC_DEFUN(AC_PATH_GLTT_DIRECT,
+[test -z "$gltt_direct_test_library" && gltt_direct_test_library=gltt
+# test -z "$gltt_direct_test_function" && gltt_direct_test_function=glttCreateImageFromData
+test -z "$gltt_direct_test_include" && gltt_direct_test_include=FTFace.h
+  for ac_dir in               \
+    /usr/X11R6.3/include      \
+    /usr/X11R6.2/include      \
+    /usr/X11R6.1/include      \
+    /usr/X11R6/include        \
+    /usr/X11R5/include        \
+    /usr/X11R4/include        \
+    /usr/X11/include          \
+                              \
+    /usr/include/X11          \
+    /usr/include/X11R6.3      \
+    /usr/include/X11R6.2      \
+    /usr/include/X11R6.1      \
+    /usr/include/X11R6        \
+    /usr/include/X11R5        \
+    /usr/include/X11R4        \
+                              \
+    /usr/local/X11/include    \
+    /usr/local/X11R6.3/include  \
+    /usr/local/X11R6.2/include  \
+    /usr/local/X11R6.1/include  \
+    /usr/local/X11R6/include  \
+    /usr/local/X11R5/include  \
+    /usr/local/X11R4/include  \
+                              \
+    /usr/local/include/X11    \
+    /usr/local/include/X11R6.3  \
+    /usr/local/include/X11R6.2  \
+    /usr/local/include/X11R6.1  \
+    /usr/local/include/X11R6  \
+    /usr/local/include/X11R5  \
+    /usr/local/include/X11R4  \
+                              \
+    /usr/X386/include         \
+    /usr/x386/include         \
+    /usr/XFree86/include/X11  \
+                              \
+    /usr/local/include        \
+    /usr/remote/include       \
+    /usr/include              \
+    /usr/unsupported/include  \
+    /usr/athena/include       \
+    /usr/local/x11r5/include  \
+    /usr/lpp/Xamples/include  \
+                              \
+    /usr/openwin/include      \
+    /usr/openwin/share/include \
+    /usr/openwin/include      \
+                              \
+    $extra_include            \
+    ; \
+  do
+    if test -r "$ac_dir/$gltt_direct_test_include"; then
+      no_gltt= ac_gltt_includes=$ac_dir
+      break
+    fi
+  done
+
+# Check for the libraries.
+# See if we find them without any special options.
+# Do not add to $LIBS permanently.
+ac_save_LIBS="$LIBS"
+LIBS="-l$gltt_direct_test_library $LIBS"
+# First see if replacing the include by lib works.
+for ac_dir in `echo "$ac_gltt_includes" | sed s%/X11$%% | sed s/include/lib/` \
+                          \
+    /usr/X11/lib          \
+    /usr/X11R6.3/lib        \
+    /usr/X11R6.2/lib        \
+    /usr/X11R6.1/lib        \
+    /usr/X11R6/lib        \
+    /usr/X11R5/lib        \
+    /usr/X11R4/lib        \
+                          \
+    /usr/lib/X11          \
+    /usr/lib/X11R6.3        \
+    /usr/lib/X11R6.2        \
+    /usr/lib/X11R6.1        \
+    /usr/lib/X11R6        \
+    /usr/lib/X11R5        \
+    /usr/lib/X11R4        \
+                          \
+    /usr/local/X11/lib    \
+    /usr/local/X11R6/lib  \
+    /usr/local/X11R5/lib  \
+    /usr/local/X11R4/lib  \
+                          \
+    /usr/local/lib/X11    \
+    /usr/local/X11R6.3/lib  \
+    /usr/local/X11R6.2/lib  \
+    /usr/local/X11R6.1/lib  \
+    /usr/local/lib/X11R6  \
+    /usr/local/lib/X11R5  \
+    /usr/local/lib/X11R4  \
+                          \
+    /usr/X386/lib         \
+    /usr/x386/lib         \
+    /usr/XFree86/lib/X11  \
+                          \
+    /usr/lib              \
+    /usr/local/lib        \
+    /usr/remote/lib       \
+    /usr/unsupported/lib  \
+    /usr/athena/lib       \
+    /usr/local/x11r5/lib  \
+    /usr/lpp/Xamples/lib  \
+    /lib/usr/lib/X11      \
+                          \
+    /usr/openwin/lib      \
+    /usr/openwin/share/lib \
+    $extra_lib            \
+    ; \
+do
+  for ac_extension in a so sl; do
+    if test -r $ac_dir/lib${gltt_direct_test_library}.$ac_extension; then
+      no_gltt= ac_gltt_libraries=$ac_dir
+      break 2
+   fi
+  done
+done
+LIBS="$ac_save_LIBS"])
+AC_DEFUN(AC_PATH_GLTT,
+[AC_REQUIRE_CPP()dnl
+
+gltt_includes=NONE
+gltt_libraries=NONE
+
+AC_MSG_CHECKING(for GLTT)
+AC_ARG_WITH(gltt, [  --without-gltt          disable GL True text library])
+if test "x$with_gltt" = xno; then
+  no_gltt=yes
+else
+  if test "x$gltt_includes" != xNONE && test "x$gltt_libraries" != xNONE; then
+    no_gltt=
+  else
+AC_CACHE_VAL(ac_cv_path_gltt,
+[# One or both of these vars are not set, and there is no cached value.
+no_gltt=yes
+AC_PATH_GLTT_DIRECT
+
+if test "$no_gltt" = yes; then
+  ac_cv_path_gltt="no_gltt=yes"
+else
+  ac_cv_path_gltt="no_gltt= ac_gltt_includes=$ac_gltt_includes ac_gltt_libraries=$ac_gltt_libraries"
+fi])dnl
+  fi
+  eval "$ac_cv_path_gltt"
+fi # with_gltt != no
+
+if test "$no_gltt" = yes; then
+  AC_MSG_RESULT(no)
+  GLTT="#"
+else
+  gltt=yes
+  AC_DEFINE(HAVE_GLTT)
+  XLOCKLIBS="${XLOCKLIBS} -lgltt"
+  test "x$gltt_includes" = xNONE && gltt_includes=$ac_gltt_includes
+  test "x$gltt_libraries" = xNONE && gltt_libraries=$ac_gltt_libraries
+  ac_cv_path_gltt="no_gltt= ac_gltt_includes=$gltt_includes ac_gltt_libraries=$gltt_libraries"
+  AC_MSG_RESULT([libraries $gltt_libraries, headers $gltt_includes])
+  GLTT=""
+fi
+])
+
+AC_PATH_GLTT
+
+if test "x$gltt_libraries" != x && test "x$gltt_libraries" != xNONE ; then
+  XLOCK_LDFLAGS="${XLOCK_LDFLAGS}:$gltt_libraries"
+  XLOCKLIBPATHS="${XLOCKLIBPATHS} -L$gltt_libraries"
+fi
+if test "x$gltt_includes" != x && test "x$gltt_includes" != xNONE ; then
+  XLOCKINC="${XLOCKINC} -I$gltt_includes"
+fi
+
+ttf=no
+dnl ttf TTF
+
+AC_DEFUN(AC_PATH_TTF_DIRECT,
+[test -z "$ttf_direct_test_library" && ttf_direct_test_library=ttf
+test -z "$ttf_direct_test_function" && ttf_direct_test_function=TT_Init_FreeType
+test -z "$ttf_direct_test_include" && ttf_direct_test_include=freetype.h
+  for ac_dir in               \
+    /usr/X11R6.3/include      \
+    /usr/X11R6.2/include      \
+    /usr/X11R6.1/include      \
+    /usr/X11R6/include        \
+    /usr/X11R5/include        \
+    /usr/X11R4/include        \
+    /usr/X11/include          \
+                              \
+    /usr/include/X11          \
+    /usr/include/X11R6.3      \
+    /usr/include/X11R6.2      \
+    /usr/include/X11R6.1      \
+    /usr/include/X11R6        \
+    /usr/include/X11R5        \
+    /usr/include/X11R4        \
+                              \
+    /usr/local/X11/include    \
+    /usr/local/X11R6.3/include  \
+    /usr/local/X11R6.2/include  \
+    /usr/local/X11R6.1/include  \
+    /usr/local/X11R6/include  \
+    /usr/local/X11R5/include  \
+    /usr/local/X11R4/include  \
+                              \
+    /usr/local/include/X11    \
+    /usr/local/include/X11R6.3  \
+    /usr/local/include/X11R6.2  \
+    /usr/local/include/X11R6.1  \
+    /usr/local/include/X11R6  \
+    /usr/local/include/X11R5  \
+    /usr/local/include/X11R4  \
+                              \
+    /usr/X386/include         \
+    /usr/x386/include         \
+    /usr/XFree86/include/X11  \
+                              \
+    /usr/local/include        \
+    /usr/remote/include       \
+    /usr/include/X11          \
+    /usr/unsupported/include  \
+    /usr/athena/include       \
+    /usr/local/x11r5/include  \
+    /usr/lpp/Xamples/include  \
+                              \
+    /usr/openwin/include      \
+    /usr/openwin/share/include \
+    /usr/openwin/include      \
+                              \
+    $extra_include            \
+    ; \
+  do
+    if test -r "$ac_dir/$ttf_direct_test_include"; then
+      no_ttf= ac_ttf_includes=$ac_dir
+      break
+    fi
+  done
+
+# Check for the libraries.
+# See if we find them without any special options.
+# Do not add to $LIBS permanently.
+ac_save_LIBS="$LIBS"
+LIBS="-l$ttf_direct_test_library $LIBS"
+# First see if replacing the include by lib works.
+for ac_dir in `echo "$ac_ttf_includes" | sed s%/X11$%% | sed s/include/lib/` \
+                          \
+    /usr/X11/lib          \
+    /usr/X11R6.3/lib        \
+    /usr/X11R6.2/lib        \
+    /usr/X11R6.1/lib        \
+    /usr/X11R6/lib        \
+    /usr/X11R5/lib        \
+    /usr/X11R4/lib        \
+                          \
+    /usr/lib/X11          \
+    /usr/lib/X11R6.3        \
+    /usr/lib/X11R6.2        \
+    /usr/lib/X11R6.1        \
+    /usr/lib/X11R6        \
+    /usr/lib/X11R5        \
+    /usr/lib/X11R4        \
+                          \
+    /usr/local/X11/lib    \
+    /usr/local/X11R6/lib  \
+    /usr/local/X11R5/lib  \
+    /usr/local/X11R4/lib  \
+                          \
+    /usr/local/lib/X11    \
+    /usr/local/X11R6.3/lib  \
+    /usr/local/X11R6.2/lib  \
+    /usr/local/X11R6.1/lib  \
+    /usr/local/lib/X11R6  \
+    /usr/local/lib/X11R5  \
+    /usr/local/lib/X11R4  \
+                          \
+    /usr/X386/lib         \
+    /usr/x386/lib         \
+    /usr/XFree86/lib/X11  \
+                          \
+    /usr/lib              \
+    /usr/local/lib        \
+    /usr/remote/lib       \
+    /usr/unsupported/lib  \
+    /usr/athena/lib       \
+    /usr/local/x11r5/lib  \
+    /usr/lpp/Xamples/lib  \
+    /lib/usr/lib/X11      \
+                          \
+    /usr/openwin/lib      \
+    /usr/openwin/share/lib \
+    $extra_lib            \
+    ; \
+do
+  for ac_extension in a so sl; do
+    if test -r $ac_dir/lib${ttf_direct_test_library}.$ac_extension; then
+      no_ttf= ac_ttf_libraries=$ac_dir
+      break 2
+   fi
+  done
+done
+LIBS="$ac_save_LIBS"])
+AC_DEFUN(AC_PATH_TTF,
+[AC_REQUIRE_CPP()dnl
+
+ttf_includes=NONE
+ttf_libraries=NONE
+
+AC_MSG_CHECKING(for TTF)
+AC_ARG_WITH(ttf, [  --without-ttf           enable color pixmap TTF mode(s)])
+if test "x$with_ttf" = xno; then
+  no_ttf=yes
+else
+  if test "x$ttf_includes" != xNONE && test "x$ttf_libraries" != xNONE; then
+    no_ttf=
+  else
+AC_CACHE_VAL(ac_cv_path_ttf,
+[# One or both of these vars are not set, and there is no cached value.
+no_ttf=yes
+AC_PATH_TTF_DIRECT
+
+if test "$no_ttf" = yes; then
+  ac_cv_path_ttf="no_ttf=yes"
+else
+  ac_cv_path_ttf="no_ttf= ac_ttf_includes=$ac_ttf_includes ac_ttf_libraries=$ac_ttf_libraries"
+fi])dnl
+  fi
+  eval "$ac_cv_path_ttf"
+fi # with_ttf != no
+
+if test "$no_ttf" = yes; then
+  AC_MSG_RESULT(no)
+  TTF="#"
+else
+  ttf=yes
+  AC_DEFINE(HAVE_TTF)
+  XLOCKLIBS="${XLOCKLIBS} -lttf"
+  test "x$ttf_includes" = xNONE && ttf_includes=$ac_ttf_includes
+  test "x$ttf_libraries" = xNONE && ttf_libraries=$ac_ttf_libraries
+  ac_cv_path_ttf="no_ttf= ac_ttf_includes=$ttf_includes ac_ttf_libraries=$ttf_libraries"
+  AC_MSG_RESULT([libraries $ttf_libraries, headers $ttf_includes])
+  TTF=""
+fi
+])
+
+AC_PATH_TTF
+
+if test "x$ttf_libraries" != x && test "x$ttf_libraries" != xNONE ; then
+  XLOCK_LDFLAGS="${XLOCK_LDFLAGS}:$ttf_libraries"
+  XLOCKLIBPATHS="${XLOCKLIBPATHS} -L$ttf_libraries"
+fi
+if test "x$ttf_includes" != x && test "x$ttf_includes" != xNONE ; then
+  XLOCKINC="${XLOCKINC} -I$ttf_includes"
 fi
 
 gl=no
@@ -1327,9 +1862,6 @@ else
   esac
   ac_cv_path_opengl="no_opengl= ac_opengl_includes=$opengl_includes ac_opengl_libraries=$opengl_libraries"
   AC_MSG_RESULT([libraries $opengl_libraries, headers $opengl_includes])
-  # Check for OpenGL 1.1 features.
-  #  Assuming glBindTexture
-  AC_DEFINE(HAVE_GLBINDTEXTURE)
   GL=""
 fi
 ])
@@ -1353,19 +1885,31 @@ test -z "$mesagl_direct_test_library" && mesagl_direct_test_library=MesaGLU
 test -z "$mesagl_direct_test_function" && mesagl_direct_test_function=glXCreateContext
 test -z "$mesagl_direct_test_include" && mesagl_direct_test_include=GL/gl.h
   for ac_dir in               \
+    /usr/X11R6.3/include      \
+    /usr/X11R6.2/include      \
+    /usr/X11R6.1/include      \
     /usr/X11R6/include        \
     /usr/X11R5/include        \
     /usr/X11/include          \
                               \
     /usr/include/X11          \
+    /usr/include/X11R6.3      \
+    /usr/include/X11R6.2      \
+    /usr/include/X11R6.1      \
     /usr/include/X11R6        \
     /usr/include/X11R5        \
                               \
     /usr/local/X11/include    \
+    /usr/local/X11R6.3/include  \
+    /usr/local/X11R6.2/include  \
+    /usr/local/X11R6.1/include  \
     /usr/local/X11R6/include  \
     /usr/local/X11R5/include  \
                               \
     /usr/local/include/X11    \
+    /usr/local/include/X11R6.3  \
+    /usr/local/include/X11R6.2  \
+    /usr/local/include/X11R6.1  \
     /usr/local/include/X11R6  \
     /usr/local/include/X11R5  \
                               \
@@ -1400,18 +1944,30 @@ LIBS="-l$mesagl_direct_test_library $LIBS"
 for ac_dir in `echo "$ac_mesagl_includes" | sed s/include/lib/` \
                           \
     /usr/X11/lib          \
+    /usr/X11R6.3/lib      \
+    /usr/X11R6.2/lib      \
+    /usr/X11R6.1/lib      \
     /usr/X11R6/lib        \
     /usr/X11R5/lib        \
                           \
     /usr/lib/X11          \
+    /usr/lib/X11R6.3      \
+    /usr/lib/X11R6.2      \
+    /usr/lib/X11R6.1      \
     /usr/lib/X11R6        \
     /usr/lib/X11R5        \
                           \
     /usr/local/X11/lib    \
+    /usr/local/X11R6.3/lib  \
+    /usr/local/X11R6.2/lib  \
+    /usr/local/X11R6.1/lib  \
     /usr/local/X11R6/lib  \
     /usr/local/X11R5/lib  \
                           \
     /usr/local/lib/X11    \
+    /usr/local/lib/X11R6.3  \
+    /usr/local/lib/X11R6.2  \
+    /usr/local/lib/X11R6.1  \
     /usr/local/lib/X11R6  \
     /usr/local/lib/X11R5  \
                           \
@@ -1522,9 +2078,6 @@ else
 #          AC_MSG_RESULT([MesaGL library is linked against GLIDE: adding -lpthread])
 #          XLOCKLIBS="${XLOCKLIBS} -lpthread"
 #        fi
-        # Check for OpenGL 1.1 features.
-        #  Assuming glBindTexture
-        AC_DEFINE(HAVE_GLBINDTEXTURE)
 	
         ;;
     esac
@@ -1545,6 +2098,30 @@ fi
 if test "x$mesagl_includes" != x && test "x$mesagl_includes" != xNONE ; then
   XLOCKINC="-I$mesagl_includes ${XLOCKINC}"
 fi
+
+# Test if (Mesa)GL has GL1.1 features
+# (Should this test be performed only if (Mesa)GL is used? In that case
+# it fails anyway.)
+AC_MSG_CHECKING([Checking for GL >=1.1])
+ac_save_CFLAGS="$CFLAGS"
+ac_save_LIBS="$LIBS"
+CFLAGS="${CFLAGS} ${XLOCKINC}"
+LIBS="${XLOCKLIBPATHS} ${XLOCKLIBS} -lX11 -lXext -lm"
+AC_CACHE_VAL(ac_cv_c_gl1_1,[   
+AC_TRY_LINK([#define _XOPEN_SOURCE 1
+#include <GL/gl.h>], [
+GLint texture;
+glBindTexture(GL_TEXTURE_2D, texture);
+], ac_cv_c_gl1_1=yes, ac_cv_c_gl1_1=no)])
+dnl This does not seem to work on Sun's OpenGL
+dnl if test x"$ac_cv_c_gl1_1" = xyes; then    
+    AC_DEFINE(HAVE_GLBINDTEXTURE)
+    AC_MSG_RESULT(yes)
+dnl else
+dnl    AC_MSG_RESULT(no)
+dnl fi
+CFLAGS="$ac_save_CFLAGS"
+LIBS="$ac_save_LIBS"
 
 dnl DTSAVER DtSaver dtsaver DtSvc
 
@@ -1638,18 +2215,30 @@ AC_DEFUN(AC_PATH_DPMS_DIRECT,
 test -z "$dpms_direct_test_function" && dpms_direct_test_function=DPMSSetTimeouts
 test -z "$dpms_direct_test_include" && dpms_direct_test_include=X11/extensions/dpms.h
   for ac_dir in               \
+    /usr/X11R6.3/include      \
+    /usr/X11R6.2/include      \
+    /usr/X11R6.1/include      \
     /usr/X11R6/include        \
     /usr/X11R5/include        \
     /usr/X11R4/include        \
                               \
+    /usr/include/X11R6.3      \
+    /usr/include/X11R6.2      \
+    /usr/include/X11R6.1      \
     /usr/include/X11R6        \
     /usr/include/X11R5        \
     /usr/include/X11R4        \
                               \
+    /usr/local/X11R6.3/include  \
+    /usr/local/X11R6.2/include  \
+    /usr/local/X11R6.1/include  \
     /usr/local/X11R6/include  \
     /usr/local/X11R5/include  \
     /usr/local/X11R4/include  \
                               \
+    /usr/local/include/X11R6.3  \
+    /usr/local/include/X11R6.2  \
+    /usr/local/include/X11R6.1  \
     /usr/local/include/X11R6  \
     /usr/local/include/X11R5  \
     /usr/local/include/X11R4  \
@@ -1692,18 +2281,30 @@ LIBS="-l$dpms_direct_test_library $LIBS"
 # First see if replacing the include by lib works.
 for ac_dir in `echo "$ac_dpms_includes" | sed s/include/lib/` \
                           \
+    /usr/X11R6.3/lib      \
+    /usr/X11R6.2/lib      \
+    /usr/X11R6.1/lib      \
     /usr/X11R6/lib        \
     /usr/X11R5/lib        \
     /usr/X11R4/lib        \
                           \
+    /usr/lib/X11R6.3      \
+    /usr/lib/X11R6.2      \
+    /usr/lib/X11R6.1      \
     /usr/lib/X11R6        \
     /usr/lib/X11R5        \
     /usr/lib/X11R4        \
                           \
+    /usr/local/X11R6.3/lib  \
+    /usr/local/X11R6.2/lib  \
+    /usr/local/X11R6.1/lib  \
     /usr/local/X11R6/lib  \
     /usr/local/X11R5/lib  \
     /usr/local/X11R4/lib  \
                           \
+    /usr/local/lib/X11R6.3  \
+    /usr/local/lib/X11R6.2  \
+    /usr/local/lib/X11R6.1  \
     /usr/local/lib/X11R6  \
     /usr/local/lib/X11R5  \
     /usr/local/lib/X11R4  \
@@ -1802,6 +2403,9 @@ AC_DEFUN(AC_PATH_RPLAY_DIRECT,
 test -z "$rplay_direct_test_function" && rplay_direct_test_function=rplay_open_default
 test -z "$rplay_direct_test_include" && rplay_direct_test_include=rplay.h
   for ac_dir in               \
+    /usr/X11R6.3/include      \
+    /usr/X11R6.2/include      \
+    /usr/X11R6.1/include      \
     /usr/X11R6/include        \
     /usr/X11R5/include        \
     /usr/X11/include          \
@@ -1825,6 +2429,9 @@ LIBS="-l$rplay_direct_test_library $LIBS"
 # First see if replacing the include by lib works.
 for ac_dir in `echo "$ac_rplay_includes" | sed s/include/lib/` \
                           \
+    /usr/X11R6.3/lib      \
+    /usr/X11R6.2/lib      \
+    /usr/X11R6.1/lib      \
     /usr/X11R6/lib        \
     /usr/X11R5/lib        \
     /usr/X11/lib          \
@@ -1910,6 +2517,9 @@ AC_DEFUN(AC_PATH_NAS_DIRECT,
 test -z "$nas_direct_test_function" && nas_direct_test_function=AuOpenServer
 test -z "$nas_direct_test_include" && nas_direct_test_include=audio/audio.h
   for ac_dir in               \
+    /usr/X11R6.3/include      \
+    /usr/X11R6.2/include      \
+    /usr/X11R6.1/include      \
     /usr/X11R6/include        \
     /usr/X11R5/include        \
     /usr/X11/include          \
@@ -1933,6 +2543,9 @@ LIBS="-l$nas_direct_test_library $LIBS"
 # First see if replacing the include by lib works.
 for ac_dir in `echo "$ac_nas_includes" | sed s/include/lib/` \
                           \
+    /usr/X11R6.3/lib      \
+    /usr/X11R6.2/lib      \
+    /usr/X11R6.1/lib      \
     /usr/X11R6/lib        \
     /usr/X11R5/lib        \
     /usr/X11/lib          \
@@ -2117,6 +2730,12 @@ test -z "$gtkfontsel_direct_test_include" && gtkfontsel_direct_test_include="gtk
     /usr/local/include/fontsel       \
     /usr/local/include/gtkfontsel    \
     /usr/local/gtk/include           \
+    /usr/X11R6.3/include             \
+    /usr/X11R6.3/include/gtk         \
+    /usr/X11R6.2/include             \
+    /usr/X11R6.2/include/gtk         \
+    /usr/X11R6.1/include             \
+    /usr/X11R6.1/include/gtk         \
     /usr/X11R6/include               \
     /usr/X11R6/include/gtk           \
     /usr/X11R5/include               \
@@ -2131,6 +2750,12 @@ test -z "$gtkfontsel_direct_test_include" && gtkfontsel_direct_test_include="gtk
     /usr/x386/include/gtk            \
     /usr/XFree86/include             \
     /usr/XFree86/include/gtk         \
+    /usr/local/X11R6.3/include       \
+    /usr/local/X11R6.3/include/gtk   \
+    /usr/local/X11R6.2/include       \
+    /usr/local/X11R6.2/include/gtk   \
+    /usr/local/X11R6.1/include       \
+    /usr/local/X11R6.1/include/gtk   \
     /usr/local/X11R6/include         \
     /usr/local/X11R6/include/gtk     \
     /usr/local/X11R5/include         \
@@ -2145,6 +2770,12 @@ test -z "$gtkfontsel_direct_test_include" && gtkfontsel_direct_test_include="gtk
     /usr/local/x386/include/gtk      \
     /usr/local/XFree86/include       \
     /usr/local/XFree86/include/gtk   \
+    /usr/local/include/X11R6.3       \
+    /usr/local/include/X11R6.3/gtk   \
+    /usr/local/include/X11R6.2       \
+    /usr/local/include/X11R6.2/gtk   \
+    /usr/local/include/X11R6.1       \
+    /usr/local/include/X11R6.1/gtk   \
     /usr/local/include/X11R6         \
     /usr/local/include/X11R6/gtk     \
     /usr/local/include/X11R5         \
@@ -2188,6 +2819,9 @@ LIBS="-l$gtkfontsel_direct_test_library $LIBS"
 # First see if replacing the include by lib works.
 for ac_dir in `echo "$ac_gtkfontsel_includes" | sed s/include/lib/` \
                                      \
+    /usr/X11R6.3/lib                 \
+    /usr/X11R6.2/lib                 \
+    /usr/X11R6.1/lib                 \
     /usr/X11R6/lib                   \
     /usr/lib/X11                     \
     /usr/lib/X11/gtk                 \
@@ -2300,6 +2934,9 @@ case "${canonical}" in
     BITMAPTYPE="bsd"
     PIXMAPTYPE="bsd"
     INSTPGMFLAGS="-s -o root -m 4111"
+    XLOCKLDFLAGS="-Wl,-R${XLOCK_LDFLAGS}"
+    XMLOCKLDFLAGS="-Wl,-R${XMLOCK_LDFLAGS}"
+    XALOCKLDFLAGS="-Wl,-R${XALOCK_LDFLAGS}"
   ;;
 
   *-*-dgux5* )
@@ -2422,8 +3059,9 @@ if test "$dirent" = yes; then
   AC_HEADER_DIRENT
 fi
 
-AC_CHECK_FUNC(nanosleep, AC_DEFINE(HAVE_NANOSLEEP),
-AC_CHECK_FUNC(usleep, AC_DEFINE(HAVE_USLEEP)))
+dnl Rather have a usleep
+AC_CHECK_FUNC(usleep, AC_DEFINE(HAVE_USLEEP),
+AC_CHECK_FUNC(nanosleep, AC_DEFINE(HAVE_NANOSLEEP)))
 
 dnl AC_CHECK_FUNCS(gettimeofday) 
 AC_MSG_CHECKING(how to call gettimeofday)
@@ -2838,8 +3476,8 @@ AC_ARG_ENABLE(kerberos5, [  --enable-kerberos5      enable Kerberos 5],kerberos5
 if test "$kerberos5" = yes; then
   AC_MSG_RESULT([defining option HAVE_KRB5])
   AC_DEFINE(HAVE_KRB5)
-  XLOCKINC="${XLOCKINC} -I/opt/krb5/include"
-  XLOCKLIBS="${XLOCKLIBS} -L/opt/krb5/lib -lkrb5 -lcrypto -lcom_err"
+  XLOCKINC="${XLOCKINC} -I/usr/local/include"
+  XLOCKLIBS="${XLOCKLIBS} -L/usr/local/lib -lkrb5 -lcrypto -lcom_err"
 fi
 
 AC_ARG_ENABLE(dce_passwd, [  --enable-dce-passwd     enable DCE passwording],dce_passwd=$enableval,dce_passwd=no)
@@ -2862,7 +3500,14 @@ if test "$afs" = yes; then
   AC_MSG_RESULT([defining option AFS])
   AC_DEFINE(AFS)
   XLOCKINC="${XLOCKINC} -I/usr/afsws/include"
-  XLOCKLIBS="${XLOCKLIBS} -L/usr/afsws/lib -L/usr/afsws/lib/afs -lkauth -lubik -lprot -lrxkad -lrx -llwp -lauth -lsys -ldes -lcmd -lcom_err /usr/afsws/lib/afs/util.a -laudit"
+  case "${canonical}" in
+    *-*-solaris2.* )
+      XLOCKLIBS="${XLOCKLIBS} -lucb -L/usr/afsws/lib -L/usr/afsws/lib/afs -lkauth.krb -lprot -lubik -lauth.krb -lrxkad -lsys -ldes -lrx -llwp -lcom_err -lcmd /usr/afsws/lib/afs/util.a -laudit -lsys"
+    ;;
+    * )
+      XLOCKLIBS="${XLOCKLIBS} -L/usr/afsws/lib -L/usr/afsws/lib/afs -lkauth -lubik -lprot -lrxkad -lrx -llwp -lauth -lsys -ldes -lcmd -lcom_err /usr/afsws/lib/afs/util.a -laudit"
+    ;;
+  esac
 fi
 
 AC_ARG_ENABLE(sunos_adjunct_passwd, [  --enable-sunos-adjunct-passwd
@@ -2940,6 +3585,7 @@ xno*)
     if test "$vtlock" = "yes"; then
       INSTPGMFLAGS="-s -o root -g bin -m 4111"
       AC_MSG_RESULT([defining install options (setuid/setgid) = "$INSTPGMFLAGS" for vtlock])
+       echo "experimental: Big buffer overrun security risk"
     else
   INSTPGMFLAGS=""
   AC_MSG_RESULT([no setuid/setgid install])
@@ -3019,12 +3665,14 @@ AC_SUBST(CHECK)
 AC_SUBST(PURIFY)
 AC_SUBST(XPM)
 AC_SUBST(GL)
+AC_SUBST(GLTT)
 AC_SUBST(BOMB)
 AC_SUBST(UNSTABLE)
 AC_SUBST(DEPEND)
 AC_SUBST(DEPEND_FLAGS)
 AC_SUBST(DEPEND_DEFINES)
-
+AC_SUBST(CXX)
+AC_SUBST(CCC)
 
 AC_CONFIG_HEADER(config.h)
 AC_OUTPUT(Makefile

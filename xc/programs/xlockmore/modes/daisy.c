@@ -47,6 +47,8 @@ static const char sccsid[] = "@(#)daisy.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_daisy
+
 #define DEF_GARDEN  "False"
 
 static Bool garden;
@@ -307,3 +309,5 @@ refresh_daisy(ModeInfo * mi)
 		init_daisy(mi);
 	}
 }
+
+#endif /* MODE_daisy */

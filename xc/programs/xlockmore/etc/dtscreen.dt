@@ -302,6 +302,15 @@ ACTION StartDtscreenDclock
 	DESCRIPTION	dclock: A floating digital clock
 }
 
+ACTION StartDtscreenDecay
+{
+	LABEL		StartDtscreenDecay
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode decay
+	DESCRIPTION	decay: A decaying screen
+}
+
 ACTION StartDtscreenDeco
 {
 	LABEL		StartDtscreenDeco
@@ -464,6 +473,15 @@ ACTION StartDtscreenIfs
 	DESCRIPTION	ifs: A modified iterated function system
 }
 
+ACTION StartDtscreenInvert
+{
+	LABEL		StartDtscreenInvert
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode invert
+	DESCRIPTION	invert: A sphere inverted without wrinkles
+}
+
 ACTION StartDtscreenJulia
 {
 	LABEL		StartDtscreenJulia
@@ -489,6 +507,15 @@ ACTION StartDtscreenKumppa
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode kumppa +install
 	DESCRIPTION	kumppa: Kumppa
+}
+
+ACTION StartDtscreenLament
+{
+	LABEL		StartDtscreenLament
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode lament
+	DESCRIPTION	lament: Lemarchand's Box
 }
 
 ACTION StartDtscreenLaser
@@ -552,6 +579,15 @@ ACTION StartDtscreenLoop
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode loop
 	DESCRIPTION	loop: Langton's self-producing loops
+}
+
+ACTION StartDtscreenLyapunov
+{
+	LABEL		StartDtscreenLyapunov
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode lyapunov
+	DESCRIPTION	lyapunov: lyapunov space
 }
 
 ACTION StartDtscreenMandelbrot
@@ -806,6 +842,15 @@ ACTION StartDtscreenSwirl
 	DESCRIPTION	swirl: Animated swirling patterns
 }
 
+ACTION StartDtscreenTetris
+{
+	LABEL		StartDtscreenTetris
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode tetris +install
+	DESCRIPTION	tetris: Tetris
+}
+
 ACTION StartDtscreenThornbird
 {
 	LABEL		StartDtscreenThornbird
@@ -885,6 +930,15 @@ ACTION StartDtscreenWorld
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode world
 	DESCRIPTION	world: Spinning Earths
+}
+
+ACTION StartDtscreenXjack
+{
+	LABEL		StartDtscreenXjack
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode xjack
+	DESCRIPTION	xjack: Jack having one of those days
 }
 
 ACTION StartDtscreenBomb

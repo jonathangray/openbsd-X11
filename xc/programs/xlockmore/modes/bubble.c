@@ -43,6 +43,8 @@ static const char sccsid[] = "@(#)bubble.c	4.07 98/01/08 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_bubble
+
 #define DEF_BOIL  "False"
 static Bool boil;
 
@@ -280,3 +282,5 @@ refresh_bubble(ModeInfo * mi)
 {
 	/* Do nothing, it will refresh by itself */
 }
+
+#endif /* MODE_bubble */

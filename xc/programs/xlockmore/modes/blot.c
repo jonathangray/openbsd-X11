@@ -25,7 +25,7 @@ static const char sccsid[] = "@(#)blot.c	4.07 97/11/24 xlockmore";
  * 05-Jan-95: patch for Dual-Headed machines from Greg Onufer
  *            <Greg.Onufer@Eng.Sun.COM>
  * 07-Dec-94: now randomly has xsym, ysym, or both.
- * 02-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
+ * 02-Sep-93: xlock version David Bagley <bagleyd@tux.org>
  * 1992:      xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
@@ -54,6 +54,8 @@ static const char sccsid[] = "@(#)blot.c	4.07 97/11/24 xlockmore";
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+
+#ifdef MODE_blot
 
 ModeSpecOpt blot_opts =
 {0, NULL, 0, NULL, NULL};
@@ -196,3 +198,5 @@ refresh_blot(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_blot */

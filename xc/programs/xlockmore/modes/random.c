@@ -124,14 +124,47 @@ extern char *bitmap;
 #ifdef USE_GL
 static char gl_modes[][MAXMODECHARS] =
 {
-	"atlantis", "bubble3d", "cage", "gears",
-	"moebius", "morph3d", "pipes", "rubik",
-	"sproingies", "stairs", "superquadrics"
-#if defined(USE_TEXT)
-	,"text3d"
+#ifdef MODE_atlantis
+	"atlantis",
 #endif
-#if defined( USE_UNSTABLE ) && (defined( USE_XPM ) || defined( USE_XPMINC ))
-	,"lament"
+#ifdef MODE_bubble3d
+	"bubble3d",
+#endif
+#ifdef MODE_cage
+  "cage",
+#endif
+#ifdef MODE_gears
+  "gears",
+#endif
+#ifdef MODE_invert
+	"invert", 
+#endif
+#ifdef MODE_lament
+	"lament", 
+#endif
+#ifdef MODE_moebius
+	"moebius", 
+#endif
+#ifdef MODE_morph3d
+	"morph3d", 
+#endif
+#ifdef MODE_pipes
+	"pipes", 
+#endif
+#ifdef MODE_rubik
+	"rubik", 
+#endif
+#ifdef MODE_sproingies
+	"sproingies", 
+#endif
+#ifdef MODE_stairs
+	"stairs", 
+#endif
+#ifdef MODE_superquadrics
+	"superquadrics", 
+#endif
+#ifdef MODE_text3d
+	"text3d"
 #endif
 };
 
@@ -143,27 +176,56 @@ static char gl_modes[][MAXMODECHARS] =
 #define NUMGL 0
 #endif
 
-#if defined( USE_XPM ) || defined( USE_XPMINC )
 static char xpm_modes[][MAXMODECHARS] =
 {
-	"bat", "cartoon", "image", "flag", "life", "life1d", "maze", "puzzle"
-};
-
-#define NUMXPM (int) (sizeof (xpm_modes) / sizeof (xpm_modes[0]))
-#else
-/* They will not really be xpm_modes anymore... */
-static char xpm_modes[][MAXMODECHARS] =
-{
-	"bat", "image", "flag", "life", "life1d", "maze", "puzzle"
-};
-
-#define NUMXPM (int) (sizeof (xpm_modes) / sizeof (xpm_modes[0]))
-
+#ifdef MODE_bat
+	"bat",
 #endif
+#ifdef MODE_cartoon
+	"cartoon",
+#endif
+#ifdef MODE_image
+	"image",
+#endif
+#ifdef MODE_flag
+	"flag",
+#endif
+#ifdef MODE_life
+	"life",
+#endif
+#ifdef MODE_life1d
+	"life1d",
+#endif
+#ifdef MODE_maze
+	"maze",
+#endif
+#ifdef MODE_puzzle
+	"puzzle"
+#endif
+};
+
+#define NUMXPM (int) (sizeof (xpm_modes) / sizeof (xpm_modes[0]))
 
 static char write_modes[][MAXMODECHARS] =
 {
-	"crystal", "mandelbrot", "starfish", "swirl", "tube"
+#ifdef MODE_crystal
+	"crystal",
+#endif
+#ifdef MODE_mandelbrot
+	"mandelbrot",
+#endif
+#ifdef MODE_starfish
+	"starfish",
+#endif
+#ifdef MODE_swirl
+	"swirl",
+#endif
+#ifdef MODE_tetris
+	"tetris",
+#endif
+#ifdef MODE_tube
+	"tube"
+#endif
 	/* XPM modes are usually writable too ... */
 };
 
@@ -171,57 +233,291 @@ static char write_modes[][MAXMODECHARS] =
 
 static char nice_modes[][MAXMODECHARS] =
 {
-	"blot", "bouboule", "bug",
-	"clock", "crystal",
-	"daisy" "dclock", "demon" "deco",
+#ifdef MODE_blot
+	"blot",
+#endif
+#ifdef MODE_bouboule
+	"bouboule",
+#endif
+#ifdef MODE_bug
+	"bug",
+#endif
+#ifdef MODE_clock
+	"clock",
+#endif
+#ifdef MODE_crystal
+	"crystal",
+#endif
+#ifdef MODE_daisy
+	"daisy",
+#endif
+#ifdef MODE_dclock
+	"dclock",
+#endif
+#ifdef MODE_demon
+	"demon",
+#endif
+#ifdef MODE_deco
+	"deco",
+#endif
+#ifdef MODE_eyes
 	"eyes",
-	"fadeplot", "flag", "flame",
+#endif
+#ifdef MODE_fadeplot
+	"fadeplot",
+#endif
+#ifdef MODE_flag
+	"flag",
+#endif
+#ifdef MODE_flame
+	"flame",
+#endif
+#ifdef MODE_grav
 	"grav",
-	"helix", "hyper",
-	"ico", "image",
+#endif
+#ifdef MODE_helix
+	"helix",
+#endif
+#ifdef MODE_hyper
+	"hyper",
+#endif
+#ifdef MODE_ico
+	"ico",
+#endif
+#ifdef MODE_image
+	"image",
+#endif
+#ifdef MODE_kaleid
 	"kaleid",
-  "laser", "life", "life1d", "life3d", "lightning", "lisa", "lissie", "loop",
+#endif
+#ifdef MODE_laser
+  "laser",
+#endif
+#ifdef MODE_life
+  "life",
+#endif
+#ifdef MODE_life1d
+  "life1d",
+#endif
+#ifdef MODE_life3d
+  "life3d",
+#endif
+#ifdef MODE_lightning
+  "lightning",
+#endif
+#ifdef MODE_lisa
+  "lisa",
+#endif
+#ifdef MODE_lissie
+  "lissie",
+#endif
+#ifdef MODE_loop
+  "loop",
+#endif
+#ifdef MODE_marquee
 	"marquee",
+#endif
+#ifdef MODE_nose
 	"nose",
-	"penrose", "petal", "puzzle", "pyro",
+#endif
+#ifdef MODE_penrose
+	"penrose",
+#endif
+#ifdef MODE_petal
+	"petal",
+#endif
+#ifdef MODE_puzzle
+	"puzzle",
+#endif
+#ifdef MODE_pyro
+	"pyro",
+#endif
+#ifdef MODE_qix
 	"qix",
-	"roll", "rotor",
-	"shape", "sierpinski", "spline", "star", "swarm",
-	"triangle", "tube", "turtle",
-	"vines", "voters",
+#endif
+#ifdef MODE_roll
+	"roll",
+#endif
+#ifdef MODE_rotor
+	"rotor",
+#endif
+#ifdef MODE_shape
+	"shape",
+#endif
+#ifdef MODE_sierpinski
+	"sierpinski",
+#endif
+#ifdef MODE_spline
+	"spline",
+#endif
+#ifdef MODE_star
+	"star",
+#endif
+#ifdef MODE_swarm
+	"swarm",
+#endif
+#ifdef MODE_triangle
+	"triangle",
+#endif
+#ifdef MODE_tube
+	"tube",
+#endif
+#ifdef MODE_turtle
+	"turtle",
+#endif
+#ifdef MODE_vines
+	"vines",
+#endif
+#ifdef MODE_voters
+	"voters",
+#endif
+#ifdef MODE_wire
 	"wire",
-	"world", "worm"
+#endif
+#ifdef MODE_world
+	"world",
+#endif
+#ifdef MODE_worm
+	"worm", 
+#endif
+#ifdef MODE_xjack
+	"xjack"
+#endif
 };
 
 #define NUMNICE (int) (sizeof (nice_modes) / sizeof (nice_modes[0]))
 
 static char use3d_modes[][MAXMODECHARS] =
 {
-	"bouboule", "hyper", "pyro", "star", "worm"
+#ifdef MODE_bouboule
+	"bouboule",
+#endif
+#ifdef MODE_hyper
+	"hyper",
+#endif
+#ifdef MODE_pyro
+	"pyro",
+#endif
+#ifdef MODE_star
+	"star",
+#endif
+#ifdef MODE_worm
+	"worm"
+#endif
 };
 
 #define NUMUSE3D (int) (sizeof (use3d_modes) / sizeof (use3d_modes[0]))
 
 static char mouse_modes[][MAXMODECHARS] =
 {
-	"eyes", "julia", "swarm"
+#ifdef MODE_eyes
+	"eyes",
+#endif
+#ifdef MODE_julia
+	"julia",
+#endif
+#ifdef MODE_swarm
+	"swarm"
+#endif
 };
 
 #define NUMMOUSE (int) (sizeof (mouse_modes) / sizeof (mouse_modes[0]))
 
 static char automata_modes[][MAXMODECHARS] =
 {
-	"ant", "bug", "demon", "dilemma", "life", "life1d", "life3d", "loop",
-	"voters", "wator", "wire"
+#ifdef MODE_ant
+	"ant",
+#endif
+#ifdef MODE_bug
+	"bug",
+#endif
+#ifdef MODE_demon
+	"demon",
+#endif
+#ifdef MODE_dilemma
+	"dilemma",
+#endif
+#ifdef MODE_life
+	"life",
+#endif
+#ifdef MODE_life1d
+	"life1d",
+#endif
+#ifdef MODE_life3d
+	"life3d",
+#endif
+#ifdef MODE_loop
+	"loop",
+#endif
+#ifdef MODE_voters
+	"voters",
+#endif
+#ifdef MODE_wator
+	"wator",
+#endif
+#ifdef MODE_wire
+	"wire"
+#endif
 };
 
 #define NUMAUTOMATA (int) (sizeof (automata_modes) / sizeof (automata_modes[0]))
 
 static char fractal_modes[][MAXMODECHARS] =
 {
-	"coral", "discrete", "drift", "flame", "flow", "forest",
-	"julia", "hop", "ifs", "lightning", "mandelbrot", "mountain",
-	"sierpinski", "strange", "thornbird", "triangle", "turtle", "vines"
+#ifdef MODE_coral
+	"coral",
+#endif
+#ifdef MODE_discrete
+	"discrete",
+#endif
+#ifdef MODE_drift
+	"drift",
+#endif
+#ifdef MODE_flame
+	"flame",
+#endif
+#ifdef MODE_flow
+	"flow",
+#endif
+#ifdef MODE_forest
+	"forest",
+#endif
+#ifdef MODE_julia
+	"julia",
+#endif
+#ifdef MODE_hop
+	"hop",
+#endif
+#ifdef MODE_ifs
+	"ifs",
+#endif
+#ifdef MODE_lightning
+	"lightning",
+#endif
+#ifdef MODE_mandelbrot
+	"mandelbrot",
+#endif
+#ifdef MODE_mountain
+	"mountain",
+#endif
+#ifdef MODE_sierpinski
+	"sierpinski",
+#endif
+#ifdef MODE_strange
+	"strange",
+#endif
+#ifdef MODE_thornbird
+	"thornbird",
+#endif
+#ifdef MODE_triangle
+	"triangle",
+#endif
+#ifdef MODE_turtle
+	"turtle",
+#endif
+#ifdef MODE_vines
+	"vines"
+#endif
 };
 
 #define NUMFRACTAL (int) (sizeof (fractal_modes) / sizeof (fractal_modes[0]))
@@ -229,16 +525,75 @@ static char fractal_modes[][MAXMODECHARS] =
 
 static char geometry_modes[][MAXMODECHARS] =
 {
-	"braid", "fadeplot", "helix", "hyper", "ico", "kaleid",
-	"laser", "lisa", "lissie", "penrose", "petal", "qix",
-	"shape", "sphere", "spiral", "spline"
+#ifdef MODE_braid
+	"braid",
+#endif
+#ifdef MODE_fadeplot
+	"fadeplot",
+#endif
+#ifdef MODE_helix
+	"helix",
+#endif
+#ifdef MODE_hyper
+	"hyper",
+#endif
+#ifdef MODE_ico
+	"ico",
+#endif
+#ifdef MODE_kaleid
+	"kaleid",
+#endif
+#ifdef MODE_laser
+	"laser",
+#endif
+#ifdef MODE_lisa
+	"lisa",
+#endif
+#ifdef MODE_lissie
+	"lissie",
+#endif
+#ifdef MODE_penrose
+	"penrose",
+#endif
+#ifdef MODE_petal
+	"petal",
+#endif
+#ifdef MODE_qix
+	"qix",
+#endif
+#ifdef MODE_shape
+	"shape",
+#endif
+#ifdef MODE_sphere
+	"sphere",
+#endif
+#ifdef MODE_spiral
+	"spiral",
+#endif
+#ifdef MODE_spline
+	"spline"
+#endif
 };
 
 #define NUMGEOMETRY (int) (sizeof (geometry_modes) / sizeof (geometry_modes[0]))
 
 static char space_modes[][MAXMODECHARS] =
 {
-	"bouboule", "galaxy", "grav", "star", "world"
+#ifdef MODE_bouboule
+	"bouboule",
+#endif
+#ifdef MODE_galaxy
+	"galaxy",
+#endif
+#ifdef MODE_grav
+	"grav",
+#endif
+#ifdef MODE_star
+	"star",
+#endif
+#ifdef MODE_world
+	"world"
+#endif
 };
 
 #define NUMSPACE (int) (sizeof (space_modes) / sizeof (space_modes[0]))
@@ -497,9 +852,9 @@ init_random(ModeInfo * mi)
 	}
 	rp = &randoms[MI_SCREEN(mi)];
 
+	MI_SET_FLAG_STATE(mi, WI_FLAG_FULLRANDOM, fullrandom);
 	if (currentmode < 0) {
 		parsemodelist(mi);
-		MI_SET_FLAG_STATE(mi, WI_FLAG_FULLRANDOM, fullrandom);
 
 		for (i = startscreen; i < MI_NUM_SCREENS(mi); i++) {
 			(void) XGetGCValues(MI_DISPLAY(mi), MI_GC(mi),

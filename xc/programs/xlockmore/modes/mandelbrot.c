@@ -2,9 +2,11 @@
 /* mandelbrot --- animated mandelbrot sets */
 
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)mandelbrot.c 4.07 97/11/24 xlockmore";
+static const char sccsid[] = "@(#)mandelbrot.c 4.13 98/12/21 xlockmore";
 
 #endif
+
+#define USE_LOG
 
 /*-
  * Copyright (c) 1997 Dan Stromberg <strombrg@nis.acs.uci.edu>
@@ -32,7 +34,17 @@ static const char sccsid[] = "@(#)mandelbrot.c 4.07 97/11/24 xlockmore";
  * Pickover.  These would make nice additions to add.
  *
  * Revision History:
+ * 24-Mar-99: DEM and Binary decomp options added by Tim.Auckland@Sun.COM
+ *            Ideas from Peitgen & Saupe's "The Science of Fractal Images"
  * 20-Oct-97: Written by Dan Stromberg <strombrg@nis.acs.uci.edu>
+ * 17-Nov-98: Many Changes by Stromberg, including selection of
+ *            interesting subregions, more extreme color ranges,
+ *            reduction of possible powers to smaller/more interesting
+ *            range, elimination of some unused code, slower color cycling,
+ *            longer period of color cycling after the drawing is complete.
+ *            Hopefully the longer color cycling period will make the mode
+ *            reasonable even after CPUs are so fast that the drawing
+ *            interval goes by quickly
  */
 
 
@@ -55,27 +67,46 @@ static const char sccsid[] = "@(#)mandelbrot.c 4.07 97/11/24 xlockmore";
 #include "color.h"
 #endif /* !STANDALONE */
 
-#define MINPOWER 1
+#ifdef MODE_mandelbrot
+
+#define MINPOWER 2
 #define DEF_INCREMENT  "1.00"
+#define DEF_BINARY     "False"
+#define DEF_DEM        "False"
+/* 4.0 is best for seeing if a point is inside the set, 13 is better if
+** you want to get a pretty corona
+*/
+#define ESCAPE 13.0
+#define FLOATRAND(min,max) ((min)+((double) LRAND()/((double) MAXRAND))*((max)-(min)))
 
 	/* incr also would be nice as a parameter.  It controls how fast
 	   the order is advanced.  Non-integral values are not true orders,
 	   but it's a somewhat interesting function anyway
 	 */
 static float increment;
+static Bool  binary;
+static Bool  dem;
 
 static XrmOptionDescRec opts[] =
 {
-     {"-increment", ".mandelbrot.increment", XrmoptionSepArg, (caddr_t) NULL}
+     {"-increment", ".mandelbrot.increment", XrmoptionSepArg, (caddr_t) NULL},
+     {"-binary", ".mandelbrot.binary", XrmoptionNoArg, (caddr_t) "on"},
+     {"+binary", ".mandelbrot.binary", XrmoptionNoArg, (caddr_t) "off"},
+     {"-dem", ".mandelbrot.dem", XrmoptionNoArg, (caddr_t) "on"},
+     {"+dem", ".mandelbrot.dem", XrmoptionNoArg, (caddr_t) "off"}
 };
 
 static argtype vars[] =
 {
  {(caddr_t *) & increment, "increment", "Increment", DEF_INCREMENT, t_Float},
+ {(caddr_t *) & binary, "binary", "Binary", DEF_BINARY, t_Bool},
+ {(caddr_t *) & dem, "dem", "Dem", DEF_DEM, t_Bool},
 };
 static OptionStruct desc[] =
 {
-	{"-increment value", "increasing orders"}
+	{"-increment value", "increasing orders"},
+	{"-/+binary", "turn on/off Binary Decomposition colour modulation"},
+	{"-/+dem", "turn on/off Distance Estimator Method (instead of escape time)"}
 };
 
 ModeSpecOpt mandelbrot_opts =
@@ -123,7 +154,7 @@ mult(complex * a, complex b)
    ln(z) = ln ((x^2 + y^2)^(1/2)) + i * invtan(y/x)
  */
 
-/* this IS a true power function. */
+/* this is a true power function. */
 static void
 ipow(complex * a, int n)
 {
@@ -151,35 +182,6 @@ ipow(complex * a, int n)
 	}
 }
 
-/*-
- * This is not a true power function, but it's an acceptable approximation.
- * Ok, actually, it yields a bit of visible distortion.
- */
-static void
-rpow(complex * a, double n)
-{
-	int         low, high;
-
-	low = (int) floor(n);
-	high = (int) ceil(n);
-	if (low == high) {
-		ipow(a, (int) n);
-	} else {
-		complex     x, y;
-		double      frac;
-
-		frac = n - low;
-		/* x = a^low */
-		x = *a;
-		ipow(&x, low);
-		/* y = a^low+1 */
-		y = x;
-		mult(&y, *a);
-		a->real = x.real * frac + y.real * (1 - frac);
-		a->imag = x.imag * frac + y.imag * (1 - frac);
-	}
-}
-
 typedef struct {
 	int         counter;
 	double      power;
@@ -193,9 +195,163 @@ typedef struct {
 	Colormap    cmap;
 	int         usable_colors;
 	unsigned int cur_color;
+	complex		extreme_ul;
+	complex		extreme_lr;
+	complex		ul;
+	complex		lr;
+	int         screen_width;
+	int			screen_height;
+	int			reptop;
+	Bool		dem;
+	Bool		binary;
 } mandelstruct;
 
 static mandelstruct *mandels = NULL;
+
+/* do the iterations
+ * if binary is true, check halfplane of last iteration.
+ * if demrange is non zero, estimate lower bound of dist(c, M)
+ * Loosely based on  Peitgen & Saupe's "The Science of Fractal Images" 
+ */
+static int
+reps(complex c, double p, int r, Bool binary, double demrange)
+{
+	int         rep;
+	int         escaped = 0;
+	complex     t;
+	int escape = (demrange == 0) ? ESCAPE :
+		ESCAPE*ESCAPE*ESCAPE*ESCAPE; /* 2 more iterations */
+	complex     t1;
+	complex     dt;
+
+	t = c;
+	dt.real = 1; dt.imag = 0;
+	for (rep = 0; rep < r; rep++) {
+	    t1 = t;
+		ipow(&t, p);
+		add(&t, c);
+		if (t.real * t.real + t.imag * t.imag >= escape) {
+			escaped = 1;
+			break;
+		}
+		if (demrange){
+			/* compute dt/dc 
+			 *               p-1
+			 * dt    =  p * t  * dt + 1
+			 *   k+1         k     k
+			 */
+			dt.real *= p; dt.imag *= p;
+			if(p > 2) ipow(&t1, p - 1);
+			mult(&dt, t1);
+			dt.real += 1;
+			if (dt.real * dt.real + dt.imag * dt.imag >= 1e300) {
+				escaped = 2;
+				break;
+			}
+		}
+	}
+	if (escaped) {
+		if(demrange) {
+			double mt = sqrt(t1.real * t1.real + t1.imag * t1.imag);
+			 /* distance estimate */
+			double dist = 0.5 * mt * log(mt) /
+				sqrt(dt.real * dt.real + dt.imag * dt.imag);
+			rep = (int) 1 + 10*r*dist/demrange; /* scale for viewing */
+			if(rep > r-1) rep = r-1; /* chop into color range */
+		} else {
+			if(binary && t.imag > 0)
+				rep = (r + rep / 2) % r; /* binary decomp */
+		}
+		return rep;
+	} else
+		return r;
+}
+
+static void
+Select(
+	/* input variables first */
+	complex *extreme_ul,complex *extreme_lr,
+	int width,int height,
+	int power,int top,
+	/* output variables follow */
+	complex *selected_ul,complex *selected_lr)
+	{
+	double precision;
+	double s2;
+	int inside;
+	int uninteresting;
+	int found;
+	int tries;
+	found = 0;
+	while (!found)
+		{
+		/* select a precision - be careful with this */
+		precision = pow(2.0,FLOATRAND(-9.0,-18.0));
+		/* printf("precision is %f\n",precision); */
+		for (tries=0;tries<10000&&!found;tries++)
+			{
+			/* it eventually turned out that this inner loop doesn't always
+			** terminate - so we just try 10000 times, and if we don't get
+			** anything interesting, we pick a new precision
+			*/
+			complex temp;
+			int sample_step = 4;
+			int row,column;
+			inside = 0;
+			uninteresting = 0;
+			/* pick a random point in the allowable range */
+			temp.real = FLOATRAND(extreme_ul->real,extreme_lr->real);
+			temp.imag = FLOATRAND(extreme_ul->imag,extreme_lr->imag);
+			/* find upper left and lower right points */
+			selected_ul->real = temp.real - precision * width / 2;
+			selected_lr->real = temp.real + precision * width / 2;
+			selected_ul->imag = temp.imag - precision * height / 2;
+			selected_lr->imag = temp.imag + precision * height / 2;
+			/* sample the results we'd get from this choice, accept or reject
+			** accordingly
+			*/
+			for (row=0; row<sample_step; row++)
+				{
+				for (column=0; column<sample_step; column++)
+					{
+					int r;
+					temp.imag = selected_ul->imag +
+						(selected_ul->imag - selected_lr->imag) * 
+						(((double)row)/sample_step);
+					temp.real = selected_ul->real + 
+						(selected_ul->real - selected_lr->real) * 
+						(((double)column)/sample_step);
+					r = reps(temp,power,top,0,0);
+					/* Here, we just want to see if the point is in the set,
+					** not if we can make something pretty
+					*/
+					if (r == top)
+						{
+						inside++;
+						}
+					if (r < 2)
+						{
+						uninteresting++;
+						}
+					}
+				}
+			s2 = sample_step*sample_step;
+			/* more than 10 percent, but less than 60 percent inside the set */
+			if (inside >= ceil(s2/10.0) && inside <= s2*6.0/10.0 &&
+				uninteresting <= s2/10.0)
+				{
+				/* this one looks interesting */
+				found = 1;
+				}
+			else
+				{
+				/* this doesn't look like a real good combination, so back up
+				** to the top of the loop to try another possibility
+				*/
+				}
+			}
+		}
+	}
 
 void
 init_mandelbrot(ModeInfo * mi)
@@ -206,7 +362,6 @@ init_mandelbrot(ModeInfo * mi)
 	unsigned long redmask, greenmask, bluemask;
 	Window      window = MI_WINDOW(mi);
 	Display    *display = MI_DISPLAY(mi);
-	int         power;
 
 	if (mandels == NULL) {
 		if ((mandels = (mandelstruct *) calloc(MI_NUM_SCREENS(mi),
@@ -216,24 +371,37 @@ init_mandelbrot(ModeInfo * mi)
 	mp = &mandels[MI_SCREEN(mi)];
 
 
-	power = MI_COUNT(mi);
-	if (power < -MINPOWER) {
-		int         temp;
-
-		do {
-			temp = NRAND(-power - MINPOWER + 1) + MINPOWER;
-		} while (temp == mp->power);
-		mp->power = temp;
-	} else if (power < MINPOWER)
-		mp->power = MINPOWER;
-	else
-		mp->power = power;
+	mp->power = NRAND(3) + MINPOWER;
 
 	mp->column = 0;
 	mp->counter = 0;
 
 	MI_CLEARWINDOW(mi);
 
+	mp->screen_width = MI_WIDTH(mi);
+	mp->screen_height = MI_HEIGHT(mi);
+
+	if (MI_IS_FULLRANDOM(mi)) {
+	  switch(NRAND(3)){
+	  case 0: mp->binary = 1; mp->dem = 0; break;
+	  case 1: mp->binary = 0; mp->dem = 1; break;
+	  default:mp->binary = 0; mp->dem = 0; break;
+	  }
+	} else {
+	  mp->binary = binary;
+	  mp->dem = dem;
+	}
+
+	mp->reptop = 300;
+
+	/* these could be tuned a little closer, but the selection
+	** process throws out the chaf anyway, it just takes slightly
+	** longer
+	*/
+	mp->extreme_ul.real = -3.0;
+	mp->extreme_ul.imag = -3.0;
+	mp->extreme_lr.real = 3.0;
+	mp->extreme_lr.imag = 3.0;
 
 #ifndef STANDALONE
 	mp->fixed_colormap = !setupColormap(mi,
@@ -247,15 +415,15 @@ init_mandelbrot(ModeInfo * mi)
 		XQueryColor(display, MI_COLORMAP(mi), &(mp->fgcol));
 
 #define RANGE 65536
-#define DENOM 2
+#define DENOM 4
 		/* color in the bottom part */
 		mp->bottom.red = NRAND(RANGE / DENOM);
 		mp->bottom.blue = NRAND(RANGE / DENOM);
 		mp->bottom.green = NRAND(RANGE / DENOM);
 		/* color in the top part */
-		mp->top.red = RANGE - NRAND(RANGE / DENOM);
-		mp->top.blue = RANGE - NRAND(RANGE / DENOM);
-		mp->top.green = RANGE - NRAND(RANGE / DENOM);
+		mp->top.red = RANGE - NRAND(((DENOM-1)*RANGE) / DENOM);
+		mp->top.blue = RANGE - NRAND(((DENOM-1)*RANGE) / DENOM);
+		mp->top.green = RANGE - NRAND(((DENOM-1)*RANGE) / DENOM);
 
 		/* allocate colormap, if needed */
 		if (mp->colors == NULL)
@@ -265,30 +433,31 @@ init_mandelbrot(ModeInfo * mi)
 						   MI_VISUAL(mi), AllocAll);
 		mp->usable_colors = mp->ncolors - preserve;
 	}
+	Select(&mp->extreme_ul,&mp->extreme_lr,
+		mp->screen_width,mp->screen_height,
+		mp->power,mp->reptop,
+		&mp->ul,&mp->lr);
+
 #endif /* !STANDALONE */
 }
 
-static int
-reps(complex c, double p, int r)
+#if !defined(OLD_COLOR)
+static unsigned short
+pick_rgb(unsigned short bottom,unsigned short top,
+	int color_ind,int ncolors)
 {
-	int         rep;
-	int         escaped = 0;
-	complex     t;
-
-	t = c;
-	for (rep = 0; rep < r; rep++) {
-		rpow(&t, p);
-		add(&t, c);
-		if (t.real * t.real + t.imag * t.imag >= 13.0) {
-			escaped = 1;
-			break;
-		}
+	/* por == part of range */
+	double por;
+	if (color_ind<ncolors/2) {
+		/* going up */
+		por = ((float)color_ind*2) / ncolors;
+	} else {
+		/* going down */
+		por = ((float)(color_ind-ncolors/2)*2) / ncolors;
 	}
-	if (escaped)
-		return rep;
-	else
-		return r;
+	return bottom + (top - bottom)*por;
 }
+#endif
 
 void
 draw_mandelbrot(ModeInfo * mi)
@@ -297,27 +466,24 @@ draw_mandelbrot(ModeInfo * mi)
 	Window      window = MI_WINDOW(mi);
 	GC          gc = MI_GC(mi);
 	mandelstruct *mp = &mandels[MI_SCREEN(mi)];
-	int         screen_width, screen_height;
 	int         h;
 	complex     c;
+#if defined(USE_LOG)
 	double      log_top;
+#endif
 
-	/* it'd be nice if top were parameterized.  It really impacts how fast
-	   this all runs, but lower values "look sloppy".
-	 */
-	int         top = 300;
-
+	double      demrange;
 	unsigned int i;
 	int         j, k;
 
-	log_top = log((float) top);
-	screen_width = MI_WIDTH(mi);
-	screen_height = ((MI_HEIGHT(mi) + 1) >> 1) << 1;	/* screen_height even */
+#if defined(USE_LOG)
+	log_top = log((float) mp->reptop);
+#endif
 
 	MI_IS_DRAWN(mi) = True;
 
 #ifndef STANDALONE
-	if (mp->counter % 5 == 0) {
+	if (mp->counter % 15 == 0) {
 		/* advance "drawing" color */
 		mp->cur_color = (mp->cur_color + 1) % mp->ncolors;
 		if (!mp->fixed_colormap && mp->usable_colors > 2) {
@@ -349,8 +515,11 @@ draw_mandelbrot(ModeInfo * mi)
 				} else if (i == MI_FG_PIXEL(mi)) {
 					mp->colors[i] = mp->fgcol;
 				} else {
+#if defined(OLD_COLOR)
+					/* this is known to work well enough. I just wanted
+					** to explore some other possibilities
+					*/
 					double      range;
-
 					mp->colors[i].pixel = i;
 					range = ((double) (mp->top.red - mp->bottom.red)) /
 						mp->ncolors;
@@ -367,73 +536,65 @@ draw_mandelbrot(ModeInfo * mi)
 					mp->colors[i].flags = DoRed | DoGreen | DoBlue;
 					j = (j + 1) % mp->ncolors;
 					k++;
+#else
+					mp->colors[i].pixel = i;
+					mp->colors[i].red = pick_rgb(mp->bottom.red,mp->top.red,
+						j,mp->ncolors);
+					mp->colors[i].green = pick_rgb(mp->bottom.green,mp->top.green,
+						j,mp->ncolors);
+					mp->colors[i].blue = pick_rgb(mp->bottom.blue,mp->top.blue,
+						j,mp->ncolors);
+					mp->colors[i].flags = DoRed | DoGreen | DoBlue;
+					j = (j + 1) % mp->ncolors;
+					k++;
+#endif
 				}
 			}
-			/* make the entire tube move forward */
+			/* make the entire mandelbrot move forward */
 			XStoreColors(display, mp->cmap, mp->colors, mp->ncolors);
 			setColormap(display, window, mp->cmap, MI_IS_INWINDOW(mi));
 		}
 	}
 #endif /* !STANDALONE */
-	if (mp->column >= 3 * screen_width / 2) {
+	/* so we iterate columns beyond the width of the physical screen, so that
+	** we just wait around and show what we've done
+	*/
+	if (mp->column >= 3 * mp->screen_width) {
 		/* reset to left edge of screen, bump power */
 		mp->column = 0;
-		if (MI_COUNT(mi) >= -MINPOWER) {	/* Then do not randomize */
-			mp->power += increment;
-			/* round to third digit after decimal, in case of floating point
-			   inaccuracy.  Assumption: no one wants to increment this by
-			   less than 0.001 at a time
-			 */
-			mp->power = ROUND_FLOAT(mp->power, 0.001);
-		} else {
-			int         temp;
-
-			do {
-				temp = NRAND(-MI_COUNT(mi) - MINPOWER + 1) + MINPOWER;
-			} while (temp == mp->power);
-			mp->power = temp;
-		}
-	} else if (mp->column >= screen_width) {
+		mp->power = NRAND(3) + MINPOWER;
+		/* select a new region! */
+		Select(&mp->extreme_ul,&mp->extreme_lr,
+			mp->screen_width,mp->screen_height,
+			mp->power,mp->reptop,
+			&mp->ul,&mp->lr);
+	} else if (mp->column >= mp->screen_width) {
 		/* delay a while */
 		mp->column++;
 		mp->counter++;
 		return;
 	}
-	/* assumes screen height is even */
-	for (h = 0; h < screen_height / 2; h++) {
-#if defined(ALT_POW)
-		int         first;
-		int         second;
-		double      frac;
-		int         high, low;
-
-
-#endif
+	/* demrange is used to give some idea of scale */
+	demrange = mp->dem ? fabs(mp->ul.real - mp->lr.real) / 2 : 0;
+	for (h = 0; h < mp->screen_height; h++) {
 		unsigned int color;
 		int         result;
 
-		/* c.real = -2.1 + (double) mp->column / screen_width * 3.4; */
-		c.real = 1.3 - (double) mp->column / screen_width * 3.4;
-		c.imag = -1.6 + (double) h / screen_height * 3.2;
-#if defined(ALT_POW)
-		high = ceil(mp->power);
-		low = floor(mp->power);
-		frac = mp->power - low;
-
-		first = reps(c, low, top);
-		if (low == high)
-			result = first;
-		else {
-			second = reps(c, high, top);
-			result = first * (1.0 - frac) + second * frac;
-		}
-#else
-		result = reps(c, mp->power, top);
-#endif
-		if (result == 0 || result == top)
+		/* c.real = 1.3 - (double) mp->column / mp->screen_width * 3.4; */
+		/* c.imag = -1.6 + (double) h / mp->screen_height * 3.2; */
+		c.real = mp->ul.real + 
+			(mp->ul.real-mp->lr.real)*(((double)(mp->column))/mp->screen_width);
+		c.imag = mp->ul.imag + 
+			(mp->ul.imag - mp->lr.imag)*(((double) h) / mp->screen_height);
+		result = reps(c, mp->power, mp->reptop, mp->binary, demrange);
+		if (result == 0 || result == mp->reptop)
 			XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 		else {
-			color = (unsigned int) (MI_NPIXELS(mi) * log((float) result) / log_top);
+#if defined(USE_LOG)
+			color=(unsigned int) (MI_NPIXELS(mi) * log((float) result) / log_top);
+#else
+			color=(unsigned int) ((MI_NPIXELS(mi) * (float)result) / mp->reptop);
+#endif
 #ifndef STANDALONE
 			if (!mp->fixed_colormap && mp->usable_colors > 2) {
 				while (color == MI_WHITE_PIXEL(mi) ||
@@ -447,9 +608,10 @@ draw_mandelbrot(ModeInfo * mi)
 				XSetForeground(display, gc, MI_PIXEL(mi, color));
 #endif /* !STANDALONE */
 		}
-		/* take advantage of vertical symmetry */
+		/* we no longer have vertical symmetry - so we compute all points
+		** and don't draw with redundancy
+		*/
 		XDrawPoint(display, window, gc, mp->column, h);
-		XDrawPoint(display, window, gc, mp->column, screen_height - h - 1);
 	}
 	mp->column++;
 	mp->counter++;
@@ -476,3 +638,5 @@ release_mandelbrot(ModeInfo * mi)
 		mandels = NULL;
 	}
 }
+
+#endif /* MODE_mandelbrot */

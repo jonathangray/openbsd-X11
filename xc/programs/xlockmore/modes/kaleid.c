@@ -80,6 +80,8 @@ static const char sccsid[] = "@(#)kaleid.c  4.11 98/06/01 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_kaleid
+
 #define DEF_DISCONNECTED  "True"
 #define DEF_SERIAL        "False"
 #define DEF_ALTERNATE     "False"
@@ -1272,3 +1274,5 @@ refresh_kaleid(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_kaleid */

@@ -43,6 +43,8 @@ static const char sccsid[] = "@(#)discrete.c 4.10 98/04/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_thornbird
+
 ModeSpecOpt thornbird_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -207,3 +209,5 @@ refresh_thornbird(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_thornbird */

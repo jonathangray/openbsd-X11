@@ -53,6 +53,8 @@ static const char sccsid[] = "@(#)pacman.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "iostuff.h"
 
+#ifdef MODE_pacman
+
 ModeSpecOpt pacman_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -743,3 +745,5 @@ refresh_pacman(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_pacman */

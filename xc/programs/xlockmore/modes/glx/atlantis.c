@@ -114,7 +114,7 @@ static const char sccsid[] = "@(#)atlantis.c	1.3 98/06/18 xlockmore";
 #include "vis.h"
 #endif /* !STANDALONE */
 
-#ifdef USE_GL
+#ifdef MODE_atlantis
 
 #include "atlantis.h"
 #include <GL/glu.h>
@@ -441,4 +441,4 @@ change_atlantis(ModeInfo * mi)
 	Init(ap);
 }
 
-#endif /* USE_GL */
+#endif /* MODE_atlantis */

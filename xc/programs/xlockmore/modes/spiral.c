@@ -48,6 +48,8 @@ static const char sccsid[] = "@(#)spiral.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* from the xlockmore distribution */
 #endif /* !STANDALONE */
 
+#ifdef MODE_spiral
+
 ModeSpecOpt spiral_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -310,3 +312,5 @@ refresh_spiral(ModeInfo * mi)
 	sp->redrawing = 1;
 	sp->redrawpos = 0;
 }
+
+#endif /* MODE_spiral */

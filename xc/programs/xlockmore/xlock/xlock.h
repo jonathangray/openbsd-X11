@@ -23,7 +23,7 @@
  *
  * Revision History:
  *
- * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * Changes maintained by David Bagley <bagleyd@tux.org>
  * 23-Apr-98: Merged in xlockmore.h from xscreensaver, not much in common yet.
  * 12-May-95: Added defines for SunOS's Adjunct password file
  *            Dale A. Harris <rodmur@ecst.csuchico.edu>
@@ -78,7 +78,13 @@ ERROR ! Define PROGCLASS, HACK_INIT, and HACK_DRAW before including xlockmore.h
 
 #ifdef USE_GL
 #include <GL/glx.h>
+#ifdef __cplusplus
+  extern "C" {
+#endif
 extern GLXContext *init_GL(ModeInfo *);
+#ifdef __cplusplus
+  }
+#endif
 
 #define FreeAllGL(dpy)		/* */
 #endif
@@ -113,16 +119,24 @@ extern GLXContext *init_GL(ModeInfo *);
 
 /* The globals that screenhack.c expects (initialized by xlockmore.c).
  */
+#ifdef __cplusplus
+  extern "C" {
+#endif
 char       *defaults[100];
 XrmOptionDescRec options[100];
+#ifdef __cplusplus
+  }
+#endif
 
 #define XSCREENSAVER_PREF 1	/* Disagreements handled with this  :) */
 
 #else /* STANDALONE */
-#include <X11/Xlib.h>
+#include <sys/signal.h>
+# include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xresource.h>
+#include <math.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -204,10 +218,10 @@ XrmOptionDescRec options[100];
 #define DEF_NONE3D "Black"
 #endif
 #ifndef DEF_RIGHT3D
-#define DEF_RIGHT3D "Red"
+#define DEF_RIGHT3D "Blue"
 #endif
 #ifndef DEF_LEFT3D
-#define DEF_LEFT3D "Blue"
+#define DEF_LEFT3D "Red"
 #endif
 #ifndef DEF_BOTH3D
 #define DEF_BOTH3D "Magenta"
@@ -249,15 +263,17 @@ XrmOptionDescRec options[100];
 #define ABS(a)  ((a<0)?(-(a)):(a))
 #endif
 
-#include <math.h>
 #ifndef M_E
-#define M_E    2.7182818284590452354
+#define M_E         2.7182818284590452354	/* e */
+#endif
+#ifndef M_LN2
+#define M_LN2       0.69314718055994530942	/* log e2 */
 #endif
 #ifndef M_PI
-#define M_PI   3.14159265358979323846
+#define M_PI        3.14159265358979323846	/* pi */
 #endif
 #ifndef M_PI_2
-#define M_PI_2 1.57079632679489661923
+#define M_PI_2      1.57079632679489661923	/* pi/2 */
 #endif
 #ifdef MATHF
 #define SINF(n) sinf(n)
@@ -297,6 +313,9 @@ XrmOptionDescRec options[100];
 #include <string.h>
 #include <stdlib.h>
 #if (defined( SYSV ) || defined( SVR4 )) && defined( SOLARIS2 ) && !defined( LESS_THAN_SOLARIS2_5 )
+#ifdef __cplusplus
+  extern "C" {
+#endif
 struct hostent {
 	char       *h_name;	/* official name of host */
 	char      **h_aliases;	/* alias list */
@@ -304,6 +323,9 @@ struct hostent {
 	int         h_length;	/* length of address */
 	char      **h_addr_list;	/* list of addresses from name server */
 };
+#ifdef __cplusplus
+  }
+#endif
 
 #else
 #include <netdb.h>		/* Gives problems on Solaris 2.6 with gcc */
@@ -364,6 +386,9 @@ struct hostent {
 #define t_Int           2
 #define t_Bool          3
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
 typedef struct {
 	caddr_t    *var;
 	char       *name;
@@ -408,6 +433,9 @@ typedef struct {
 } ModStruct;
 
 #endif
+#ifdef __cplusplus
+  }
+#endif
 
 /* this must follow definition of ModeSpecOpt */
 #include "mode.h"
@@ -419,9 +447,16 @@ typedef struct {
 #undef MESA
 #endif
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+extern char * ProgramName;
 extern void getResources(Display ** displayp, int argc, char **argv);
 extern void finish(Display * display, Bool closeDisplay);
-extern void error(char *buf);
+extern void error(const char *buf);
+#ifdef __cplusplus
+  }
+#endif
 
 #ifdef VMS
 #define FORK vfork
@@ -449,7 +484,13 @@ extern void error(char *buf);
 #endif
 
 #ifdef USE_MB
+#ifdef __cplusplus
+  extern "C" {
+#endif
 extern XFontSet fontset;
+#ifdef __cplusplus
+  }
+#endif
 
 #define XTextWidth(font,string,length) \
 		XmbTextEscapement(fontset,string,length)

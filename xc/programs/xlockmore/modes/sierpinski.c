@@ -47,6 +47,8 @@ static const char sccsid[] = "@(#)sierpinski.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_sierpinski
+
 ModeSpecOpt sierpinski_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -199,3 +201,5 @@ refresh_sierpinski(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_sierpinski */

@@ -12,7 +12,7 @@
 ###   (c) Copyright 1993, 1994 Novell, Inc.
 ###
 ### 
-###   $Revision: 1.1.1.2 $
+###   $Revision: 1.1.1.3 $
 ###
 #############################################################################
 
@@ -172,6 +172,7 @@ StartDtscreenCoral \
 StartDtscreenCrystal \
 StartDtscreenDaisy \
 StartDtscreenDclock \
+StartDtscreenDecay \
 StartDtscreenDeco \
 StartDtscreenDemon \
 StartDtscreenDilemma \
@@ -194,9 +195,11 @@ StartDtscreenHyper \
 StartDtscreenIco \
 StartDtscreenIfs \
 StartDtscreenImage \
+StartDtscreenInvert \
 StartDtscreenJulia \
 StartDtscreenKaleid \
 StartDtscreenKumppa \
+StartDtscreenLament \
 StartDtscreenLaser \
 StartDtscreenLife \
 StartDtscreenLife1d \
@@ -205,6 +208,7 @@ StartDtscreenLightning \
 StartDtscreenLisa \
 StartDtscreenLissie \
 StartDtscreenLoop \
+StartDtscreenLyapunov \
 StartDtscreenMandelbrot \
 StartDtscreenMarquee \
 StartDtscreenMaze \
@@ -237,6 +241,7 @@ StartDtscreenStrange \
 StartDtscreenSuperquadrics \
 StartDtscreenSwarm \
 StartDtscreenSwirl \
+StartDtscreenTetris \
 StartDtscreenThornbird \
 StartDtscreenTriangle \
 StartDtscreenTube \
@@ -247,6 +252,7 @@ StartDtscreenWator \
 StartDtscreenWire \
 StartDtscreenWorld \
 StartDtscreenWorm \
+StartDtscreenXjack \
 StartDtscreenBlank \
 StartDtscreenBomb \
 StartDtscreenRandom"

@@ -59,6 +59,8 @@ static const char sccsid[] = "@(#)worm.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_worm
+
 ModeSpecOpt worm_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -450,3 +452,5 @@ refresh_worm(ModeInfo * mi)
 		}
 	}
 }
+
+#endif /* MODE_worm */

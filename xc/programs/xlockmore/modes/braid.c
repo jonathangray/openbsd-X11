@@ -47,6 +47,8 @@ static const char sccsid[] = "@(#)braid.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_braid
+
 ModeSpecOpt braid_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -439,3 +441,5 @@ refresh_braid(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_braid */

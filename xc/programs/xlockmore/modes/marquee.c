@@ -46,6 +46,8 @@ static const char sccsid[] = "@(#)marquee.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "iostuff.h"
 
+#ifdef MODE_marquee
+
 ModeSpecOpt marquee_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -510,3 +512,5 @@ release_marquee(ModeInfo * mi)
 		mode_font = None;
 	}
 }
+
+#endif /* MODE_marquee */

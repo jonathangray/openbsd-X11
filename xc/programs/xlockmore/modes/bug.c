@@ -51,6 +51,8 @@ static const char sccsid[] = "@(#)bug.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "automata.h"
 
+#ifdef MODE_bug
+
 ModeSpecOpt bug_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -61,6 +63,10 @@ ModStruct   bug_description =
  75000, 10, 32767, -4, 64, 1.0, "",
  "Shows Palmiter's bug evolution and garden of Eden", 0, NULL};
 
+#endif
+
+#if DEBUG
+#include <assert.h>
 #endif
 
 extern int  neighbors;
@@ -576,27 +582,27 @@ flush_buglist(bugfarmstruct * bp)
 }
 
 static int
-dirbug(bugstruct * info, int neighbors)
+dirbug(bugstruct * info, int local_neighbors)
 {
 	double      sum = 0.0, prob;
 	int         i;
 
 	prob = (double) LRAND() / MAXRAND;
-	for (i = 0; i < neighbors; i++) {
+	for (i = 0; i < local_neighbors; i++) {
 		sum += info->gene_prob[i];
 		if (prob < sum)
 			return i;
 	}
-	return neighbors - 1;	/* Could miss due to rounding */
+	return local_neighbors - 1;	/* Could miss due to rounding */
 }
 
 static void
-mutatebug(bugstruct * info, int neighbors)
+mutatebug(bugstruct * info, int local_neighbors)
 {
 	double      sum = 0.0;
 	int         gene;
 
-	gene = NRAND(neighbors);
+	gene = NRAND(local_neighbors);
 	if (LRAND() & 1) {
 		if (info->gene[gene] == MAXGENE)
 			return;
@@ -606,9 +612,9 @@ mutatebug(bugstruct * info, int neighbors)
 			return;
 		info->gene[gene]--;
 	}
-	for (gene = 0; gene < neighbors; gene++)
+	for (gene = 0; gene < local_neighbors; gene++)
 		sum += genexp[info->gene[gene] + MAXGENE];
-	for (gene = 0; gene < neighbors; gene++)
+	for (gene = 0; gene < local_neighbors; gene++)
 		info->gene_prob[gene] = genexp[info->gene[gene] + MAXGENE] / sum;
 }
 
@@ -828,9 +834,15 @@ draw_bug(ModeInfo * mi)
 		hrow = bp->currbug->info.row;
 		colrow = hcol + hrow * bp->nhcols;
 		if (bp->currbug->info.energy-- < 0) {	/* Time to die, Bug */
+#if DEBUG
+			assert(bp->currbug == bp->arr[colrow]);
+#endif
 			/* back up one or else in void */
 			bp->currbug = bp->currbug->previous;
 			removefrom_buglist(bp, bp->arr[colrow]);
+#if DEBUG
+			assert(bp->arr[colrow] == 0);
+#endif
 			bp->arr[colrow] = 0;
 			eraseabug(mi, hcol, hrow);
 			bp->n--;
@@ -844,7 +856,8 @@ draw_bug(ModeInfo * mi)
 				absdir = (bp->currbug->info.direction +
 					  dirbug(&bp->currbug->info, bp->neighbors)) % bp->neighbors;
 			} while (!hexcmove(bp, hcol, hrow, absdir * ANGLES / bp->neighbors,
-			  &nhcol, &nhrow) || has_neighbor(bp, nhcol, nhrow));
+			  &nhcol, &nhrow) || has_neighbor(bp, nhcol, nhrow) ||
+			  bp->arr[nhcol + nhrow * bp->nhcols]);
 			bp->currbug->info.age++;
 			bp->currbug->info.energy--;
 			if (tryit <= ENOUGH) {
@@ -858,6 +871,9 @@ draw_bug(ModeInfo * mi)
 				bp->currbug->info.col = nhcol;
 				bp->currbug->info.row = nhrow;
 				bp->currbug->info.direction = absdir;
+#if DEBUG
+				assert(bp->arr[ncolrow] == 0);
+#endif
 				bp->arr[ncolrow] = bp->currbug;
 				if (bp->currbug->info.energy > STRONG &&
 				    bp->currbug->info.age > MATURE) {	/* breed */
@@ -948,3 +964,5 @@ refresh_bug(ModeInfo * mi)
 		bp->redrawpos = 0;
 	}
 }
+
+#endif /* MODE_bug */

@@ -40,6 +40,8 @@ static const char sccsid[] = "@(#)ball.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_ball
+
 ModeSpecOpt ball_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -505,3 +507,5 @@ refresh_ball(ModeInfo * mi)
 	if (bp->painted)
 		MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_ball */

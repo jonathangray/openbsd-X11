@@ -43,6 +43,8 @@ static const char sccsid[] = "@(#)world.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_world
+
 ModeSpecOpt world_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -280,3 +282,5 @@ refresh_world(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_world */

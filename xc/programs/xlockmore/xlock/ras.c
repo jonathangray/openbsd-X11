@@ -13,7 +13,7 @@ static const char sccsid[] = "@(#)ras.c	4.00 97/01/01 xlockmore";
  * Revision History:
  *  3-Mar-96: Added random image selection.
  * 12-Dec-95: Modified to be a used in more than one mode
- *            <joukj@crys.chem.uva.nl>
+ *            <joukj@hrem.stm.tudelft.nl>
  * 22-May-95: Written.
  */
 

@@ -9,7 +9,7 @@
  *
  * Revision History:
  * 12-Dec-95: Modified to be a used in more than one mode
- *            <joukj@crys.chem.uva.nl>
+ *            <joukj@hrem.stm.tudelft.nl>
  * 22-May-95: Written.
  */
 

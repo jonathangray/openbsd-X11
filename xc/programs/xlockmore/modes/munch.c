@@ -60,6 +60,8 @@ static const char sccsid[] = "@(#)munch.c 4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* from the xlockmore distribution */
 #endif /* !STANDALONE */
 
+#ifdef MODE_munch
+
 ModeSpecOpt munch_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -72,7 +74,7 @@ ModStruct   munch_description =
 
 #endif
 
-#if 0
+#if DEBUG
 #include <assert.h>
 #endif
 
@@ -123,7 +125,7 @@ munchBit(ModeInfo * mi, int width,	/* pixels */
 		   while that might be a pretty feature, I didn't want it to do
 		   that yet.  if these trigger, please let me know.
 		 */
-#if 0
+#if DEBUG
 		assert(drawX >= 0 && drawX < MI_WIDTH(mi));
 		assert(drawY >= 0 && drawY < MI_HEIGHT(mi));
 #endif
@@ -258,3 +260,5 @@ release_munch(ModeInfo * mi)
 		munches = NULL;
 	}
 }
+
+#endif /* MODE_munch */

@@ -60,6 +60,8 @@ static const char sccsid[] = "@(#)life3d.c	4.07 98/01/18 xlockmore";
 #endif /* STANDALONE */
 #include "iostuff.h"
 
+#ifdef MODE_life3d
+
 #if 1
 #define DEF_RULE3D  "G"		/* All rules with gliders */
 #else
@@ -1307,12 +1309,13 @@ parseRule(ModeInfo * mi)
 }
 
 static void
-parseFile()
+parseFile(void)
 {
 	FILE       *file;
 	static Bool done = False;
 	int         firstx = 0, firsty = 0, x = 0, y = 0, z = 0, i = 0;
-	char        line[256], c, cprev = ' ';
+	int         c = 0, cprev = ' ';
+	char        line[256];
 
 	if (done)
 		return;
@@ -2312,3 +2315,5 @@ change_life3d(ModeInfo * mi)
 
 	DrawScreen(mi);
 }
+
+#endif /* MODE_life3d */

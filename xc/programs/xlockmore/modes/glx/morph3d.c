@@ -39,9 +39,7 @@ static const char sccsid[] = "@(#)morph3d.c	4.07 97/11/24 xlockmore";
  * Since I'm not a native English speaker, my apologies for any grammatical
  * mistake.
  *
- * My e-mail addresses are
- * vianna@cat.cbpf.br 
- *         and
+ * My e-mail address is
  * m-vianna@usa.net
  *
  * Marcelo F. Vianna (Feb-13-1997)
@@ -78,7 +76,7 @@ static const char sccsid[] = "@(#)morph3d.c	4.07 97/11/24 xlockmore";
 #include "vis.h"
 #endif /* !STANDALONE */
 
-#ifdef USE_GL
+#ifdef MODE_moebius
 
 ModeSpecOpt morph3d_opts =
 {0, NULL, 0, NULL, NULL};

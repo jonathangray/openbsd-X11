@@ -74,6 +74,8 @@ If one of these are hit penrose will reinitialize.
 #include "xlock.h"		/* from the xlockmore distribution */
 #endif /* !STANDALONE */
 
+#ifdef MODE_penrose
+
 #define DEF_AMMANN  "False"
 
 static Bool ammann;
@@ -349,8 +351,8 @@ add_unit_vec(angle_c dir, int *fived)
  * This computes screen coordinates from 5D representation.  Note that X
  * uses left-handed coordinates (y increases downwards).
  */
-static      XPoint
-fived_to_loc(int fived[], tiling_c * tp)
+static void
+fived_to_loc(int fived[], tiling_c * tp, XPoint *pt)
 {
 	static fcoord_c fived_table[5] =
 	{
@@ -359,8 +361,8 @@ fived_to_loc(int fived[], tiling_c * tp)
 	register int i;
 	register float r;
 	register fcoord_c offset;
-	XPoint      pt = tp->origin;
 
+	*pt = tp->origin;
 	offset.x = 0.0;
 	offset.y = 0.0;
 	if (fived_table[0].x == .0)
@@ -373,9 +375,8 @@ fived_to_loc(int fived[], tiling_c * tp)
 		offset.x += r * fived_table[i].x;
 		offset.y -= r * fived_table[i].y;
 	}
-	pt.x += (int) (offset.x + .5);
-	pt.y += (int) (offset.y + .5);
-	return pt;
+	(*pt).x += (int) (offset.x + .5);
+	(*pt).y += (int) (offset.y + .5);
 }
 
 
@@ -493,7 +494,7 @@ init_penrose(ModeInfo * mi)
 	fp = fp->next;
 	i = NRAND(5);
 	fp->fived[i] = 2 * NRAND(2) - 1;
-	fp->loc = fived_to_loc(fp->fived, tp);
+	fived_to_loc(fp->fived, tp, &(fp->loc));
 	/* That's it!  We have created our first edge. */
 }
 
@@ -920,7 +921,7 @@ alloc_vertex(ModeInfo * mi, angle_c dir, fringe_node_c * from, tiling_c * tp)
 	}
 	*v = *from;
 	add_unit_vec(dir, v->fived);
-	v->loc = fived_to_loc(v->fived, tp);
+	fived_to_loc(v->fived, tp, &(v->loc));
 	if (v->loc.x < 0 || v->loc.y < 0
 	    || v->loc.x >= tp->width || v->loc.y >= tp->height) {
 		v->off_screen = True;
@@ -1262,15 +1263,15 @@ draw_penrose(ModeInfo * mi)
 		while (i++ < n)
 			p = p->next;
 	} else {
-		fringe_node_c *p = tp->fringe.nodes;
+		fringe_node_c *fringe_p = tp->fringe.nodes;
 
 		n = NRAND(tp->fringe.n_nodes);
 		i = 0;
 		for (; i <= n; i++)
 			do {
-				p = p->next;
-			} while (p->off_screen);
-		add_random_tile(p, mi);
+				fringe_p = fringe_p->next;
+			} while (fringe_p->off_screen);
+		add_random_tile(fringe_p, mi);
 		tp->failures = 0;
 		return;
 	}
@@ -1297,3 +1298,5 @@ release_penrose(ModeInfo * mi)
 		tilings = NULL;
 	}
 }
+
+#endif /* MODE_penrose */

@@ -6,7 +6,6 @@ static const char sccsid[] = "@(#)ico.c	4.07 97/11/24 xlockmore";
 
 #endif
 
-
 /*-
  * Copyright (c) 1987  X Consortium
  *
@@ -24,7 +23,7 @@ static const char sccsid[] = "@(#)ico.c	4.07 97/11/24 xlockmore";
  *
  * Revision History:
  * 10-May-97: Compatible with xscreensaver
- * 25-Mar-97:  David Bagley <bagleyd@bigfoot.com>
+ * 25-Mar-97:  David Bagley <bagleyd@tux.org>
  *             Took ico from the X11R6 distribution.  Stripped out
  *             anything complicated... to be added back in later.
  *             added dodecahedron, tetrahedron, and star octahedron.
@@ -105,6 +104,8 @@ SOFTWARE.
 #include "xlock.h"		/* in xlockmore distribution */
 
 #endif /* STANDALONE */
+
+#ifdef MODE_ico
 
 #define DEF_FACES "False"
 #define DEF_EDGES "True"	/* Wire frame edges, set true if faces false. */
@@ -923,3 +924,5 @@ change_ico(ModeInfo * mi)
 
 	initPoly(mi, ip->poly, ip->polyW, ip->polyH);
 }
+
+#endif /* MODE_ico */

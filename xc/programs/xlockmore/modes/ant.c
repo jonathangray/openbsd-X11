@@ -72,6 +72,8 @@ static const char sccsid[] = "@(#)ant.c	4.11 98/06/18 xlockmore";
 #endif /* STANDALONE */
 #include "automata.h"
 
+#ifdef MODE_ant
+
 /*-
  * neighbors of 0 randomizes it between 3, 4 and 6.
  * 8, 9 12 are available also but not recommended.
@@ -706,33 +708,33 @@ RandomSoup(mi)
 #endif
 
 static short
-fromTableDirection(unsigned char dir, int neighbors)
+fromTableDirection(unsigned char dir, int local_neighbors)
 {
 	switch (dir) {
 		case FS:
 			return 0;
 		case TRS:
-			return (ANGLES / neighbors);
+			return (ANGLES / local_neighbors);
 		case THRS:
-			return (ANGLES / 2 - ANGLES / neighbors);
+			return (ANGLES / 2 - ANGLES / local_neighbors);
 		case TBS:
 			return (ANGLES / 2);
 		case THLS:
-			return (ANGLES / 2 + ANGLES / neighbors);
+			return (ANGLES / 2 + ANGLES / local_neighbors);
 		case TLS:
-			return (ANGLES - ANGLES / neighbors);
+			return (ANGLES - ANGLES / local_neighbors);
 		case SF:
 			return ANGLES;
 		case STR:
-			return (ANGLES + ANGLES / neighbors);
+			return (ANGLES + ANGLES / local_neighbors);
 		case STHR:
-			return (3 * ANGLES / 2 - ANGLES / neighbors);
+			return (3 * ANGLES / 2 - ANGLES / local_neighbors);
 		case STB:
 			return (3 * ANGLES / 2);
 		case STHL:
-			return (3 * ANGLES / 2 + ANGLES / neighbors);
+			return (3 * ANGLES / 2 + ANGLES / local_neighbors);
 		case STL:
-			return (2 * ANGLES - ANGLES / neighbors);
+			return (2 * ANGLES - ANGLES / local_neighbors);
 		default:
 			(void) fprintf(stderr, "wrong direction %d\n", dir);
 	}
@@ -802,9 +804,9 @@ getTurk(ModeInfo * mi, int i)
 	antfarmstruct *ap = &antfarms[MI_SCREEN(mi)];
 	int         power2, j, number, total;
 
-	/* To force a number, say <i = 2;> has  i + 2 (or 4) digits in binary */
+	/* To force a number, say <i = 2;> has  i + 2 (or 4) binary digits */
 	power2 = 1 << (i + 1);
-	/* Dont want numbers which in binary are all 1's. */
+	/* Do not want numbers which in binary are all 1's. */
 	number = NRAND(power2 - 1) + power2;
 	/* To force a particular number, say <number = 10;> */
 
@@ -1151,3 +1153,5 @@ refresh_ant(ModeInfo * mi)
 		ap->redrawpos = 0;
 	}
 }
+
+#endif /* MODE_ant */

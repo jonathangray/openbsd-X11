@@ -17,7 +17,6 @@ static const char sccsid[] = "@(#)vis.c	4.07 97/01/30 xlockmore";
 #include "xlock.h"
 #include "vis.h"
 
-extern Bool mono;
 extern Bool verbose;
 extern Bool debug;
 
@@ -176,7 +175,7 @@ static Bool *glOK = NULL;
  */
 
 static XVisualInfo *
-getGLVisual(Display * display, int screen, XVisualInfo * wantVis, int mono)
+getGLVisual(Display * display, int screen, XVisualInfo * wantVis, int monochrome)
 {
 	if (wantVis) {
 		/* Use glXGetConfig() to see if wantVis has what we need already. */
@@ -194,7 +193,7 @@ getGLVisual(Display * display, int screen, XVisualInfo * wantVis, int mono)
 		}
 	}
 	/* If wantVis is useless, try glXChooseVisual() */
-	if (mono) {
+	if (monochrome) {
 		/* Monochrome display - use color index mode */
 		int         attribList[] =
 		{GLX_DOUBLEBUFFER, None};
@@ -326,6 +325,8 @@ FreeAllGL(ModeInfo * mi)
 
 #endif
 
+extern Bool mono;
+
 /*- 
  * default_visual_info
  *
@@ -340,7 +341,6 @@ FreeAllGL(ModeInfo * mi)
  * Returns a list of XVisualInfo structures or NULL on failure. Free the list
  *   with XFree.
  */
-
 void
 defaultVisualInfo(Display * display, int screen)
 {
@@ -462,7 +462,7 @@ defaultVisualInfo(Display * display, int screen)
 }
 
 /* has_writeable was hacked out of xscreensaver and modified for xlockmore
- * by Jouk Jansen <joukj@crys.chem.uva.nl>
+ * by Jouk Jansen <joukj@hrem.stm.tudelft.nl>
  *
  * xscreensaver, Copyright (c) 1993, 1994, 1995, 1996, 1997, 1998
  *  by Jamie Zawinski <jwz@jwz.org>
@@ -492,4 +492,5 @@ has_writable_cells(ModeInfo * mi)
 		default:
 			abort();
 	}
+	return False;	
 }

@@ -49,6 +49,8 @@ static const char sccsid[] = "@(#)flame.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_flame
+
 ModeSpecOpt flame_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -342,3 +344,5 @@ refresh_flame(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_flame */

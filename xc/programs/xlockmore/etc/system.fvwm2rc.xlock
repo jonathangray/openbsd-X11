@@ -12,7 +12,7 @@ AddToMenu "Automata-Lock"
 +	"Bee Truchet"	Exec	xlock -mode ant -neighbors 6 -truchet
 +	"Bug"		Exec	xlock -mode bug
 +	"Demon"		Exec	xlock -mode demon
-+	"Dilemma"		Exec	xlock -mode dilemma
++	"Dilemma"	Exec	xlock -mode dilemma
 +	"Life"		Exec	xlock -mode life
 +	"Life Callahan"	Exec	xlock -mode life -callahan -size 7
 +	"Life1d"	Exec	xlock -mode life1d
@@ -26,17 +26,18 @@ AddToMenu "Automata-Lock"
 AddToMenu "Fractal-Lock"
 +	"Fractal-Lock"	Title
 +	"Coral"		Exec	xlock -mode coral
-+	"Discrete"		Exec	xlock -mode discrete
++	"Discrete"	Exec	xlock -mode discrete
 +	"Drift"		Exec	xlock -mode drift -fullrandom
 +	"Flame"		Exec	xlock -mode flame
 +	"Flow"		Exec	xlock -mode flow
 +	"Forest"	Exec	xlock -mode forest
 +	"Hop"		Exec	xlock -mode hop -fullrandom
-+	"IFS"	Exec	xlock -mode ifs
++	"IFS"		Exec	xlock -mode ifs
 +	"Julia"		Exec	xlock -mode julia +mouse
 +	"Juliaptr"	Exec	xlock -mode julia -mouse
 +	"Kumppa"	Exec	xlock -mode kumppa
 +	"Lightning"	Exec	xlock -mode lightning
++	"Lyapunov"	Exec	xlock -mode lyapunov -install
 +	"Mandelbrot"	Exec	xlock -mode mandelbrot -install
 +	"Mountain"	Exec	xlock -mode mountain
 +	"Sierpinski"	Exec	xlock -mode sierpinski 
@@ -44,7 +45,7 @@ AddToMenu "Fractal-Lock"
 +	"Thornbird"	Exec	xlock -mode thornbird
 +	"Triangle"	Exec	xlock -mode triangle
 +	"Turtle"	Exec	xlock -mode turtle
-+	"Vines"	Exec	xlock -mode vines
++	"Vines"		Exec	xlock -mode vines
 +	"Random"	Exec	xlock -mode random -modelist allfractal -fullrandom
 
 AddToMenu "Geometry-Lock"
@@ -56,13 +57,13 @@ AddToMenu "Geometry-Lock"
 +	"Ico"		Exec	xlock -mode ico
 +	"Kaleid"	Exec	xlock -mode kaleid
 +	"Laser"		Exec	xlock -mode laser
-+	"Lisa"	Exec	xlock -mode lisa
++	"Lisa"		Exec	xlock -mode lisa
 +	"Lissie"	Exec	xlock -mode lissie
 +	"Penrose"	Exec	xlock -mode penrose +ammann
 +	"Penrose Ammann"	Exec xlock -mode penrose -ammann
 +	"Petal"		Exec	xlock -mode petal
 +	"Qix"		Exec	xlock -mode qix +complete
-+	"Qix complete"		Exec	xlock -mode qix -complete
++	"Qix complete"	Exec	xlock -mode qix -complete
 +	"Rotor"		Exec	xlock -mode rotor
 +	"Shape"		Exec	xlock -mode shape
 +	"Sphere"	Exec	xlock -mode sphere
@@ -96,6 +97,7 @@ AddToMenu "Assorted-Lock"
 +	"Daisy"		Exec	xlock -mode daisy
 +	"Dclock"	Exec	xlock -mode dclock
 +	"Deco"		Exec	xlock -mode deco
++	"Decay"		Exec	xlock -mode decay
 +	"Eyes"		Exec	xlock -mode eyes +mouse
 +	"Eyesptr"	Exec	xlock -mode eyes -mouse
 +	"Goop"		Exec	xlock -mode goop
@@ -107,13 +109,15 @@ AddToMenu "Assorted-Lock"
 +	"Pyro3d"	Exec	xlock -mode pyro -use3d
 +	"Roll"		Exec	xlock -mode roll
 +	"Slip"		Exec	xlock -mode slip
-+	"Starfish"		Exec	xlock -mode starfish -install
++	"Starfish"	Exec	xlock -mode starfish -install
 +	"Swarm"		Exec	xlock -mode swarm +mouse
 +	"Swarmptr"	Exec	xlock -mode swarm -mouse
 +	"Swirl"		Exec	xlock -mode swirl -install
++	"Tetris"	Exec	xlock -mode tetris
 +	"Tube"		Exec	xlock -mode tube -install
 +	"Worm"		Exec	xlock -mode worm +use3d
 +	"Worm3d"	Exec	xlock -mode worm -use3d
++	"Xjack"		Exec	xlock -mode xjack
 
 AddToMenu "XPM-Lock"
 +	"XPM-Lock"	Title	
@@ -122,38 +126,44 @@ AddToMenu "XPM-Lock"
 +	"Image"		Exec	xlock -mode image
 +	"Flag"		Exec	xlock -mode flag
 +	"Life"		Exec	xlock -mode life
-+	"Life1d"		Exec	xlock -mode life1d
++	"Life1d"	Exec	xlock -mode life1d
 +	"Maze"		Exec	xlock -mode maze
 +	"Puzzle"	Exec	xlock -mode puzzle
-+ "Random"   Exec	xlock -mode random -modelist allxpm -fullrandom
++	"Random"	Exec	xlock -mode random -modelist allxpm -fullrandom
 
 AddToMenu "GL-Lock"
 +	"GL-Lock"	Title	
-+	"Atlantis"		Exec	xlock -mode atlantis
-+	"Bubble3d"		Exec	xlock -mode bubble3d
++	"Atlantis"	Exec	xlock -mode atlantis
++	"Bubble3d"	Exec	xlock -mode bubble3d
 +	"Cage"		Exec	xlock -mode cage
 +	"Gears"		Exec	xlock -mode gears
-+	"Moebius"		Exec	xlock -mode moebius
-+	"Morph3d"		Exec	xlock -mode morph3d
++	"Invert"	Exec	xlock -mode invert
++	"Lament"	Exec	xlock -mode lament
++	"Moebius"	Exec	xlock -mode moebius
++	"Morph3d"	Exec	xlock -mode morph3d
 +	"Pipes"		Exec	xlock -mode pipes
 +	"Rubik"		Exec	xlock -mode rubik
-+	"Sproingies"		Exec	xlock -mode sproingies
-+	"Stairs"		Exec	xlock -mode stairs
-+	"Superquadrics"		Exec	xlock -mode superquadrics
-+ "Random"   Exec	xlock -mode random -modelist allgl -fullrandom
++	"Sproingies"	Exec	xlock -mode sproingies
++	"Stairs"	Exec	xlock -mode stairs
++	"Superquadrics"	Exec	xlock -mode superquadrics
++	"Random"	Exec	xlock -mode random -modelist allgl -fullrandom
 
 AddToMenu "Marquee-Message-Lock"
 +	"Message-Lock"	Title	
-+	"Back Soon"		Exec	xlock -mode marquee -message "$LOGNAME will be back soon."
-+	"Overnight"		Exec	xlock -mode marquee -message "$LOGNAME will be back in the morning."
++	"Back Soon"	Exec	xlock -mode marquee -message "$LOGNAME will be back soon."
++	"Overnight"	Exec	xlock -mode marquee -message "$LOGNAME will be back in the morning."
 +	"Rude"		Exec	xlock -mode marquee -message "$LOGNAME not here, please go away!"
 
 AddToMenu "Nose-Message-Lock"
-+ "Nose-Message"  Title
 +	"Message-Lock"	Title	
-+	"Back Soon"		Exec	xlock -mode nose -message "$LOGNAME will be back soon."
-+	"Overnight"		Exec	xlock -mode nose -message "$LOGNAME will be back in the morning."
++	"Back Soon"	Exec	xlock -mode nose -message "$LOGNAME will be back soon."
++	"Overnight"	Exec	xlock -mode nose -message "$LOGNAME will be back in the morning."
 +	"Rude"		Exec	xlock -mode nose -message "$LOGNAME not here, please go away!"
+
+AddToMenu "Xjack-Message-Lock"
++	"Xjack-Lock"	Title	
++	"Crazy Boy"	Exec	xlock -mode xjack -message "All work and no play makes $LOGNAME a dull boy."
++	"Crazy Girl"	Exec	xlock -mode xjack -message "All work and no play makes $LOGNAME a dull girl."
 
 AddToMenu "Special-Lock"
 +	"Special-Lock"	Title	
@@ -174,7 +184,7 @@ AddToMenu "Automata-Saver"
 +	"Bee Truchet"	Exec	xlock -nolock -mode ant -neighbors 6 -truchet
 +	"Bug"		Exec	xlock -nolock -mode bug
 +	"Demon"		Exec	xlock -nolock -mode demon
-+	"Dilemma"		Exec	xlock -nolock -mode dilemma
++	"Dilemma"	Exec	xlock -nolock -mode dilemma
 +	"Life"		Exec	xlock -nolock -mode life
 +	"Life Callahan"	Exec	xlock -nolock -mode life -callahan -size 7
 +	"Life1d"	Exec	xlock -nolock -mode life1d
@@ -188,7 +198,7 @@ AddToMenu "Automata-Saver"
 AddToMenu "Fractal-Saver"
 +	"Fractal-Saver"	Title
 +	"Coral"		Exec	xlock -nolock -mode coral
-+	"Discrete"		Exec	xlock -nolock -mode discrete
++	"Discrete"	Exec	xlock -nolock -mode discrete
 +	"Drift"		Exec	xlock -nolock -mode drift -fullrandom
 +	"Flame"		Exec	xlock -nolock -mode flame
 +	"Flow"		Exec	xlock -nolock -mode flow
@@ -199,10 +209,11 @@ AddToMenu "Fractal-Saver"
 +	"Juliaptr"	Exec	xlock -nolock -mode julia -mouse
 +	"Kumppa"	Exec	xlock -nolock -mode kumppa
 +	"Lightning"	Exec	xlock -nolock -mode lightning
++	"Lyapunov"	Exec	xlock -nolock -mode lyapunov -install
 +	"Mandelbrot"	Exec	xlock -nolock -mode mandelbrot -install
 +	"Mountain"	Exec	xlock -nolock -mode mountain
 +	"Sierpinski"	Exec	xlock -nolock -mode sierpinski
-+	"Strange"		Exec	xlock -nolock -mode strange
++	"Strange"	Exec	xlock -nolock -mode strange
 +	"Thornbird"	Exec	xlock -nolock -mode thornbird
 +	"Triangle"	Exec	xlock -nolock -mode triangle
 +	"Turtle"	Exec	xlock -nolock -mode turtle
@@ -218,13 +229,13 @@ AddToMenu "Geometry-Saver"
 +	"Ico"		Exec	xlock -nolock -mode ico
 +	"Kaleid"	Exec	xlock -nolock -mode kaleid
 +	"Laser"		Exec	xlock -nolock -mode laser
-+	"Lisa"	Exec	xlock -nolock -mode lisa
++	"Lisa"		Exec	xlock -nolock -mode lisa
 +	"Lissie"	Exec	xlock -nolock -mode lissie
 +	"Penrose"	Exec	xlock -nolock -mode penrose +ammann
 +	"Penrose Ammann"	Exec xlock -nolock -mode penrose -ammann
 +	"Petal"		Exec	xlock -nolock -mode petal
 +	"Qix"		Exec	xlock -nolock -mode qix +complete
-+	"Qix complete"		Exec	xlock -nolock -mode qix -complete
++	"Qix complete"	Exec	xlock -nolock -mode qix -complete
 +	"Rotor"		Exec	xlock -nolock -mode rotor
 +	"Shape"		Exec	xlock -nolock -mode shape
 +	"Sphere"	Exec	xlock -nolock -mode sphere
@@ -258,6 +269,7 @@ AddToMenu "Assorted-Saver"
 +	"Daisy"		Exec	xlock -nolock -mode daisy
 +	"Dclock"	Exec	xlock -nolock -mode dclock
 +	"Deco"		Exec	xlock -nolock -mode deco
++	"Decay"		Exec	xlock -nolock -mode decay
 +	"Eyes"		Exec	xlock -nolock -mode eyes +mouse
 +	"Eyesptr"	Exec	xlock -nolock -mode eyes -mouse
 +	"Goop"		Exec	xlock -nolock -mode goop
@@ -269,13 +281,15 @@ AddToMenu "Assorted-Saver"
 +	"Pyro3d"	Exec	xlock -nolock -mode pyro -use3d
 +	"Roll"		Exec	xlock -nolock -mode roll
 +	"Slip"		Exec	xlock -nolock -mode slip
-+	"Starfish"		Exec	xlock -nolock -mode starfish -install
++	"Starfish"	Exec	xlock -nolock -mode starfish -install
 +	"Swarm"		Exec	xlock -nolock -mode swarm +mouse
 +	"Swarmptr"	Exec	xlock -nolock -mode swarm -mouse
 +	"Swirl"		Exec	xlock -nolock -mode swirl -install
++	"Tetris"	Exec	xlock -nolock -mode tetris
 +	"Tube"		Exec	xlock -nolock -mode tube -install
 +	"Worm"		Exec	xlock -nolock -mode worm +use3d
 +	"Worm3d"	Exec	xlock -nolock -mode worm -use3d
++	"Xjack"		Exec	xlock -nolock -mode xjack
 
 AddToMenu "XPM-Saver"
 +	"XPM-Saver"	Title	
@@ -284,24 +298,25 @@ AddToMenu "XPM-Saver"
 +	"Image"		Exec	xlock -nolock -mode image
 +	"Flag"		Exec	xlock -nolock -mode flag
 +	"Life"		Exec	xlock -nolock -mode life
-+	"Life1d"		Exec	xlock -nolock -mode life1d
++	"Life1d"	Exec	xlock -nolock -mode life1d
 +	"Maze"		Exec	xlock -nolock -mode maze
 +	"Puzzle"	Exec	xlock -nolock -mode puzzle
-+ "Random"   Exec	xlock -nolock -mode random -modelist allxpm -fullrandom
++ "Random"		Exec	xlock -nolock -mode random -modelist allxpm -fullrandom
 
 AddToMenu "GL-Saver"
 +	"GL-Saver"	Title	
-+	"Atlantis"		Exec	xlock -nolock -mode atlantis
-+	"Bubble3d"		Exec	xlock -nolock -mode bubble3d
++	"Atlantis"	Exec	xlock -nolock -mode atlantis
++	"Bubble3d"	Exec	xlock -nolock -mode bubble3d
 +	"Cage"		Exec	xlock -nolock -mode cage
 +	"Gears"		Exec	xlock -nolock -mode gears
-+	"Moebius"		Exec	xlock -nolock -mode moebius
-+	"Morph3d"		Exec	xlock -nolock -mode morph3d
++	"Lament"	Exec	xlock -nolock -mode lament
++	"Moebius"	Exec	xlock -nolock -mode moebius
++	"Morph3d"	Exec	xlock -nolock -mode morph3d
 +	"Pipes"		Exec	xlock -nolock -mode pipes
 +	"Rubik"		Exec	xlock -nolock -mode rubik
-+	"Sproingies"		Exec	xlock -nolock -mode sproingies
-+	"Stairs"		Exec	xlock -nolock -mode stairs
-+	"Superquadrics"		Exec	xlock -nolock -mode superquadrics
++	"Sproingies"	Exec	xlock -nolock -mode sproingies
++	"Stairs"	Exec	xlock -nolock -mode stairs
++	"Superquadrics"	Exec	xlock -nolock -mode superquadrics
 + "Random"   Exec	xlock -nolock -mode random -modelist allgl -fullrandom
 
 AddToMenu "Marquee-Message-Saver"
@@ -315,6 +330,11 @@ AddToMenu "Nose-Message-Saver"
 +	"Brilliant!"	Exec	xlock -nolock -mode nose -message "WOW! $LOGNAME, You're Brilliant!"
 +	"Love You"	Exec	xlock -nolock -mode nose -message "You know, I Love You $LOGNAME."
 +	"Available"	Exec	xlock -nolock -mode nose -message "Hey, I'm available now!"
+
+AddToMenu "Xjack-Message-Lock"
++	"Xjack-Lock"	Title	
++	"Crazy Boy"		Exec	xlock -nolock -mode xjack -message "All work and no play makes $LOGNAME a dull boy."
++	"Crazy Girl"		Exec	xlock -nolock -mode xjack -message "All work and no play makes $LOGNAME a dull girl."
 
 AddToMenu "Special-Saver"
 +	"Special-Saver"	Title	
@@ -347,6 +367,8 @@ AddToMenu Screenlock
 +       ""                      Nop
 +	"Nose Message"		Menu Nose-Message-Lock Close
 +       ""                      Nop
++	"Xjack Message"		Menu Xjack-Message-Lock Close
++       ""                      Nop
 +	"Special"		Menu Special-Lock Close
 
 AddToMenu Screensaver
@@ -368,6 +390,8 @@ AddToMenu Screensaver
 +	"Marquee Message"	Menu Marquee-Message-Saver Close
 +       ""                      Nop
 +	"Nose Message"		Menu Nose-Message-Saver Close
++       ""                      Nop
++	"Xjack Message"		Menu Xjack-Message-Saver Close
 +       ""                      Nop
 +	"Special"		Menu Special-Saver Close
 

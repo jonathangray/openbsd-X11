@@ -58,7 +58,8 @@ static const char sccsid[] = "@(#)bomb.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "iostuff.h"
 
-#ifdef USE_BOMB
+#ifdef MODE_bomb
+
 ModeSpecOpt bomb_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -413,4 +414,4 @@ change_bomb(ModeInfo * mi)
 	bp->moveok = 0;
 }
 
-#endif
+#endif  /* MODE_bomb */

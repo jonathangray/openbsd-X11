@@ -33,11 +33,9 @@ static const char sccsid[] = "@(#)pipes.c	4.07 97/11/24 xlockmore";
  * Since I'm not a native English speaker, my apologies for any grammatical
  * mistake.
  *
- * My e-mail addresses are
- *
- * vianna@cat.cbpf.br 
- *         and
+ * My e-mail addresses is
  * m-vianna@usa.net
+ *
  * Marcelo F. Vianna (Apr-09-1997)
  *
  * Revision History:
@@ -72,7 +70,7 @@ static const char sccsid[] = "@(#)pipes.c	4.07 97/11/24 xlockmore";
 #include "vis.h"
 #endif /* !STANDALONE */
 
-#ifdef USE_GL
+#ifdef MODE_pipes
 
 #include <GL/glu.h>
 #include "buildlwo.h"

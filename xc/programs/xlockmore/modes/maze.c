@@ -35,7 +35,7 @@ static const char sccsid[] = "@(#)maze.c	4.07 97/11/24 xlockmore";
  * 4-Feb-95: patch to slow down maze Heath Kehoe <hakehoe@icaen.uiowa.edu>
  * 17-Jun-94: HP ANSI C compiler needs a type cast for gray_bits
  *            Richard Lloyd <R.K.Lloyd@csc.liv.ac.uk> 
- * 2-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
+ * 2-Sep-93: xlock version David Bagley <bagleyd@tux.org>
  * 7-Mar-93: Good ideas from xscreensaver Jamie Zawinski <jwz@jwz.org>
  * 6-Jun-85: Martin Weiss Sun Microsystems 
  */
@@ -83,6 +83,8 @@ static const char sccsid[] = "@(#)maze.c	4.07 97/11/24 xlockmore";
 #include "color.h"
 #endif /* STANDALONE */
 #include "iostuff.h"
+
+#ifdef MODE_maze
 
 ModeSpecOpt maze_opts =
 {0, NULL, 0, NULL, NULL};
@@ -863,6 +865,11 @@ refresh_maze(ModeInfo * mi)
 	mazestruct *mp = &mazes[MI_SCREEN(mi)];
 
 	MI_CLEARWINDOWCOLORMAP(mi, mp->backGC, mp->black);
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+	/* This is needed when another program changes the colormap. */
+	free_stuff(MI_DISPLAY(mi), mp);
+	init_stuff(mi);
+#endif
 	XSetForeground(MI_DISPLAY(mi), mp->backGC, mp->color);
 	if (mp->stage >= 1) {
 		mp->stage = 3;
@@ -884,3 +891,5 @@ refresh_maze(ModeInfo * mi)
 	}
 	mp->solving = 0;
 }
+
+#endif /* MODE_maze */

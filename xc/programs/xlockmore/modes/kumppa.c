@@ -34,7 +34,7 @@ static const char sccsid[] = "@(#)kumppa.c	4.11 98/06/11 xlockmore";
    from the X Consortium.
 
    * Revision History:
-   * 16-Jul-98:  xlockmore version by Jouk Jansen <joukj@crys.chem.uva.nl>
+   * 16-Jul-98:  xlockmore version by Jouk Jansen <joukj@hrem.stm.tudelft.nl>
    * Feb 1998 :  original xscreensaver version by Teemu Suutari <temisu@utu.fi>
  */
 
@@ -67,6 +67,8 @@ static const char sccsid[] = "@(#)kumppa.c	4.11 98/06/11 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 
 #endif /* STANDALONE */
+
+#ifdef MODE_kumppa
 
 #define DEF_COSILINES "True"
 #define DEF_SPEED "0.1"
@@ -130,7 +132,7 @@ ModStruct   kumppa_description =
 
 #endif
 
-const unsigned char colors[96] =
+static const unsigned char colors[96] =
 {0, 0, 255, 0, 51, 255, 0, 102, 255, 0, 153, 255, 0, 204, 255,
  0, 255, 255, 0, 255, 204, 0, 255, 153, 0, 255, 102, 0, 255, 51,
  0, 255, 0, 51, 255, 0, 102, 255, 0, 153, 255, 0, 204, 255, 0,
@@ -139,7 +141,7 @@ const unsigned char colors[96] =
  255, 0, 255, 219, 0, 255, 182, 0, 255, 146, 0, 255, 109, 0, 255,
  73, 0, 255, 37, 0, 255};
 
-const float cosinus[8][6] =
+static const float cosinus[8][6] =
 {
 	{-0.07, 0.12, -0.06, 32, 25, 37},
 	{0.08, -0.03, 0.05, 51, 46, 32},
@@ -150,10 +152,10 @@ const float cosinus[8][6] =
 	{0.04, -0.15, 0.02, 42, 32, 25},
 	{-0.02, -0.04, -0.13, 34, 20, 15}};
 
-const float acosinus[24] =
+static const float acosinus[24] =
 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-const int   ocoords[8] =
+static const int   ocoords[8] =
 {0, 0, 0, 0, 0, 0, 0, 0};
 
 typedef struct {
@@ -189,14 +191,14 @@ static kumppastruct *kumppas = NULL;
 
 
 
-int
+static int
 Satnum(int maxi)
 {
 	return (int) (maxi * ((double) NRAND(2500) / 2500.0));
 }
 
 
-void
+static void
 palaRotate(ModeInfo * mi, int x, int y)
 {
 	Display    *display = MI_DISPLAY(mi);
@@ -208,7 +210,7 @@ palaRotate(ModeInfo * mi, int x, int y)
 	ay = s->rotateY[y];
 	bx = s->rotateX[x + 1] + 2;
 	by = s->rotateY[y + 1] + 2;
-	cx = s->rotateX[x] + (x - s->ry) - s->dir * (y - s->rx);
+	cx = s->rotateX[x] + (x - s->rx) - s->dir * (y - s->ry);
 	cy = s->rotateY[y] + s->dir * (x - s->rx) + (y - s->ry);
 	if (cx < 0) {
 		ax -= cx;
@@ -232,7 +234,7 @@ palaRotate(ModeInfo * mi, int x, int y)
 }
 
 
-void
+static void
 rotate(ModeInfo * mi)
 {
 	int         x, y;
@@ -278,7 +280,7 @@ rotate(ModeInfo * mi)
 
 
 
-void
+static void
 make_rots(ModeInfo * mi, double xspeed, double yspeed)
 {
 	int         a, b, c, f, g, j, k = 0, l;
@@ -534,7 +536,7 @@ init_kumppa(ModeInfo * mi)
 		XSetGraphicsExposures(display, s->cgc, False);
 	} else {
 		XSetGraphicsExposures(display, MI_GC(mi), False);
-		s->c1 = MI_PIXEL(mi, NRAND(MI_NPIXELS(mi)));
+		s->c1 = NRAND(MI_NPIXELS(mi));
 	}
 	s->time = MI_CYCLES(mi) + NRAND(MI_CYCLES(mi));
 
@@ -567,7 +569,7 @@ init_kumppa(ModeInfo * mi)
 	s->stateX = 0;
 	s->stateY = 0;
 	s->c = 0;
-	s->dir = /* (LRAND() & 1) ? -1 :*/ 1;
+	s->dir = (LRAND() & 1) ? -1 : 1;
 	MI_CLEARWINDOW(mi);
 
 	make_rots(mi, rspeed, rspeed);
@@ -670,7 +672,7 @@ draw_kumppa(ModeInfo * mi)
 #endif
 	if (--s->time <= 0) {
 		s->time = MI_CYCLES(mi) + NRAND(MI_CYCLES(mi));
-		/* s->dir = s->dir * (-1); */
+		s->dir = s->dir * (-1);
 	}
 }
 
@@ -714,8 +716,9 @@ release_kumppa(ModeInfo * mi)
 				}
 				if (s->cgc)
 					XFreeGC(display, s->cgc);
-				if (s->cmap)
+				if (s->cmap) {
 					XFreeColormap(display, s->cmap);
+				}
 			}
 			if (s->acosinus)
 				(void) free((void *) s->acosinus);
@@ -736,3 +739,5 @@ release_kumppa(ModeInfo * mi)
 		kumppas = NULL;
 	}
 }
+
+#endif /* MODE_kumppa */

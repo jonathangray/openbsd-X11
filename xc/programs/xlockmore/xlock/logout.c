@@ -33,8 +33,11 @@ static const char sccsid[] = "@(#)logout.c	4.02 97/04/01 xlockmore";
  */
 
 #include "xlock.h"
+#include "iostuff.h"
 
 #if defined( USE_AUTO_LOGOUT ) || defined( USE_BUTTON_LOGOUT ) || defined( USE_BOMB )
+
+extern void logoutUser(Display * display);
 
 #if ( HAVE_SYSLOG_H && defined( USE_SYSLOG ))
 #include <syslog.h>
@@ -42,7 +45,6 @@ static const char sccsid[] = "@(#)logout.c	4.02 97/04/01 xlockmore";
 #include <sys/signal.h>
 
 extern Bool inroot, inwindow, nolock, debug;
-extern char *ProgramName;
 extern char *logoutCmd;
 
 /*-

@@ -93,7 +93,7 @@ static const char sccsid[] = "@(#)superquadrics.c	4.07 97/11/24 xlockmore";
 #include "vis.h"
 #endif /* !STANDALONE */
 
-#ifdef USE_GL
+#ifdef MODE_superquadrics
 
 /*-
  * Note for low-CPU-speed machines:  If your frame rate is so low that

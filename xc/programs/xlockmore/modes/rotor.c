@@ -46,6 +46,8 @@ static const char sccsid[] = "@(#)rotor.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_rotor
+
 ModeSpecOpt rotor_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -363,3 +365,5 @@ refresh_rotor(ModeInfo * mi)
 	rp->redrawing = 1;
 	rp->redrawpos = 1;
 }
+
+#endif /* MODE_rotor */

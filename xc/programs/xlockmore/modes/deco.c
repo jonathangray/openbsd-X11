@@ -21,7 +21,7 @@ static const char sccsid[] = "@(#)deco.c 4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 29-Oct-97: xlock version (David Bagley <bagleyd@bigfoot.com>)
+ * 29-Oct-97: xlock version (David Bagley <bagleyd@tux.org>)
  * 1997: xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
@@ -55,6 +55,8 @@ static const char sccsid[] = "@(#)deco.c 4.07 97/11/24 xlockmore";
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+
+#ifdef MODE_deco
 
 ModeSpecOpt deco_opts =
 {0, NULL, 0, NULL, NULL};
@@ -180,3 +182,5 @@ release_deco(ModeInfo * mi)
 		decos = NULL;
 	}
 }
+
+#endif /* MODE_deco */

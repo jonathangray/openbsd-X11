@@ -24,7 +24,7 @@ static const char sccsid[] = "@(#)sphere.c	4.07 97/11/24 xlockmore";
  * Revision History:
  * 30-May-97: <jwz@jwz.org> made it go vertically as well as horizontally.
  * 27-May-97: <jwz@jwz.org> turned into a standalone program.
- * 02-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
+ * 02-Sep-93: xlock version David Bagley <bagleyd@tux.org>
  * 1988: Revised to use SunView canvas instead of gfxsw Sun Microsystems
  * 1982: Orignal Algorithm Tom Duff Lucasfilm Ltd.
  */
@@ -70,6 +70,8 @@ static const char sccsid[] = "@(#)sphere.c	4.07 97/11/24 xlockmore";
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
 #endif /* !STANDALONE */
+
+#ifdef MODE_sphere
 
 ModeSpecOpt sphere_opts =
 {0, NULL, 0, NULL, NULL};
@@ -287,3 +289,5 @@ refresh_sphere(ModeInfo * mi)
 
 	sp->x = -sp->radius;
 }
+
+#endif /* MODE_sphere */

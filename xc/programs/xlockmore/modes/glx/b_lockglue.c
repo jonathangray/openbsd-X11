@@ -57,7 +57,7 @@ struct glb_config glb_config =
 #include "vis.h"
 #endif
 
-#ifdef USE_GL
+#ifdef MODE_bubble3d
 
 ModeSpecOpt bubble3d_opts =
 {0, NULL, 0, NULL, NULL};
@@ -177,4 +177,4 @@ release_bubble3d(ModeInfo * mi)
 	FreeAllGL(mi);
 }
 
-#endif /* USE_GL */
+#endif /* MODE_bubble3d */

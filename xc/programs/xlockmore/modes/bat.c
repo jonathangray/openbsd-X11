@@ -26,7 +26,7 @@ static const char sccsid[] = "@(#)bat.c	4.07 97/11/24 xlockmore";
  * 18-Sep-95: 5 bats now in color <patol@info.isbiel.ch>
  * 20-Sep-94: 5 bats instead of bouncing balls, based on bounce.c
  *            <patol@info.isbiel.ch>
- * 2-Sep-93: bounce version David Bagley <bagleyd@bigfoot.com>
+ * 2-Sep-93: bounce version David Bagley <bagleyd@tux.org>
  * 1986: Sun Microsystems
  */
 
@@ -74,6 +74,8 @@ static const char sccsid[] = "@(#)bat.c	4.07 97/11/24 xlockmore";
 #include "color.h"
 #endif /* STANDALONE */
 #include "iostuff.h"
+
+#ifdef MODE_bat
 
 ModeSpecOpt bat_opts =
 {0, NULL, 0, NULL, NULL};
@@ -328,10 +330,9 @@ init_stuff(ModeInfo * mi)
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
 	bouncestruct *bp = &bounces[MI_SCREEN(mi)];
+	int i;
 
 	if (!bp->cmap && !bp->pixelmode) {
-		int         i;
-
 #if defined( USE_XPM ) || defined( USE_XPMINC )
 		int         total = 0;
 		XpmAttributes attrib;
@@ -405,16 +406,15 @@ init_stuff(ModeInfo * mi)
 		bp->black = MI_BLACK_PIXEL(mi);
 		bp->backGC = MI_GC(mi);
 	}
-
 }
 
 #if defined( USE_XPM ) || defined( USE_XPMINC )
 static void
 free_stuff(Display * display, bouncestruct * bp)
 {
-	int         i;
-
 	if (bp->graphics_format == IS_XPM) {
+		int         i;
+
 		for (i = 0; i <= ORIENTS / 2; i++) {
 			if (bp->images[i]) {
 				(void) XDestroyImage(bp->images[i]);
@@ -573,4 +573,11 @@ refresh_bat(ModeInfo * mi)
 	bouncestruct *bp = &bounces[MI_SCREEN(mi)];
 
 	MI_CLEARWINDOWCOLORMAP(mi, bp->backGC, bp->black);
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+	/* This is needed when another program changes the colormap. */ 
+	free_stuff(MI_DISPLAY(mi), bp);
+	init_stuff(mi);
+#endif
 }
+
+#endif /* MODE_bat */

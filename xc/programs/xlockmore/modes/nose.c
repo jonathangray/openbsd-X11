@@ -29,7 +29,7 @@ static const char sccsid[] = "@(#)nose.c	4.07 97/11/24 xlockmore";
  *		references to onepause, now uses MI_PAUSE(mi) interface.
  *		Ron Hitchens <ron@idiom.com>
  * 10-Oct-95: A better way of handling fortunes from a file, thanks to
- *            Jouk Jansen <joukj@crys.chem.uva.nl>.
+ *            Jouk Jansen <joukj@hrem.stm.tudelft.nl>.
  * 21-Sep-95: font option added, debugged for multiscreens
  * 12-Aug-95: xlock version
  * 1992: xscreensaver version, noseguy (Jamie Zawinski <jwz@jwz.org>)
@@ -66,6 +66,8 @@ static const char sccsid[] = "@(#)nose.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 #include "iostuff.h"
+
+#ifdef MODE_nose
 
 ModeSpecOpt nose_opts =
 {0, NULL, 0, NULL, NULL};
@@ -776,3 +778,5 @@ refresh_nose(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_nose */

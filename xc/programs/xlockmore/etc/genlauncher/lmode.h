@@ -9,7 +9,7 @@
  *
  * Revision History:
  *
- * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * Changes maintained by David Bagley <bagleyd@tux.org>
  * 18-Mar-96: Ron Hitchens <ron@idiom.com>
  *    Extensive revision to define new data types for
  *    the new mode calling scheme.
@@ -23,13 +23,14 @@
 
 /* -------------------------------------------------------------------- */
 
+#define HAVE_CXX
 #define USE_XPM
 #define USE_GL
 #define USE_UNSTABLE
 #define USE_BOMB
 
 typedef struct {
-	int         dummy;
+	int	 dummy;
 } ModeSpecOpt;
 
 struct LockStruct_s;
@@ -49,11 +50,11 @@ typedef struct LockStruct_s {
 	char       *unused_hook;	/* for future expansion */
 	ModeSpecOpt *msopt;	/* this mode's def resources */
 #endif
-	int         def_delay;	/* default delay for mode */
-	int         def_count;
-	int         def_cycles;
-	int         def_size;
-	int         def_ncolors;
+	int	 def_delay;	/* default delay for mode */
+	int	 def_count;
+	int	 def_cycles;
+	int	 def_size;
+	int	 def_ncolors;
 	float       def_saturation;
 	char       *def_bitmap;
 	char       *desc;	/* text description of mode */
@@ -93,10 +94,10 @@ LockStruct  LockProcs[] =
 	{"bubble",
 	 100000, 25, 1, 100, 64, 0.6, "",
 	 "Shows popping bubbles", 0, NULL, NULL},
-#ifdef USE_GL
+#if defined( USE_GL ) && defined( HAVE_CXX )
 	{"bubble3d",
 	 1000, 1, 2, 1, 64, 1.0, "",
-	 "Richard Jones's GL bubbles", 0, NULL, NULL},
+	 "Richard Jones's GL bubbles", 0, NULL, "#if defined( USE_GL ) && defined( HAVE_CXX )"},
 #endif
 	{"bug",
 	 75000, 10, 32767, -4, 64, 1.0, "",
@@ -126,6 +127,9 @@ LockStruct  LockProcs[] =
 	{"dclock",
 	 10000, 1, 10000, 1, 64, 0.3, "",
 	 "Shows a floating digital clock", 0, NULL, NULL},
+	{"decay",
+	 200000, 6, 30, 1, 64, 0.3, "",
+	 "Shows a decaying screen", 0, NULL, NULL},
 	{"deco",
 	 1000000, -30, 2, -10, 64, 0.6, "",
 	 "Shows art as ugly as sin", 0, NULL, NULL},
@@ -191,6 +195,11 @@ LockStruct  LockProcs[] =
 	{"image",
 	 2000000, -10, 1, 1, 64, 1.0, "",
 	 "Shows randomly appearing logos", 0, NULL, NULL},
+#if defined( USE_GL ) && defined( HAVE_CXX )
+	{"invert",
+	 100, 1, 1, 1, 64, 1.0, "",
+	 "Shows a sphere inverted without wrinkles", 0, NULL, NULL},
+#endif
 	{"julia",
 	 10000, 1000, 20, 1, 64, 1.0, "",
 	 "Shows the Julia set", 0, NULL, NULL},
@@ -200,6 +209,11 @@ LockStruct  LockProcs[] =
 	{"kumppa",
 	 10000, 1, 1, 1, 64, 1.0, "",
 	 "Shows kumppa", 0, NULL, NULL},
+#if defined( USE_GL ) && ( defined( USE_XPM ) || defined( USE_XPMINC ))
+	{"lament",
+	 10000, 1, 1, 1, 64, 1.0, "",
+	 "Shows Lemarchand's Box", 0, NULL, "#if defined( USE_GL ) && ( defined( USE_XPM ) || defined( USE_XPMINC ))"},
+#endif
 	{"laser",
 	 20000, -10, 200, 1, 64, 1.0, "",
 	 "Shows spinning lasers", 0, NULL, NULL},
@@ -224,6 +238,9 @@ LockStruct  LockProcs[] =
 	{"loop",
 	 100000, 1, 1600, -12, 64, 1.0, "",
 	 "Shows Langton's self-producing loops", 0, NULL, NULL},
+	{"lyapunov",
+	 25000, 600, 1, 1, 64, 1.0, "",
+	 "Shows lyapunov space", 0, NULL, NULL},
 	{"mandelbrot",
 	 25000, -8, 20000, 1, 64, 1.0, "",
 	 "Shows mandelbrot sets", 0, NULL, NULL},
@@ -330,6 +347,9 @@ LockStruct  LockProcs[] =
 	{"swirl",
 	 5000, 5, 1, 1, 64, 1.0, "",
 	 "Shows animated swirling patterns", 0, NULL, NULL},
+	{"tetris",
+   50000, 1, 1, 0, 64, 1.0, "",
+	 "Shows tetris", 0, NULL, NULL},
 	{"thornbird",
 	 1000, 800, 16, 1, 64, 1.0, "",
 	 "Shows an animated bird in a thorn bush fractal map", 0, NULL, NULL},
@@ -360,6 +380,9 @@ LockStruct  LockProcs[] =
 	{"worm",
 	 17000, -20, 10, -3, 64, 1.0, "",
 	 "Shows wiggly worms", 0, NULL, NULL},
+	{"xjack",
+	 50000, 1, 1, 1, 64, 1.0, "",
+	 "Shows Jack having one of those days", 0, NULL, NULL},
 
 /* SPECIAL MODES */
 	{"blank",

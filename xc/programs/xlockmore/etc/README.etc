@@ -6,10 +6,11 @@ descrip.mms is no longer maintained since I can no longer check it on my
 fortune.dat is for those who do not have fortune.
 play.sh is a hack to get sound.
 rplay* are ideas for setting up a more sophisticated sound package.
-system.*wm*rc.xlock files are for fvwm2, fvwm, openwin (olwm & olvwm) and
-  motif (mwm and dtwm) window managers.  By default they include all modes
-  which may not be available depending on your system.  The openwin file can
-  be referenced directly, the others need to be placed in menu files.
+system.*wm*rc.xlock files are for fvwm2, fvwm, WindowMaker, openwin 
+  (olwm & olvwm) and motif (mwm and dtwm) window managers.  
+  By default they include all modes which may not be available depending 
+  on your system.  The openwin file can be referenced directly, the others 
+  need to be placed in menu files.
 xlock*life.pl stuff is for adding life patterns to life.c not all formats
   are handled.  However, the major format that is not handled here is close
   to the format I use already in life.c.
@@ -42,3 +43,6 @@ xlocksat.pl  use like "xlock -saturation `xlocksat.pl`"  The idea is that
 xlockranddur.pl  use like "xlock random -duration `xlockranddur.pl`"
   This gives a random duration of a mode (providing you have fortune!).
 
+Contributed by R. Cohen-Scali <remi.cohenscali@pobox.com>
+vtswitch	is a command line tool to disable/enable VT switching for Linux.
+		Do "chown root.bin vtswitch; chmod 4755 vtswitch"

@@ -13,7 +13,7 @@ static const char sccsid[] = "@(#)pipeobjs.c	4.04 97/07/28 xlockmore";
 #include "xlock.h"
 #endif
 
-#ifdef USE_GL
+#ifdef MODE_pipes
 
 #ifdef STANDALONE
 #include <GL/glx.h>
@@ -3262,6 +3262,6 @@ struct lwo  LWO_ElbowCoins =
 	ElbowCoins_PNTS, ElbowCoins_normals, ElbowCoins_POLS, 0L
 };
 
-#endif /* USE_GL */
+#endif /* MODE_pipes */
 
 /* End of pipeobjs.c */

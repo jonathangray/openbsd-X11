@@ -77,7 +77,7 @@ static const char sccsid[] = "@(#)dolphin.c	1.2 98/06/16 xlockmore";
 #include "xlock.h"
 #endif
 
-#ifdef USE_GL
+#ifdef MODE_atlantis
 
 #ifdef STANDALONE
 #include <GL/glx.h>

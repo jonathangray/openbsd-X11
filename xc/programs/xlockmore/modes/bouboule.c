@@ -26,8 +26,8 @@ static const char sccsid[] = "@(#)bouboule.c	4.07 97/11/24 xlockmore";
  * 04-Sep-96: Added 3d support Henrik Theiling <theiling@coli-uni-sb.de>
  * 20-Feb-96: Added tests so that already malloced objects are not
  *            malloced twice, thanks to the report from <mccomb@interport.net>
- * 01-Feb-96: Patched by Jouk Jansen <joukj@crys.chem.uva.nl> for VMS
- *            Patched by <bagleyd@bigfoot.com> for TrueColor displays
+ * 01-Feb-96: Patched by Jouk Jansen <joukj@hrem.stm.tudelft.nl> for VMS
+ *            Patched by <bagleyd@tux.org> for TrueColor displays
  * 30-Jan-96: Wrote all that I wanted to.
  *
  * Sort of starfield with a 3D engine.  For a real starfield, I only scale
@@ -87,6 +87,8 @@ static const char sccsid[] = "@(#)bouboule.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 
 #endif /* STANDALONE */
+
+#ifdef MODE_bouboule
 
 ModeSpecOpt bouboule_opts =
 {0, NULL, 0, NULL, NULL};
@@ -844,3 +846,5 @@ refresh_bouboule(ModeInfo * mi)
 	}
 
 }
+
+#endif /* MODE_bouboule */

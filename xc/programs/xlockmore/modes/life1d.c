@@ -64,6 +64,8 @@ static const char sccsid[] = "@(#)life1d.c	4.07 97/11/24 xlockmore";
 #include "automata.h"
 #include "iostuff.h"
 
+#ifdef MODE_life1d
+
 #define DEF_TOTALISTIC  "True"	/* FALSE is LCAU */
 
 static Bool totalistic;
@@ -468,18 +470,18 @@ GetRule(life1dstruct * lp, int i)
 	long        sum_size, j;
 
 	if (totalistic) {
-		long        code, pow;
+		long        code, pow_size;
 
 		lp->k = totalistic_rules[i][0];
 		lp->r = totalistic_rules[i][1];
 		sum_size = (lp->k - 1) * (lp->r * 2 + 1) + 1;
 		code = lp->code = totalistic_rules[i][2];
 
-		pow = power(lp->k, (int) (sum_size - 1));	/* Should be less than max long */
+		pow_size = power(lp->k, (int) (sum_size - 1));	/* Should be < max long */
 		for (j = 0; j < sum_size; j++) {
-			lp->nextstate[sum_size - 1 - j] = (char) (code / pow);
-			code -= ((long) lp->nextstate[sum_size - 1 - j]) * pow;
-			pow /= (long) lp->k;
+			lp->nextstate[sum_size - 1 - j] = (char) (code / pow_size);
+			code -= ((long) lp->nextstate[sum_size - 1 - j]) * pow_size;
+			pow_size /= (long) lp->k;
 		}
 	} else {
 		lp->r = 1;
@@ -741,11 +743,11 @@ draw_life1d(ModeInfo * mi)
 				for (m = col - lp->r; m <= col + lp->r; m++)
 					sum += lp->oldcells[m + maxradius];
 			} else {
-				int         pow = 1;
+				int         pow_size = 1;
 
 				for (m = col + lp->r; m >= col - lp->r; m--) {
-					sum += lp->oldcells[m + maxradius] * pow;
-					pow *= lp->k;
+					sum += lp->oldcells[m + maxradius] * pow_size;
+					pow_size *= lp->k;
 				}
 			}
 			lp->newcells[col] = (unsigned char) lp->nextstate[sum];
@@ -838,9 +840,17 @@ refresh_life1d(ModeInfo * mi)
 	life1dstruct *lp = &life1ds[MI_SCREEN(mi)];
 	int         row, col, nrow;
 
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+	/* This is needed when another program changes the colormap. */
+	free_stuff(MI_DISPLAY(mi), lp);
+	init_stuff(mi);
+#endif
+
 	for (row = 0; row < lp->nrows; row++) {
 		nrow = row * lp->ncols;
 		for (col = 0; col < lp->ncols; col++)
 			drawcell(mi, col, row, lp->buffer[col + nrow]);
 	}
 }
+
+#endif /* MODE_life1d */

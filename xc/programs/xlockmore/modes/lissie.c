@@ -46,6 +46,8 @@ static const char sccsid[] = "@(#)lissie.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_lissie
+
 ModeSpecOpt lissie_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -303,3 +305,5 @@ refresh_lissie(ModeInfo * mi)
 		}
 	}
 }
+
+#endif /* MODE_lissie */

@@ -81,6 +81,8 @@ static const char sccsid[] = "@(#)dilemma.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "automata.h"
 
+#ifdef MODE_dilemma
+
 /*-
  * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
  */
@@ -653,7 +655,7 @@ init_dilemma(ModeInfo * mi)
 	}
 
 	if (dp->neighbors == 6) {
-		int         nccols, ncrows, i;
+		int         nccols, ncrows, sides;
 
 		if (dp->width < 2)
 			dp->width = 2;
@@ -678,9 +680,10 @@ init_dilemma(ModeInfo * mi)
 		dp->nrows = 2 * (ncrows / 4);
 		dp->xb = (dp->width - dp->xs * nccols) / 2 + dp->xs / 2;
 		dp->yb = (dp->height - dp->ys * (ncrows / 2) * 2) / 2 + dp->ys;
-		for (i = 0; i < 6; i++) {
-			dp->shape.hexagon[i].x = (dp->xs - 1) * hexagonUnit[i].x;
-			dp->shape.hexagon[i].y = ((dp->ys - 1) * hexagonUnit[i].y / 2) * 4 / 3;
+		for (sides = 0; sides < 6; sides++) {
+			dp->shape.hexagon[sides].x = (dp->xs - 1) * hexagonUnit[sides].x;
+			dp->shape.hexagon[sides].y =
+				((dp->ys - 1) * hexagonUnit[sides].y / 2) * 4 / 3;
 		}
 	} else if (dp->neighbors == 4 || dp->neighbors == 8) {
 		if (dp->width < 2)
@@ -716,7 +719,7 @@ init_dilemma(ModeInfo * mi)
 		dp->xb = (dp->width - dp->xs * dp->ncols) / 2;
 		dp->yb = (dp->height - dp->ys * dp->nrows) / 2;
 	} else {		/* TRI */
-		int         orient, i;
+		int         orient, sides;
 
 		if (dp->width < 2)
 			dp->width = 2;
@@ -740,11 +743,11 @@ init_dilemma(ModeInfo * mi)
 		dp->xb = (dp->width - dp->xs * dp->ncols) / 2 + dp->xs / 2;
 		dp->yb = (dp->height - dp->ys * dp->nrows) / 2 + dp->ys / 2;
 		for (orient = 0; orient < 2; orient++) {
-			for (i = 0; i < 3; i++) {
-				dp->shape.triangle[orient][i].x =
-					(dp->xs - 2) * triangleUnit[orient][i].x;
-				dp->shape.triangle[orient][i].y =
-					(dp->ys - 2) * triangleUnit[orient][i].y;
+			for (sides = 0; sides < 3; sides++) {
+				dp->shape.triangle[orient][sides].x =
+					(dp->xs - 2) * triangleUnit[orient][sides].x;
+				dp->shape.triangle[orient][sides].y =
+					(dp->ys - 2) * triangleUnit[orient][sides].y;
 			}
 		}
 	}
@@ -929,3 +932,5 @@ refresh_dilemma(ModeInfo * mi)
 	dp->redrawing = 1;
 	dp->redrawpos = 0;
 }
+
+#endif /* MODE_dilemma */

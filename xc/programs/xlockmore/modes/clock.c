@@ -48,6 +48,8 @@ static const char sccsid[] = "@(#)clock.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_clock
+
 ModeSpecOpt clock_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -454,3 +456,5 @@ refresh_clock(ModeInfo * mi)
 	MI_CLEARWINDOW(mi);
 	cp->redrawing = 1;
 }
+
+#endif /* MODE_clock */

@@ -55,7 +55,7 @@ static const char sccsid[] = "@(#)gears.c	4.07 97/11/24 xlockmore";
 #include "vis.h"
 #endif /* !STANDALONE */
 
-#ifdef USE_GL
+#ifdef MODE_cage
 
 ModeSpecOpt gears_opts =
 {0, NULL, 0, NULL, NULL};

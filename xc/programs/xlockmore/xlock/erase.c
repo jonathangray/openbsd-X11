@@ -1,5 +1,5 @@
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)erase.c	4.12 98/08/13 xlockmore";
+static const char sccsid[] = "@(#)erase.c	4.14 99/04/23 xlockmore";
 
 #endif
 
@@ -9,9 +9,9 @@ static const char sccsid[] = "@(#)erase.c	4.12 98/08/13 xlockmore";
  * (c) 1997 by Johannes Keukelaar <johannes@nada.kth.se>
  *
  * Revision History:
+ *   13-Aug-98 : changed to be used with xlockmore by Jouk Jansen
+ *               <joukj@hrem.stm.tudelft.nl>
  *   1997      : original version by Johannes Keukelaar <johannes@nada.kth.se>
- *   13-8-1998 : changed to be used with xlockmore by Jouk Jansen
- *               <joukj@crys.chem.uva.nl>
  *
  * Permission to use in any way granted. Provided "as is" without expressed
  * or implied warranty. NO WARRANTY, NO EXPRESSION OF SUITABILITY FOR ANY
@@ -24,6 +24,7 @@ static const char sccsid[] = "@(#)erase.c	4.12 98/08/13 xlockmore";
 #define countof(x) (sizeof(x)/sizeof(*(x)))
 
 extern int  erasedelay, erasemode;
+extern int erasemodefromname(char *name);
 
 typedef void (*Eraser) (Display * dpy, Window window, GC gc,
 			int width, int height, int delay, int granularity);
@@ -514,6 +515,171 @@ squaretate(Display * dpy, Window window, GC gc,
 	}
 #undef DRAW
 }
+static void
+fizzle (Display *dpy, Window window, GC gc,
+	    int width, int height, int delay, int granularity)
+{
+  /* These dimensions must be prime numbers.  They should be roughly the
+     square root of the width and height. */
+# define BX 31
+# define BY 31
+# define SIZE (BX*BY)
+
+  int array[SIZE];
+  int i, j;
+  XPoint *skews;
+  int nx, ny;
+
+  /* Distribute the numbers [0,SIZE) randomly in the array */
+  {
+    int indices[SIZE];
+
+    for( i = 0; i < SIZE; i++ ) {
+      array[i] = -1;
+      indices[i] = i;
+    } 
+
+    for( i = 0; i < SIZE; i++ ) {
+      j = random()%(SIZE-i);
+      array[indices[j]] = i;
+      indices[j] = indices[SIZE-i-1];
+    }
+  }
+
+  /* nx, ny are the number of cells across and down, rounded up */
+  nx = width  / BX + (0 == (width %BX) ? 0 : 1);
+  ny = height / BY + (0 == (height%BY) ? 0 : 1);
+  skews = (XPoint *)malloc(sizeof(XPoint) * (nx*ny));
+  if( (XPoint *)0 != skews ) {
+    for( i = 0; i < nx; i++ ) {
+      for( j = 0; j < ny; j++ ) {
+        skews[j * nx + i].x = random()%BX;
+        skews[j * nx + i].y = random()%BY;
+      }
+    }
+  }
+
+# define SKEWX(cx, cy) (((XPoint *)0 == skews)?0:skews[cy*nx + cx].x)
+# define SKEWY(cx, cy) (((XPoint *)0 == skews)?0:skews[cy*nx + cx].y)
+
+  for( i = 0; i < SIZE; i++ ) {
+    int x = array[i] % BX;
+    int y = array[i] / BX;
+
+    {
+      int iy, cy;
+      for( iy = 0, cy = 0; iy < height; iy += BY, cy++ ) {
+        int ix, cx;
+        for( ix = 0, cx = 0; ix < width; ix += BX, cx++ ) {
+          int xx = ix + (SKEWX(cx, cy) + x*((cx%(BX-1))+1))%BX;
+          int yy = iy + (SKEWY(cx, cy) + y*((cy%(BY-1))+1))%BY;
+          XDrawPoint(dpy, window, gc, xx, yy);
+        }
+      }
+    }
+
+    if( (BX-1) == (i%BX) ) {
+      XSync (dpy, False);
+      usleep (delay*granularity);
+    }
+  }
+
+# undef SKEWX
+# undef SKEWY
+
+  if( (XPoint *)0 != skews ) {
+    free(skews);
+  }
+
+# undef BX
+# undef BY
+# undef SIZE
+}
+
+
+/* from Rick Campbell <rick@campbellcentral.org> */
+static void
+spiral (Display *display, Window window, GC context,
+        int width, int height, int delay, int granularity)
+{
+# define SPIRAL_ERASE_PI_2 (M_PI + M_PI)
+# define SPIRAL_ERASE_LOOP_COUNT (100)
+# define SPIRAL_ERASE_ARC_COUNT (360.0)
+# define SPIRAL_ERASE_ANGLE_INCREMENT (SPIRAL_ERASE_PI_2 /     \
+SPIRAL_ERASE_ARC_COUNT)
+# define SPIRAL_ERASE_DELAY (0)
+
+  double angle;
+  int arc_limit;
+  int arc_max_limit;
+  int length_step;
+  XPoint points [3];
+#if HAVE_GETTIMEOFDAY
+	struct timeval tp;
+	int         interval, t_prev;
+
+	GETTIMEOFDAY(&tp);
+	t_prev = tp.tv_usec;
+#endif
+
+  angle = 0.0;
+  arc_limit = 1;
+  arc_max_limit = (int) (ceil (sqrt ((width * width) + (height * height)))
+                         / 2.0);
+  length_step = ((arc_max_limit + SPIRAL_ERASE_LOOP_COUNT - 1) /
+                 SPIRAL_ERASE_LOOP_COUNT);
+  arc_max_limit += length_step;
+  points [0].x = width / 2;
+  points [0].y = height / 2;
+  points [1].x = points [0].x + length_step;
+  points [1].y = points [0].y;
+  points [2].x = points [1].x;
+  points [2].y = points [1].y;
+
+  for (arc_limit = length_step;
+       arc_limit < arc_max_limit;
+       arc_limit += length_step)
+    {
+      int arc_length = length_step;
+      int length_base = arc_limit;
+      for (angle = 0.0; angle < SPIRAL_ERASE_PI_2;
+           angle += SPIRAL_ERASE_ANGLE_INCREMENT)
+        {
+          arc_length = length_base + ((length_step * angle) /
+                                      SPIRAL_ERASE_PI_2);
+          points [1].x = points [2].x;
+          points [1].y = points [2].y;
+          points [2].x = points [0].x + (int)(cos (angle) * arc_length);
+          points [2].y = points [0].y + (int)(sin (angle) * arc_length);
+          XFillPolygon (display, window, context, points, 3, Convex,
+                        CoordModeOrigin);
+        }
+		if (delay > 0 )
+#if HAVE_GETTIMEOFDAY
+		{
+			GETTIMEOFDAY(&tp);
+			interval = tp.tv_usec - t_prev;
+			if (interval <= 0)
+				interval = interval + 1000000;
+			interval = delay * granularity - interval;
+			if (interval > 0)
+				usleep(interval);
+			GETTIMEOFDAY(&tp);
+			t_prev = tp.tv_usec;
+		}
+#else
+			usleep(delay * granularity);
+#endif
+# if (SPIRAL_ERASE_DELAY != 0)
+          usleep (SPIRAL_ERASE_DELAY);
+# endif /* (SPIRAL_ERASE_DELAY != 0) */
+    }
+# undef SPIRAL_ERASE_DELAY
+# undef SPIRAL_ERASE_ANGLE_INCREMENT
+# undef SPIRAL_ERASE_ARC_COUNT
+# undef SPIRAL_ERASE_LOOP_COUNT
+# undef SPIRAL_ERASE_PI_2
+}
 
 static struct eraser_names {
 	Eraser      mode;
@@ -545,6 +711,12 @@ static struct eraser_names {
 		squaretate, "squaretate"
 	},
 	{
+		fizzle , "fizzle"
+	},
+	{
+		spiral , "spiral"
+	},
+	{
 		no_fade, "no_fade"
 	}
 };
@@ -558,7 +730,7 @@ erase_window(ModeInfo * mi, GC erase_gc, unsigned long pixel, int mode,
 
 	XSetForeground(MI_DISPLAY(mi), erase_gc, pixel);
 	if (MI_IS_DRAWN(mi) && delay > 0) {
-		if (mode < 0 || mode >= countof(erasers))
+		if (mode < 0 || mode >= (int) countof(erasers))
 			mode = NRAND(countof(erasers));
 		(*(erasers[mode].mode)) (MI_DISPLAY(mi), MI_WINDOW(mi),
 				       erase_gc, MI_WIDTH(mi), MI_HEIGHT(mi),
@@ -580,9 +752,9 @@ erasemodefromname(char *name)
 {
 	int         a;
 	char       *s1, *s2;
-	int         erasemode = -1;
+	int         eraseMode = -1;
 
-	for (a = 0; a < countof(erasers); a++) {
+	for (a = 0; a < (int) countof(erasers); a++) {
 		for (s1 = erasers[a].name, s2 = name; *s1 && *s2; s1++, s2++)
 			if ((isupper((int) *s1) ? tolower((int) *s1) : *s1) !=
 			    (isupper((int) *s2) ? tolower((int) *s2) : *s2))
@@ -590,14 +762,14 @@ erasemodefromname(char *name)
 
 		if ((*s1 == '\0') || (*s2 == '\0')) {
 
-			if (erasemode != -1) {
+			if (eraseMode != -1) {
 				(void) fprintf(stderr,
 					       "%s does not uniquely describe an erase mode (set to random)\n"
 					       ,name);
 				return (-1);
 			}
-			erasemode = a;
+			eraseMode = a;
 		}
 	}
-	return (erasemode);
+	return (eraseMode);
 }

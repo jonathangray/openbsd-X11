@@ -1,6 +1,6 @@
 ############################################################
 #
-# $Id : Makefile.in 4.12 1997/08/10 $
+# $Id : Makefile.in 4.13 1999/03/08 $
 #
 # xlockmore Makefile.in for autoconf (UNIX/VMS X11 support)
 ############################################################
@@ -32,7 +32,7 @@ TAR = tar
 RM = rm -f
 
 VER = xlockmore
-DISTVER = xlockmore-4.12
+DISTVER = xlockmore-4.13
 
 install :
 	@$(MAKE_SUBDIR)
@@ -78,10 +78,11 @@ hlp :
 
 clean :
 	$(RM) core *~ *% *.bak *.orig *.rej make.log MakeOut
-	@$(MAKEIN_SUBDIR)
+	@$(MAKE_SUBDIR)
 
-distclean : clean
-	$(RM) -f Makefile config.status config.cache config.log config.h
+distclean :
+	$(RM) core *~ *% *.bak *.orig *.rej make.log MakeOut
+	$(RM) Makefile config.status config.cache config.log config.h
 	@$(MAKEIN_SUBDIR)
 
 Makefile : Makefile.in config.status

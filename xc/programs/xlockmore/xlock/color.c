@@ -15,13 +15,14 @@ static const char sccsid[] = "@(#)color.c	4.00 97/01/01 xlockmore";
 
 #include "xlock.h"
 #include "color.h"
+#include "vis.h"
 
 /* Formerly in util.c */
 /*-
  * Create an HSB ramp.
  *
  * Revision History:
- * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * Changes maintained by David Bagley <bagleyd@tux.org>
  * 22-Jun-94: Modified for VMS
  *            <Anthony.D.Clarke@Support.Hatfield.Raytheon.bae.eurokom.ie>
  * Changes of Patrick J. Naughton
@@ -110,7 +111,7 @@ hsbramp(double h1, double s1, double b1, double h2, double s2, double b2,
 /* Formerly in xlock.c */
 
 unsigned long
-allocPixel(Display * display, Colormap cmap, char *name, char *def)
+allocPixel(Display * display, Colormap cmap, const char *name, const char *def)
 {
 	XColor      col, tmp;
 
@@ -318,8 +319,9 @@ setColormap(Display * display, Window window, Colormap cmap, Bool inwindow)
 	   un-doing any XInstallColormap() performed by a client (which is why
 	   this does not work right under Fvwm). */
 
-	if (!inwindow)
+	if (!inwindow) {
 		XInstallColormap(display, cmap);
+	}
 }
 
 /*-
@@ -391,15 +393,13 @@ reserveColors(ModeInfo * mi, Colormap cmap, unsigned long *black)
  * software for any purpose.  It is provided "as is" without express or 
  * implied warranty.
  * 
- * Modified for the use with xlockmore by Jouk Jansen <joukj@crys.chem.uva.nl>
+ * Modified for the use with xlockmore by Jouk Jansen <joukj@hrem.stm.tudelft.nl>
  * 12 June 1998
  */
 
 /* This file contains some utility routines for randomly picking the colors
    to hack the screen with.
  */
-
-static char *progname = "xlockmore";
 
 void
 free_colors(Display * dpy, Colormap cmap, XColor * colors, int ncolors)
@@ -551,7 +551,7 @@ make_color_path(Display * dpy, Colormap cmap,
 		Bool allocate_p,
 		Bool writable_p)
 {
-	int         i, j, k;
+	int         i, k;
 	int         total_ncolors = *ncolorsP;
 
 	int         ncolors[MAXPOINTS];		/* number of pixels per edge */
@@ -662,7 +662,7 @@ make_color_path(Display * dpy, Colormap cmap,
 
 	k = 0;
 	for (i = 0; i < npoints; i++) {
-		int         distance, direction;
+		int         distance, direction, j;
 
 		distance = h[(i + 1) % npoints] - h[i];
 		direction = (distance >= 0 ? -1 : 1);
@@ -796,12 +796,12 @@ complain(int wanted_colors, int got_colors,
 	if (wanted_writable && !got_writable)
 		(void) fprintf(stderr,
 		 "%s: wanted %d writable colors; got %d read-only colors.\n",
-			progname, wanted_colors, got_colors);
+			ProgramName, wanted_colors, got_colors);
 
 	else if (wanted_colors > (got_colors + 10))
 		/* don't bother complaining if we're within ten pixels. */
 		(void) fprintf(stderr, "%s: wanted %d%s colors; got %d.\n",
-		  progname, wanted_colors, (got_writable ? " writable" : ""),
+		  ProgramName, wanted_colors, (got_writable ? " writable" : ""),
 			got_colors);
 }
 

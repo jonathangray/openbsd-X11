@@ -74,6 +74,8 @@ static const char sccsid[] = "@(#)wire.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "automata.h"
 
+#ifdef MODE_wire
+
 /*-
  * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
  */
@@ -383,8 +385,7 @@ drawcell(ModeInfo * mi, int col, int row, unsigned char state)
 
 	if (MI_NPIXELS(mi) > 2) {
 		gc = MI_GC(mi);
-		XSetForeground(MI_DISPLAY(mi), gc,
-			       MI_PIXEL(mi, wp->colors[state]));
+		XSetForeground(MI_DISPLAY(mi), gc, MI_PIXEL(mi, wp->colors[state]));
 	} else {
 		XGCValues   gcv;
 
@@ -427,10 +428,13 @@ static void
 addtolist(ModeInfo * mi, int col, int row, unsigned char state)
 {
 	circuitstruct *wp = &circuits[MI_SCREEN(mi)];
-	CellList   *current;
+	CellList   *current = wp->cellList[state];
 
-	current = wp->cellList[state];
-	wp->cellList[state] = (CellList *) malloc(sizeof (CellList));
+	wp->cellList[state] = NULL;
+	if ((wp->cellList[state] = (CellList *) malloc(sizeof (CellList))) == NULL) {
+		wp->cellList[state] = current;
+		return;
+	}
 	wp->cellList[state]->pt.x = col;
 	wp->cellList[state]->pt.y = row;
 	wp->cellList[state]->next = current;
@@ -442,10 +446,9 @@ static void
 print_state(ModeInfo * mi, int state)
 {
 	circuitstruct *wp = &circuits[MI_SCREEN(mi)];
-	CellList   *locallist;
+	CellList   *locallist = wp->cellList[state];
 	int         i = 0;
 
-	locallist = wp->cellList[state];
 	(void) printf("state %d\n", state);
 	while (locallist) {
 		(void) printf("%d x %d, y %d\n", i,
@@ -467,7 +470,6 @@ free_state(circuitstruct * wp, int state)
 		wp->cellList[state] = wp->cellList[state]->next;
 		(void) free((void *) current);
 	}
-	wp->cellList[state] = NULL;
 	wp->ncells[state] = 0;
 }
 
@@ -476,9 +478,8 @@ draw_state(ModeInfo * mi, int state)
 {
 	circuitstruct *wp = &circuits[MI_SCREEN(mi)];
 	GC          gc;
-	XRectangle *rects;
 	XGCValues   gcv;
-	CellList   *current;
+	CellList   *current = wp->cellList[state];
 
 	if (MI_NPIXELS(mi) > 2) {
 		gc = MI_GC(mi);
@@ -493,7 +494,6 @@ draw_state(ModeInfo * mi, int state)
 	}
 
 	if (wp->neighbors == 6) {	/* Draw right away, slow */
-		current = wp->cellList[state];
 		while (current) {
 			int         col, row, ccol, crow;
 
@@ -511,26 +511,28 @@ draw_state(ModeInfo * mi, int state)
 			current = current->next;
 		}
 	} else if (wp->neighbors == 4 || wp->neighbors == 8) {
+		XRectangle *rects = NULL;
 		/* Take advantage of XFillRectangles */
-		int         ncells = 0;
+		int         nrects = 0;
 
 		/* Create Rectangle list from part of the cellList */
-		rects = (XRectangle *) malloc(wp->ncells[state] * sizeof (XRectangle));
-		current = wp->cellList[state];
+		if ((rects = (XRectangle *) malloc(wp->ncells[state] * sizeof (XRectangle))) == NULL) {
+			return;
+    }
+
 		while (current) {
-			rects[ncells].x = wp->xb + current->pt.x * wp->xs;
-			rects[ncells].y = wp->yb + current->pt.y * wp->ys;
-			rects[ncells].width = wp->xs - (wp->xs > 3);
-			rects[ncells].height = wp->ys - (wp->ys > 3);
+			rects[nrects].x = wp->xb + current->pt.x * wp->xs;
+			rects[nrects].y = wp->yb + current->pt.y * wp->ys;
+			rects[nrects].width = wp->xs - (wp->xs > 3);
+			rects[nrects].height = wp->ys - (wp->ys > 3);
 			current = current->next;
-			ncells++;
+			nrects++;
 		}
 		/* Finally get to draw */
-		XFillRectangles(MI_DISPLAY(mi), MI_WINDOW(mi), gc, rects, ncells);
+		XFillRectangles(MI_DISPLAY(mi), MI_WINDOW(mi), gc, rects, nrects);
 		/* Free up rects list and the appropriate part of the cellList */
 		(void) free((void *) rects);
 	} else {		/* TRI */
-		current = wp->cellList[state];
 		while (current) {
 			int         col, row, orient;
 
@@ -690,14 +692,39 @@ free_list(circuitstruct * wp)
 }
 
 void
+release_wire(ModeInfo * mi)
+{
+	if (circuits != NULL) {
+		int         screen;
+
+		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
+			circuitstruct *wp = &circuits[screen];
+			int         shade;
+
+			for (shade = 0; shade < wp->init_bits; shade++)
+				if (wp->pixmaps[shade] != None)
+					XFreePixmap(MI_DISPLAY(mi), wp->pixmaps[shade]);
+			if (wp->stippledGC != None)
+				XFreeGC(MI_DISPLAY(mi), wp->stippledGC);
+			if (wp->oldcells != NULL)
+				(void) free((void *) wp->oldcells);
+			if (wp->newcells != NULL)
+				(void) free((void *) wp->newcells);
+			free_list(wp);
+		}
+		(void) free((void *) circuits);
+		circuits = NULL;
+	}
+}
+
+void
 init_wire(ModeInfo * mi)
 {
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
-	int         size = MI_SIZE(mi), n;
+	int         i, size = MI_SIZE(mi), n;
 	circuitstruct *wp;
 	XGCValues   gcv;
-	int         i;
 
 	if (circuits == NULL) {
 		if ((circuits = (circuitstruct *) calloc(MI_NUM_SCREENS(mi),
@@ -709,11 +736,21 @@ init_wire(ModeInfo * mi)
 	wp->redrawing = 0;
 
 	if ((MI_NPIXELS(mi) <= 2) && (wp->init_bits == 0)) {
-		gcv.fill_style = FillOpaqueStippled;
-		wp->stippledGC = XCreateGC(display, window, GCFillStyle, &gcv);
+		if (wp->stippledGC == None) {
+			gcv.fill_style = FillOpaqueStippled;
+			wp->stippledGC = XCreateGC(display, window, GCFillStyle, &gcv);
+			if (wp->stippledGC == None) {
+				release_wire(mi);
+				return;
+			}
+		}
 		WIREBITS(stipples[NUMSTIPPLES - 1], STIPPLESIZE, STIPPLESIZE);
 		WIREBITS(stipples[NUMSTIPPLES - 3], STIPPLESIZE, STIPPLESIZE);
 		WIREBITS(stipples[2], STIPPLESIZE, STIPPLESIZE);
+		if (wp->pixmaps[2] == None) { 
+			release_wire(mi);
+			return;
+		}
 	}
 	if (MI_NPIXELS(mi) > 2) {
 		wp->colors[0] = (NRAND(MI_NPIXELS(mi)));
@@ -727,14 +764,14 @@ init_wire(ModeInfo * mi)
 	wp->width = MI_WIDTH(mi);
 	wp->height = MI_HEIGHT(mi);
 
-	for (n = 0; n < NEIGHBORKINDS; n++) {
-		if (neighbors == plots[n]) {
-			wp->neighbors = plots[n];
+	for (i = 0; i < NEIGHBORKINDS; i++) {
+		if (neighbors == plots[i]) {
+			wp->neighbors = plots[i];
 			break;
 		}
-		if (n == NEIGHBORKINDS - 1) {
-			n = NRAND(NEIGHBORKINDS - 3) + 1;	/* Skip triangular ones */
-			wp->neighbors = plots[n];
+		if (i == NEIGHBORKINDS - 1) {
+			i = NRAND(NEIGHBORKINDS - 3) + 1;	/* Skip triangular ones */
+			wp->neighbors = plots[i];
 			break;
 		}
 	}
@@ -844,15 +881,23 @@ init_wire(ModeInfo * mi)
 
 	MI_CLEARWINDOW(mi);
 
-	if (wp->oldcells != NULL)
+	if (wp->oldcells != NULL) {
 		(void) free((void *) wp->oldcells);
-	wp->oldcells = (unsigned char *)
-		calloc(wp->bncols * wp->bnrows, sizeof (unsigned char));
+		wp->oldcells = NULL;
+	}
+	if ((wp->oldcells = (unsigned char *) calloc(wp->bncols * wp->bnrows, sizeof (unsigned char))) == NULL) {
+		release_wire(mi);
+		return;
+	}
 
-	if (wp->newcells != NULL)
+	if (wp->newcells != NULL) {
 		(void) free((void *) wp->newcells);
-	wp->newcells = (unsigned char *)
-		calloc(wp->bncols * wp->bnrows, sizeof (unsigned char));
+		wp->newcells = NULL;
+	}
+	if ((wp->newcells = (unsigned char *) calloc(wp->bncols * wp->bnrows, sizeof (unsigned char))) == NULL) {
+		release_wire(mi);
+		return;
+	}
 
 	n = MI_COUNT(mi);
 	i = (1 + (wp->neighbors == 6)) * wp->ncols * wp->nrows / 4;
@@ -873,6 +918,10 @@ draw_wire(ModeInfo * mi)
 	int         offset, i, j;
 	unsigned char *z, *znew;
 
+	if (circuits == NULL) {
+		init_wire(mi);
+		return;
+	}
 	MI_IS_DRAWN(mi) = True;
 
 	/* wires do not grow so min max stuff does not change */
@@ -889,9 +938,10 @@ draw_wire(ModeInfo * mi)
 	}
 	for (i = 0; i < COLORS - 1; i++)
 		draw_state(mi, i);
-	if (++wp->generation > MI_CYCLES(mi))
+	if (++wp->generation > MI_CYCLES(mi)) {
 		init_wire(mi);
-	else
+		return;
+	} else
 		do_gen(wp);
 
 	if (wp->redrawing) {
@@ -909,35 +959,17 @@ draw_wire(ModeInfo * mi)
 }
 
 void
-release_wire(ModeInfo * mi)
-{
-	if (circuits != NULL) {
-		int         screen, shade;
-
-		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
-			circuitstruct *wp = &circuits[screen];
-
-			for (shade = 0; shade < wp->init_bits; shade++)
-				XFreePixmap(MI_DISPLAY(mi), wp->pixmaps[shade]);
-			if (wp->stippledGC != None)
-				XFreeGC(MI_DISPLAY(mi), wp->stippledGC);
-			if (wp->oldcells != NULL)
-				(void) free((void *) wp->oldcells);
-			if (wp->newcells != NULL)
-				(void) free((void *) wp->newcells);
-			free_list(wp);
-		}
-		(void) free((void *) circuits);
-		circuits = NULL;
-	}
-}
-
-void
 refresh_wire(ModeInfo * mi)
 {
 	circuitstruct *wp = &circuits[MI_SCREEN(mi)];
 
+	if (circuits == NULL) {
+		init_wire(mi);
+		return;
+	}
 	MI_CLEARWINDOW(mi);
 	wp->redrawing = 1;
 	wp->redrawpos = 2 * wp->ncols + 2;
 }
+
+#endif /* MODE_wire */

@@ -12,7 +12,7 @@ static const char sccsid[] = "@(#)resource.c	4.08 98/08/04 xlockmore";
  *
  * Revision History:
  *
- * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * Changes maintained by David Bagley <bagleyd@tux.org>
  * 19-Jun-98: batchcount depreciated.  Use count instead.  batchcount still
  *            works for commandline.
  * 01-May-97: Matthew Rench <mdrench@mtu.edu>
@@ -21,11 +21,11 @@ static const char sccsid[] = "@(#)resource.c	4.08 98/08/04 xlockmore";
  *            Fixed memory leak.  Made -visual option a hacker mode for now.
  * 20-Mar-97: Tom Schmidt <tschmidt@micron.com>
  *            Added -visual option.
- *  3-Apr-96: Jouk Jansen <joukj@crys.chem.uva.nl>
+ *  3-Apr-96: Jouk Jansen <joukj@hrem.stm.tudelft.nl>
  *            Supply for wildcards for filenames for random selection
  * 18-Mar-96: Ron Hitchens <ron@idiom.com>
  *            Setup chosen mode with set_default_mode() for new hook scheme.
- *  6-Mar-96: Jouk Jansen <joukj@crys.chem.uva.nl>
+ *  6-Mar-96: Jouk Jansen <joukj@hrem.stm.tudelft.nl>
  *            Remote node checking for VMS fixed
  * 20-Dec-95: Ron Hitchens <ron@idiom.com>
  *            Resource parsing fixed for "nolock".
@@ -104,6 +104,8 @@ static const char sccsid[] = "@(#)resource.c	4.08 98/08/04 xlockmore";
 #define DECW$C_WS_DSP_TRANSPORT 2	/*  taken from wsdriver.lis */
 #define IO$M_WS_DISPLAY 0x00000040	/* taken from wsdriver */
 
+extern void checkResources(void);
+
 struct descriptor_t {		/* descriptor structure         */
 	unsigned short len;
 	unsigned char type;
@@ -177,6 +179,9 @@ static int  descr();
 #define DEF_INFO	"Enter password to unlock; select icon to lock."
 #endif
 #endif
+#ifdef GLOBAL_UNLOCK
+#define DEF_GUSER "Username: "
+#endif
 #ifdef SAFEWORD
 #define DEF_DPASS "Dynamic password: "
 #define DEF_FPASS "Fixed Password: "
@@ -203,6 +208,13 @@ static int  descr();
 #endif
 #ifndef DEF_MAILAPP
 #define DEF_MAILAPP ""
+#endif
+#ifdef USE_VTLOCK
+#define VTLOCKMODE_OFF     	"off"
+#define VTLOCKMODE_NOSWITCH     "noswitch"
+#define VTLOCKMODE_SWITCH       "switch"
+#define VTLOCKMODE_RESTORE      "restore"
+#define DEF_VTLOCK              VTLOCKMODE_OFF
 #endif
 #define DEF_CLASSNAME	"XLock"
 /*-
@@ -282,8 +294,6 @@ static int  descr();
 #endif
 #endif
 
-extern char *ProgramName;
-
 /* For modes with text, marquee & nose */
 extern char *program;
 extern char *messagesfile;
@@ -324,8 +334,7 @@ static XrmOptionDescRec genTable[] =
 	{"-nolock", ".nolock", XrmoptionNoArg, (caddr_t) "on"},
 	{"+nolock", ".nolock", XrmoptionNoArg, (caddr_t) "off"},
 #ifdef USE_VTLOCK
-	{"-vtlock", ".vtlock", XrmoptionNoArg, (caddr_t) "on"},
-	{"+vtlock", ".vtlock", XrmoptionNoArg, (caddr_t) "off"},
+	{"-vtlock", ".vtlock", XrmoptionSepArg, (caddr_t) NULL},
 #endif
 	{"-inwindow", ".inwindow", XrmoptionNoArg, (caddr_t) "on"},
 	{"+inwindow", ".inwindow", XrmoptionNoArg, (caddr_t) "off"},
@@ -341,6 +350,8 @@ static XrmOptionDescRec genTable[] =
 	{"+allowroot", ".allowroot", XrmoptionNoArg, (caddr_t) "off"},
 	{"-debug", ".debug", XrmoptionNoArg, (caddr_t) "on"},
 	{"+debug", ".debug", XrmoptionNoArg, (caddr_t) "off"},
+	{"-description", ".description", XrmoptionNoArg, (caddr_t) "on"},
+	{"+description", ".description", XrmoptionNoArg, (caddr_t) "off"},
 	{"-echokeys", ".echokeys", XrmoptionNoArg, (caddr_t) "on"},
 	{"+echokeys", ".echokeys", XrmoptionNoArg, (caddr_t) "off"},
 	{"-enablesaver", ".enablesaver", XrmoptionNoArg, (caddr_t) "on"},
@@ -351,6 +362,8 @@ static XrmOptionDescRec genTable[] =
 	{"+grabmouse", ".grabmouse", XrmoptionNoArg, (caddr_t) "off"},
 	{"-grabserver", ".grabserver", XrmoptionNoArg, (caddr_t) "on"},
 	{"+grabserver", ".grabserver", XrmoptionNoArg, (caddr_t) "off"},
+	{"-hide", ".hide", XrmoptionNoArg, (caddr_t) "on"},
+	{"+hide", ".hide", XrmoptionNoArg, (caddr_t) "off"},
 	{"-install", ".install", XrmoptionNoArg, (caddr_t) "on"},
 	{"+install", ".install", XrmoptionNoArg, (caddr_t) "off"},
 	{"-mousemotion", ".mousemotion", XrmoptionNoArg, (caddr_t) "on"},
@@ -546,7 +559,8 @@ static OptionStruct opDesc[] =
 	{"-/+mono", "turn on/off monochrome override"},
 	{"-/+allowaccess", "turn on/off allow new clients to connect"},
 #ifdef USE_VTLOCK
-	{"-/+vtlock", "turn on/off vt switching"},
+	{"-vtlock lock-modename", "turn on vt switching in [" VTLOCKMODE_SWITCH "|" VTLOCKMODE_NOSWITCH "|" VTLOCKMODE_RESTORE "] lock-mode"},
+
 #endif
 #ifndef ALWAYS_ALLOW_ROOT
 	{"-/+allowroot", "turn on/off allow root password to unlock"},
@@ -554,12 +568,14 @@ static OptionStruct opDesc[] =
  {"-/+allowroot", "turn on/off allow root password to unlock (off ignored)"},
 #endif
 	{"-/+debug", "whether to use debug xlock (yes/no)"},
+	{"-/+description", "whether to show mode description (yes/no)"},
 	{"-/+echokeys", "turn on/off echo '?' for each password key"},
 	{"-/+enablesaver", "turn on/off enable X server screen saver"},
 	{"-/+resetsaver", "turn on/off enable X server screen saver"},
 	{"-/+grabmouse", "turn on/off grabbing of mouse and keyboard"},
 	{"-/+grabserver", "turn on/off grabbing of server"},
 	{"-/+install", "whether to use private colormap if needed (yes/no)"},
+	{"-/+hide", "turn on/off user background manipulation"},
 	{"-/+mousemotion", "turn on/off sensitivity to mouse"},
 	{"-/+sound", "whether to use sound if configured for it (yes/no)"},
 	{"-/+timeelapsed", "turn on/off clock"},
@@ -676,12 +692,14 @@ Bool        allowroot;
 
 #endif
 Bool        debug;
+Bool        description;
 Bool        echokeys;
 Bool        enablesaver;
 Bool        resetsaver;
 Bool        fullrandom = False;
 Bool        grabmouse;
 Bool        grabserver;
+Bool        hide;
 Bool        install;
 Bool        mousemotion;
 Bool        sound;
@@ -716,6 +734,10 @@ char       *foreground;
 char       *text_user;
 char       *text_pass;
 
+#ifdef GLOBAL_UNLOCK
+char       *text_guser;
+#endif
+
 #ifdef SAFEWORD
 char       *text_dpass;
 char       *text_fpass;
@@ -742,7 +764,7 @@ char       *right3d;
 char       *left3d;
 char       *both3d;
 
-#if defined( USE_XLOCKRC ) || defined( FALLBACK_XLOCKRC)
+#if defined( USE_XLOCKRC ) || defined( FALLBACK_XLOCKRC )
 char       *cpasswd;
 
 #endif
@@ -780,7 +802,10 @@ char       *mailIcon;
 char       *nomailIcon;
 
 #ifdef USE_VTLOCK
+char       *vtlockres;
 Bool        vtlock;
+Bool        vtlock_set_active;
+Bool        vtlock_restore;
 
 #endif
 
@@ -793,11 +818,13 @@ static argtype genvars[] =
 	{(caddr_t *) & allowroot, "allowroot", "AllowRoot", "off", t_Bool},
 #endif
 	{(caddr_t *) & debug, "debug", "Debug", "off", t_Bool},
+	{(caddr_t *) & description, "description", "Description", "on", t_Bool},
 	{(caddr_t *) & echokeys, "echokeys", "EchoKeys", "off", t_Bool},
     {(caddr_t *) & enablesaver, "enablesaver", "EnableSaver", "off", t_Bool},
 	{(caddr_t *) & resetsaver, "resetsaver", "ResetSaver", "on", t_Bool},
 	{(caddr_t *) & grabmouse, "grabmouse", "GrabMouse", "on", t_Bool},
 	{(caddr_t *) & grabserver, "grabserver", "GrabServer", "off", t_Bool},
+	{(caddr_t *) & hide, "hide", "Hide", "on", t_Bool},
 	{(caddr_t *) & install, "install", "Install", "on", t_Bool},
     {(caddr_t *) & mousemotion, "mousemotion", "MouseMotion", "off", t_Bool},
 	{(caddr_t *) & mono, "mono", "Mono", "off", t_Bool},
@@ -818,6 +845,10 @@ static argtype genvars[] =
     {(caddr_t *) & foreground, "foreground", "Foreground", DEF_FG, t_String},
 	{(caddr_t *) & text_user, "username", "Username", DEF_NAME, t_String},
 	{(caddr_t *) & text_pass, "password", "Password", DEF_PASS, t_String},
+#ifdef GLOBAL_UNLOCK
+	{(caddr_t *) & text_guser, "globaluser", "GlobalUser", DEF_GUSER, t_String},
+#endif
+
 #ifdef SAFEWORD
 	{(caddr_t *) & text_dpass, "dynpass", "Dynpass", DEF_DPASS, t_String},
 	{(caddr_t *) & text_fpass, "fixpass", "Fixpass", DEF_FPASS, t_String},
@@ -864,8 +895,8 @@ static argtype genvars[] =
 	 "LogoutFailedString", DEF_FAIL, t_String},
 #endif
 #ifdef USE_SOUND
-{(caddr_t *) & locksound, "locksound", "LockSound", DEF_LOCKSOUND, t_String},
-{(caddr_t *) & infosound, "infosound", "InfoSound", DEF_INFOSOUND, t_String},
+	{(caddr_t *) & locksound, "locksound", "LockSound", DEF_LOCKSOUND, t_String},
+	{(caddr_t *) & infosound, "infosound", "InfoSound", DEF_INFOSOUND, t_String},
 	{(caddr_t *) & validsound, "validsound", "ValidSound", DEF_VALIDSOUND, t_String},
 	{(caddr_t *) & invalidsound, "invalidsound", "InvalidSound", DEF_INVALIDSOUND, t_String},
 #endif
@@ -879,10 +910,10 @@ static argtype genvars[] =
 #endif
 
 	{(caddr_t *) & mailCmd, "mailCmd", "MailCmd", DEF_MAILAPP, t_String},
-     {(caddr_t *) & mailIcon, "mailIcon", "MailIcon", DEF_MAILAPP, t_String},
-{(caddr_t *) & nomailIcon, "nomailIcon", "NomailIcon", DEF_MAILAPP, t_String},
+     	{(caddr_t *) & mailIcon, "mailIcon", "MailIcon", DEF_MAILAPP, t_String},
+	{(caddr_t *) & nomailIcon, "nomailIcon", "NomailIcon", DEF_MAILAPP, t_String},
 #ifdef USE_VTLOCK
-	{(caddr_t *) & vtlock, "vtlock", "VTLock", "on", t_Bool},
+	{(caddr_t *) & vtlockres, "vtlock", "VtLock", DEF_VTLOCK, t_String},
 #endif
 #if 0
     /* These resources require special handling.  They must be examined
@@ -942,7 +973,7 @@ stripname(char *string)
 #endif
 
 static void
-Syntax(char *badOption)
+Syntax(const char *badOption)
 {
 	int         col, len, i;
 
@@ -1094,26 +1125,28 @@ LowerString(char *s)
 }
 
 static void
-GetResource(XrmDatabase database, char *parentname, char *parentclassname,
-     char *name, char *classname, int valueType, char *def, caddr_t * valuep)
+GetResource(XrmDatabase database,
+	   const char *parentName, const char *parentClassName,
+     const char *name, const char *className, int valueType, char *def,
+     caddr_t * valuep)
 {
 	char       *type;
 	XrmValue    value;
 	char       *string;
 	char        buffer[1024];
-	char       *fullname;
-	char       *fullclassname;
+	char       *fullName;
+	char       *fullClassName;
 	int         len, temp;
 
-	fullname = (char *) malloc(strlen(parentname) + strlen(name) + 2);
-	fullclassname = (char *) malloc(strlen(parentclassname) +
-					strlen(classname) + 2);
+	fullName = (char *) malloc(strlen(parentName) + strlen(name) + 2);
+	fullClassName = (char *) malloc(strlen(parentClassName) +
+					strlen(className) + 2);
 
-	(void) sprintf(fullname, "%s.%s", parentname, name);
-	(void) sprintf(fullclassname, "%s.%s", parentclassname, classname);
-	temp = XrmGetResource(database, fullname, fullclassname, &type, &value);
-	(void) free((void *) fullname);
-	(void) free((void *) fullclassname);
+	(void) sprintf(fullName, "%s.%s", parentName, name);
+	(void) sprintf(fullClassName, "%s.%s", parentClassName, className);
+	temp = XrmGetResource(database, fullName, fullClassName, &type, &value);
+	(void) free((void *) fullName);
+	(void) free((void *) fullClassName);
 
 	if (temp) {
 		string = value.addr;
@@ -1168,8 +1201,8 @@ GetResource(XrmDatabase database, char *parentname, char *parentclassname,
 }
 
 static      XrmDatabase
-parsefilepath(char *xfilesearchpath, char *TypeName, char *ClassName,
-	      char *CustomName)
+parsefilepath(char *xfilesearchpath, const char *typeName,
+        char *className, char *customName)
 {
 	XrmDatabase database = NULL;
 	char       *appdefaults;
@@ -1187,13 +1220,13 @@ parsefilepath(char *xfilesearchpath, char *TypeName, char *ClassName,
 					i++;
 					break;
 				case 'T':
-					i += strlen(TypeName);
+					i += strlen(typeName);
 					break;
 				case 'N':
-					i += strlen(ClassName);
+					i += strlen(className);
 					break;
 				case 'C':
-					i += strlen(CustomName);
+					i += strlen(customName);
 					break;
 				default:
 					break;
@@ -1228,19 +1261,19 @@ parsefilepath(char *xfilesearchpath, char *TypeName, char *ClassName,
 					*dst = '\0';
 					break;
 				case 'T':
-					(void) strcat(dst, TypeName);
+					(void) strcat(dst, typeName);
 					src++;
-					dst += strlen(TypeName);
+					dst += strlen(typeName);
 					break;
 				case 'N':
-					(void) strcat(dst, ClassName);
+					(void) strcat(dst, className);
 					src++;
-					dst += strlen(ClassName);
+					dst += strlen(className);
 					break;
 				case 'C':
-					(void) strcat(dst, CustomName);
+					(void) strcat(dst, customName);
 					src++;
-					dst += strlen(CustomName);
+					dst += strlen(customName);
 					break;
 				case 'S':
 					src++;
@@ -1499,30 +1532,30 @@ checkDisplay(void)
 }
 
 static void
-printvar(char *classname, argtype var)
+printvar(char *className, argtype var)
 {
 	switch (var.type) {
 		case t_String:
 			(void) fprintf(stderr, "%s.%s: %s\n",
-				       classname, var.name,
+				       className, var.name,
 			 (*((char **) var.var)) ? *((char **) var.var) : "");
 			break;
 		case t_Float:
 			(void) fprintf(stderr, "%s.%s: %g\n",
-				  classname, var.name, *((float *) var.var));
+				  className, var.name, *((float *) var.var));
 			break;
 		case t_Int:
 			(void) fprintf(stderr, "%s.%s: %d\n",
-				    classname, var.name, *((int *) var.var));
+				    className, var.name, *((int *) var.var));
 			break;
 		case t_Bool:
 			(void) fprintf(stderr, "%s.%s: %s\n",
-				       classname, var.name, *((int *) var.var) ? "True" : "False");
+				       className, var.name, *((int *) var.var) ? "True" : "False");
 			break;
 	}
 }
 
-void
+static void
 getServerResources(Display * display, char *homeenv, char **custom,
 		   XrmDatabase * RDB, XrmDatabase * serverDB)
 {
@@ -1559,7 +1592,7 @@ getServerResources(Display * display, char *homeenv, char **custom,
 #endif
 }
 
-void
+static void
 getAppResources(char *homeenv, char **custom,
 	   XrmDatabase * RDB, XrmDatabase * serverDB, int *argc, char **argv)
 {
@@ -1768,6 +1801,38 @@ getResources(Display ** displayp, int argc, char **argv)
 			    genvars[i].name, genvars[i].classname,
 			    genvars[i].type, genvars[i].def, genvars[i].var);
 
+#ifdef USE_VTLOCK
+        /* Process the vtlock resource */
+        if ( !vtlockres || !*vtlockres )
+          vtlock = False;
+        else {
+	    if (debug)
+		(void) fprintf(stderr,"vtlock: %s\n",vtlockres);
+            if ( !strcmp( VTLOCKMODE_SWITCH, vtlockres ) )
+            {
+                vtlock = True;
+                vtlock_set_active = True;
+                vtlock_restore = False;
+            }
+            else if ( !strcmp( VTLOCKMODE_RESTORE, vtlockres ) )
+            {
+                vtlock = True;
+                vtlock_set_active = True;
+                vtlock_restore = True;
+            }
+            else if ( !strcmp( VTLOCKMODE_OFF, vtlockres ) )
+            {
+                vtlock = False;
+	    }
+            else
+            {
+                vtlock = True;
+                vtlock_set_active = False;
+                vtlock_restore = False;
+            }
+        }
+#endif
+
 	max_length = 0;
 	for (i = 0; i < numprocs; i++) {
 		j = strlen(LockProcs[i].cmdline_arg);
@@ -1926,19 +1991,13 @@ getResources(Display ** displayp, int argc, char **argv)
 #if HAVE_DIRENT_H
 	/* Evaluate bitmap */
 	if (bitmap && strcmp(bitmap, DEF_BITMAP)) {
-		extern void get_dir(char *fullpath, char *dir, char *filename);
-		extern int  sel_image(struct dirent *name);
-		extern int  scan_dir(const char *directoryname, struct dirent ***namelist,
-				     int         (*select) (struct dirent *),
-			int         (*compare) (const void *, const void *));
-
 		get_dir(bitmap, directory_r, filename_r);
 		if (image_list != NULL) {
-			int         i;
+			int         num;
 
-			for (i = 0; i < num_list; i++) {
-				if  (image_list[i])
-					(void) free((void *) image_list[i]);
+			for (num = 0; num < num_list; num++) {
+				if  (image_list[num])
+					(void) free((void *) image_list[num]);
 			}
 			(void) free((void *) image_list);
 			image_list = NULL;

@@ -46,6 +46,8 @@ static const char sccsid[] = "@(#)image.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "iostuff.h"
 
+#ifdef MODE_image
+
 ModeSpecOpt image_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -147,6 +149,11 @@ refresh_image(ModeInfo * mi)
 	int         i;
 
 	MI_CLEARWINDOWCOLORMAP(mi, ip->backGC, ip->black);
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+	/* This is needed when another program changes the colormap. */
+	free_stuff(MI_DISPLAY(mi), ip);
+	init_stuff(mi);
+#endif
 	if (MI_NPIXELS(mi) <= 2)
 		XSetForeground(display, ip->backGC, MI_WHITE_PIXEL(mi));
 	for (i = 0; i < ip->iconcount; i++) {
@@ -246,3 +253,5 @@ release_image(ModeInfo * mi)
 		ims = NULL;
 	}
 }
+
+#endif /* MODE_image */

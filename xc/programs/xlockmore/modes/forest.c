@@ -44,6 +44,8 @@ static const char sccsid[] = "@(#)forest.c	4.07 97/11/24 xlockmore";
 
 #endif /* STANDALONE */
 
+#ifdef MODE_forest
+
 ModeSpecOpt forest_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -215,3 +217,5 @@ refresh_forest(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_forest */

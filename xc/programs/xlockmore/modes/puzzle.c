@@ -26,7 +26,7 @@ static const char sccsid[] = "@(#)puzzle.c	4.09 98/03/20 xlockmore";
  *            image moved off screen (-inwindow or -debug).
  * 10-May-97: Compatible with xscreensaver
  * 15-Mar-96: cleaned up, NUMBERED compile-time switch is now broken.
- * Feb-96: combined with rastering.  Jouk Jansen <joukj@crys.chem.uva.nl>.
+ * Feb-96: combined with rastering.  Jouk Jansen <joukj@hrem.stm.tudelft.nl>.
  * Feb-95: written.  Heath Rice <hrice@netcom.com>
  */
 
@@ -54,6 +54,8 @@ static const char sccsid[] = "@(#)puzzle.c	4.09 98/03/20 xlockmore";
 #endif /* STANDALONE */
 #include "iostuff.h"
 
+#ifdef MODE_puzzle
+
 ModeSpecOpt puzzle_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -66,12 +68,9 @@ ModStruct   puzzle_description =
 
 #endif
 
-#include <time.h>
-
 #define PUZZLE_WIDTH   image_width
 #define PUZZLE_HEIGHT    image_height
 #define PUZZLE_BITS    image_bits
-#define NOWAY 255
 #include "puzzle.xbm"
 
 #if defined( USE_XPM ) || defined( USE_XPMINC )
@@ -79,6 +78,8 @@ ModStruct   puzzle_description =
 #include "puzzle.xpm"
 #define DEFAULT_XPM 1
 #endif
+
+#define NOWAY 255
 
   /*int storedmoves, *moves, *position, space;  To keep track of puzzle */
 typedef struct {
@@ -447,10 +448,14 @@ init_puzzle(ModeInfo * mi)
 	}
 	pp = &puzzs[MI_SCREEN(mi)];
 
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+        /* This is needed when another program changes the colormap. */
+        free_stuff(MI_DISPLAY(mi), pp);
+#endif
+	init_stuff(mi);
 	if (pp->painted && pp->windowsize.x == MI_WIDTH(mi) &&
 	    pp->windowsize.y == MI_HEIGHT(mi))
 		return;		/* Debounce since refresh_puzzle is init_puzzle */
-	init_stuff(mi);
 
 	pp->excount = MI_COUNT(mi);
 	if (pp->excount < 0) {
@@ -618,3 +623,5 @@ release_puzzle(ModeInfo * mi)
 	}
 #endif
 }
+
+#endif /* MODE_puzzle */

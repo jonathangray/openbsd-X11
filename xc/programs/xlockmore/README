@@ -1,4 +1,4 @@
-xlockmore-4.12: the maintained version of xlock
+xlockmore-4.14ALPHA: the maintained version of xlock
 see docs/Revisions for more version stuff
 see docs/TODO for stuff to do :)
 
@@ -9,7 +9,7 @@ If someone has some free time and wants to take over... let me know.
 Primary site: ftp://ftp.tux.org/pub/people/david-bagley/xlockmore
 Secondary site: ftp://ftp.x.org/contrib/applications
 Web page: http://www.tux.org/~bagleyd/xlockmore.html
-Maintainer: David A. Bagley <bagleyd@bigfoot.com>
+Maintainer: David A. Bagley <bagleyd@tux.org>
 
 Majordomos: Mail to majordomo@tux.org with just
 subscribe [choice] [your-email-address]
@@ -27,7 +27,7 @@ SECURITY WARNING:
 xlock using the MesaGL Libraries (<= 2.6) setuid root has a known method for
 users to obtain root privledges!
 
-Please send all bug reports to bagleyd@bigfoot.com .
+Please send all bug reports to bagleyd@tux.org .
 Alpha versions may be available through web page or primary ftp site.
 Adapted from Patrick J. Naughton's original xlock, with lots of help
  from others.
@@ -42,6 +42,9 @@ How to build?
   Check below to see if your machine is one mentioned that causes
   problems, otherwise it should be easy.  Just to be safe after installing 
   test it with something like: `/usr/local/bin/xlock -debug -verbose`
+
+  If you installed this before you may want to back up your XLock.ad file
+  if you made changes, since `make install` will overwrite this.
 
   There are 3 ways to build:
 
@@ -343,6 +346,8 @@ XCOMM #define RplayLibrary
       concerned with getting it working ... not security).
 
   Solaris2.x (Sun SPARC)
+    You could use MesaGL or OpenGL.  I found a developers version of OpenGL at
+      http://www.sun.com/solaris/opengl/
     Solaris2.6 may not work with rplay.  configure --without-rplay
     If you get something like:
 xlock.c:1584: `sigset_t' undeclared (first use this function)
@@ -354,17 +359,6 @@ xlock.c:1584: `sigset_t' undeclared (first use this function)
          -DSUN_OGL_NO_VERTEX_MACROS
       If using Imakefile, see iconfig.h .
       After a make, use on a display that supports GLX  `xdpyinfo | grep GLX`
-    It is possible to get xlock working with Sun's OpenGL libraries
-      and MesaGL's includes (I could not find Sun's OpenGL includes, so you
-      probably have to pay extra for them).
-      1. configure --without-opengl --with-mesagl --x-includes=/usr/openwin \
-            --x-libraries=/usr/openwin <+your options>
-      2. edit the modes/Makefile
-        Take out "Mesa" from the library stuff.
-      3. edit config.h
-        uncomment "#define OPENGL_MESA_INCLUDES"
-      4. make
-      5. Use on a display that supports GLX  `xdpyinfo | grep GLX`
     Imake will compile with the -DHAVE_SHADOW switch.
     With GNU's gcc, get rid of the "-ansi" during compilation, also
       one may want to get rid of the -xF references in
@@ -374,7 +368,7 @@ xlock.c:1584: `sigset_t' undeclared (first use this function)
       If you use netgroup make sure there is a return at the end of file.
 
   SunOS4.1.x (Sun Sparc & 680x0)
-    bubble will crash the xnews server if patch 100444-76 OpenWindows V3.0
+    bubble may crash the xnews server if patch 100444-76 OpenWindows V3.0
       Server patch is installed.  To test this
       `strings /usr/openwin/bin/xnews | grep Patch`
       It would then show Patch #3000-124 if 10044-76 is installed.
@@ -442,6 +436,9 @@ xlock.c:1584: `sigset_t' undeclared (first use this function)
     Here is a work around, put this line in /etc/profile:
         alias x='(startx >/dev/null &);clear;logout'
       then use 'x' instead of 'startx' (with no other active VT's).
+    Try configuring with --enable-vtlock .  This is experimental and requires
+      xlock being setuid to root so there are security concerns with it.
+      See man pages for its runtime options.
 
   XPM
     Full color pixmap package.  See below on availability.  Follow its
@@ -495,7 +492,7 @@ XCOMM #define XpmLibrary
     In modes/Makefile.in make sure SAFEWORD is linked in, comment out
       similar link that does not contain safeword libraries.
     Put the cust*.h files in the main xlock directory.
-    Use configure, make.
+    Use `configure; make`.
     Get back to me if it works or does not work.
      
   Dynamic Linking
@@ -511,8 +508,8 @@ XCOMM #define XpmLibrary
         make
         make install
       Also added some stuff to configure but it is working less then xmkmf.
-      This patch was originally written for Linux.  Not all distributions
-      have "dlfcn.h" which is needed.  It may work better on Linux.
+    This patch was originally written for Linux.  Not all distributions
+    have "dlfcn.h" which is needed.  It may work better on Linux.
       xlock core dumps right away... gdb gives 
         Program received signal SIGSEGV, Segmentation fault.
         0x40002d2b in _dl_debug_state ()
@@ -611,7 +608,8 @@ Other things to try: (if you got it working :-) )
     do not have them... but do have Linux and Xnest ... try:
      Xnest -scrns 3 :1 &
      xterm -display :1.0
-    And run xlock from the created xterm.
+    And run xlock from the created xterm.  (For some reason I have to do
+    it as root).
     If you are using MesaGL, it must be compiled without SHM extension do
       to a bug in Xnest (even in XFree3.3 == X11R6.3) or you will get
       "BadDrawable (invalid Pixmap or Window parameter)".
@@ -689,6 +687,7 @@ Other related stuff (all not maintained by me):
       http://axp616.gsi.de:8080/www/vms/mzsw.html
   xautolock (runs xlock after a idle time)
     ftp://ftp.x.org/contrib/applications
+    ftp://sunsite.unc.edu/pub/Linux/X11/screensavers
     (I use openwin and I put this in my $HOME/.openwin-init)
     toolwait /usr/local/bin/xautolock -time 5 -locker "xlock -lockdelay 30"
   XPM

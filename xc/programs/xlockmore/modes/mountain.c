@@ -42,6 +42,8 @@ static const char sccsid[] = "@(#)mountain.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_mountain
+
 ModeSpecOpt mountain_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -274,3 +276,5 @@ refresh_mountain(ModeInfo * mi)
 	mp->x = 0;
 	mp->y = 0;
 }
+
+#endif /* MODE_mountain */

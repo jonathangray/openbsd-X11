@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)goop.c  4.10 98/03/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 24-Mar-98: xlock version David Bagley <bagleyd@bigfoot.com>
+ * 24-Mar-98: xlock version David Bagley <bagleyd@tux.org>
  * 1997:      xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
@@ -94,6 +94,8 @@ static const char sccsid[] = "@(#)goop.c  4.10 98/03/24 xlockmore";
 
 #endif /* STANDALONE */
 #include <spline.h>
+
+#ifdef MODE_goop
 
 ModeSpecOpt goop_opts =
 {0, NULL, 0, NULL, NULL};
@@ -322,32 +324,34 @@ make_layer(ModeInfo * mi, layer * l, int nblobs)
 }
 
 static void
-draw_layer_plane(Display * display, layer * layer, int width, int height)
+draw_layer_plane(Display * display, layer * layer_plane, int width, int height)
 {
 	int         i;
 
-	XSetForeground(display, layer->gc, 1L);
-	XFillRectangle(display, layer->pixmap, layer->gc, 0, 0, width, height);
-	XSetForeground(display, layer->gc, 0L);
-	for (i = 0; i < layer->nblobs; i++) {
-		throb_blob(&(layer->blobs[i]));
-		move_blob(&(layer->blobs[i]), width, height);
-		draw_blob(display, layer->pixmap, layer->gc, &(layer->blobs[i]), True);
+	XSetForeground(display, layer_plane->gc, 1L);
+	XFillRectangle(display, layer_plane->pixmap, layer_plane->gc,
+     0, 0, width, height);
+	XSetForeground(display, layer_plane->gc, 0L);
+	for (i = 0; i < layer_plane->nblobs; i++) {
+		throb_blob(&(layer_plane->blobs[i]));
+		move_blob(&(layer_plane->blobs[i]), width, height);
+		draw_blob(display, layer_plane->pixmap, layer_plane->gc,
+       &(layer_plane->blobs[i]), True);
 	}
 }
 
 
 static void
 draw_layer_blobs(Display * display, Drawable drawable, GC gc,
-		 layer * layer, int width, int height,
+		 layer * layer_plane, int width, int height,
 		 Bool fill_p)
 {
 	int         i;
 
-	for (i = 0; i < layer->nblobs; i++) {
-		throb_blob(&(layer->blobs[i]));
-		move_blob(&(layer->blobs[i]), width, height);
-		draw_blob(display, drawable, gc, &(layer->blobs[i]), fill_p);
+	for (i = 0; i < layer_plane->nblobs; i++) {
+		throb_blob(&(layer_plane->blobs[i]));
+		move_blob(&(layer_plane->blobs[i]), width, height);
+		draw_blob(display, drawable, gc, &(layer_plane->blobs[i]), fill_p);
 	}
 }
 
@@ -583,3 +587,5 @@ release_goop(ModeInfo * mi)
 		goops = NULL;
 	}
 }
+
+#endif /* MODE_goop */

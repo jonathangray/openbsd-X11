@@ -41,6 +41,8 @@ static const char sccsid[] = "@(#)turtle.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_turtle
+
 ModeSpecOpt turtle_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -401,3 +403,5 @@ release_turtle(ModeInfo * mi)
 		turtles = NULL;
 	}
 }
+
+#endif /* MODE_turtle */

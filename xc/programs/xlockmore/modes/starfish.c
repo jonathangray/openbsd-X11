@@ -17,7 +17,7 @@ static const char sccsid[] = "@(#)starfish.c	4.11 98/06/11 xlockmore";
  * implied warranty.
  * 
  * Revision History:
- * 24-Feb-98:  xlockmore version by Jouk Jansen <joukj@crys.chem.uva.nl>
+ * 24-Feb-98:  xlockmore version by Jouk Jansen <joukj@hrem.stm.tudelft.nl>
  * 1997 :    original xscreensaver version by Jamie Zawinski <jwz@jwz.org>
  */
 
@@ -36,6 +36,8 @@ static const char sccsid[] = "@(#)starfish.c	4.11 98/06/11 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #include "color.h"
 #endif /* STANDALONE */
+
+#ifdef MODE_starfish
 
 #include "spline.h"
 
@@ -110,7 +112,7 @@ typedef struct {
 	double      th;		/* angle of rotation */
 	double      rotv;	/* rotational velocity */
 	double      rota;	/* rotational acceleration */
-	long        elasticity;	/* how fast it deforms: radial velocity */
+	double      elasticity;	/* how fast it deforms: radial velocity */
 	double      rot_max;
 	long        min_r, max_r;	/* radius range */
 	int         npoints;	/* control points */
@@ -132,16 +134,16 @@ typedef struct {
 
 static starfishstruct *starfishes = NULL;
 
-void
+static void
 make_starfish(ModeInfo * mi)
 {
 	starfishstruct *sp = &starfishes[MI_SCREEN(mi)];
 	int         i;
 	int         mid;
 
-	sp->elasticity = (long) (SCALE * sp->thickness);
+	sp->elasticity = SCALE * sp->thickness;
 
-	if (sp->elasticity == 0)
+	if (sp->elasticity == 0.0)
 		/* bell curve from 0-15, avg 7.5 */
 		sp->elasticity = RAND(5 * SCALE) + RAND(5 * SCALE) + RAND(5 * SCALE);
 
@@ -154,7 +156,7 @@ make_starfish(ModeInfo * mi)
 	sp->rotv /= 360;	/* convert degrees to ratio */
 
 	if (sp->blob_p) {
-		sp->elasticity *= 3;
+		sp->elasticity *= 3.0;
 		sp->rotv *= 3;
 	}
 	sp->rot_max = sp->rotv * 2;
@@ -257,22 +259,22 @@ release_starfish(ModeInfo * mi)
 }
 
 
-void
+static void
 throb_starfish(starfishstruct * sp)
 {
 	int         i;
 	double      frac = ((M_PI + M_PI) / sp->npoints);
 
 	for (i = 0; i < sp->npoints; i++) {
-		long        r = sp->r[i];
-		long        ra = (r > 0 ? r : -r);
+		double      r = sp->r[i];
+		double      ra = (r > 0.0 ? r : -r);
 		double      th = (sp->th > 0 ? sp->th : -sp->th);
-		long        x, y;
-		long        elasticity = sp->elasticity;
+		double      x, y;
+		double      elasticity = sp->elasticity;
 
 		/* place control points evenly around perimiter, shifted by theta */
-		x = sp->x + (long) (ra * cos(i * frac + th));
-		y = sp->y + (long) (ra * sin(i * frac + th));
+		x = sp->x + (ra * cos(i * frac + th));
+		y = sp->y + (ra * sin(i * frac + th));
 
 		sp->splines->control_x[i] = x / SCALE;
 		sp->splines->control_y[i] = y / SCALE;
@@ -282,26 +284,26 @@ throb_starfish(starfishstruct * sp)
 
 		/* Slow down near the end points: move fastest in the middle. */
 		{
-			double      ratio = (double) ra / (double) (sp->max_r - sp->min_r);
+			double      ratio = ra / (double) (sp->max_r - sp->min_r);
 
 			if (ratio > 0.5)
 				ratio = 1 - ratio;	/* flip */
-			ratio *= 2;	/* normalize */
+			ratio *= 2.0;	/* normalize */
 			ratio = (ratio * 0.9) + 0.1;	/* fudge */
-			elasticity = (long) (elasticity * ratio);
+			elasticity = elasticity * ratio;
 		}
 
 
 		/* Increase/decrease radius by elasticity */
-		ra += (r >= 0 ? elasticity : -elasticity);
+		ra += (r >= 0.0 ? elasticity : -elasticity);
 		if ((i % sp->skip) == 0)
-			ra += (elasticity / 2);
+			ra += (elasticity / 2.0);
 
-		r = ra * (r >= 0 ? 1 : -1);
+		r = ra * (r >= 0.0 ? 1.0 : -1.0);
 
 		/* If we've reached the end (too long or too short) reverse direction. */
-		if ((ra > sp->max_r && r >= 0) ||
-		    (ra < sp->min_r && r < 0))
+		if ((ra > sp->max_r && r >= 0.0) ||
+		    (ra < sp->min_r && r < 0.0))
 			r = -r;
 
 		sp->r[i] = r;
@@ -309,7 +311,7 @@ throb_starfish(starfishstruct * sp)
 }
 
 
-void
+static void
 spin_starfish(starfishstruct * sp)
 {
 	double      th = sp->th;
@@ -360,9 +362,8 @@ spin_starfish(starfishstruct * sp)
 }
 
 
-void
-draw1_starfish(Display * display, Drawable drawable, GC gc, starfishstruct * sp,
-	       Bool fill_p)
+static void
+draw1_starfish(Display * display, Drawable drawable, GC gc, starfishstruct * sp)
 {
 	compute_closed_spline(sp->splines);
 	if (sp->prev) {
@@ -550,7 +551,7 @@ init_starfish(ModeInfo * mi)
 	make_starfish(mi);
 }
 
-void
+static void
 run_starfish(ModeInfo * mi)
 {
 	Display    *display = MI_DISPLAY(mi);
@@ -559,7 +560,7 @@ run_starfish(ModeInfo * mi)
 
 	throb_starfish(sp);
 	spin_starfish(sp);
-	draw1_starfish(display, window, sp->gc, sp, False);
+	draw1_starfish(display, window, sp->gc, sp);
 
 	if (MI_IS_INSTALL(mi) && MI_NPIXELS(mi) > 2) {
 		if (sp->mono_p) {
@@ -579,7 +580,7 @@ run_starfish(ModeInfo * mi)
 			XSetForeground(display, sp->gc, MI_BLACK_PIXEL(mi));
 		else
 			XSetForeground(display, sp->gc, MI_WHITE_PIXEL(mi));
-		if (++sp->fg_index >= MI_NPIXELS(mi))
+		if (++sp->fg_index >= (unsigned int) MI_NPIXELS(mi))
 			sp->fg_index = 0;
 	}
 }
@@ -591,7 +592,6 @@ draw_starfish(ModeInfo * mi)
 	starfishstruct *sp = &starfishes[MI_SCREEN(mi)];
 
 	if (sp->no_colors) {
-		release_starfish(mi);
 		init_starfish(mi);
 		return;
 	}
@@ -613,7 +613,6 @@ draw_starfish(ModeInfo * mi)
 	}
 	if (sp->counter > MI_CYCLES(mi)) {
 		/* Every now and then, restart the mode */
-		release_starfish(mi);
 		init_starfish(mi);
 	}
 }
@@ -622,3 +621,5 @@ refresh_starfish(ModeInfo * mi)
 {
 	init_starfish(mi);
 }
+
+#endif /* MODE_starfish */

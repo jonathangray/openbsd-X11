@@ -47,6 +47,8 @@ static const char sccsid[] = "@(#)tube.c 4.07 97/11/24 xlockmore";
 #include "color.h"
 #endif /* !STANDALONE */
 
+#ifdef MODE_tube
+
 ModeSpecOpt tube_opts =
 {0, NULL, 0, NULL, NULL};
 
@@ -348,3 +350,5 @@ release_tube(ModeInfo * mi)
 		tubes = NULL;
 	}
 }
+
+#endif /* MODE_tube */

@@ -34,7 +34,7 @@ static const char sccsid[] = "@(#)star.c	4.07 97/11/24 xlockmore";
  * 17-Jan-96: 3D mode for star thanks to <theiling@coli.uni-sb.de>.
  *            Get out your 3D glasses, Red on right and Blue on left.
  * 14-Apr-95: Jeremie PETIT <petit@aurora.unice.fr> added a "move" feature.
- * 2-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
+ * 2-Sep-93: xlock version David Bagley <bagleyd@tux.org>
  * 1992:     xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
@@ -71,6 +71,8 @@ static const char sccsid[] = "@(#)star.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 
 #endif /* STANDALONE */
+
+#ifdef MODE_star
 
 #define DEF_TREK  "50"
 #define DEF_ROCK  "False"
@@ -732,3 +734,5 @@ refresh_star(ModeInfo * mi)
 		MI_CLEARWINDOW(mi);
 	}
 }
+
+#endif /* MODE_star */

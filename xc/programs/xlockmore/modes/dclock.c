@@ -21,11 +21,13 @@ static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
+ * 04-Dec-98: New "savers" added for hiv, veg, and lab.
+              hiv one due to Kenneth Stailey <kstailey@disclosure.com>
  * 10-Aug-98: Population Explosion and Tropical Forest Countdown stuff
  *            I tried to get precise numbers but they may be off a few percent.
  *            Whether or not, its still pretty scary IMHO. 
  *            Although I am a US citizen... I have the default for area in
- *            metric.  David Bagley <bagleyd@bigfoot.com>
+ *            metric.  David Bagley <bagleyd@tux.org>
  * 10-May-97: Compatible with xscreensaver
  * 29-Aug-95: Written.
  */
@@ -35,21 +37,21 @@ static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
  *  the consistency of the numbers I got at the Bronx Zoo but proportions
  *  were figured to be 160.70344 people a minute increase not 180 and
  *  35.303144 hectares (87.198766 acres) a minute decrease not 247 (100 acres).
- *  So I am going *  with these more conservative numbers.)
+ *  So I am going with these more conservative numbers.)
  *
  *  Time 0 is 0:00:00 1 Jan 1970 at least according to hard core UNIX fans
  *  Minutes from 1  Jan 1970 to 21 Jun 1985:  8137440
  *  Minutes from 21 Jun 1985 to 12 Jul 1988:  6867360
  *                                    Total: 15004800
  *
- *  Population Explosion Saver
+ *  Population Explosion Saver (popex)
  *  3,535,369,000 people (figured by extrapolation) 1 Jan 1970
  *  4,843,083,596 people 21 Jun 1985 (Opening of Wild Asia in the Bronx Zoo)
  *  5,946,692,000 people 12 Jul 1998 (David Bagley visits zoo ;) )
  *  180 people a minute increase in global population (I heard 170 also)
  *  260,000 people a day increase in global population
  *
- *  Tropical Forest Countdown Saver
+ *  Tropical Forest Countdown Saver (forest)
  *  1,184,193,000 hectares (figured by extrapolation) 1 Jan 1970
  *    (2,924,959,000 acres)
  *  896,916,700 hectares 21 Jun 1985 (Opening of Wild Asia in the Bronx Zoo)
@@ -57,6 +59,24 @@ static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
  *  654,477,300 hectares 12 Jul 1998 (David Bagley visits zoo ;) )
  *    (1,616,559,000 acres)
  *  247 hectares a minute lost forever (1 hectare = 2.47 acres)
+ *
+ *  HIV Infection Counter Saver (hiv)
+ *  -130,828,080 cases (figured by extrapolation) 1 Jan 1970
+ *  (hmmm...)
+ *  36,503,000 3 Dec 1998 (from http://www.vers.com/aidsclock/INDEXA.HTM)
+ *  11 cases/min
+ *
+ *  365.25 * 24 * 60 =  525960 minutes in a year
+ *
+ *  Animal Research Counter Saver (lab)
+ *  Approximately 17-22 million animals are used in research each year.
+ *  OK so assume 17,000,000 / 525960 = 32.32184957 per minute
+ *  http://www.fcs.uga.edu/~mhulsey/GDB.html
+ *
+ *  Animal Consumation Counter Saver (veg)
+ *  Approximately 5 billion are consumed for food annually.
+ *  OK 5,000,000,000 / 525960 = 9506.426344209 per minute
+ *  http://www.fcs.uga.edu/~mhulsey/GDB.html
  */
 
 #ifdef STANDALONE
@@ -77,6 +97,8 @@ static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 #include "iostuff.h"
 
+#ifdef MODE_dclock
+
 #ifndef METRIC
 #define METRIC 1
 #endif
@@ -91,29 +113,53 @@ static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
 #endif
 #define PEOPLE_MIN 160.70344
 #define PEOPLE_TIME_START 3535369000.0
+#define HIV_MIN 11.0
+#define HIV_TIME_START -130828080.0
+#define LAB_MIN 32.32184957
+#define LAB_TIME_START 0
+#define VEG_MIN 9506.426344209
+#define VEG_TIME_START 0
 
 #define DEF_POPEX  "False"
-#define DEF_FOREST  "False"
+#define DEF_FOREST "False"
+#define DEF_HIV    "False"
+#define DEF_LAB    "False"
+#define DEF_VEG    "False"
 
 static Bool popex;
 static Bool forest;
+static Bool hiv;
+static Bool lab;
+static Bool veg;
 
 static XrmOptionDescRec opts[] =
 {
 	{"-popex", ".dclock.popex", XrmoptionNoArg, (caddr_t) "on"},
 	{"+popex", ".dclock.popex", XrmoptionNoArg, (caddr_t) "off"},
 	{"-forest", ".dclock.forest", XrmoptionNoArg, (caddr_t) "on"},
-	{"+forest", ".dclock.forest", XrmoptionNoArg, (caddr_t) "off"}
+	{"+forest", ".dclock.forest", XrmoptionNoArg, (caddr_t) "off"},
+	{"-hiv", ".dclock.hiv", XrmoptionNoArg, (caddr_t) "on"},
+	{"+hiv", ".dclock.hiv", XrmoptionNoArg, (caddr_t) "off"},
+	{"-lab", ".dclock.lab", XrmoptionNoArg, (caddr_t) "on"},
+	{"+lab", ".dclock.lab", XrmoptionNoArg, (caddr_t) "off"},
+	{"-veg", ".dclock.veg", XrmoptionNoArg, (caddr_t) "on"},
+	{"+veg", ".dclock.veg", XrmoptionNoArg, (caddr_t) "off"}
 };
 static argtype vars[] =
 {
 	{(caddr_t *) & popex, "popex", "PopEx", DEF_POPEX, t_Bool},
-	{(caddr_t *) & forest, "forest", "Forest", DEF_FOREST, t_Bool}
+	{(caddr_t *) & forest, "forest", "Forest", DEF_FOREST, t_Bool},
+	{(caddr_t *) & hiv, "hiv", "Hiv", DEF_HIV, t_Bool},
+	{(caddr_t *) & lab, "lab", "Lab", DEF_LAB, t_Bool},
+	{(caddr_t *) & veg, "veg", "Veg", DEF_VEG, t_Bool}
 };
 static OptionStruct desc[] =
 {
 	{"-/+popex", "turn on/off population explosion"},
-	{"-/+forest", "turn on/off tropical forest descruction"}
+	{"-/+forest", "turn on/off tropical forest descruction"},
+	{"-/+hiv", "turn on/off HIV infection counter"},
+	{"-/+lab", "turn on/off Animal Research counter"},
+	{"-/+veg", "turn on/off Animal Consumation counter"}
 };
 
 ModeSpecOpt dclock_opts =
@@ -135,17 +181,32 @@ ModStruct   dclock_description =
 #define PEOPLE_STRING " Personnes"
 #define FOREST_STRING "Nombre des Forets Tropicales"
 #define TROPICAL_STRING " Zones Tropicales en "
+#define HIV_STRING "Infection par le HIV a l'heure actuelle dans le monde est de"
+#define CASES_STRING ""
+#define LAB_STRING "Used in research"
+#define VEG_STRING "Consumed for Food by Mankind"
+#define YEAR_STRING " animals this year"
 #else
 #ifdef NL
 #define POPEX_STRING "Wereld populatie"
 #define PEOPLE_STRING " Mensen"
 #define FOREST_STRING "Aantal tropische wouden"
 #define TROPICAL_STRING " Tropisch gebied in "
+#define HIV_STRING "Huidige staat HIV infecties wereldwijd"
+#define CASES_STRING " gevallen"
+#define LAB_STRING "Used in research"
+#define VEG_STRING "Consumed for Food by Mankind"
+#define YEAR_STRING " animals this year"
 #else
 #define POPEX_STRING "World Population"
 #define PEOPLE_STRING " People"
 #define FOREST_STRING "Tropical Forest Countdown"
 #define TROPICAL_STRING " Tropical Forest in "
+#define HIV_STRING "Current HIV Infections World Wide"
+#define CASES_STRING " Cases"
+#define LAB_STRING "Used in research"
+#define VEG_STRING "Consumed for Food by Mankind"
+#define YEAR_STRING " animals this year"
 #endif
 #endif
 
@@ -168,7 +229,7 @@ typedef struct {
 	int         pixw, pixh;
 	Pixmap      pixmap;
 	GC          fgGC, bgGC;
-	Bool        popex, forest;
+	Bool        popex, forest, hiv, lab, veg;
 } dclockstruct;
 
 static dclockstruct *dclocks = NULL;
@@ -178,6 +239,24 @@ static XFontStruct *mode_font = None;
 #define BASE 10.0
 #define GROUP 3
 static double logbase;
+
+static unsigned long
+timeAtLastNewYear(unsigned long timeNow)
+{
+  int year = 1970, days; /* Beginning of time */
+	unsigned long  lastNewYear = 0;
+	unsigned long secondCount = 0;
+
+	while (lastNewYear + secondCount < timeNow) {
+		lastNewYear += secondCount;
+		days = 365;
+		if ((!(year % 400)) || ((year % 100) && (!(year % 4))))
+			days++;
+		secondCount = days * 24 * 60 * 60;
+		year++;
+	}
+	return lastNewYear;
+}
 
 static void
 convert(double x, char *string)
@@ -240,13 +319,13 @@ drawDclock(ModeInfo * mi)
 			dp->clocky += dp->dy;
 		}
 	}
-	if (!dp->popex && !dp->forest) {
+	if (!dp->popex && !dp->forest && !dp->hiv && !dp->lab && !dp->veg) {
 		if (dp->timeold != (dp->timenew = time((time_t *) NULL))) {
 			/* only parse if time has changed */
 			dp->timeold = dp->timenew;
 			dp->str = ctime(&dp->timeold);
 
-			if (!dp->popex && !dp->forest) {
+			if (!dp->popex && !dp->forest && !dp->hiv && !dp->lab && !dp->veg) {
 
 				/* keep last disp time so it can be cleared even if it changed */
 				tmppt = dp->str1ptb;
@@ -281,15 +360,34 @@ drawDclock(ModeInfo * mi)
 			(void) strncpy(dp->str2pta + 11, (dp->str + 20), 4);
 		}
 	} else {
+		unsigned long timeNow = seconds();
+
 		if (dp->popex) {
-			convert(PEOPLE_TIME_START + (PEOPLE_MIN / 60.0) * seconds(), dp->str2);
+			convert(PEOPLE_TIME_START + (PEOPLE_MIN / 60.0) * timeNow, dp->str2);
 			(void) strcat(dp->str2, PEOPLE_STRING);
 			dp->str2pta = dp->str2;
 			dp->str2ptb = dp->str2pta;
 		} else if (dp->forest) {
-			convert(AREA_TIME_START - (AREA_MIN / 60.0) * seconds(), dp->str2);
+			convert(AREA_TIME_START - (AREA_MIN / 60.0) * timeNow, dp->str2);
 			(void) strcat(dp->str2, TROPICAL_STRING);
 			(void) strcat(dp->str2, AREA_STRING);
+			dp->str2pta = dp->str2;
+			dp->str2ptb = dp->str2pta;
+		} else if (dp->hiv) {
+			convert(HIV_TIME_START + (HIV_MIN / 60.0) * timeNow, dp->str2);
+			(void) strcat(dp->str2, CASES_STRING);
+			dp->str2pta = dp->str2;
+			dp->str2ptb = dp->str2pta;
+		} else if (dp->lab) {
+			convert((LAB_MIN / 60.0) * (timeNow - timeAtLastNewYear(timeNow)),
+				dp->str2);
+			(void) strcat(dp->str2, YEAR_STRING);
+			dp->str2pta = dp->str2;
+			dp->str2ptb = dp->str2pta;
+		} else if (dp->veg) {
+			convert((VEG_MIN / 60.0) * (timeNow - timeAtLastNewYear(timeNow)),
+				dp->str2);
+			(void) strcat(dp->str2, YEAR_STRING);
 			dp->str2pta = dp->str2;
 			dp->str2ptb = dp->str2pta;
 		}
@@ -350,6 +448,7 @@ init_dclock(ModeInfo * mi)
 {
 	Display    *display = MI_DISPLAY(mi);
 	dclockstruct *dp;
+	unsigned long timeNow;
 
 	if (dclocks == NULL) {
 		logbase = log(BASE);
@@ -364,15 +463,38 @@ init_dclock(ModeInfo * mi)
 
 	MI_CLEARWINDOW(mi);
 
-	if (MI_IS_FULLRANDOM(mi))
-		dp->popex = (Bool) (LRAND() & 1);
-	else
+	dp->popex = False;
+	dp->forest = False;
+	dp->hiv = False;
+	dp->lab = False;
+	dp->veg = False;
+	if (MI_IS_FULLRANDOM(mi)) {
+		switch (NRAND(6)) {
+			case 1:
+				dp->popex = True;
+				break;
+			case 2:
+				dp->forest = True;
+				break;
+			case 3:
+				dp->hiv = True;
+				break;
+			case 4:
+				dp->lab = True;
+				break;
+			case 5:
+				dp->veg = True;
+				break;
+			default:
+				break;
+		}
+	} else { /* first come, first served */
 		dp->popex = popex;
-
-	if (MI_IS_FULLRANDOM(mi))
-		dp->forest = (Bool) (LRAND() & 1);
-	else
 		dp->forest = forest;
+		dp->hiv = hiv;
+		dp->lab = lab;
+		dp->veg = veg;
+	}
 
 	if (mode_font == None)
 		mode_font = getFont(display);
@@ -392,6 +514,15 @@ init_dclock(ModeInfo * mi)
 		dp->str1ptb = dp->str1pta;
 	} else if (dp->forest) {
 		dp->str1pta = FOREST_STRING;
+		dp->str1ptb = dp->str1pta;
+	} else if (dp->hiv) {
+		dp->str1pta = HIV_STRING;
+		dp->str1ptb = dp->str1pta;
+	} else if (dp->lab) {
+		dp->str1pta = LAB_STRING;
+		dp->str1ptb = dp->str1pta;
+	} else if (dp->veg) {
+		dp->str1pta = VEG_STRING;
 		dp->str1ptb = dp->str1pta;
 	} else {
 		(void) strncpy(dp->str1, (dp->str + 11), 8);
@@ -419,17 +550,34 @@ init_dclock(ModeInfo * mi)
 		dp->str1pta = dp->str1;
 		dp->str1ptb = dp->str1old;
 	}
+	timeNow = seconds();
 	if (dp->popex) {
-		convert(PEOPLE_TIME_START + (PEOPLE_MIN / 60.0) * seconds(), dp->str2);
+		convert(PEOPLE_TIME_START + (PEOPLE_MIN / 60.0) * timeNow, dp->str2);
 		(void) strcat(dp->str2, PEOPLE_STRING);
 		dp->str2pta = dp->str2;
 		dp->str2ptb = dp->str2pta;
 	} else if (dp->forest) {
-		convert(AREA_TIME_START - (AREA_MIN / 60.0) * seconds(), dp->str2);
+		convert(AREA_TIME_START - (AREA_MIN / 60.0) * timeNow, dp->str2);
 		(void) strcat(dp->str2, TROPICAL_STRING);
 		(void) strcat(dp->str2, AREA_STRING);
 		dp->str2pta = dp->str2;
 		dp->str2ptb = dp->str2pta;
+	} else if (dp->hiv) {
+		convert(HIV_TIME_START + (HIV_MIN / 60.0) * timeNow, dp->str2);
+		(void) strcat(dp->str2, CASES_STRING);
+		dp->str2pta = dp->str2;
+		dp->str2ptb = dp->str2pta;
+	} else if (dp->lab) {
+		convert((LAB_MIN / 60.0) * (timeNow - timeAtLastNewYear(timeNow)),
+			dp->str2);
+		(void) strcat(dp->str2, YEAR_STRING);
+		dp->str2pta = dp->str2;
+		dp->str2ptb = dp->str2pta;
+	} else if (dp->veg) {
+		convert((VEG_MIN / 60.0) * (timeNow - timeAtLastNewYear(timeNow)),
+			dp->str2);
+		(void) strcat(dp->str2, YEAR_STRING);
+		dp->str2pta = dp->str2;
 	} else {
 		dp->str2pta = dp->str2;
 		dp->str2ptb = dp->str2old;
@@ -515,3 +663,5 @@ refresh_dclock(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 }
+
+#endif /* MODE_dclock */

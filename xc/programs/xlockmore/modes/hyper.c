@@ -83,8 +83,11 @@ static const char sccsid[] = "@(#)hyper.c 4.12 98/08/04 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
 
+#ifdef MODE_hyper
+
 static Bool random_start;
 static Bool show_axes;
+static Bool show_planes;
 static int  spin_delay;
 
 extern XFontStruct *getFont(Display * display);
@@ -95,18 +98,22 @@ static XrmOptionDescRec opts[] =
 	{"+randomstart", ".hyper.randomStart", XrmoptionNoArg, "off"},
 	{"-showaxes", ".hyper.showAxes", XrmoptionNoArg, "on"},
 	{"+showaxes", ".hyper.showAxes", XrmoptionNoArg, "off"},
+	{"-showplanes", ".hyper.showPlanes", XrmoptionNoArg, "on"},
+	{"+showplanes", ".hyper.showPlanes", XrmoptionNoArg, "off"},
 	{"-spindelay", ".hyper.spinDelay", XrmoptionSepArg, 0},
 };
 static argtype vars[] =
 {
   {(caddr_t *) & random_start, "randomStart", "RandomStart", "True", t_Bool},
 	{(caddr_t *) & show_axes, "showAxes", "ShowAxes", "True", t_Bool},
+	{(caddr_t *) & show_planes, "showPlanes", "ShowPlanes", "False", t_Bool},
 	{(caddr_t *) & spin_delay, "spinDelay", "SpinDelay", "2", t_Int},
 };
 static OptionStruct desc[] =
 {
 	{"-/+randomstart", "turn on/off begining with random rotations"},
 	{"-/+showaxes", "turn on/off showing the axes"},
+	{"-/+showplanes", "turn on/off showing the planes"},
 	{"-spindelay num", "delay in seconds before chaning spin speed"},
 };
 
@@ -120,6 +127,10 @@ ModStruct   hyper_description =
  100000, -6, 300, 1, 64, 1.0, "",
  "Shows spinning n-dimensional hypercubes", 0, NULL};
 
+#endif
+
+#if DEBUG
+#include <assert.h>
 #endif
 
 typedef struct {
@@ -140,6 +151,11 @@ typedef struct {
 	long        color;
 } line_segment;
 
+typedef struct {
+	int         a, b, c, d;
+	long        color;
+} plane_section;
+
 
 typedef struct hyper {
 	GC          gc;
@@ -147,7 +163,8 @@ typedef struct hyper {
 	Bool        painted;
 	XFontStruct *font;
 
-	int         show_axes_p;
+	int         show_axes;
+	int         show_planes;
 
 	int         maxx, maxy;
 	int         delay;
@@ -181,6 +198,7 @@ typedef struct hyper {
 	vector     *pointsleft;
 	int         num_lines;
 	line_segment *lines;
+	plane_section *planes;
 
 	int         point_set;	/* which bank of points are we using */
 	XPoint     *xpoints[2];
@@ -333,7 +351,9 @@ figure_points(ModeInfo * mi)
 	 * First, figure out the points.
 	 */
 	hp->num_points = figure_num_points(hp->num_d);
-	/* assert(num_points <= max_points); */
+#if DEBUG
+	assert(hp->num_points <= hp->max_points);
+#endif
 	hp->points = allocarray(vector, hp->num_points * hp->num_mat);
 	hp->xpoints[0] = allocarray(XPoint, hp->num_points);
 	hp->xpoints[1] = allocarray(XPoint, hp->num_points);
@@ -355,7 +375,7 @@ figure_points(ModeInfo * mi)
 		n++;
 	} while (IncMultiCounter(c, hp->num_d));
 	(void) free((void *) c);
-#if 0
+#if DEBUG
 	assert(hp->num_points == n);
 #endif
 	/*
@@ -368,7 +388,9 @@ figure_points(ModeInfo * mi)
 		pix = NRAND(MI_NPIXELS(mi));
 
 	hp->num_lines = figure_num_lines(hp->num_d);
-	/* assert(hp->num_lines <= hp->max_lines); */
+#if DEBUG
+	assert(hp->num_lines <= hp->max_lines);
+#endif
 	hp->lines = (line_segment *) malloc(hp->num_lines * sizeof (line_segment));
 	for (n = i = 0; i < hp->num_points; i++) {
 		for (j = i + 1; j < hp->num_points; j++) {
@@ -390,7 +412,7 @@ figure_points(ModeInfo * mi)
 			}
 		}
 	}
-#if 0
+#if DEBUG
 	assert(hp->num_lines == n);
 #endif
 
@@ -398,9 +420,38 @@ figure_points(ModeInfo * mi)
 	 * Now determine the planes of rotation.
 	 */
 	hp->num_planes = figure_num_planes(hp->num_d);
-#if 0
+#if DEBUG
 	assert(hp->num_planes <= max_planes);
 #endif
+	hp->show_planes = show_planes;
+
+	if (hp->show_planes) {
+		hp->planes = (plane_section *)
+				malloc(hp->num_planes * sizeof (plane_section));
+
+		/* Keeping it simple and just drawing planes that touch the
+		 * axes.  Still not the simple, have to figure out which pt c is
+	 	 * furthest away and draw it first... yuck.
+ 		 */
+
+		for (n = i = 0; i < hp->num_d; i++) {
+			for (j = i + 1; j < hp->num_d; j++) {
+				hp->planes[n].a = 0;	
+				hp->planes[n].b = 1 << i;	
+				hp->planes[n].d = 1 << j;	
+				hp->planes[n].c = hp->planes[n].b + hp->planes[n].d;	
+				/*(void) printf ("a %d, b %d, c %d, d %d\n",
+					0, 1 << i, (1 << i) + (1 << j), 1 << j);*/
+				if (MI_NPIXELS(mi) > 2) {
+					hp->planes[n].color = MI_PIXEL(mi, pix);
+					if (++pix >= MI_NPIXELS(mi))
+						pix = 0;
+				} else
+					hp->planes[n].color = MI_WHITE_PIXEL(mi);
+				n++;
+			}
+		}
+	}
 
 	hp->axis_points = allocarray(int, hp->num_d + 1);
 
@@ -424,7 +475,7 @@ figure_points(ModeInfo * mi)
 			hp->rotation_planes[n].y = j;
 			n++;
 		}
-#if 0
+#if DEBUG
 	assert(hp->num_planes == n);
 #endif
 	/*
@@ -442,7 +493,7 @@ figure_axis_points(hyperstruct * hp)
 {
 	int         i, j, num_set;
 
-	hp->show_axes_p = show_axes;
+	hp->show_axes = show_axes;
 	for (hp->num_axis_points = i = 0; i < hp->num_points; i++) {
 		for (num_set = j = 0; j < hp->num_d; j++)
 			if (hp->points[i * hp->num_mat + j] != 0.0)
@@ -470,6 +521,10 @@ free_hyper(hyperstruct * hp)
 	if (hp->lines) {
 		XFree(hp->lines);
 		hp->lines = NULL;
+	}
+	if (hp->planes) {
+		XFree(hp->planes);
+		hp->planes = NULL;
 	}
 	if (hp->rotation_planes) {
 		XFree(hp->rotation_planes);
@@ -633,6 +688,102 @@ move_line(ModeInfo * mi, int from, int to, int set, long color)
 }
 
 static void
+move_plane(ModeInfo * mi, int a, int b, int c, int d, int set, long color)
+{
+	Display    *display = MI_DISPLAY(mi);
+	Window      window = MI_WINDOW(mi);
+	GC          gc = MI_GC(mi);
+	hyperstruct *hp = &hypers[MI_SCREEN(mi)];
+  XPoint rect[4];
+
+	if (MI_NPIXELS(mi) <= 2 || !MI_IS_USE3D(mi))
+		gc = hp->gc;
+	if (hp->normxor) {
+		XSetForeground(display, gc, color);
+		if (!hp->redrawing) {
+			rect[0].x = hp->xpoints[!set][a].x;
+			rect[0].y = hp->xpoints[!set][a].y;
+			rect[1].x = hp->xpoints[!set][b].x;
+			rect[1].y = hp->xpoints[!set][b].y;
+			rect[2].x = hp->xpoints[!set][c].x;
+			rect[2].y = hp->xpoints[!set][c].y;
+			rect[3].x = hp->xpoints[!set][d].x;
+			rect[3].y = hp->xpoints[!set][d].y;
+			XFillPolygon(display, window, gc, rect, 4, Convex, CoordModeOrigin);
+		}
+		rect[0].x = hp->xpoints[set][a].x;
+		rect[0].y = hp->xpoints[set][a].y;
+		rect[1].x = hp->xpoints[set][b].x;
+		rect[1].y = hp->xpoints[set][b].y;
+		rect[2].x = hp->xpoints[set][c].x;
+		rect[2].y = hp->xpoints[set][c].y;
+		rect[3].x = hp->xpoints[set][d].x;
+		rect[3].y = hp->xpoints[set][d].y;
+		XFillPolygon(display, window, gc, rect, 4, Convex, CoordModeOrigin);
+	} else {
+		if (!hp->redrawing) {
+			if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi))
+				XSetForeground(display, gc, MI_NONE_COLOR(mi));
+			else
+				XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
+			rect[0].x = hp->xpoints[set][a].x;
+			rect[0].y = hp->xpoints[set][a].y;
+			rect[1].x = hp->xpoints[set][b].x;
+			rect[1].y = hp->xpoints[set][b].y;
+			rect[2].x = hp->xpoints[set][c].x;
+			rect[2].y = hp->xpoints[set][c].y;
+			rect[3].x = hp->xpoints[set][d].x;
+			rect[3].y = hp->xpoints[set][d].y;
+			XFillPolygon(display, window, gc, rect, 4, Convex, CoordModeOrigin);
+			if (MI_IS_USE3D(mi)) {
+				rect[0].x = hp->xpointsleft[set][a].x;
+				rect[0].y = hp->xpointsleft[set][a].y;
+				rect[1].x = hp->xpointsleft[set][b].x;
+				rect[1].y = hp->xpointsleft[set][b].y;
+				rect[2].x = hp->xpointsleft[set][c].x;
+				rect[2].y = hp->xpointsleft[set][c].y;
+				rect[3].x = hp->xpointsleft[set][d].x;
+				rect[3].y = hp->xpointsleft[set][d].y;
+				XFillPolygon(display, window, gc, rect, 4, Convex, CoordModeOrigin);
+			}
+		}
+		if (MI_IS_USE3D(mi)) {
+			if (MI_IS_INSTALL(mi)) {
+				XSetFunction(display, gc, GXor);
+			}
+			XSetForeground(display, gc, MI_LEFT_COLOR(mi));
+		} else if (MI_NPIXELS(mi) <= 2)
+			XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
+		else
+			XSetForeground(display, gc, color);
+		rect[0].x = hp->xpoints[!set][a].x;
+		rect[0].y = hp->xpoints[!set][a].y;
+		rect[1].x = hp->xpoints[!set][b].x;
+		rect[1].y = hp->xpoints[!set][b].y;
+		rect[2].x = hp->xpoints[!set][c].x;
+		rect[2].y = hp->xpoints[!set][c].y;
+		rect[3].x = hp->xpoints[!set][d].x;
+		rect[3].y = hp->xpoints[!set][d].y;
+		XFillPolygon(display, window, gc, rect, 4, Convex, CoordModeOrigin);
+		if (MI_IS_USE3D(mi)) {
+			XSetForeground(display, gc, MI_RIGHT_COLOR(mi));
+			rect[0].x = hp->xpointsleft[!set][a].x;
+			rect[0].y = hp->xpointsleft[!set][a].y;
+			rect[1].x = hp->xpointsleft[!set][b].x;
+			rect[1].y = hp->xpointsleft[!set][b].y;
+			rect[2].x = hp->xpointsleft[!set][c].x;
+			rect[2].y = hp->xpointsleft[!set][c].y;
+			rect[3].x = hp->xpointsleft[!set][d].x;
+			rect[3].y = hp->xpointsleft[!set][d].y;
+			XFillPolygon(display, window, gc, rect, 4, Convex, CoordModeOrigin);
+			if (MI_IS_INSTALL(mi)) {
+				XSetFunction(display, gc, GXcopy);
+			}
+		}
+	}
+}
+
+static void
 move_number(ModeInfo * mi, int axis, char *string, int set, long color)
 {
 	Display    *display = MI_DISPLAY(mi);
@@ -700,10 +851,16 @@ draw_hyper_step(ModeInfo * mi, int set)
 
 	if (!hp->stationary || hp->redrawing) {
 		for (i = 0; i < hp->num_lines; i++) {
-			move_line(mi, hp->lines[i].from, hp->lines[i].to, set, hp->lines[i].color);
+			move_line(mi, hp->lines[i].from, hp->lines[i].to,
+				set, hp->lines[i].color);
 		}
-
-		if (hp->show_axes_p) {
+		if (hp->show_planes) {
+			for (i = 0; i < hp->num_planes; i++) {
+				move_plane(mi, hp->planes[i].a, hp->planes[i].b, hp->planes[i].c,
+					hp->planes[i].d, set, hp->planes[i].color);
+			}
+		}
+		if (hp->show_axes) {
 			for (i = 0; i < hp->num_axis_points; i++) {
 				(void) sprintf(tmps, "%d", i);
 				move_number(mi, hp->axis_points[i], tmps, set, MI_WHITE_PIXEL(mi));
@@ -1031,3 +1188,5 @@ release_hyper(ModeInfo * mi)
 		hypers = NULL;
 	}
 }
+
+#endif /* MODE_hyper */

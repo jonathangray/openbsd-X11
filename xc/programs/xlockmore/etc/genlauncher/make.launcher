@@ -5,7 +5,7 @@ then
   echo " Make the xlock.tcl in two passes "
   if test -f ../xlock.tcl 
   then
-    cat ../xlock.tcl | ./xlockgen > /tmp/xlock.tcl
+    cat etc.xlock.tcl | ./xlockgen > /tmp/xlock.tcl
     echo " first pass "
     cp  ../xlock.tcl /tmp/etc.xlock.tcl.old
     cp  /tmp/xlock.tcl ../xlock.tcl
