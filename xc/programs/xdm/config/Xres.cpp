@@ -16,10 +16,17 @@ xlogin*namePrompt: \040\040\040\040\040\040\040Login:
 #endif /* XPM */
 xlogin*fail: Login incorrect
 #ifdef XPM
+/**/#if WIDTH > 800
 xlogin*greetFont: -adobe-helvetica-bold-o-normal--24-240-75-75-p-138-iso8859-1
 xlogin*font: -adobe-helvetica-medium-r-normal--18-180-75-75-p-103-iso8859-1
 xlogin*promptFont: -adobe-helvetica-bold-r-normal--18-180-75-75-p-103-iso8859-1
 xlogin*failFont: -adobe-helvetica-bold-r-normal--18-180-75-75-p-103-iso8859-1
+/**/#else
+xlogin*greetFont: -adobe-helvetica-bold-o-normal--17-120-100-100-p-92-iso8859-1
+xlogin*font: -adobe-helvetica-medium-r-normal--12-120-75-75-p-69-iso8859-1
+xlogin*promptFont: -adobe-helvetica-bold-r-normal--12-120-75-75-p-69-iso8859-1
+xlogin*failFont: -adobe-helvetica-bold-r-normal--14-120-75-75-p-69-iso8859-1
+/**/#endif
 #endif /* XPM */
 /**/#ifdef COLOR
 #ifndef XPM
