@@ -282,6 +282,9 @@ XCOMM the platform-specific parameters - edit site.def to change
 #ifndef HasSecureRPC
 #define HasSecureRPC		NO	/* if you have Secure RPC */
 #endif
+#ifndef HasKrbIV
+#define HasKrbIV		NO	/* if you have Kerberos IV */
+#endif
 #ifndef HasKrb5
 #define HasKrb5			NO      /* if you have Kerberos V5 */
 #endif
@@ -309,6 +312,14 @@ XCOMM the platform-specific parameters - edit site.def to change
 #endif
 #ifndef GzipLibrary	/* if OS config didn't define it, assume it's -lz */
 #define GzipLibrary -lz
+#endif
+#if HasKrbIV
+#ifndef KrbIVIncludes
+#define KrbIVIncludes /**/
+#endif
+#ifndef KrbIVLibraries
+#define KrbIVLibraries -lkrb -ldes
+#endif
 #endif
 #if HasKrb5
 #ifndef Krb5Includes

@@ -47,6 +47,12 @@ RPCSRCS = rpcauth.c
 RPCLIB = -lrpcsvc
 #endif
 
+#if HasKrbIV
+KRBIV_DEFINES = KrbIVDefines
+KRBIV_INCLUDES = KrbIVIncludes
+KRBIVLIB = KrbIVLibraries
+#endif
+
 #if HasKrb5
 KRB5_DEFINES = Krb5Defines
 KRB5_INCLUDE = Krb5Includes
@@ -60,7 +66,7 @@ GREET_DIR = greeter
     DLLIBRARY = DlLibrary
 #endif
 #else
-GREET_DEFINES = -DGREET_USER_STATIC
+GREET_DEFINES = -DGREET_USER_STATIC $(KRBIV_DEFINES) $(KRBIV_INCLUDES)
 GREETSRCS = greet.c verify.c Login.c
 GREETOBJS = greet.o verify.o Login.o
 #if BuildBoth
@@ -140,7 +146,7 @@ SYS_LIBRARIES1 = -lutil
 
 INCLUDES = $(KRB5_INCLUDE) $(XPM_INCLUDES)
 DEPLIBS = $(DEPXMULIB) $(DEPXTOOLLIB) $(DEPXLIB) $(DEPXAUTHLIB) $(DEPXDMCPLIB)
-LOCAL_LIBRARIES = $(XMULIB) $(XTOOLLIB) $(XLIB) $(XAUTHLIB) $(XDMCPLIB) $(RPCLIB) $(DLLIBRARY) $(CRYPT_LIBRARIES) $(XPM_LIBRARIES)
+LOCAL_LIBRARIES = $(XMULIB) $(XTOOLLIB) $(XLIB) $(XAUTHLIB) $(XDMCPLIB) $(RPCLIB) $(DLLIBRARY) $(CRYPT_LIBRARIES) $(KRBIVLIB) $(XPM_LIBRARIES)
 
           SRCS1 = auth.c daemon.c server.c dpylist.c dm.c error.c file.c \
 		  netaddr.c reset.c resource.c protodpy.c policy.c \

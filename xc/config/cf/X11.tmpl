@@ -553,6 +553,13 @@ XCOMM $XFree86: xc/config/cf/X11.tmpl,v 1.8.2.4 1998/01/23 12:35:08 dawes Exp $
 #ifndef ServerOSDefines
 #define ServerOSDefines /**/
 #endif
+#if HasKrbIV
+#ifndef KrbIVDefines
+#define KrbIVDefines -DKERBEROS
+#endif
+#else
+#define KrbIVDefines /**/
+#endif
 #if HasKrb5
 #ifndef Krb5Defines
 #define Krb5Defines -DK5AUTH
