@@ -113,7 +113,7 @@ AddToMenu Utilities     "Utilities" Title
 +			"Xmag"		Exec exec xmag
 +                       "Editres"       Exec exec editres
 +			""		Nop
-+			"XEmacs"	Exec exec xemacs
+#+			"XEmacs"	Exec exec xemacs
 #+                       "Mail"          MailFunction xmh "-font fixed"
 +			""		Nop
 +                       "XLock%mini.xlock.xpm%"         Exec exec xlock -mode random
@@ -164,7 +164,7 @@ AddToMenu Window-Ops2	"&Move%mini.move.xpm%"		Move
 +			""		Nop
 +			"ScrollBar" 	Module FvwmScroll 2 2	
 +			"Print"         PrintFunction
-+                       "Print Reverse" PrintReverseFunction
+#+                       "Print Reverse" PrintReverseFunction
 
 # be sure to fill these in with your correct machine names:
 AddToMenu Remote-Logins	"dopey"	 Exec rsh dopey rxvt -display $HOSTDISPLAY &
