@@ -1,6 +1,6 @@
 # README: Notes about X11-based passphrase dialog for OpenSSH
 # created 1999-Nov-21 jmk
-# autodate: 2000-Jan-07 04:53
+# autodate: 2000-Aug-28 03:29
 
 +-------------+
 | Description |
@@ -8,9 +8,9 @@
 
 This is an X11-based passphrase dialog for use with OpenSSH.  It is
 intended to replace the Perl/Tk-based ssh-askpass dialog and
-GNOME-based ssh-askpass dialog which accompany OpenSSH-1.2.  These
-dialogs are intended to be called from the ssh-add program and not
-invoked directly.
+GNOME-based ssh-askpass dialog which formerly accompanied OpenSSH-1.2.
+These dialogs are intended to be called from the ssh-add program and
+not invoked directly.
 
 The features of x11-ssh-askpass are as follows:
 
@@ -56,6 +56,7 @@ procedure:
   make includes
   make
   make install
+  make install.man
 
 x11-ssh-askpass installs by default in /usr/local/libexec/ssh/.  To
 install it somewhere else (for example, /usr/libexec/ssh/) use:
@@ -82,7 +83,7 @@ commands before building (for example):
 
 x11-ssh-askpass is available at:
 
-  http://www.pobox.com/~jmknoble/software/x11-ssh-askpass/
+  http://www.jmknoble.cx/software/x11-ssh-askpass/
 
 +--------------------------+
 | Copyright, License, Etc. |
@@ -128,8 +129,8 @@ The portions derived from xscreensaver require the following notice:
 
 The remaining portions fall under the following copyright and license:
 
-  by Jim Knoble <jmknoble@pobox.com>
-  Copyright © 1999 Jim Knoble
+  by Jim Knoble <jmknoble@jmknoble.cx>
+  Copyright (C) 1999,2000 Jim Knoble
   
   Permission to use, copy, modify, distribute, and sell this software
   and its documentation for any purpose is hereby granted without fee,

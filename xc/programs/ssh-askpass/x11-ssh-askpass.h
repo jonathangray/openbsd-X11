@@ -1,9 +1,9 @@
 /* x11-ssh-askpass.h:  A generic X11-based password dialog for OpenSSH.
- * created 1999-Nov-17 03:40 Jim Knoble <jmknoble@pobox.com>
- * autodate: 1999-Nov-23 01:45
+ * created 1999-Nov-17 03:40 Jim Knoble <jmknoble@jmknoble.cx>
+ * autodate: 2000-Aug-28 01:29
  * 
- * by Jim Knoble <jmknoble@pobox.com>
- * Copyright © 1999 Jim Knoble
+ * by Jim Knoble <jmknoble@jmknoble.cx>
+ * Copyright (C) 1999,2000 Jim Knoble
  * 
  * Disclaimer:
  * 

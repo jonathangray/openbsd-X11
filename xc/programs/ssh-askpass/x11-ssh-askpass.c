@@ -1,9 +1,9 @@
 /* x11-ssh-askpass.c:  A generic X11-based password dialog for OpenSSH.
- * created 1999-Nov-17 03:40 Jim Knoble <jmknoble@pobox.com>
- * autodate: 1999-Nov-23 02:52
+ * created 1999-Nov-17 03:40 Jim Knoble <jmknoble@jmknoble.cx>
+ * autodate: 2000-Aug-28 01:57
  * 
- * by Jim Knoble <jmknoble@pobox.com>
- * Copyright © 1999 Jim Knoble
+ * by Jim Knoble <jmknoble@jmknoble.cx>
+ * Copyright (C) 1999,2000 Jim Knoble
  * 
  * Disclaimer:
  * 
@@ -849,7 +849,8 @@ void grabKeyboard(AppInfo *app)
 	    reason = "grab not viewable [this shouldn't happen]";
 	    break;
 	 }
-	 fprintf(stderr, "%s: Could not grab keyboard (%s)\n", app->appName);
+	 fprintf(stderr, "%s: Could not grab keyboard (%s)\n",
+		 app->appName, reason);
 	 exitApp(app, EXIT_STATUS_ERROR);
       }
    }
@@ -899,7 +900,8 @@ void grabPointer(AppInfo *app)
 	    reason = "grab not viewable [this shouldn't happen]";
 	    break;
 	 }
-	 fprintf(stderr, "%s: Could not grab pointer (%s)\n", app->appName);
+	 fprintf(stderr, "%s: Could not grab pointer (%s)\n",
+		 app->appName, reason);
 	 exitApp(app, EXIT_STATUS_ERROR);
       }
    }
@@ -1098,13 +1100,12 @@ int main(int argc, char **argv)
 
    memset(&app, 0, sizeof(app));
    
-   app.argc = argc;
-   app.argv = argv;
-
    progclass = "SshAskpass";
    app.toplevelShell = XtAppInitialize(&(app.appContext), progclass,
 					NULL, 0, &argc, argv,
 					defaults, NULL, 0);
+   app.argc = argc;
+   app.argv = argv;
    app.dpy = XtDisplay(app.toplevelShell);
    app.screen = DefaultScreenOfDisplay(app.dpy);
    app.rootWindow = RootWindowOfScreen(app.screen);
