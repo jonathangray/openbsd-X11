@@ -457,6 +457,8 @@
 ./usr/X11R6/lib/X11/config/NetBSD.cf
 ./usr/X11R6/lib/X11/config/Oki.cf
 ./usr/X11R6/lib/X11/config/OpenBSD.cf
+./usr/X11R6/lib/X11/config/QNX.cf
+./usr/X11R6/lib/X11/config/QNX.rules
 ./usr/X11R6/lib/X11/config/Server.tmpl
 ./usr/X11R6/lib/X11/config/ServerLib.tmpl
 ./usr/X11R6/lib/X11/config/Threads.tmpl
@@ -475,10 +477,10 @@
 ./usr/X11R6/lib/X11/config/convex.cf
 ./usr/X11R6/lib/X11/config/cray.cf
 ./usr/X11R6/lib/X11/config/fujitsu.cf
+./usr/X11R6/lib/X11/config/generic.cf
 ./usr/X11R6/lib/X11/config/gnu.cf
 ./usr/X11R6/lib/X11/config/gnuLib.rules
 ./usr/X11R6/lib/X11/config/gnuLib.tmpl
-./usr/X11R6/lib/X11/config/generic.cf
 ./usr/X11R6/lib/X11/config/host.def
 ./usr/X11R6/lib/X11/config/hp.cf
 ./usr/X11R6/lib/X11/config/hpLib.rules
@@ -503,6 +505,8 @@
 ./usr/X11R6/lib/X11/config/necLib.rules
 ./usr/X11R6/lib/X11/config/necLib.tmpl
 ./usr/X11R6/lib/X11/config/noop.rules
+./usr/X11R6/lib/X11/config/nto.cf
+./usr/X11R6/lib/X11/config/nto.rules
 ./usr/X11R6/lib/X11/config/oldlib.rules
 ./usr/X11R6/lib/X11/config/os2.cf
 ./usr/X11R6/lib/X11/config/os2.rules
@@ -612,6 +616,8 @@
 ./usr/X11R6/lib/X11/locale/zh
 ./usr/X11R6/lib/X11/locale/zh/XLC_LOCALE
 ./usr/X11R6/lib/X11/locale/zh_TW
+./usr/X11R6/lib/X11/locale/zh_TW.Big5
+./usr/X11R6/lib/X11/locale/zh_TW.Big5/XLC_LOCALE
 ./usr/X11R6/lib/X11/locale/zh_TW/XLC_LOCALE
 ./usr/X11R6/lib/X11/proxymngr
 ./usr/X11R6/lib/X11/rstart/commands
@@ -647,6 +653,7 @@
 ./usr/X11R6/lib/X11/xkb/compat/basic
 ./usr/X11R6/lib/X11/xkb/compat/complete
 ./usr/X11R6/lib/X11/xkb/compat/default
+./usr/X11R6/lib/X11/xkb/compat/group_led
 ./usr/X11R6/lib/X11/xkb/compat/iso9995
 ./usr/X11R6/lib/X11/xkb/compat/japan
 ./usr/X11R6/lib/X11/xkb/compat/keypad
@@ -762,6 +769,7 @@
 ./usr/X11R6/lib/X11/xkb/symbols/ca_enhanced
 ./usr/X11R6/lib/X11/xkb/symbols/cs
 ./usr/X11R6/lib/X11/xkb/symbols/ctrl
+./usr/X11R6/lib/X11/xkb/symbols/czsk
 ./usr/X11R6/lib/X11/xkb/symbols/de
 ./usr/X11R6/lib/X11/xkb/symbols/de_CH
 ./usr/X11R6/lib/X11/xkb/symbols/digital
@@ -782,6 +790,7 @@
 ./usr/X11R6/lib/X11/xkb/symbols/gb
 ./usr/X11R6/lib/X11/xkb/symbols/group
 ./usr/X11R6/lib/X11/xkb/symbols/hu
+./usr/X11R6/lib/X11/xkb/symbols/is
 ./usr/X11R6/lib/X11/xkb/symbols/iso9995-3
 ./usr/X11R6/lib/X11/xkb/symbols/it
 ./usr/X11R6/lib/X11/xkb/symbols/jp
@@ -795,8 +804,8 @@
 ./usr/X11R6/lib/X11/xkb/symbols/pc104
 ./usr/X11R6/lib/X11/xkb/symbols/pl
 ./usr/X11R6/lib/X11/xkb/symbols/pt
-./usr/X11R6/lib/X11/xkb/symbols/ru
 ./usr/X11R6/lib/X11/xkb/symbols/ralt
+./usr/X11R6/lib/X11/xkb/symbols/ru
 ./usr/X11R6/lib/X11/xkb/symbols/se
 ./usr/X11R6/lib/X11/xkb/symbols/sgi
 ./usr/X11R6/lib/X11/xkb/symbols/sgi/jp
