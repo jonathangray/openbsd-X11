@@ -1,13 +1,10 @@
 /*
  * Host.def for building OpenBSD bindists
- * $OpenBSD: host.def,v 1.1.1.1 1998/03/04 08:14:58 todd Exp $
+ * $OpenBSD: host.def,v 1.2 1998/03/26 06:19:57 todd Exp $
  * $XFree86$
  */
 
 #define InstallEmptyHostDef
-
-#define HasXpm			YES
-#define XpmLibrary		/usr/X11R6/lib/libXpm.a
 
 #define ForceNormalLib		YES
 
@@ -18,5 +15,3 @@
 #define BuildLinuxDocHtml	NO
 #define BuildAllDocs		NO
 #define InstallJapaneseDocs	NO
-
-#define BuildCyrillicFonts	YES

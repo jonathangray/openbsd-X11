@@ -1,20 +1,12 @@
 /*
  * Host.def for building OpenBSD bindists
- *
- * $XFree86: xc/programs/Xserver/hw/xfree86/etc/bindist/OpenBSD-ix86/host.def,v 1.1.2.1 1997/07/27 02:41:27 dawes Exp $
+ * $OpenBSD: host.def,v 1.4 1998/03/26 06:20:02 todd Exp $
+ * $XFree86$
  */
 
 #define InstallEmptyHostDef
 
-#define HasXpm			YES
-#define XpmLibrary		/usr/X11R6/lib/libXpm.a
-
 #define ForceNormalLib		YES
-
-#define HasTcl			YES
-#define HasTk			YES
-#define TkLibName		tk41
-#define TclLibName		tcl75
 
 /* No for now, when utilities installed, yes */
 #define HasLinuxDoc		NO
@@ -23,5 +15,3 @@
 #define BuildLinuxDocHtml	NO
 #define BuildAllDocs		NO
 #define InstallJapaneseDocs	NO
-
-#define BuildCyrillicFonts	YES
