@@ -173,11 +173,34 @@ static Bool closeScreen (i, pScreen)
     SetupScreen(pScreen);
     Bool    ret;
     int mode = WSDISPLAYIO_MODE_EMUL;
+    struct wsdisplay_cmap cmap;
+    u_char map[2];
 
     (void) OsSignal (SIGIO, SIG_IGN);
     pScreen->CloseScreen = pPrivate->CloseScreen;
     ret = (*pScreen->CloseScreen) (i, pScreen);
     (void) (*pScreen->SaveScreen) (pScreen, SCREEN_SAVER_OFF);
+    /* reset colormap for text mode */
+    map[0] = 0x00;
+    cmap.index = 0;
+    cmap.count = 1;
+    cmap.red = map;
+    cmap.green = map;
+    cmap.blue = map;
+    if (ioctl(macppcFbs[i].fd, WSDISPLAYIO_PUTCMAP, &cmap) < 0) {
+	    ErrorF("error resetting colormap\n");
+	    return FALSE;
+    }
+    map[0] = 0xFF;
+    cmap.index = 255;
+    cmap.count = 1;
+    cmap.red = map;
+    cmap.green = map;
+    cmap.blue = map;
+    if (ioctl(macppcFbs[i].fd, WSDISPLAYIO_PUTCMAP, &cmap) < 0) {
+	    ErrorF("error resetting colormap\n");
+	    return FALSE;
+    }
     ioctl(macppcFbs[pScreen->myNum].fd, WSDISPLAYIO_SMODE, &mode);
     xfree ((pointer) pPrivate);
     return ret;
