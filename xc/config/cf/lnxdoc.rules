@@ -122,7 +122,8 @@ textfile: sgmlfile							@@\
 	  set -x;\							@@\
 	  RemoveFile($$BASE.latin1);\					@@\
 	  $(SGMLFMTCMD) -f latin1 sgmlfile; \				@@\
-	  $(XFREE86IDENTFIX) < $$BASE.latin1 > _$@ && $(MV) _$@ $@)	@@\
+	  cat $$BASE.latin1 | $(XFREE86IDENTFIX) | $(COLCMD) \          @@\
+	  > _$@ && $(MV) _$@ $@)					@@\
 									@@\
 LinuxDocInstall(textfile,$(XFREE86DOCDIR))				@@\
 									@@\
