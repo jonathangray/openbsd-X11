@@ -118,6 +118,21 @@ InitXdmcpWrapper ()
     long	    sum[2];
     unsigned char   tmpkey[8];
 
+#ifdef DEV_RANDOM
+    int fd;
+    
+    if ((fd = open(DEV_RANDOM, O_RDONLY)) >= 0) {
+	if (read(fd, tmpkey, 8) == 8) {
+	    tmpkey[0] = 0;
+	    _XdmcpWrapperToOddParity(tmpkey, key);
+	    close(fd);
+	    return;	
+	} else {
+	    close(fd);
+	}
+    }
+#endif
+	    
     if (!sumFile (randomFile, sum)) {
 	sum[0] = time ((Time_t *) 0);
 	sum[1] = time ((Time_t *) 0);
