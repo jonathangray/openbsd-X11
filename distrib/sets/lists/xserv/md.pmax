@@ -5,7 +5,8 @@
 ./usr/X11R6/bin/Xmfbpmax
 ./usr/X11R6/bin/Xcfbpmax
 ./usr/X11R6/lib/X11/xserver
-./usr/X11R6/lib/X11/xserver/SecurityPolicy
 ./usr/X11R6/man/cat1/Xnest.0
 ./usr/X11R6/man/cat1/Xserver.0
 ./usr/X11R6/man/cat1/Xvfb.0
+./var/X11/xserver
+./var/X11/xserver/SecurityPolicy

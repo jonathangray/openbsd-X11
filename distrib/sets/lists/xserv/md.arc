@@ -4,7 +4,6 @@
 ./usr/X11R6/bin/Xprt
 ./usr/X11R6/bin/Xvfb
 ./usr/X11R6/lib/X11/xserver
-./usr/X11R6/lib/X11/xserver/SecurityPolicy
 ./usr/X11R6/man/cat1/XF86_8514.0
 ./usr/X11R6/man/cat1/XF86_AGX.0
 ./usr/X11R6/man/cat1/XF86_Accel.0
@@ -21,3 +20,5 @@
 ./usr/X11R6/man/cat1/Xnest.0
 ./usr/X11R6/man/cat1/Xserver.0
 ./usr/X11R6/man/cat1/Xvfb.0
+./var/X11/xserver
+./var/X11/xserver/SecurityPolicy
