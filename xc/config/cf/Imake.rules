@@ -1332,12 +1332,14 @@ step:: list								@@\
 #define LinkVarDirectory(mdir,cdir,rdir,ldir)				@@\
 install::								@@\
 	MakeDir(Concat($(DESTDIR)$(LIBDIR)/,cdir))			@@\
-	MakeDir(Concat($(VARDIR)/,mdir))				@@\
+	MakeDir(Concat($(DESTDIR)$(VARDIR)/,mdir))			@@\
 	@MakeFlagsToShellFlags(i,set +e); \				@@\
 	if [ -d Concat($(DESTDIR)$(LIBDIR)/,cdir) ]; then \		@@\
 	  cd Concat($(DESTDIR)$(LIBDIR)/,cdir); \			@@\
 	  if [ -d rdir -a ! -h rdir ]; then \				@@\
-	    (cd rdir; tar cf - . | (cd Concat($(VARDIR)/,mdir); tar xf -; exit 0); exit 0); \ @@\
+	    (cd rdir; tar cf - . | \					@@\
+		(cd Concat($(DESTDIR)$(VARDIR)/,mdir);\			@@\
+		 tar xf -; exit 0); exit 0); \ 				@@\
 	  fi; \								@@\
 	  $(RM) -r rdir; \						@@\
 	  $(LN) Concat($(VARDIR)/,mdir) ldir; \				@@\
