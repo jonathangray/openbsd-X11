@@ -29,7 +29,7 @@ set lists=(xbase xserv xshare)
 foreach setname ($lists)
 	echo -n "${setname}: "
 	cat $listsdir/$setname/mi $listsdir/$setname/md.${arch} | sort | \
-	    pax -w -d | gzip -9 > ${tardir}/${setname}${RELEASE}.tar.gz
+	    pax -w -d | gzip -9 > ${tardir}/${setname}${RELEASE}.tgz
 	echo    "done."
 end
 
@@ -41,14 +41,14 @@ endif
 set setname=xfont
 echo -n "${setname}: "
 cat $listsdir/$setname/mi $listsdir/$setname/md.${xvers} | sort | \
-    pax -w -d | gzip -9 > ${tardir}/${setname}${RELEASE}.tar.gz
+    pax -w -d | gzip -9 > ${tardir}/${setname}${RELEASE}.tgz
 echo    "done."
 
 if ( "$arch" == "i386" ) then 
     set setname=xlink
     echo -n "${setname}: "
     cat $listsdir/$setname/mi $listsdir/$setname/md.${arch} | sort | \
-    pax -w -d | gzip -9 > ${tardir}/${setname}${RELEASE}.tar.gz
+    pax -w -d | gzip -9 > ${tardir}/${setname}${RELEASE}.tgz
     echo    "done."
 endif
 
