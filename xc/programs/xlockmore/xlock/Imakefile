@@ -36,9 +36,9 @@ all:: $(XLOCKUTILOBJS) $(XLOCKDEBUGOBJS)
 DependTarget()
 LintTarget()
 
-InstallProgram(xlock, $(BINDIR))
+InstallProgram(xlock,$(BINDIR))
 InstallAppDefaults(XLock)
-InstallManPage(xlock, $(MANDIR))
+InstallManPage(xlock,$(MANDIR))
 
 distclean::	clean
 	$(RM) Makefile config.status config.cache config.log config.h memdiag.xlock-*
