@@ -90,7 +90,7 @@ AddToFunc RestartFunction "I" Module FvwmPager 0 0
 
 ######################## Menus ###################
 AddToMenu RootMenu	"Root Menu"	Title
-+			"XTerm%mini.xterm.xpm%"		Exec exec xterm -ls -bg black -fg white
++			"XTerm%mini.xterm.xpm%"		Exec exec xterm
 #+			"Rxvt"		Exec exec rxvt
 +			""		Nop
 #+			"Remote Logins"	Popup Remote-Logins
