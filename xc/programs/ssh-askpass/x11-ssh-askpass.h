@@ -1,6 +1,6 @@
 /* x11-ssh-askpass.h:  A generic X11-based password dialog for OpenSSH.
  * created 1999-Nov-17 03:40 Jim Knoble <jmknoble@pobox.com>
- * autodate: 1999-Nov-23 01:45
+ * autodate: 1999-Nov-22 02:02
  * 
  * by Jim Knoble <jmknoble@pobox.com>
  * Copyright © 1999 Jim Knoble
@@ -205,8 +205,6 @@ void grabKeyboard(AppInfo *app);
 void ungrabKeyboard(AppInfo *app);
 void grabPointer(AppInfo *app);
 void ungrabPointer(AppInfo *app);
-void grabServer(AppInfo *app);
-void ungrabServer(AppInfo *app);
 
 void cleanUp(AppInfo *app);
 void exitApp(AppInfo *app, int exitCode);
