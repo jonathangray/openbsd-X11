@@ -119,17 +119,6 @@ return erg;
 
 
 
-__inline short swap16 (unsigned short x)
-{
-	unsigned short r;
-
-	r = ((x & 0xff) << 8) | ((x & 0xff00) >> 8);
-	return r;
-}
-
-
-
-
 Bool
 amigaCVCursorInit(pScr)
      ScreenPtr pScr;
@@ -336,7 +325,10 @@ amigaCVLoadCursor(pScr, pCurs, x, y)
 	   break;
 	case 15: case 16:
 	   for (i = 0; i < 512; i++)
-     		*cptr++ = swap16(*ram++);
+		{
+     		*cptr++ = swap16(*ram);
+		ram++;
+		}
 	   break;
 	case 24: case 32:
 	   for (i = 0; i < 512; i++)
