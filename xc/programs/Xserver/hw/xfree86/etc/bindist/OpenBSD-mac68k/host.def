@@ -1,0 +1,17 @@
+/*
+ * Host.def for building OpenBSD bindists
+ * $OpenBSD: host.def,v 1.1 1998/05/07 14:58:45 ryker Exp $
+ * $XFree86$
+ */
+
+#define InstallEmptyHostDef
+
+#define ForceNormalLib		YES
+
+/* No for now, when utilities installed, yes */
+#define HasLinuxDoc		NO
+#define HasLatex		NO
+#define HasDvips		NO
+#define BuildLinuxDocHtml	NO
+#define BuildAllDocs		NO
+#define InstallJapaneseDocs	NO
