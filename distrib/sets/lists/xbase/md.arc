@@ -53,6 +53,7 @@
 ./usr/X11R6/lib/X11/doc/README.cirrus
 ./usr/X11R6/lib/X11/doc/README.clkprog
 ./usr/X11R6/lib/X11/doc/README.mouse
+./usr/X11R6/lib/X11/doc/README.r128
 ./usr/X11R6/lib/X11/doc/README.trident
 ./usr/X11R6/lib/X11/doc/README.tseng
 ./usr/X11R6/lib/X11/doc/RELNOTES
