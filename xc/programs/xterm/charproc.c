@@ -1,6 +1,6 @@
 /*
  * $XConsortium: charproc.c /main/196 1996/12/03 16:52:46 swick $
- * $XFree86: xc/programs/xterm/charproc.c,v 3.42.2.7 1998/04/29 10:51:58 dawes Exp $
+ * $XFree86: xc/programs/xterm/charproc.c,v 3.42.2.8 1998/07/02 01:28:01 dawes Exp $
  */
 
 /*
@@ -3604,6 +3604,36 @@ static void VTInitialize (wrequest, wnew, args, num_args)
       that are named in the resource list. */
 
    bzero ((char *) &new->screen, sizeof(new->screen));
+
+   /* dummy values so that we don't try to Realize the parent shell with height
+    * or width of 0, which is illegal in X.  The real size is computed in the
+    * xtermWidget's Realize proc, but the shell's Realize proc is called first,
+    * and must see a valid size.
+    */
+   new->core.height = new->core.width = 1;
+
+    /*
+     * The definition of -rv now is that it changes the definition of 
+     * XtDefaultForeground and XtDefaultBackground.  So, we no longer
+     * need to do anything special.
+     */
+   new->screen.display = new->core.screen->display;
+
+   /*
+    * We use the default foreground/background colors to compare/check if a
+    * color-resource has been set.
+    */
+#define MyBlackPixel(dpy) BlackPixel(dpy,DefaultScreen(dpy))
+#define MyWhitePixel(dpy) WhitePixel(dpy,DefaultScreen(dpy))
+
+   if (request->misc.re_verse) {
+       new->dft_foreground = MyWhitePixel(new->screen.display);
+       new->dft_background = MyBlackPixel(new->screen.display);
+   } else {
+       new->dft_foreground = MyBlackPixel(new->screen.display);
+       new->dft_background = MyWhitePixel(new->screen.display);
+   }
+
    new->screen.c132 = request->screen.c132;
    new->screen.curses = request->screen.curses;
    new->screen.hp_ll_bc = request->screen.hp_ll_bc;
@@ -3686,7 +3716,8 @@ static void VTInitialize (wrequest, wnew, args, num_args)
 
    for (i = 0, color_ok = False; i < MAXCOLORS; i++) {
        new->screen.Acolors[i] = request->screen.Acolors[i];
-       if (new->screen.Acolors[i] != request->screen.foreground
+       if (new->screen.Acolors[i] != new->dft_foreground
+        && new->screen.Acolors[i] != request->screen.foreground
         && new->screen.Acolors[i] != request->core.background_pixel)
 	   color_ok = True;
    }
@@ -3719,19 +3750,6 @@ static void VTInitialize (wrequest, wnew, args, num_args)
    new->keyboard.flags = MODE_SRM;
    if (new->screen.backarrow_key)
 	   new->keyboard.flags |= MODE_DECBKM;
-
-    /*
-     * The definition of -rv now is that it changes the definition of 
-     * XtDefaultForeground and XtDefaultBackground.  So, we no longer
-     * need to do anything special.
-     */
-   new->screen.display = new->core.screen->display;
-   new->core.height = new->core.width = 1;
-      /* dummy values so that we don't try to Realize the parent shell 
-	 with height or width of 0, which is illegal in X.  The real
-	 size is computed in the xtermWidget's Realize proc,
-	 but the shell's Realize proc is called first, and must see
-	 a valid size. */
 
    /* look for focus related events on the shell, because we need
     * to care about the shell's border being part of our focus.

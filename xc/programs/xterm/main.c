@@ -64,7 +64,7 @@ SOFTWARE.
 
 ******************************************************************/
 
-/* $XFree86: xc/programs/xterm/main.c,v 3.47.2.10 1998/04/29 10:52:00 dawes Exp $ */
+/* $XFree86: xc/programs/xterm/main.c,v 3.47.2.12 1998/07/16 03:14:42 dawes Exp $ */
 
 
 /* main.c */
@@ -166,6 +166,10 @@ static Bool IsPts = False;
 #define KANJI
 #endif
 
+#ifdef TIOCSLTC
+#define HAS_LTCHARS
+#endif
+
 #ifdef linux
 #define USE_TERMIOS
 #define USE_SYSV_PGRP
@@ -174,11 +178,12 @@ static Bool IsPts = False;
 #define HAS_UTMP_UT_HOST
 #define LASTLOG
 #define WTMP
+#undef  HAS_LTCHARS
 #endif
 
 #ifdef Lynx
 #define USE_SYSV_TERMIO
-#undef  TIOCSLTC
+#undef  HAS_LTCHARS
 #include <termio.h>
 #endif
 
@@ -232,7 +237,7 @@ static Bool IsPts = False;
 #endif /* USE_POSIX_TERMIOS */
 
 #ifdef SVR4
-#undef TIOCSLTC				/* defined, but not useable */
+#undef HAS_LTCHARS			/* defined, but not useable */
 #endif
 #define USE_TERMCAP_ENVVARS	/* every one uses this except SYSV maybe */
 
@@ -527,9 +532,9 @@ static char **command_to_exec = NULL;
 ** contents.
 */
 static struct termio d_tio;
-#ifdef TIOCSLTC
+#ifdef HAS_LTCHARS
 static struct ltchars d_ltc;
-#endif	/* TIOCSLTC */
+#endif	/* HAS_LTCHARS */
 
 #ifdef __sgi
 #undef TIOCLSET /* XXX why is this undef-ed again? */
@@ -1224,14 +1229,14 @@ char **argv;
 	d_tio.c_cc[VMIN] = 1;
 	d_tio.c_cc[VTIME] = 0;
 #endif /* } */
-#ifdef TIOCSLTC /* { */
+#ifdef HAS_LTCHARS /* { */
         d_ltc.t_suspc = CSUSP;		/* t_suspc */
         d_ltc.t_dsuspc = CDSUSP;	/* t_dsuspc */
         d_ltc.t_rprntc = CRPRNT;
         d_ltc.t_flushc = CFLUSH;
         d_ltc.t_werasc = CWERASE;
         d_ltc.t_lnextc = CLNEXT;
-#endif /* } TIOCSLTC */
+#endif /* } HAS_LTCHARS */
 #ifdef TIOCLSET /* { */
 	d_lmode = 0;
 #endif /* } TIOCLSET */
@@ -1365,14 +1370,14 @@ char **argv;
 		}
 	    }
 	}
-#ifdef TIOCSLTC /* { */
+#ifdef HAS_LTCHARS /* { */
         d_ltc.t_suspc = '\000';		/* t_suspc */
         d_ltc.t_dsuspc = '\000';	/* t_dsuspc */
         d_ltc.t_rprntc = '\377';	/* reserved...*/
         d_ltc.t_flushc = '\377';
         d_ltc.t_werasc = '\377';
         d_ltc.t_lnextc = '\377';
-#endif	/* } TIOCSLTC */
+#endif	/* } HAS_LTCHARS */
 #if defined(USE_TERMIOS) || defined(USE_POSIX_TERMIOS) /* { */
 	d_tio.c_cc[VSUSP] = CSUSP;
 #ifdef VDSUSP
@@ -2110,9 +2115,9 @@ spawn ()
 #ifdef TIOCLSET
 	unsigned lmode;
 #endif	/* TIOCLSET */
-#ifdef TIOCSLTC
+#ifdef HAS_LTCHARS
 	struct ltchars ltc;
-#endif	/* TIOCSLTC */
+#endif	/* HAS_LTCHARS */
 #else	/* else not USE_SYSV_TERMIO */
 #ifdef USE_POSIX_TERMIOS
 	struct termios tio;
@@ -2213,9 +2218,9 @@ spawn ()
 			if (tty_got_hung || errno == ENXIO || errno == EIO ||
 			    errno == EINVAL || errno == ENOTTY) {
 				no_dev_tty = TRUE;
-#ifdef TIOCSLTC
+#ifdef HAS_LTCHARS
 				ltc = d_ltc;
-#endif	/* TIOCSLTC */
+#endif	/* HAS_LTCHARS */
 #ifdef TIOCLSET
 				lmode = d_lmode;
 #endif	/* TIOCLSET */
@@ -2240,10 +2245,10 @@ spawn ()
 			 * if started directly from xdm or xinit,     
 			 * in which case we just use the defaults as above.
 			 */
-#ifdef TIOCSLTC
+#ifdef HAS_LTCHARS
 			if(ioctl(tty, TIOCGLTC, &ltc) == -1)
 				ltc = d_ltc;
-#endif	/* TIOCSLTC */
+#endif	/* HAS_LTCHARS */
 #ifdef TIOCLSET
 			if(ioctl(tty, TIOCLGET, &lmode) == -1)
 				lmode = d_lmode;
@@ -2760,7 +2765,7 @@ spawn ()
 #ifdef VSTOP
 			TMODE (XTTYMODE_stop, tio.c_cc[VSTOP]);
 #endif
-#ifdef TIOCSLTC
+#ifdef HAS_LTCHARS
 			/* both SYSV and BSD have ltchars */
 			TMODE (XTTYMODE_susp, ltc.t_suspc);
 			TMODE (XTTYMODE_dsusp, ltc.t_dsuspc);
@@ -2772,10 +2777,10 @@ spawn ()
 		    }
 #undef TMODE
 
-#ifdef TIOCSLTC
+#ifdef HAS_LTCHARS
 		    if (ioctl (tty, TIOCSLTC, &ltc) == -1)
 			    HsSysError(cp_pipe[1], ERROR_TIOCSETC);
-#endif	/* TIOCSLTC */
+#endif	/* HAS_LTCHARS */
 #ifdef TIOCLSET
 		    if (ioctl (tty, TIOCLSET, (char *)&lmode) == -1)
 			    HsSysError(cp_pipe[1], ERROR_TIOCLSET);
@@ -3854,27 +3859,28 @@ Exit(n)
 	    if (utptr && (utptr->ut_pid == term->screen.pid)) {
 		    utptr->ut_type = DEAD_PROCESS;
 #if defined(SVR4) || defined(SCO325) || (defined(linux) && __GLIBC__ >= 2)
-		    utmp.ut_session = getsid(0);
-		    utmp.ut_xtime = time ((Time_t *) 0);
-		    utmp.ut_tv.tv_usec = 0;
+		    utptr->ut_session = getsid(0);
+		    utptr->ut_xtime = time ((Time_t *) 0);
+		    utptr->ut_tv.tv_usec = 0;
 #else
-		    *utptr->ut_user=0;
+		    *utptr->ut_user = 0;
 		    utptr->ut_time = time((Time_t *) 0);
 #endif
 		    (void) pututline(utptr);
 #ifdef WTMP
 #if defined(SVR4) || defined(SCO325)
 		    if (term->misc.login_shell)
-			updwtmpx(WTMPX_FILE, &utmp);
+			updwtmpx(WTMPX_FILE, utptr);
 #else
 #if defined(linux) && __GLIBC__ >= 2
+		    strncpy (utmp.ut_line, utptr->ut_line, sizeof (utmp.ut_line));
 		    if (term->misc.login_shell)
-			updwtmp(etc_wtmp, &utmp);
+			updwtmp(etc_wtmp, utptr);
 #else
 		    /* set wtmp entry if wtmp file exists */
 		    if (term->misc.login_shell &&
 			(fd = open(etc_wtmp, O_WRONLY | O_APPEND)) >= 0) {
-		      i = write(fd, utptr, sizeof(utmp));
+		      i = write(fd, utptr, sizeof(*utptr));
 		      i = close(fd);
 		    }
 #endif

@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: ptyx.h /main/67 1996/11/29 10:34:19 swick $
- *	$XFree86: xc/programs/xterm/ptyx.h,v 3.19.2.3 1998/02/15 16:10:08 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/ptyx.h,v 3.19.2.4 1998/07/02 01:28:02 dawes Exp $
  */
 
 /*
@@ -872,6 +872,8 @@ typedef struct _XtermWidgetRec {
     unsigned	flags;		/* mode flags			*/
     int         cur_foreground;	/* current foreground color	*/
     int         cur_background;	/* current background color	*/
+    Pixel       dft_foreground;	/* default foreground color	*/
+    Pixel       dft_background;	/* default background color	*/
 #if OPT_ISO_COLORS
     int         sgr_foreground;	/* current SGR foreground color	*/
 #endif

@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: util.c /main/33 1996/12/01 23:47:10 swick $
- *	$XFree86: xc/programs/xterm/util.c,v 3.13.2.6 1998/03/03 12:51:03 dawes Exp $
+ *	$XFree86: xc/programs/xterm/util.c,v 3.13.2.7 1998/07/02 01:28:03 dawes Exp $
  */
 
 /*
@@ -1458,7 +1458,7 @@ updatedXtermGC(screen, flags, fg_bg, hilite)
 		if (hi_pix != screen->foreground
 		 && hi_pix != fg_pix
 		 && hi_pix != bg_pix
-		 && hi_pix != 0) {	/* FIXME: need a reliable undef-Pixel */
+		 && hi_pix != term->dft_foreground) {
 			bg_pix = fg_pix;
 			fg_pix = hi_pix;
 		}
