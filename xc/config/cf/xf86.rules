@@ -52,7 +52,7 @@ src.o:  src.s								@@\
 	AssembleObject(flags)						@@\
 									@@\
 src.i:  src.s								@@\
-	CPPOnlyAsm(dst,flags)						@@\
+	CPPOnlyAsm(src,flags)						@@\
 									@@\
 depend:: src.s
 #endif
