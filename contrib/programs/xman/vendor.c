@@ -149,6 +149,9 @@ static SectionNameRec SectionNames[] = {
 #ifdef Lynx
     {"(9) Device driver service calls",	"9"},
 #endif
+#ifdef __OpenBSD__
+    {"(9) Kernel Manual",               "9"},
+#endif
     {"(l) Local",			"l"},
     {"(n) New",				"n"},
     {"(o) Old",				"o"},
