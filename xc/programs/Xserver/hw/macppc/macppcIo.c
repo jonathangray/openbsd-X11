@@ -158,21 +158,11 @@ void macppcEnqueueEvents (
 /*
  * DDX - specific abort routine.  Called by AbortServer().
  */
-void AbortDDX()
+void 
+AbortDDX()
 {
-    int		i;
-    ScreenPtr	pScreen;
-    DevicePtr	devPtr;
 
     OsSignal (SIGIO, SIG_IGN);
-    for (i = 0; i < screenInfo.numScreens; i++)
-    {
-	int mode = WSDISPLAYIO_MODE_EMUL;
-
-	pScreen = screenInfo.screens[i];
-	(*pScreen->SaveScreen)(pScreen, SCREEN_SAVER_OFF);
-	ioctl(macppcFbs[pScreen->myNum].fd, WSDISPLAYIO_SMODE, &mode);
-    }
 }
 
 /* Called by GiveUp(). */
