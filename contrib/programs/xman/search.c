@@ -181,7 +181,7 @@ int type;
   }
 
   strcpy(tmp, MANTEMP);		/* get a temp file. */
-#if !defined(__OpenBSD__)
+#ifndef HAS_MKSTEMP
   (void) mktemp(tmp);
 #else
   {

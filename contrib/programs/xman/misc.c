@@ -337,7 +337,7 @@ char * filename, * output;
  */
 
   strcpy(tmp, MANTEMP);		/* get a temp file. */
-#if !defined(__OpenBSD__)
+#ifndef HAS_MKSTEMP
   (void) mktemp(tmp);
 #else
   {
@@ -403,7 +403,7 @@ char * entry;
   }
 
   strcpy(tmp,MANTEMP);		          /* Get a temp file. */
-#if !defined(__OpenBSD__)
+#ifndef HAS_MKSTEMP
   (void) mktemp(tmp);
 #else
   {
