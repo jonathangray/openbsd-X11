@@ -56,15 +56,17 @@ xlogin*Foreground: black
 xlogin*Background: white
 #endif /* XPM */
 /**/#endif
-#ifdef XPM
-#if defined(Hp300Architecture)
-xlogin*logoFileName: BITMAPDIR/**//OpenBSDbw.xpm
-#else /* Hp300Architecture */
-/**/#if PLANES >= 8
-xlogin*logoFileName: BITMAPDIR/**//OpenBSD.xpm
+#if defined(XPM)
+/**/#if PLANES < 4 || defined(Hp300Architecture)
+xlogin*logoFileName: BITMAPDIR/**//OpenBSD_1bpp.xpm
 /**/#else
-xlogin*logoFileName: BITMAPDIR/**//OpenBSDbw.xpm
-/**/#endif
+/**/#if PLANES > 4
+xlogin*logoFileName: BITMAPDIR/**//OpenBSD_8bpp.xpm
+/**/#else /* PLANES > 4 */
+xlogin*logoFileName: BITMAPDIR/**//OpenBSD_4bpp.xpm
+/**/#endif /* PLANES > 4 */
+/**/#endif /* PLANES < 4 */
+#if ! defined(Hp300Architecture)
 xlogin*useShape: true
 xlogin*logoPadding: 10
 #endif /* Hp300Architecture */
