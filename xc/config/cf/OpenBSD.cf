@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.22 1998/03/31 19:39:57 millert Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.23 1998/04/05 10:53:49 matthieu Exp $
 XCOMM
 
 #ifndef OSName
@@ -130,7 +130,6 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 #define HasBsdMake		YES
 
 #define StripInstalledPrograms	YES
-#define CompressAllFonts	YES
 #define BuildCyrillicFonts	YES
 #define GzipFontCompression	YES
 #define DefaultUserPath		/bin:/usr/bin:/usr/local/bin:$(BINDIR)
@@ -230,6 +229,21 @@ install.man:: 								@@\
 #define InstallGenManPageAliases(file,destdir,suffix,aliases)		@@\
 	InstallManPageAliases(file,destdir,aliases)
 
+/*
+ * InstallFontAliases - generate rules to install font aliases
+ *                      databases without comments for X11R5 servers
+ */
+#ifndef InstallFontAliasesNoComment
+#define InstallFontAliasesNoComment(dest)				@@\
+install:: fonts.alias							@@\
+	$(RM) _fonts.alias 						@@\
+	sed -e '/^!/d' -e '/^$$/d' < fonts.alias > _fonts.alias		@@\
+	MakeDir($(DESTDIR)dest)						@@\
+	$(INSTALL) $(INSTALLFLAGS) $(INSTALLDATFLAGS) _fonts.alias \	@@\
+	$(DESTDIR)dest/fonts.alias					@@\
+	$(RM) _fonts.alias
+#endif /* InstallFontAliasesNoComment */
+
 /* We now only use the XFree86 tree - thus we can define this
  * independent of the architecture
  */
@@ -282,6 +296,7 @@ install.man:: 								@@\
 # define InstallXserverSetUID	NO
 
 # define BuildDynamicLoading	YES
+# define CompressAllFonts	NO
 # include <xfree86.cf>
 
 #endif /* i386Architecture */
@@ -368,6 +383,9 @@ install.man:: 								@@\
 
 # include <xf86.rules>
 # define BuildServer		NO
+/* For the X11R5 server */
+# define CompressAllFonts	NO
+# define InstallFontAliases	InstallFontAliasesNoComment
 
 #endif /* Hp300Architecture */
 
@@ -471,6 +489,9 @@ install.man:: 								@@\
 
 # include <xf86.rules>
 # define BuildServer		NO
+/* For the X11R5 server */
+# define CompressAllFonts	NO
+# define InstallFontAliases	InstallFontAliasesNoComment
 
 #endif /* PmaxArchitecture */
 
@@ -528,6 +549,10 @@ install.man:: 								@@\
 
 #ifndef BuildDynamicLoading
 # define BuildDynamicLoading		NO
+#endif
+
+#ifndef CompressAllFonts
+# define CompressAllFonts		YES
 #endif
 
 /*
