@@ -40,6 +40,7 @@ SCREENSAVESRCDIR = beforelight
   PROXYMGRSRCDIR = proxymngr
     RSTARTSRCDIR = rstart
    SMPROXYSRCDIR = smproxy
+   SSHASKPASSDIR = ssh-askpass
         WMSRCDIR = twm fvwm wm2
  XAUTOLOCKSRCDIR = xautolock
   XCONSOLESRCDIR = xconsole
@@ -62,8 +63,8 @@ SUBDIRS = \
 	appres bdftopcf bitmap $(SCREENSAVESRCDIR) editres fsinfo \
 	fslsfonts fstobdf \
 	iceauth  $(KXSRCDIR) mkfontdir oclock $(PROXYMGRSRCDIR) \
-	$(RGBSRCDIR) $(RSTARTSRCDIR) $(SMPROXYSRCDIR) $(WMSRCDIR) x11perf \
-	$(XAUTOLOCKSRCDIR) \
+	$(RGBSRCDIR) $(RSTARTSRCDIR) $(SMPROXYSRCDIR) $(SSHASKPASSDIR) \
+	$(WMSRCDIR) x11perf $(XAUTOLOCKSRCDIR) \
 	xauth xclipboard xclock xcmsdb $(XCONSOLESRCDIR) $(XDMSRCDIR) \
 	$(XF86DGASRCDIR) xfd $(XFSSRCDIR) $(XFINDPROXYSRCDIR) \
 	$(XFWPSRCDIR) $(XLOCKMORESRCDIR) \
