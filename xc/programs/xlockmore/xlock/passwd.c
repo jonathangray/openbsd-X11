@@ -329,7 +329,7 @@ static int  check_dce_net_passwd(char *, char *);
 
 #if defined( HAVE_KRB4 ) || defined( HAVE_KRB5 )
 #ifdef HAVE_KRB4
-#include <krb.h>
+#include <kerberosIV/krb.h>
 #else /* HAVE_KRB5 */
 #include <krb5.h>
 #endif

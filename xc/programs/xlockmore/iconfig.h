@@ -11,7 +11,7 @@
  */
 
 XCOMM Define these now or down further below, see below for explaination.
-XCOMM  #define XpmLibrary
+#define XpmLibrary
 XCOMM  #define XmLibrary
 XCOMM  #define XawLibrary
 XCOMM  #define GLLibrary
@@ -277,9 +277,10 @@ PASSWDLIB = -l/src/util/Lib/util
 #endif
 
 XCOMM KERBEROS Ver. 4
-XCOMM  PASSWDDEF = -DHAVE_KRB4
+PASSWDDEF = -DHAVE_KRB4
 XCOMM  PASSWDINC = -I/usr/athena/include
 XCOMM  PASSWDLIB = -L/usr/athena/lib -lkrb -ldes -lresolv
+PASSWDLIB = -lkrb -ldes
 XCOMM
 XCOMM KERBEROS Ver. 5
 XCOMM  PASSWDDEF = -DHAVE_KRB5
