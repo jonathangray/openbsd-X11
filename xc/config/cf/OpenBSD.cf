@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.31 1998/05/30 14:08:02 matthieu Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.32 1998/07/04 18:03:32 matthieu Exp $
 XCOMM
 
 #ifndef OSName
@@ -630,7 +630,9 @@ install:: fonts.alias							@@\
 # define UseRgbTxt			YES
 #endif
 
-#define	HasXdmAuth			YES
+#ifndef HasXdmAuth
+# define	HasXdmAuth		YES
+#endif
 
 #ifndef OSBinaryType
 # if UseElfFormat
