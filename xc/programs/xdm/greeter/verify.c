@@ -197,6 +197,7 @@ struct verify_info	*verify;
 #ifndef USESHADOW
 	} else {
 	    user_pass = p->pw_passwd;
+#endif
 	}
 #ifdef KERBEROS
 	if(strcmp(greet->name, "root") != 0){
