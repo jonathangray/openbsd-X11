@@ -3,12 +3,12 @@ XCOMM!/bin/sh
 XCOMM
 XCOMM makedepend which uses 'gcc -M'
 XCOMM
-XCOMM $XFree86: xc/config/util/gccmdep.cpp,v 3.3.4.2 1999/08/02 08:37:52 hohndel Exp $
+XCOMM $XFree86: xc/config/util/gccmdep.cpp,v 3.3.4.3 2000/08/08 03:23:15 dawes Exp $
 XCOMM
 XCOMM Based on mdepend.cpp and code supplied by Hongjiu Lu <hjl@nynexst.com>
 XCOMM
 
-TMP=${TMPDIR-/tmp}/mdep$$
+TMP=`pwd`/.mdep$$
 CC=CCCMD
 RM=RMCMD
 LN=LNCMD
