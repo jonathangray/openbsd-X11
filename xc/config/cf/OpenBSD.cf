@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.28 1998/04/20 09:53:33 graichen Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.29 1998/05/01 17:41:08 ryker Exp $
 XCOMM
 
 #ifndef OSName
@@ -457,7 +457,6 @@ install:: fonts.alias							@@\
 
 # include <xf86.rules>
 # define Xmac68kServer
-# define BuildXKB		NO
 
 #endif /* mac68kArchitecture */
 
