@@ -88,7 +88,8 @@ extern int testinx();
 
 #ifdef __GNUC__
 
-#if defined(linux) && defined(__alpha__)
+#if defined(__alpha__)
+# if defined(linux)
 /* for Linux on Alpha, we use the LIBC _inx/_outx routines */
 /* note that the appropriate setup via "ioperm" needs to be done */
 /*  *before* any inx/outx is done. */
@@ -144,6 +145,16 @@ inl(port)
   return _inl(port);
 }
 
+# else /* defined(linux) */
+
+#define outb(a, b)             /* NOP */
+#define outw(a, b)             /* NOP */
+#define outl(a, b)             /* NOP */
+#define inb(a)         0       /* NOP */
+#define inw(a)         0       /* NOP */
+#define inl(a)         0       /* NOP */
+
+# endif 
 
 /*
  * inline functions to do unaligned accesses
@@ -262,7 +273,7 @@ static __inline__ void stw_u(unsigned long r5, unsigned short * r11)
 #define write_mem_barrier()  mem_barrier()
 #endif
 
-#else /* defined(linux) && defined(__alpha__) */
+#else /* defined(__alpha__) */
 #if defined(__mips__)
 
 unsigned int IOPortBase;  /* Memory mapped I/O port area */
@@ -994,9 +1005,10 @@ unsigned short int port;
 #  endif
 # endif
 # ifndef PC98
-#  ifndef SCO325
+#  if !defined(SCO325) && !defined(__OpenBSD__)
 #   include <sys/inline.h>
-#  else
+#  endif
+#  ifdef SCO325
 #   include "scoasm.h"
 #  endif
 # else

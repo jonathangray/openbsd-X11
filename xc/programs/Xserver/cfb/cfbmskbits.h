@@ -34,7 +34,7 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include	"X.h"
 #include	"Xmd.h"
 #include	"servermd.h"
-#ifdef XFREE86
+#if defined(XFREE86) || ( defined(__OpenBSD__) && defined(__alpha__) )
 #define NO_COMPILER_H_EXTRAS
 #include	"compiler.h"
 #endif

@@ -437,6 +437,24 @@ ServerTarget(Xmac68k,$(MAC68KDIRS),$(MAC68KOBJS),$(MAC68KLIBS),$(MAC68KSYSLIBS))
 #endif
 #endif /* Xmac68kServer */
 
+#if XalphaTGAServer
+XCOMM
+XCOMM Digital TGA server for Alpha
+XCOMM
+MFBDIR  = mfb
+CFB8DIR = cfb
+DDXDIR1 = hw/dec/tga
+ATGAOBJS = hw/dec/tga/alphaInit.o 
+ATGASUBDIRS = $(STDDIRS) $(MFBDIR) $(CFB8DIR) $(CFB32DIR) $(DDXDIR1) $(DEPDIRS)
+ATGALIBS = hw/dec/tga/libalpha.a CFB8Libs
+ATGASYSLIBS = $(CBRT) $(SYSLIBS)
+ServerTarget(Xtga,$(ATGASUBDIRS),$(ATGAOBJS),$(ATGALIBS),$(ATGASYSLIBS))
+#ifndef ServerToInstall
+#define ServerToInstall Xtga
+#endif
+#endif	/* XalphaTGAServer */
+
+
 #ifdef XFree86Version
 XF86INIT   = $(XF86COMSRC)/xf86Init.o $(XF86CONFIGSRC)/xf86IniExt.o
 XF86MINIT  = $(XF86COMSRC)/xf86Init_m.o $(XF86CONFIGSRC)/xf86MIniExt.o

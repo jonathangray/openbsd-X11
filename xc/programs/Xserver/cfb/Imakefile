@@ -72,8 +72,8 @@ OBJS =   cfbgc.o cfbrrop.o cfbwindow.o \
 	 cfbbitblt.o cfbbltC.o cfbbltX.o cfbbltO.o cfbbltG.o \
 	 cfbply1rctC.o cfbply1rctG.o $(PSZOBJS) $(STIPPLEOBJ)
 
-#ifdef XFree86Version
 EXTRAINCLUDES = -I../hw/xfree86/common
+#ifdef XFree86Version
 EXTRADEFINES  = -DXFREE86
 #endif
    INCLUDES = -I. -I../cfb -I../mfb -I../mi -I../include -I$(XINCLUDESRC) \
