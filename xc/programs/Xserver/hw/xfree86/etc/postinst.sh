@@ -37,7 +37,7 @@ if [ x"$TERMCAPFILE" = x ]; then
 		TERMCAPFILE="$TERMCAP2"
 	fi
 fi
-if [ x"$TERMCAPFILE" != x ]; then
+if [ x"$TERMCAPFILE" != x -a `uname` != OpenBSD ]; then
 	echo ""
 	echo "You appear to have a termcap file: $TERMCAPFILE"
 	echo "This should be edited manually to replace the xterm entries"
