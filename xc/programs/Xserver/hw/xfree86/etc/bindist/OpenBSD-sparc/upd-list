@@ -33,6 +33,7 @@ lib/X11/config/linux.cf
 lib/X11/config/lnxLib.rules
 lib/X11/config/lynx.cf
 lib/X11/config/osf1.cf
+lib/X11/config/ports.cf
 lib/X11/config/sco5.cf
 lib/X11/config/scoLib.rules
 lib/X11/config/sgi.cf
