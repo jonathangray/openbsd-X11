@@ -1,16 +1,20 @@
-XCOMM @(#)Imakefile	4.07 97/11/25 xlockmore
-XCOMM $OpenBSD: Imakefile,v 1.2 1998/03/26 23:34:20 matthieu Exp $
+#ifndef XCOMM
+#define XCOMM /**/#
+#endif
+XCOMM @(#)Imakefile	4.12 98/09/29 xlockmore
+XCOMM $OpenBSD: Imakefile,v 1.3 1998/09/30 14:11:04 matthieu Exp $
 XCOMM Many "ideas" taken from xscreensaver-1.34 by Jamie Zawinski.
 XCOMM
 
 VER = xlockmore
-DISTVER = xlockmore-4.07
+DISTVER = xlockmore-4.12
 
 #define IHaveSubdirs
 #define PassCDebugFlags CDEBUGFLAGS="$(CDEBUGFLAGS)"
 
-SUBDIRS = xlock modes/glx modes xmlock xalock
-
+SUBDIRS = xlock modes/glx modes xmlock 
+XCOMM Do not build by default, since it usually does not work
+XCOMM xalock
 
 distclean : clean
 	-rm -f Makefile config.status config.cache config.log config.h

@@ -10,16 +10,19 @@
  * Substitute #undef with #define to activate option
  */
 
+XCOMM !!!WARNING!!! Known security hole with MesaGL < 3.0 if setuid root
 XCOMM Define these now or down further below, see below for explaination.
 XCOMM  #define XpmLibrary /* On OpenBSD this is HasXpm */
 XCOMM  #define XmLibrary
 XCOMM  #define XawLibrary
 XCOMM  #define GLLibrary
 XCOMM  #define DtSaverLibrary
+XCOMM  #define DPMSLibrary
 XCOMM  #define RplayLibrary
 XCOMM  #define NasLibrary
 XCOMM  #define Modules
 XCOMM  #define Check
+XCOMM  #define Unstable
 
 N =
 O = .o
@@ -65,9 +68,9 @@ XPMLIB = XpmLibrary
 
 #endif
 
-XCOMM      *** END XPM CONFIG SECTION ***
+XCOMM   *** END XPM CONFIG SECTION ***
 
-XCOMM      *** BEGIN XM CONFIG SECTION ***
+XCOMM   *** BEGIN XM CONFIG SECTION ***
  
 XCOMM Only options.c and xmlock.c uses Motif.
 XCOMM If your system has libXm, remove the 'XCOMM  ' from the next line.
@@ -94,7 +97,7 @@ XCOMM  EDITRESLIB = -lXmu
  
 XCOMM   *** END XM CONFIG SECTION ***
 
-XCOMM      *** BEGIN XAW CONFIG SECTION ***
+XCOMM   *** BEGIN XAW CONFIG SECTION ***
  
 XCOMM Only options.c and xalock.c uses Athena.
 XCOMM If your system has libsx, libXaw, and libXmu,
@@ -132,6 +135,7 @@ GLINC = -I/usr/local/include
 
 XCOMM If you get an error "Cannot find libMesaGL" while linking, set GLLIBPATH
 XCOMM to the directory libMesaGL.* is in.  Below is a guess.
+XCOMM !!!WARNING!!! Known security hole with MesaGL < 3.0 if setuid root
 GLLIB = -L/usr/local/lib -lMesaGL -lMesaGLU
 
 XCOMM On SGI
@@ -161,6 +165,20 @@ DTSAVERLIB = -L/usr/dt/lib -lDtSvc
 #endif
 
 XCOMM   *** END CDE DT CONFIG SECTION ***
+
+XCOMM   *** BEGIN DPMS CONFIG SECTION ***
+ 
+XCOMM DISPLAY POWER MANAGEMENT SIGNALING
+XCOMM if your system has libXdpms, remove the 'XCOMM  ' from the next line
+XCOMM  #define DPMSLibrary
+
+#ifdef DPMSLibrary
+DTSAVERDEF = -DUSE_DPMS
+XCOMM DPMSINC =
+DPMSLIB = -lXdpms
+#endif
+
+XCOMM   *** END DPMS CONFIG SECTION ***
 
 XCOMM   *** BEGIN SOUND CONFIG SECTION ***
  
@@ -428,6 +446,7 @@ XCOMM -DUSE_WINDOW_VISIBILITY  Allow a window to be placed over xlock
 XCOMM -DUSE_OLD_EVENT_LOOP     Some machines may still need this (fd_set
 XCOMM                          errors may be a sign)
 XCOMM -DUSE_VMSUTILS           This patches up old __VMS_VER < 70000000
+XCOMM -DUSE_DPMS               DPMS stuff
 XCOMM
 XCOMM For personal use you may want to consider:
 XCOMM -DUSE_XLOCKRC            paranoid admin or unknown shadow passwd alg
@@ -439,6 +458,7 @@ XCOMM -DUSE_BUTTON_LOGOUT=10    Enable logout button and set appear time (min)
 XCOMM -DDEF_BUTTON_LOGOUT=\"5\" Set default logout button (minutes) 
 XCOMM -DUSE_BOMB                Enable automatic logout mode (does not come up
 XCOMM                           in random mode)
+XCOMM -DUSE_UNSTABLE            Enable unstable bubble3d GL mode
 XCOMM -DCLOSEDOWN_LOGOUT        Use with USE_AUTO_LOGOUT, USE_BUTTON_LOGOUT,
 XCOMM                           USE_BOMB if using xdm
 XCOMM -DSESSION_LOGOUT          Alternate of above
@@ -447,6 +467,7 @@ XCOMM -DSTAFF_NETGROUP=\"/etc/xlock.netgroup\"  Netgroup that is exempt
 
 XCOMM May have to combine in one long line if "+=" does not work
 OPTDEF = -DUSE_VROOT -DALWAYS_ALLOW_ROOT -DUSE_BOMB
+XCOMM  OPTDEF += -DUSE_UNSTABLE
 XCOMM  OPTDEF += -DUSE_SYSLOG -DSYSLOG_FACILITY=LOG_AUTH
 XCOMM  OPTDEF += -DSYSLOG_WARNING=LOG_WARNING
 XCOMM  OPTDEF += -DSYSLOG_NOTICE=LOG_NOTICE -DSYSLOG_INFO=LOG_INFO
@@ -465,12 +486,13 @@ XCOMM  OPTDEF += -DSTAFF_NETGROUP=\"/etc/xlock.netgroup\"
 
 DEFINES = -DDEF_FILESEARCHPATH=\"$(LIBDIR)/%T/%N%S\" \
 $(SYSTEMDEF) $(EDITRESDEF) $(SLEEPDEF) $(OPTDEF) $(RANDDEF) $(MODULEDEF) \
-$(PASSWDDEF) $(XMINC) $(XAWINC) $(XPMDEF) $(GLDEF) $(DTSAVERDEF) $(SOUNDDEF) \
-$(PASSWDINC) $(XPMINC) $(GLINC) $(DTSAVERINC) $(SOUNDINC) $(XLOCKINC)
+$(PASSWDDEF) $(XMINC) $(XAWINC) $(XPMDEF) $(GLDEF) $(DTSAVERDEF) $(DPMSDEF) \
+$(SOUNDDEF) $(PASSWDINC) $(XPMINC) $(GLINC) $(DTSAVERINC) $(DPMSINC) \
+$(SOUNDINC) $(XLOCKINC)
 
 DEPLIBS = $(DEPXLIB)
-LOCAL_LIBRARIES = $(MODULELIB) $(XPMLIB) $(GLLIB) $(DTSAVERLIB) $(XLIB) \
-$(SOUNDLIB)
+LOCAL_LIBRARIES = $(MODULELIB) $(XPMLIB) $(GLLIB) $(DTSAVERLIB) \
+$(DPMSLIB) $(XLIB) $(SOUNDLIB)
 MLIBS = $(XPMLIB) $(XMLIB) $(EDITRESLIB) -lXt $(XLIB) $(SMLIB) $(ICELIB)
 ALIBS = $(XAWLIB) -lXt $(XLIB) $(SMLIB) $(ICELIB)
 LINTLIBS = $(LINTXLIB)
@@ -480,4 +502,4 @@ LINTLIBS = $(LINTXLIB)
 SYS_LIBRARIES = $(CRYPTLIB) $(PASSWDLIB) MathLibrary
 
 VER = xlockmore
-DISTVER = xlockmore-4.05
+DISTVER = xlockmore-4.12

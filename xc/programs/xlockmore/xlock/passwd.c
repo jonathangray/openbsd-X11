@@ -32,6 +32,7 @@ static const char sccsid[] = "@(#)passwd.c	4.02 97/04/01 xlockmore";
  */
 
 #include "xlock.h"
+#include "iostuff.h"
 
 #ifdef VMS
 #include <str$routines.h>
@@ -338,12 +339,18 @@ static int  krb_check_password(struct passwd *, char *);
 #endif
 
 #if defined(__cplusplus) || defined(c_plusplus)
+#ifdef SunCplusplus
+#include <crypt.h>
+#else
+#if 0
 #if 1
 extern char *crypt(char *, char *);
 
 #else
 extern char *crypt(const char *, const char *);
 
+#endif
+#endif
 #endif
 #endif
 
@@ -359,7 +366,7 @@ my_passwd_entry(void)
 
 #endif
 
-	uid = getuid();
+	uid = (int) getuid();
 #ifndef SUNOS_ADJUNCT_PASSWD
 	{
 		char       *user = NULL;
@@ -377,6 +384,8 @@ my_passwd_entry(void)
 	if (!pw)
 #endif
 		pw = getpwuid(uid);
+	if (!pw)
+		return (pw);
 #ifdef HAVE_SHADOW
 	if ((spw = getspnam(pw->pw_name)) != NULL) {
 		char       *tmp;	/* swap */
@@ -595,6 +604,10 @@ gpass()
 			buf[0] = '\0';
 			if ((fgets(buf, sizeof buf, fp) == NULL) ||
 			    (!(strlen(buf) == CPASSLENGTH - 1 ||
+#if defined(HAVE_KRB4) || defined(HAVE_KRB5)
+			       (((strlen(buf) == 1) || strlen(buf) == 2)
+				&& buf[0] == '*') ||
+#endif
 			       (strlen(buf) == CPASSLENGTH && buf[CPASSLENGTH - 1] == '\n')))) {
 				(void) fprintf(stderr, "%s: %s crypted password %s\n", xlockrc,
 				       buf[0] == '\0' ? "null" : "bad", buf);
@@ -1028,7 +1041,7 @@ checkPasswd(char *buffer)
 	char       *style;
 	char       *name;
 
-#if ( HAVE_FCNTL_H && (defined( USE_MULTIPLE_ROOT ) || defined( USE_MULTIPLE_USER ))
+#if ( HAVE_FCNTL_H && (defined( USE_MULTIPLE_ROOT ) || defined( USE_MULTIPLE_USER )))
 	/* Scan through the linked list until you match a password.  Print
 	 * message to log if password match doesn't equal the user.
 	 *
@@ -1067,7 +1080,7 @@ checkPasswd(char *buffer)
 				done = True;
 		}
 	}
-#if ( HAVE_FCNTL_H && (defined( USE_MULTIPLE_ROOT ) || defined( USE_MULTIPLE_USER ))
+#if ( HAVE_FCNTL_H && (defined( USE_MULTIPLE_ROOT ) || defined( USE_MULTIPLE_USER )))
 }
 #endif
 
@@ -1133,6 +1146,11 @@ checkPasswd(char *buffer)
 	if (!done) {
 		done = (allowroot &&
 			!strcmp((char *) crypt(buffer, rootpass), rootpass));
+		if (allowroot && !*rootpass && !*buffer)
+			/*
+			 * root has no password, don't let him in...
+			 */
+			done = False;
 #if ( HAVE_SYSLOG_H && defined( USE_SYSLOG ))
 		if (done)
 			syslog(SYSLOG_NOTICE, "%s: %s unlocked screen", ProgramName, ROOT);
@@ -1160,6 +1178,9 @@ checkPasswd(char *buffer)
 #ifdef DCE_PASSWD
 #include <pthread.h>
 #include <dce/sec_login.h>
+#ifdef AIXV3
+#include <userpw.h>
+#endif
 
 static void
 initDCE(void)
@@ -1168,6 +1189,11 @@ initDCE(void)
 	error_status_t error_status;
 	boolean32   valid;
 	struct passwd *pwd;
+
+#ifdef AIXV3
+	struct userpw *userpwd;
+
+#endif
 	char       *buf;
 
 	/* test to see if this user exists on the network registry */
@@ -1208,6 +1234,16 @@ initDCE(void)
 		usernet = 1;
 
 	if (allowroot) {
+#ifdef AIXV3
+		userpwd = getuserpw("root");
+		(void) strcpy(rootpass, userpwd->upw_passwd);
+		if (!(strcmp(rootpass, ""))) {
+			(void) fprintf(stderr, "%s: could not get root password\n", ProgramName);
+			allowroot = 0;
+		} else {
+			rootnet = 0;
+		}
+#else
 		valid = sec_login_setup_identity((unsigned_char_p_t) ROOT,
 			  sec_login_no_flags, &login_context, &error_status);
 		if (!valid) {
@@ -1241,6 +1277,7 @@ initDCE(void)
 			(void) strcpy(rootpass, pwd->pw_passwd);
 		} else
 			rootnet = 1;
+#endif
 	}
 	pthread_lock_global_np();
 }

@@ -100,14 +100,24 @@ static const char sccsid[] = "@(#)life.c	4.07 98/01/18 xlockmore";
  "*count: 40 \n" \
  "*cycles: 140 \n" \
  "*size: 0 \n" \
- "*ncolors: 200 \n"
-#define DEF_BITMAP ""
-#define SPREAD_COLORS
+ "*ncolors: 200 \n" \
+ "*bitmap: \n" \
+ "*neighbors: 0 \n" \
+ "*verbose: False \n"
+#define UNIFORM_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
-
+#include "color.h"
 #endif /* STANDALONE */
+#include "iostuff.h"
+#include "automata.h"
+
+/*-
+ * neighbors of 0 does not randomize.  All inappropriate
+ * modes will be set at 8.  3, 6, 9, & 12 also available.
+ */
+extern int  neighbors;
 
 #if 1
 #define DEF_RULE  "G"		/* All rules with known gliders */
@@ -187,7 +197,6 @@ ModStruct   life_description =
 #define CELL_HEIGHT TRUE_CELL_HEIGHT * YPATTERNS
 #endif
 
-extern int  neighbors;
 static int  local_neighbors = 0;
 static int  neighbor_kind = 0;
 
@@ -223,6 +232,7 @@ typedef struct {
 } paramstruct;
 
 typedef struct {
+	Bool        painted;
 	paramstruct param;
 	int         pattern, patterned_rule;
 	int         pixelmode;
@@ -1463,7 +1473,8 @@ static paramstruct param_8rules[] =
 static int
 codeToPatternedRule(paramstruct param)
 {
-	int         i, g;
+	unsigned int i;
+	int         g;
 
 	switch (local_neighbors) {
 		case 6:
@@ -1837,13 +1848,13 @@ parseRule(ModeInfo * mi)
 			if (rule[n] == 'P') {
 				allPatterns = True;
 				found = True;
-				if (MI_WIN_IS_VERBOSE(mi))
+				if (MI_IS_VERBOSE(mi))
 					(void) fprintf(stdout, "rule: All rules with known patterns\n");
 				return;
 			} else if (rule[n] == 'G') {
 				allGliders = True;
 				found = True;
-				if (MI_WIN_IS_VERBOSE(mi))
+				if (MI_IS_VERBOSE(mi))
 					(void) fprintf(stdout, "rule: All rules with known gliders\n");
 				return;
 			} else if (rule[n] == 'S' || rule[n] == 'E' || rule[n] == 'L') {
@@ -1880,12 +1891,12 @@ parseRule(ModeInfo * mi)
 	if (!found) {		/* Default to Conway's rule if very stupid */
 		allGliders = True;
 		found = True;
-		if (MI_WIN_IS_VERBOSE(mi))
+		if (MI_IS_VERBOSE(mi))
 			(void) fprintf(stdout,
 			"rule: Defaulting to all rules with known gliders\n");
 		return;
 	}
-	if (MI_WIN_IS_VERBOSE(mi))
+	if (MI_IS_VERBOSE(mi))
 		printRule(input_param);
 }
 
@@ -2028,8 +2039,8 @@ draw_cell(ModeInfo * mi, cellstruct info)
 	GC          gc = lp->backGC;
 	int         col, row;
 
-	col = info.position % lp->ncols;
-	row = info.position / lp->ncols;
+	col = (int) (info.position % lp->ncols);
+	row = (int) (info.position / lp->ncols);
 	if (info.state == LIVE) {
 		if (MI_NPIXELS(mi) > 2)
 			XSetForeground(display, gc, MI_PIXEL(mi, info.age));
@@ -2052,7 +2063,9 @@ draw_cell(ModeInfo * mi, cellstruct info)
 	} else if (local_neighbors == 4 || local_neighbors == 8) {
 		if (lp->pixelmode || info.state == DEAD)
 			XFillRectangle(display, MI_WINDOW(mi), gc,
-				       lp->xb + lp->xs * col, lp->yb + lp->ys * row, lp->xs, lp->ys);
+				       lp->xb + lp->xs * col, lp->yb + lp->ys * row,
+				 lp->xs - (lp->xs > 3 && lp->pixelmode),
+				 lp->ys - (lp->ys > 3 && lp->pixelmode));
 		else
 /*-
  * PURIFY 4.0.1 on SunOS4 and on Solaris 2 reports a 132 byte memory leak on
@@ -2201,6 +2214,7 @@ alloc_cells(lifestruct * lp)
 {
 	lp->arr = (CellList **) calloc(lp->npositions, sizeof (CellList *));
 }
+
 static void
 free_cells(lifestruct * lp)
 {
@@ -2232,8 +2246,8 @@ ng_neighbors(lifestruct * lp, CellList * curr, int *group)
 {
 	int         col, row, n, p, count = 0, gcount = 0;
 
-	col = curr->info.position % lp->ncols;
-	row = curr->info.position / lp->ncols;
+	col = (int) (curr->info.position % lp->ncols);
+	row = (int) (curr->info.position / lp->ncols);
 	for (n = 0; n < local_neighbors; n++) {
 		p = position_of_neighbor(lp, n, col, row);
 		gcount <<= 1;
@@ -2260,7 +2274,7 @@ RandomSoup(ModeInfo * mi, int n, int v)
 			if (NRAND(100) < n && col > 1 && row > 1 &&
 			    col < lp->ncols && row < lp->nrows)
 				setcell(mi, col, row, LIVE);
-	if (MI_WIN_IS_VERBOSE(mi))
+	if (MI_IS_VERBOSE(mi))
 		(void) fprintf(stdout, "random pattern\n");
 }
 
@@ -2308,7 +2322,7 @@ GetPattern(ModeInfo * mi, int pattern_rule, int pattern)
 		if (col >= 0 && row >= 0 && col < lp->ncols && row < lp->nrows)
 			setcell(mi, col, row, LIVE);
 	}
-	if (MI_WIN_IS_VERBOSE(mi) && !filePattern)
+	if (MI_IS_VERBOSE(mi) && !filePattern)
 		(void) fprintf(stdout, "table number %d\n", pattern);
 }
 
@@ -2374,16 +2388,18 @@ init_stuff(ModeInfo * mi)
 			 DEFAULT_XPM, CELL_NAME,
 #endif
 			 &lp->graphics_format, &lp->cmap, &lp->black);
-		}
+#ifndef STANDALONE
 	if (lp->cmap != None) {
-		setColormap(display, window, lp->cmap, MI_WIN_IS_INWINDOW(mi));
+		setColormap(display, window, lp->cmap, MI_IS_INWINDOW(mi));
 		if (lp->backGC == None) {
 			XGCValues   xgcv;
 
 			xgcv.background = lp->black;
 			lp->backGC = XCreateGC(display, window, GCBackground, &xgcv);
 		}
-	} else {
+	} else
+#endif /* STANDALONE */
+	{
 		lp->black = MI_BLACK_PIXEL(mi);
 		lp->backGC = MI_GC(mi);
 	}
@@ -2401,7 +2417,8 @@ free_stuff(Display * display, lifestruct * lp)
 		lp->cmap = None;
 	} else
 		lp->backGC = None;
-	destroyImage(&lp->logo, &lp->graphics_format);
+	if (lp->logo)
+		destroyImage(&lp->logo, &lp->graphics_format);
 }
 
 void
@@ -2452,7 +2469,7 @@ init_life(ModeInfo * mi)
 				break;
 		}
 		copyFromPatternedRule(&lp->param, lp->patterned_rule);
-		if (MI_WIN_IS_VERBOSE(mi))
+		if (MI_IS_VERBOSE(mi))
 			printRule(lp->param);
 	} else if (allGliders) {
 		switch (local_neighbors) {
@@ -2464,7 +2481,7 @@ init_life(ModeInfo * mi)
 				break;
 		}
 		copyFromPatternedRule(&lp->param, lp->patterned_rule);
-		if (MI_WIN_IS_VERBOSE(mi))
+		if (MI_IS_VERBOSE(mi))
 			printRule(lp->param);
 	} else {
 		lp->param.survival = input_param.survival;
@@ -2475,8 +2492,8 @@ init_life(ModeInfo * mi)
 		}
 		lp->patterned_rule = codeToPatternedRule(lp->param);
 	}
-	lp->width = MI_WIN_WIDTH(mi);
-	lp->height = MI_WIN_HEIGHT(mi);
+	lp->width = MI_WIDTH(mi);
+	lp->height = MI_HEIGHT(mi);
 
 	if (lp->first[0])
 		for (i = 0; i < STATES; i++)
@@ -2523,6 +2540,13 @@ init_life(ModeInfo * mi)
 			lp->width = 2;
 		if (lp->height < 2)
 			lp->height = 2;
+#if 0
+		if (size == 0 && !MI_IS_ICONIC(mi)) {
+			lp->pixelmode = False;
+			lp->xs = lp->logo->width;
+			lp->ys = lp->logo->height;
+		}
+#else
 		if (size == 0 ||
 		    MINGRIDSIZE * size > lp->width || MINGRIDSIZE * size > lp->height) {
 			if (lp->width > MINGRIDSIZE * lp->logo->width/XPATTERNS &&
@@ -2535,7 +2559,9 @@ init_life(ModeInfo * mi)
 				lp->xs = lp->ys = MAX(MINSIZE, MIN(lp->width, lp->height) /
 						      MINGRIDSIZE);
 			}
-		} else {
+		}
+#endif
+		else {
 			lp->pixelmode = True;
 			if (size < -MINSIZE)
 				lp->ys = NRAND(MIN(-size, MAX(MINSIZE, MIN(lp->width, lp->height) /
@@ -2588,18 +2614,18 @@ init_life(ModeInfo * mi)
 	lp->npositions = lp->nrows * lp->ncols;
 
 	MI_CLEARWINDOWCOLORMAP(mi, lp->backGC, lp->black);
-
+	lp->painted = False;
 	alloc_cells(lp);
 
 	lp->patterned_rule = codeToPatternedRule(lp->param);
 	npats = 0;
 	switch (local_neighbors) {
 		case 6:
-			if (lp->patterned_rule < LIFE_6RULES)
+			if ((unsigned) lp->patterned_rule < LIFE_6RULES)
 				npats = patterns_6rules[lp->patterned_rule];
 			break;
 		case 8:
-			if (lp->patterned_rule < LIFE_8RULES)
+			if ((unsigned) lp->patterned_rule < LIFE_8RULES)
 				npats = patterns_8rules[lp->patterned_rule];
 			break;
 	}
@@ -2635,6 +2661,8 @@ draw_life(ModeInfo * mi)
 	/* Go through dead list to see if anything spawns (generate new lists),
 	   then delete the used dead list */
 
+	MI_IS_DRAWN(mi) = True;
+
 	/* Setup toggles */
 	curr = lp->first[DEAD]->next;
 	while (curr != lp->last[DEAD]) {
@@ -2643,8 +2671,8 @@ draw_life(ModeInfo * mi)
 			     count < FIRSTGROUP + maxgroups[neighbor_kind] &&
 				 (lp->param.birth_group[count - FIRSTGROUP] &
 				  (1 << style6[gcount])))) {
-			setcelltoggles(mi, curr->info.position % lp->ncols,
-				       curr->info.position / lp->ncols);
+			setcelltoggles(mi, (int) (curr->info.position % lp->ncols),
+				    (int) (curr->info.position / lp->ncols));
 		}
 		curr = curr->next;
 	}
@@ -2655,8 +2683,8 @@ draw_life(ModeInfo * mi)
 			     count < FIRSTGROUP + maxgroups[neighbor_kind] &&
 			      (lp->param.survival_group[count - FIRSTGROUP] &
 			       (1 << style6[gcount]))))) {
-			setcelltoggles(mi, curr->info.position % lp->ncols,
-				       curr->info.position / lp->ncols);
+			setcelltoggles(mi, (int) (curr->info.position % lp->ncols),
+				    (int) (curr->info.position / lp->ncols));
 		}
 		curr = curr->next;
 	}
@@ -2690,13 +2718,13 @@ draw_life(ModeInfo * mi)
 	/* Toggle toggled states, age existing ones, create a new dead list */
 	while (lp->first[DEAD]->next != middle[DEAD]) {
 		curr = lp->first[DEAD]->next;
-		setcellfromtoggle(mi, curr->info.position % lp->ncols,
-				  curr->info.position / lp->ncols);
+		setcellfromtoggle(mi, (int) (curr->info.position % lp->ncols),
+				  (int) (curr->info.position / lp->ncols));
 	}
 	curr = lp->first[LIVE]->next;
 	while (curr != middle[LIVE]) {
-		setcellfromtoggle(mi, curr->info.position % lp->ncols,
-				  curr->info.position / lp->ncols);
+		setcellfromtoggle(mi, (int) (curr->info.position % lp->ncols),
+				  (int) (curr->info.position / lp->ncols));
 		curr = curr->next;
 	}
 	removefrom_list(lp, DEAD, middle[DEAD]);
@@ -2718,6 +2746,8 @@ draw_life(ModeInfo * mi)
 	}
 	if (++lp->generation > MI_CYCLES(mi))
 		init_life(mi);
+	else
+		lp->painted = True;
 
 	/*
 	 * generate a randomized shooter aimed roughly toward the center of the
@@ -2725,7 +2755,7 @@ draw_life(ModeInfo * mi)
 	 */
 
 	if (lp->generation && lp->generation %
-	    ((MI_BATCHCOUNT(mi) < 0) ? 1 : MI_BATCHCOUNT(mi)) == 0)
+	    ((MI_COUNT(mi) < 0) ? 1 : MI_COUNT(mi)) == 0)
 		shooter(mi);
 
 }
@@ -2741,11 +2771,14 @@ release_life(ModeInfo * mi)
 			int         state;
 
 			for (state = 0; state < STATES; state++) {
-				flush_list(lp, state);
-				(void) free((void *) lp->last[state]);
-				(void) free((void *) lp->first[state]);
-			} free_cells(lp);
-
+				if (lp->first[0])
+					flush_list(lp, state);
+				if (lp->last[state])
+					(void) free((void *) lp->last[state]);
+				if (lp->first[state])
+					(void) free((void *) lp->first[state]);
+			}
+			free_cells(lp);
 			free_stuff(MI_DISPLAY(mi), lp);
 		}
 		(void) free((void *) lifes);
@@ -2758,8 +2791,12 @@ refresh_life(ModeInfo * mi)
 {
 	lifestruct *lp = &lifes[MI_SCREEN(mi)];
 
-	lp->redrawing = 1;
-	lp->redrawpos = 0;
+	if (lp->painted) {
+		MI_CLEARWINDOWCOLORMAP(mi, lp->backGC, lp->black);
+		lp->redrawing = 1;
+		lp->redrawpos = 0;
+		lp->painted = False;
+	}
 }
 
 void
@@ -2785,11 +2822,11 @@ change_life(ModeInfo * mi)
 	npats = 0;
 	switch (local_neighbors) {
 		case 6:
-			if (lp->patterned_rule < LIFE_6RULES)
+			if ((unsigned) lp->patterned_rule < LIFE_6RULES)
 				npats = patterns_6rules[lp->patterned_rule];
 			break;
 		case 8:
-			if (lp->patterned_rule < LIFE_8RULES)
+			if ((unsigned) lp->patterned_rule < LIFE_8RULES)
 				npats = patterns_8rules[lp->patterned_rule];
 			break;
 	}
@@ -2799,31 +2836,31 @@ change_life(ModeInfo * mi)
 			lp->patterned_rule++;
 			switch (local_neighbors) {
 				case 6:
-					if (lp->patterned_rule >= LIFE_6RULES)
+					if ((unsigned) lp->patterned_rule >= LIFE_6RULES)
 						lp->patterned_rule = 0;
 					break;
 				case 8:
-					if (lp->patterned_rule >= LIFE_8RULES)
+					if ((unsigned) lp->patterned_rule >= LIFE_8RULES)
 						lp->patterned_rule = 0;
 					break;
 			}
 			copyFromPatternedRule(&lp->param, lp->patterned_rule);
-			if (MI_WIN_IS_VERBOSE(mi))
+			if (MI_IS_VERBOSE(mi))
 				printRule(lp->param);
 		} else if (allGliders) {
 			lp->patterned_rule++;
 			switch (local_neighbors) {
 				case 6:
-					if (lp->patterned_rule >= LIFE_6GLIDERS)
+					if ((unsigned) lp->patterned_rule >= LIFE_6GLIDERS)
 						lp->patterned_rule = 0;
 					break;
 				case 8:
-					if (lp->patterned_rule >= LIFE_8GLIDERS)
+					if ((unsigned) lp->patterned_rule >= LIFE_8GLIDERS)
 						lp->patterned_rule = 0;
 					break;
 			}
 			copyFromPatternedRule(&lp->param, lp->patterned_rule);
-			if (MI_WIN_IS_VERBOSE(mi))
+			if (MI_IS_VERBOSE(mi))
 				printRule(lp->param);
 		}
 	}
