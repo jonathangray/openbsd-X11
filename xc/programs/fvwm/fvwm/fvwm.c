@@ -124,7 +124,7 @@ char *display_name = NULL;
  *
  ***********************************************************************
  */
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
   unsigned long valuemask;	/* mask for create windows */
   XSetWindowAttributes attributes;	/* attributes for create windows */
@@ -204,7 +204,7 @@ void main(int argc, char **argv)
     else if (mystrncasecmp(argv[i],"-h",2)==0)
     {
       usage();
-      exit(0);
+      return 0;
     }
     else if (mystrncasecmp(argv[i],"-blackout",9)==0)
     {
@@ -243,7 +243,7 @@ void main(int argc, char **argv)
   if (!(dpy = XOpenDisplay(display_name))) 
   {
     fvwm_msg(ERR,"main","can't open display %s", XDisplayName(display_name));
-    exit (1);
+    return 1;
   }
   Scr.screen= DefaultScreen(dpy);
   Scr.NumberOfScreens = ScreenCount(dpy);
@@ -290,7 +290,7 @@ void main(int argc, char **argv)
   if (fcntl(x_fd, F_SETFD, 1) == -1) 
   {
     fvwm_msg(ERR,"main","close-on-exec failed");
-    exit (1);
+    return 1;
   }
 	    
   /*  Add a DISPLAY entry to the environment, incase we were started
@@ -334,7 +334,7 @@ void main(int argc, char **argv)
   if(Scr.Root == None) 
   {
     fvwm_msg(ERR,"main","Screen %d is not a valid screen",(char *)Scr.screen);
-    exit(1);
+    return 1;
   }
 
 
