@@ -254,7 +254,7 @@ SOFTWARE.
 #endif /* m68k */
 #endif /* macII */
 
-#if (defined(mips) || defined(__mips)) && !defined(sgi)
+#if (defined(mips) || defined(__mips) || (defined(__OpenBSD__) && defined(__mips__))) && !defined(sgi)
 
 #if defined(MIPSEL) || defined(__MIPSEL__)
 # define IMAGE_BYTE_ORDER	LSBFirst        /* Values for the PMAX only */
