@@ -136,12 +136,9 @@ SelectAuthorizationTypeIndex (authenticationName, authorizationNames)
 static void
 avail_msg(char *statusBuf)
 {
-#ifndef __linux__
-    sprintf(statusBuf, "Willing to manage");
-    return;
-#else /* __linux__ */
-    FILE *lavg;
     const char *err = "Willing to manage";
+#ifdef __linux__
+    FILE *lavg;
     char buf[5];
 
     lavg = fopen("/proc/loadavg", "r");
@@ -161,6 +158,17 @@ avail_msg(char *statusBuf)
 
     sprintf(statusBuf, "Available (load: %s)", buf);
     fclose(lavg);
+    return;
+#else /* __linux__ */
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+    double lavg;
+
+    if (getloadavg(&lavg, 1) == 1) {
+	sprintf(statusBuf, "Available (load: %.2f)", lavg);
+	return;
+    }
+#endif /* __FreeBSD__ || __NetBSD__ || __OpenBSD__ */
+    strcpy(statusBuf, err);
     return;
 #endif /* __linux__ */
 }
