@@ -361,8 +361,10 @@ install.man:: 								@@\
 
 # include <xf86.rules>
 # define Xmac68kServer
+# define BuildXKB	NO
+# define BuildXKBLib	NO
 
-#endif /* Mac68kArchitecture */
+#endif /* mac68kArchitecture */
 
 
 /*
