@@ -2388,6 +2388,7 @@ init_stuff(ModeInfo * mi)
 			 DEFAULT_XPM, CELL_NAME,
 #endif
 			 &lp->graphics_format, &lp->cmap, &lp->black);
+	   }
 #ifndef STANDALONE
 	if (lp->cmap != None) {
 		setColormap(display, window, lp->cmap, MI_IS_INWINDOW(mi));
