@@ -21,7 +21,10 @@ DisplayManager*authComplain:	false
 #if HAS_DES_AUTH == YES
 DisplayManager._0.authName:     MIT-MAGIC-COOKIE-1
 #endif
-#ifdef XDM
+#ifdef XPM
 ! this is a new line Caolan, 9312811@ul.ie
 DisplayManager*loginmoveInterval:	10
-#endif /* XDM */
+#endif /* XPM */
+! SECURITY: do not listen for XDMCP or Chooser requests
+! Comment out this line if you want to manage X terminals with xdm
+DisplayManager.requestPort:	0
