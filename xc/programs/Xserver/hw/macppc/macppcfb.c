@@ -1,6 +1,7 @@
 
 /* $XConsortium: sunCfb.c,v 1.15.1.2 95/01/12 18:54:42 kaleb Exp $ */
 /* $XFree86: xc/programs/Xserver/hw/sun/sunCfb.c,v 3.2 1995/02/12 02:36:22 dawes Exp $ */
+/* $OpenBSD: macppcfb.c,v 1.2 2000/09/18 22:09:29 matthieu Exp $ */
 
 /*
 Copyright (c) 1990  X Consortium
@@ -88,7 +89,6 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "macppc.h"
 #include "cfb.h"
 #include <dev/pci/tgareg.h>
-#include <machine/grfioctl.h>	/* XXX should not use grf ioctl. */
 
 /* XXX */
 #include <stdio.h>
@@ -253,7 +253,6 @@ Bool macppcFBInit (screen, pScreen, argc, argv)
     	if (!macppcScreenAllocate(pScreen))
 		return FALSE;
 	if (!fb) {
-		struct grfinfo gi;
 		int offset;
 
 		if ((fb = macppcMemoryMap ((size_t)wf->height * wf->width,
