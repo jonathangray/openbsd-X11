@@ -1,5 +1,5 @@
 !!!!
-! XLock: Class resource for xlock (xlockmore-4.11)
+! XLock: Class resource for xlock (xlockmore-4.13)
 !!!!
 XLock.mode: random
 !XLock.mode: blank
@@ -24,8 +24,9 @@ XLock.inroot: off
 XLock.remote: off
 XLock.mono: off
 XLock.allowaccess: off
-XLock.vtlock: on
+XLock.vtlock: off
 XLock.allowroot: off
+XLock.description: on
 XLock.echokeys: off
 XLock.enablesaver: on
 XLock.resetsaver: on
@@ -47,8 +48,8 @@ XLock.icongeometry: 64x64
 ! For bouboule, pyro, star, & worm modes
 XLock.use3d: off
 XLock.delta3d: 1.5
-XLock.right3d: Red
-XLock.left3d: Blue
+XLock.right3d: Blue
+XLock.left3d: Red
 XLock.both3d: Magenta
 
 ! For marquee & nose modes
@@ -573,6 +574,11 @@ XLock.swirl.count: 5
 !XLock.swirl.cycles: 1
 !XLock.swirl.size: 1
 XLock.swirl.saturation: 1.0
+XLock.tetris.delay: 50000
+!XLock.tetris.count: 1
+!XLock.tetris.cycles: 1
+XLock.tetris.size: 0
+XLock.tetris.saturation: 1.0
 XLock.thornbird.delay: 1000
 XLock.thornbird.count: 800
 XLock.thornbird.cycles: 16
@@ -623,6 +629,11 @@ XLock.worm.count: -20
 XLock.worm.cycles: 10
 XLock.worm.size: -3
 XLock.worm.saturation: 1.0
+XLock.xjack.delay: 50000
+!XLock.xjack.count: 1
+!XLock.xjack.cycles: 1
+!XLock.xjack.size: 1
+XLock.xjack.saturation: 1.0
 
 XLock.blank.delay: 3000000
 !XLock.blank.count: 1

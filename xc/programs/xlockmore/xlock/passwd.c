@@ -10,7 +10,9 @@ static const char sccsid[] = "@(#)passwd.c	4.02 97/04/01 xlockmore";
  *
  * Revision History:
  *
- * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * Changes maintained by David Bagley <bagleyd@tux.org>
+ * 18-Feb-99: allowroot option no longer ignored for PAM authentication.
+ *            Sven Paas <Sven.Paas@t-online.de>
  * 24-Jan-98: Updated PAM support and made it configure-able.
  *            Marc Ewing <marc@redhat.com>  Original PAM support from
  *            25-Jul-96 Michael K. Johnson <johnsonm@redhat.com>
@@ -33,6 +35,7 @@ static const char sccsid[] = "@(#)passwd.c	4.02 97/04/01 xlockmore";
 
 #include "xlock.h"
 #include "iostuff.h"
+#include "passwd.h"
 
 #ifdef VMS
 #include <str$routines.h>
@@ -42,12 +45,12 @@ static const char sccsid[] = "@(#)passwd.c	4.02 97/04/01 xlockmore";
 #define ROOT "root"
 #endif
 
-extern char *ProgramName;
 extern Bool allowroot;
 extern Bool inroot;
 extern Bool inwindow;
 extern Bool grabmouse;
 extern Bool nolock;
+extern char *cpasswd;
 
 #if defined( USE_XLOCKRC ) || defined( FALLBACK_XLOCKRC )
 #include <sys/stat.h>		/* order of includes matters */
@@ -242,6 +245,9 @@ struct itmlst {
 #endif /* AFS */
 
 char        user[PASSLENGTH];
+#ifdef GLOBAL_UNLOCK
+char        global_user[PASSLENGTH];
+#endif
 
 #ifdef PAM
 #include <security/pam_appl.h>
@@ -369,14 +375,14 @@ my_passwd_entry(void)
 	uid = (int) getuid();
 #ifndef SUNOS_ADJUNCT_PASSWD
 	{
-		char       *user = NULL;
+		char       *logname = NULL;
 
 		pw = 0;
-		user = getenv("LOGNAME");
-		if (!user)
-			user = getenv("USER");
-		if (user) {
-			pw = getpwnam(user);
+		logname = getenv("LOGNAME");
+		if (!logname)
+			logname = getenv("USER");
+		if (logname) {
+			pw = getpwnam(logname);
 			if (pw && (pw->pw_uid != uid))
 				pw = 0;
 		}
@@ -560,10 +566,9 @@ gpasskey(char *pass)
 }
 
 static void
-gpass()
+gpass(void)
 {
 	FILE       *fp;
-	extern char *cpasswd;
 	char        xlockrc[MAXPATHLEN], *home;
 
 	if (!cpasswd || !*cpasswd) {
@@ -742,7 +747,6 @@ getCryptedUserPasswd(void)
 		(void) free((void *) buf);	/* Should never get here */
 	}
 	(void) strcpy(userpass, pw->ufld.fd_encrypt);
-
 #else /* !OSF1_ENH_SEC */
 
 	struct passwd *pw;
@@ -924,6 +928,42 @@ getCryptedRootPasswd(void)
 #endif /* !ultrix && !DCE_PASSWD && !BSD_AUTH && !PAM */
 
 
+#ifdef GLOBAL_UNLOCK
+void
+checkUser(char *buffer)
+{
+#ifdef OSF1_ENH_SEC
+	struct pr_passwd *pw;
+#else /* !OSF1_ENH_SEC */
+	struct passwd *pw;
+#ifdef HAVE_SHADOW
+	struct spwd *spw;
+
+#endif
+#endif /* !OSF1_ENH_SEC */
+	pw = (struct passwd *)getpwnam(buffer);
+
+	if (pw == NULL)
+		(void) strcpy(userpass, "*");
+	else {
+#ifdef HAVE_SHADOW
+	if ((spw = getspnam(pw->pw_name)) != NULL) {
+		char       *tmp;	/* swap */
+
+		tmp = pw->pw_passwd;
+		pw->pw_passwd = spw->sp_pwdp;
+		spw->sp_pwdp = tmp;
+	}
+	endspent();
+#endif
+		(void) strcpy(userpass, pw->pw_passwd);
+	}
+
+}
+#endif
+
+
+
 /*-
  * We do not allow for root to have no password, but we handle the case
  * where the user has no password correctly; they have to hit return
@@ -997,6 +1037,11 @@ checkPasswd(char *buffer)
 	PAM_BAIL;
 	pam_error = pam_authenticate(pamh, 0);
 	if (pam_error != PAM_SUCCESS) {
+                if (!allowroot) {
+                        pam_end(pamh, 0);
+                        return 0;
+                }
+
 		/* Try as root; bail if no success there either */
 		pam_error = pam_set_item(pamh, PAM_USER, ROOT);
 		PAM_BAIL;

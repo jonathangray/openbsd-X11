@@ -41,6 +41,9 @@ LARGEBITMAP = l-$(BITMAPTYPE)
 MEDIUMPIXMAP = m-$(PIXMAPTYPE)
 LARGEPIXMAP = l-$(PIXMAPTYPE)
 
+XCOMM DECAYBITMAP = $(LARGEBITMAP)
+DECAYBITMAP = l-xlock
+XCOMM DECAYBITMAP = l-linux
 XCOMM EYESBITMAP = $(MEDIUMBITMAP)
 EYESBITMAP = m-grelb
 FLAGBITMAP = $(MEDIUMBITMAP)
@@ -57,6 +60,9 @@ PACMANBITMAP = m-ghost
 XCOMM PUZZLEBITMAP = $(LARGEBITMAP)
 PUZZLEBITMAP = l-xlock
 XCOMM PUZZLEBITMAP = l-linux
+XCOMM DECAYPIXMAP = $(LARGEPIXMAP)
+DECAYPIXMAP = l-xlock
+XCOMM DECAYPIXMAP = l-linux
 FLAGPIXMAP = $(MEDIUMPIXMAP)
 XCOMM FLAGPIXMAP = m-xlock
 IMAGEPIXMAP = $(MEDIUMPIXMAP)
@@ -77,28 +83,29 @@ $(DOU)vtlock$(O)
 XLOCKCHECKOBJS = $(S)memcheck$(O)
 #endif
 #ifdef Unstable
-XLOCKUNSTABLEOBJS =
+XLOCKUNSTABLEOBJS = $(DOM)space$(O)
 #endif
 XLOCKMODEOBJS = $(DOM)ant$(OM)ball$(OM)bat$(OM)blot$(OM)\
 bouboule$(OM)bounce$(OM)braid$(OM)bubble$(OM)bug$(OM)\
 clock$(OM)coral$(OM)crystal$(OM)\
-daisy$(OM)dclock$(OM)deco$(OM)demon$(OM)\
+daisy$(OM)dclock$(OM)decay$(OM)deco$(OM)demon$(OM)\
 dilemma$(OM)discrete$(OM)drift$(OM)eyes$(OM)\
 fadeplot$(OM)flag$(OM)flame$(OM)flow$(OM)forest$(OM)\
 galaxy$(OM)goop$(OM)grav$(OM)\
 helix$(OM)hop$(OM)hyper$(OM)\
 ico$(OM)ifs$(OM)image$(OM)julia$(OM)kaleid$(OM)kumppa$(OM)\
 laser$(OM)life$(OM)life1d$(OM)life3d$(OM)\
-lightning$(OM)lisa$(OM)lissie$(OM)loop$(OM)\
-mandelbrot$(OM)marquee$(OM)maze$(OM)mountain$(OM)munch$(OM)nose$(OM)\
+lightning$(OM)lisa$(OM)lissie$(OM)loop$(OM)lyapunov$(OM)\
+mandelbrot$(OM)marquee$(OM)matrix$(OM)maze$(OM)\
+mountain$(OM)munch$(OM)nose$(OM)\
 pacman$(OM)penrose$(OM)petal$(OM)puzzle$(OM)pyro$(OM)\
 qix$(OM)roll$(OM)rotor$(OM)\
 shape$(OM)sierpinski$(OM)slip$(OM)\
 sphere$(OM)spiral$(OM)spline$(OM)\
 star$(OM)starfish$(OM)strange$(OM)swarm$(OM)swirl$(OM)\
-thornbird$(OM)triangle$(OM)tube$(OM)turtle$(OM)\
+tetris$(OM)thornbird$(OM)triangle$(OM)tube$(OM)turtle$(OM)\
 vines$(OM)voters$(OM)\
-wator$(OM)wire$(OM)world$(OM)worm$(OM)\
+wator$(OM)wire$(OM)world$(OM)worm$(OM)xjack$(OM)\
 $(XLOCKUNSTABLEOBJS)
 #ifdef XpmLibrary
 XLOCKXPMOBJS = $(DOM)cartoon$(O)
@@ -140,23 +147,24 @@ XLOCKCHECKSRCS = $(DU)memcheck$(C)
 XLOCKMODESRCS = $(DM)ant$(CM)ball$(CM)bat$(CM)blot$(C) \
 $(DM)bouboule$(CM)bounce$(CM)braid$(CM)bubble$(CM)bug$(C) \
 $(DM)clock$(CM)coral$(CM)crystal$(C) \
-$(DM)daisy$(CM)dclock$(CM)deco$(CM)demon$(C) \
+$(DM)daisy$(CM)dclock$(CM)decay$(CM)deco$(CM)demon$(C) \
 $(DM)dilemma$(CM)discrete$(OM)drift$(C) \
 $(DM)eyes$(CM)fadeplot$(CM)flag$(CM)flame$(CM)flow$(CM)forest$(C) \
 $(DM)galaxy$(CM)goop$(CM)grav$(C) \
 $(DM)helix$(CM)hop$(CM)hyper$(C) \
 $(DM)ico$(CM)ifs$(CM)image$(CM)julia$(CM)kaleid$(CM)kumppa$(C) \
 $(DM)laser$(CM)life$(CM)life1d$(CM)life3d$(C) \
-$(DM)lightning$(CM)lisa$(CM)lissie$(CM)loop$(C) \
-$(DM)mandelbrot$(CM)marquee$(CM)maze$(CM)mountain$(CM)munch$(CM)nose$(C) \
+$(DM)lightning$(CM)lisa$(CM)lissie$(CM)loop$(CM)lyapunov$(C) \
+$(DM)mandelbrot$(CM)marquee$(CM)matrix$(CM)maze$(C) \
+$(DM)mountain$(CM)munch$(CM)nose$(C) \
 $(DM)pacman$(CM)penrose$(CM)petal$(CM)puzzle$(CM)pyro$(C) \
 $(DM)qix$(CM)roll$(CM)rotor$(C) \
 $(DM)shape$(CM)sierpinski$(CM)slip$(C) \
-$(DM)sphere$(CM)spiral$(CM)spline$(C) \
+$(DM)space$(CM)sphere$(CM)spiral$(CM)spline$(C) \
 $(DM)star$(CM)starfish$(CM)strange$(CM)swarm$(CM)swirl$(C) \
-$(DM)thornbird$(CM)triangle$(CM)tube$(CM)turtle$(C) \
+$(DM)tetris$(CM)thornbird$(CM)triangle$(CM)tube$(CM)turtle$(C) \
 $(DM)vines$(CM)voters$(C) \
-$(DM)wator$(CM)wire$(CM)world$(CM)worm$(C)
+$(DM)wator$(CM)wire$(CM)world$(CM)worm$(CM)xjack$(C)
 XLOCKXPMSRCS = $(DM)cartoon$(C)
 XLOCKGLSRCS = $(DG)cage$(CG)gears$(C) \
 $(DG)lament$(CG)moebius$(CG)morph3d$(C) \
@@ -207,6 +215,7 @@ clean::
 DependTarget()
 LintTarget()
 
+decay$(O) : decay$(C) decay.xbm decay.xpm
 eyes$(O) : eyes$(C) eyes.xbm
 /* XXX gcc 2.8.1 bug: infinite loop at line 2875 of life.c on m68k with -O */
 #if defined(Mc68020Architecture)
@@ -222,6 +231,9 @@ flag$(O) : flag$(C) flag.xbm flag.xpm
 image$(O) : image$(C) image.xbm image.xpm
 maze$(O) : maze$(C) maze.xbm maze.xpm
 puzzle$(O) : puzzle$(C) puzzle.xbm puzzle.xpm
+
+decay.xbm : $(BITMAPDIR)$(DECAYBITMAP).xbm
+	$(RM) decay.xbm ; $(LN_S) $(BITMAPDIR)$(DECAYBITMAP).xbm decay.xbm
 
 eyes.xbm : $(BITMAPDIR)$(EYESBITMAP).xbm
 	$(RM) eyes.xbm ; $(LN_S) $(BITMAPDIR)$(EYESBITMAP).xbm eyes.xbm
@@ -258,6 +270,9 @@ maze.xpm : $(PIXMAPDIR)$(MAZEPIXMAP).xpm
 
 puzzle.xpm : $(PIXMAPDIR)$(PUZZLEPIXMAP).xpm
 	$(RM) puzzle.xpm ; $(LN_S) $(PIXMAPDIR)$(PUZZLEPIXMAP).xpm puzzle.xpm
+
+decay.xpm : $(PIXMAPDIR)$(DECAYPIXMAP).xpm
+	$(RM) decay.xpm ; $(LN_S) $(PIXMAPDIR)$(DECAYPIXMAP).xpm decay.xpm
 
 $(UTILOBJDIR)xlock.o : $(UTILDIR)xlock.c
 $(UTILOBJDIR)passwd.o : $(UTILDIR)passwd.c

@@ -1,13 +1,13 @@
 #ifndef XCOMM
 #define XCOMM /**/#
 #endif
-XCOMM @(#)Imakefile	4.12 98/09/29 xlockmore
-XCOMM $OpenBSD: Imakefile,v 1.3 1998/09/30 14:11:04 matthieu Exp $
+XCOMM @(#)Imakefile	4.13 99/03/08 xlockmore
+XCOMM $OpenBSD: Imakefile,v 1.4 1999/05/02 19:17:41 matthieu Exp $
 XCOMM Many "ideas" taken from xscreensaver-1.34 by Jamie Zawinski.
 XCOMM
 
 VER = xlockmore
-DISTVER = xlockmore-4.12
+DISTVER = xlockmore-4.13
 
 #define IHaveSubdirs
 #define PassCDebugFlags CDEBUGFLAGS="$(CDEBUGFLAGS)"

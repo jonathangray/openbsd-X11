@@ -23,7 +23,13 @@ static const char sccsid[] = "@(#)xlock.c	4.11 98/05/24 xlockmore";
  *
  * Revision History:
  *
- * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * Changes maintained by David Bagley <bagleyd@tux.org>
+ * 08-Apr-98: A way for users to unlock each others display.  Kind of defeats
+ *            the lock but the unlocked user is mailed and and entry is
+ *            written to syslogd.  Thanks to Mark Kirk <mkirk@pdi.com> for
+ *            his vizlock-1.0 patch.  Compile-time switch for this is
+ *            GLOBAL_UNLOCK.  This is probably full of security holes when
+ *            enabled... :)
  * 01-Jul-98: Eric Lassauge <lassauge@sagem.fr> &
  *              Remi Cohen-Scali <remi.cohenscali@pobox.com>
  *            Added support for locking VT switching (-/+vtlock)
@@ -196,6 +202,7 @@ static const char sccsid[] = "@(#)xlock.c	4.11 98/05/24 xlockmore";
 #include <string.h>
 #include "screenhack.h"
 #include "mode.h"
+#include "vis.h"
 
 #define countof(x) (sizeof((x))/sizeof(*(x)))
 
@@ -204,7 +211,6 @@ extern const char *app_defaults;
 char       *message, *messagefile, *messagesfile, *program;
 char       *messagefontname;
 int         neighbors;
-
 
 void
 pre_merge_options(void)
@@ -575,6 +581,7 @@ xlockmore_screenhack(Display * dpy, Window window,
 #include "color.h"
 #include "util.h"
 #include "iostuff.h"
+#include "passwd.h"
 #include <sys/stat.h>
 #include <signal.h>
 #include <errno.h>
@@ -616,10 +623,13 @@ extern int  dpmsoff;
 
 #endif
 
-#if ( HAVE_SYSLOG_H && defined( USE_SYSLOG ))
+#if ( HAVE_SYSLOG_H && (defined( USE_SYSLOG ) || defined( GLOBAL_UNLOCK )))
 #include <pwd.h>
 #include <grp.h>
 #include <syslog.h>
+#ifndef SYSLOG_FACILITY
+#define SYSLOG_FACILITY LOG_AUTH
+#endif
 #endif
 
 #if ( __VMS_VER >= 70000000 )
@@ -637,9 +647,6 @@ struct itmlst_3 {
 
 extern char *getenv(const char *);
 extern void checkResources(void);
-extern void initPasswd(void);
-extern int  checkPasswd(char *);
-
 extern void defaultVisualInfo(Display * display, int screen);
 
 #ifdef USE_OLD_EVENT_LOOP
@@ -698,6 +705,7 @@ extern Bool mono;
 extern Bool allowaccess;
 extern Bool allowroot;
 extern Bool debug;
+extern Bool description;
 extern Bool echokeys;
 extern Bool enablesaver;
 extern Bool fullrandom;
@@ -823,6 +831,8 @@ static int  got_invalid = 0;
 
 #endif
 
+/* This still might not be right for Solaris, change the "1"->"0" if error */
+#if 1
 #if (defined( SYSV ) || defined( SVR4 )) && defined( SOLARIS2 ) && !defined( HAVE_STRUCT_SIGSET_T )
 #if !defined( __cplusplus ) && !defined( c_plusplus ) && !defined ( _SIGSET_T )
 #define _SIGSET_T
@@ -832,6 +842,7 @@ typedef struct {		/* signal set type */
 
  /* This is good for gcc compiled on Solaris-2.5 but used on Solaris-2.6 */
 
+#endif
 #endif
 #endif
 
@@ -861,11 +872,11 @@ static XpmImage *nomail_xpmimg = NULL;
 
 #ifdef USE_VTLOCK
 	/* EL - RCS : for VT switching locking */
-extern int  vtlock;		/* Have to VT lock switching */
+extern int  vtlock;		/* Have to lock VT switching */
 extern int  vtlocked;		/* VT switching is locked */
 
 extern void dovtlock(void);	/* Actual do it */
-extern void dounvtlock(void);	/* & undo it functions */
+extern void dovtunlock(void);	/* & undo it functions */
 
 #endif
 
@@ -904,10 +915,6 @@ extern int  checkDynamic();
 #endif
 
 #if defined( HAVE_SYSLOG_H ) && defined( USE_SYSLOG )
-#ifndef SYSLOG_FACILITY
-#define SYSLOG_FACILITY LOG_AUTH
-#endif
-
 static void
 syslogStart(void)
 {
@@ -943,7 +950,7 @@ syslogStop(char *displayName)
 #endif
 
 void
-error(char *buf)
+error(const char *buf)
 {
 #if defined( HAVE_SYSLOG_H ) && defined( USE_SYSLOG )
 	extern Display *dsp;
@@ -1209,19 +1216,76 @@ mode_info(Display * display, int scrn, Window window, int iconic)
 	return (mi);
 }
 
+#ifdef GLOBAL_UNLOCK
+
+extern char *text_guser;
+extern char global_user[PASSLENGTH];
+extern void checkUser(char *buffer);
+static int unamex = 0, unamey = 0;
+#define LOG_FACILITY    LOG_LOCAL2
+#define LOG_LEVEL       LOG_INFO
+
+
+static int
+inform()
+{
+	/*
+	- the time, in date(1) style, is generated with a combination of the
+	  time(2) and ctime(3C) system calls.
+	- the owner of the xlock process is learned with getlogin(3C).
+	- global_user is a global character array  that holds the username 
+	  of the person wishing to unlock the display.
+	- the hostname is learned with gethostname(2).
+	- the syslog(3B) call uses the syslog facility to log
+	  happenings at LOG_LEVEL to LOG_FACILITY
+	- yes, a system(3S) call is used...
+	- I never said it was pretty.
+	
+	*/
+
+	char Mail[256];
+	time_t unlock_time;
+
+	/* learn what time it is and what host we are on */
+	time(&unlock_time);
+
+#if defined( HAVE_SYSLOG_H ) /* && defined( USE_SYSLOG ) */
+	/* log this event to syslogd as defined */
+	syslog(LOG_FACILITY | LOG_LEVEL, "%s: %s unlocked %s's display",
+	  ProgramName, global_user, getlogin()); 
+#endif
+	/* if (mailCmd && mailCmd[0]) { */
+		/* build a string suitable for use in system(3S) */
+		(void) sprintf(Mail, "%s -s \"%s:\" %s << EOF\n %s unlocked "
+			"%s's display on %s\n EOF",
+			/* Want the mail with the subject line control */
+#if defined( SYSV ) || defined( SVR4 ) || ( __VMS_VER >= 70000000 )
+			"/usr/ucb/mail" ,
+#else
+			"/usr/bin/mail" ,
+#endif
+			ProgramName, getlogin(),
+			global_user, hostname, ctime(&unlock_time));
+ 
+		if (debug)
+			(void) printf("%s\n", Mail);
+		(void) system(Mail); 
+	/* } */
+}
+#endif
 
 /* Restore all grabs, reset screensaver, restore colormap, close connection. */
 void
 finish(Display * display, Bool closeDisplay)
 {
-	int         screen;
+	int         scrn;
 
-	for (screen = startscreen; screen < screens; screen++) {
-		if (Scr[screen].window != None) {
-			release_last_mode(mode_info(display, screen, Scr[screen].window, False));
+	for (scrn = startscreen; scrn < screens; scrn++) {
+		if (Scr[scrn].window != None) {
+			release_last_mode(mode_info(display, scrn, Scr[scrn].window, False));
 		}
-		if (Scr[screen].icon != None) {
-			release_last_mode(mode_info(display, screen, Scr[screen].icon, True));
+		if (Scr[scrn].icon != None) {
+			release_last_mode(mode_info(display, scrn, Scr[scrn].icon, True));
 		}
 	}
 #ifdef ORIGINAL_XPM_PATCH
@@ -1236,6 +1300,15 @@ finish(Display * display, Bool closeDisplay)
 	if (inroot)
 		XClearWindow(display, Scr[startscreen].window);
 #endif
+
+#ifdef GLOBAL_UNLOCK
+	/* Check to see if the owner is doing the unlocking themselves,
+	and if not then inform the display owner of who is unlocking */
+
+	if (strcmp(global_user, getlogin()) != 0)
+		inform();
+#endif
+
 	if (!nolock && !allowaccess) {
 		if (grabserver)
 			XUngrabServer(display);
@@ -1259,7 +1332,7 @@ finish(Display * display, Bool closeDisplay)
 #ifdef USE_VTLOCK
 	/* EL - RCS : Unlock VT switching */
 	if (vtlock && vtlocked)
-		dounvtlock();
+		dovtunlock();
 #endif
 }
 
@@ -1279,7 +1352,7 @@ xio_error(Display * d)
 /* Convenience function for drawing text */
 static void
 putText(Display * display, Window window, GC gc,
-	char *string, int bold, int left, int *px, int *py)
+	const char *string, int bold, int left, int *px, int *py)
 				/* which window */
 				/* gc */
 				/* text to write */
@@ -1730,7 +1803,7 @@ runMainLoop(int maxtime, int iconscreen)
 #endif /* !USE_OLD_EVENT_LOOP */
 
 static int
-ReadXString(char *s, int slen)
+ReadXString(char *s, int slen, Bool pass)
 {
 	XEvent      event;
 	char        keystr[20];
@@ -1817,6 +1890,16 @@ ReadXString(char *s, int slen)
 					}
 				}
 				XSetForeground(dsp, Scr[screen].gc, Scr[screen].bg_pixel);
+#ifdef GLOBAL_UNLOCK
+				if (!pass) {
+					XFillRectangle(dsp, Scr[screen].window, Scr[screen].gc,
+						 unamex, unamey - font->ascent,
+					       XTextWidth(font, s, slen),
+					       font->ascent + font->descent);
+					(void) XDrawString(dsp, Scr[screen].window, Scr[screen].textgc,
+						    unamex, unamey, s, bp);
+				} else
+#endif
 				if (echokeys) {
 					(void) memset((char *) pwbuf, '?', slen);
 					XFillRectangle(dsp, Scr[screen].window, Scr[screen].gc,
@@ -1887,12 +1970,20 @@ ReadXString(char *s, int slen)
 				if (!fullscreen)
 					break;
 				/* window config changed */
-				if (!debug && !inwindow)
+				if (!debug && !inwindow) {
 					XRaiseWindow(dsp, event.xconfigure.window);
+					fixColormap(dsp, Scr[screen].window, screen, ncolors,
+						saturation, mono, install, inroot, inwindow, verbose);
+				}
 				if (window_size_changed(screen, Scr[screen].window)) {
 					call_init_hook((LockStruct *) NULL,
 						       mode_info(dsp, screen, Scr[screen].window, False));
-				}
+				} else if (install)
+					/* next line : refresh would be logical. But some modes
+ 					 * look weird when continuing from an erased screen */
+					call_refresh_hook((LockStruct *) NULL,
+						mode_info(dsp, screen, Scr[screen].window, False));
+
 				s[0] = '\0';
 				return 1;
 			case KeymapNotify:
@@ -1922,25 +2013,25 @@ void
 modeDescription(ModeInfo * mi)
 {
 	int         left, x, y;
-	int         screen = MI_SCREEN(mi);
+	int         scrn = MI_SCREEN(mi);
 	XWindowAttributes xgwa;
 
-	(void) XGetWindowAttributes(dsp, Scr[screen].window, &xgwa);
+	(void) XGetWindowAttributes(dsp, Scr[scrn].window, &xgwa);
 
-	x = left = Scr[screen].iconpos.x;
-	y = Scr[screen].iconpos.y - font->ascent + font->descent + 2;
+	x = left = Scr[scrn].iconpos.x;
+	y = Scr[scrn].iconpos.y - font->ascent + font->descent + 2;
 
-	XSetForeground(dsp, Scr[screen].gc, Scr[screen].bg_pixel);
-	XFillRectangle(dsp, Scr[screen].window, Scr[screen].gc,
+	XSetForeground(dsp, Scr[scrn].gc, Scr[scrn].bg_pixel);
+	XFillRectangle(dsp, Scr[scrn].window, Scr[scrn].gc,
 		       x, y - font->ascent,
 		       xgwa.width - x, font->ascent + font->descent + 2);
 
-	putText(dsp, Scr[screen].window, Scr[screen].textgc, MI_NAME(mi),
+	putText(dsp, Scr[scrn].window, Scr[scrn].textgc, MI_NAME(mi),
 		True, left, &x, &y);
-	putText(dsp, Scr[screen].window, Scr[screen].textgc, ": ", True, left, &x, &y);
-	putText(dsp, Scr[screen].window, Scr[screen].textgc, MI_DESC(mi),
+	putText(dsp, Scr[scrn].window, Scr[scrn].textgc, ": ", True, left, &x, &y);
+	putText(dsp, Scr[scrn].window, Scr[scrn].textgc, MI_DESC(mi),
 		False, left, &x, &y);
-	putText(dsp, Scr[screen].window, Scr[screen].textgc, "\n", False, left, &x, &y);
+	putText(dsp, Scr[scrn].window, Scr[scrn].textgc, "\n", False, left, &x, &y);
 }
 
 static int
@@ -1953,10 +2044,6 @@ getPassword(void)
 	char       *hostbuf = NULL;
 	ModeInfo   *mi = &modeinfo[screen];
 
-#ifdef SAFEWORD
-	char        chall[PASSLENGTH];
-
-#endif
 #ifdef FX
 	Bool        mesa_3Dfx_fullscreen;
 	char       *mesa_3Dfx_env;
@@ -1985,7 +2072,8 @@ getPassword(void)
 	XMapWindow(dsp, Scr[screen].icon);
 	XRaiseWindow(dsp, Scr[screen].icon);
 
-	modeDescription(mi);
+	if (description)
+		modeDescription(mi);
 
 	x = left = Scr[screen].iconpos.x + iconwidth + font->max_bounds.width;
 	y = Scr[screen].iconpos.y + font->ascent;
@@ -2017,6 +2105,15 @@ getPassword(void)
 	}
 	putText(dsp, Scr[screen].window, Scr[screen].textgc, "\n", False, left, &x, &y);
 
+#ifdef GLOBAL_UNLOCK
+	putText(dsp, Scr[screen].window, Scr[screen].textgc, text_guser,
+		True, left, &x, &y);
+	putText(dsp, Scr[screen].window, Scr[screen].textgc, " ",
+		False, left, &x, &y);
+		unamex = x;
+                unamey = y;
+	putText(dsp, Scr[screen].window, Scr[screen].textgc, "\n", False, left, &x, &y);
+#endif
 #ifdef SAFEWORD
 	if (checkDynamic()) {
 		pb = &pblock;
@@ -2116,10 +2213,10 @@ getPassword(void)
 			mbxpm = mail_xpmimg;
 			mbi = &Scr[screen].mb.mail;
 		}
-		x = (DisplayWidth(dsp, screen) - mbxpm->width) / 2;
-		y = (Scr[screen].planpos.y - 5) - mbxpm->height;
 
 		if (mbxpm) {
+			x = (DisplayWidth(dsp, screen) - mbxpm->width) / 2;
+			y = (Scr[screen].planpos.y - 5) - mbxpm->height;
 			XCopyArea(dsp, mbi->pixmap,
 				  Scr[screen].window, Scr[screen].mb.mbgc,
 				  0, 0,
@@ -2127,20 +2224,22 @@ getPassword(void)
 		}
 #else
 		mailboxInfo *mbi;
-		int         x, y;
+		int         mbx, mby;
 
 		if (system(mailCmd)) {
 			mbi = &Scr[screen].mb.nomail;
 		} else {
 			mbi = &Scr[screen].mb.mail;
 		}
-		x = (DisplayWidth(dsp, screen) - mbi->width) / 2;
-		y = (Scr[screen].planpos.y - 5) - mbi->height;
-		XSetTSOrigin(dsp, Scr[screen].mb.mbgc, x, y);
-		XSetStipple(dsp, Scr[screen].mb.mbgc, mbi->pixmap);
-		XSetFillStyle(dsp, Scr[screen].mb.mbgc, FillOpaqueStippled);
-		XFillRectangle(dsp, Scr[screen].window, Scr[screen].mb.mbgc,
-			       x, y, mbi->width, mbi->height);
+		if (mbi) {
+			mbx = (DisplayWidth(dsp, screen) - mbi->width) / 2;
+			mby = (Scr[screen].planpos.y - 5) - mbi->height;
+			XSetTSOrigin(dsp, Scr[screen].mb.mbgc, mbx, mby);
+			XSetStipple(dsp, Scr[screen].mb.mbgc, mbi->pixmap);
+			XSetFillStyle(dsp, Scr[screen].mb.mbgc, FillOpaqueStippled);
+			XFillRectangle(dsp, Scr[screen].window, Scr[screen].mb.mbgc,
+			       mbx, mby, mbi->width, mbi->height);
+		}
 #endif
 	}
 	done = False;
@@ -2190,7 +2289,16 @@ getPassword(void)
 			passy = y;
 		}
 #endif
-		if (ReadXString(buffer, PASSLENGTH))
+
+#ifdef GLOBAL_UNLOCK
+		if (ReadXString(global_user, PASSLENGTH, False))
+			break;
+		(void) XDrawString(dsp, Scr[screen].window, Scr[screen].textgc,
+			unamex, unamey,
+			global_user, strlen(global_user));
+		checkUser(global_user);
+#endif
+		if (ReadXString(buffer, PASSLENGTH, True))
 			break;
 		y = remy;
 
@@ -2313,6 +2421,16 @@ justDisplay(Display * display)
 	int         not_done = True;
 	XEvent      event;
 
+#ifdef USE_VTLOCK
+        /* EL - RCS : lock VT switching */
+	/* 
+	 * I think it has to be done here or 'switch/restore' modes won't
+         * ever be usefull !
+	 */
+        if (!nolock && vtlock && !vtlocked)
+                dovtlock();
+#endif
+
 	for (screen = startscreen; screen < screens; screen++) {
 		call_init_hook((LockStruct *) NULL,
 		      mode_info(display, screen, Scr[screen].window, False));
@@ -2363,13 +2481,22 @@ justDisplay(Display * display)
 				break;
 
 			case ConfigureNotify:
-				if (!debug && !inwindow)
+				if (!debug && !inwindow) {
 					XRaiseWindow(display, event.xconfigure.window);
+				}
 				for (screen = startscreen; screen < screens; screen++) {
+					if (install)
+						fixColormap(display, Scr[screen].window,
+							screen, ncolors, saturation,
+							mono, install, inroot, inwindow, verbose);
 					if (window_size_changed(screen, Scr[screen].window)) {
 						call_init_hook((LockStruct *) NULL,
 							       mode_info(display, screen, Scr[screen].window, False));
-					}
+					} else if (install)
+						/* next line : refresh would be logical. But some modes
+						 * look weird when continuing from an erased screen */
+						call_refresh_hook((LockStruct *) NULL,
+							mode_info(display, screen, Scr[screen].window, False));
 				}
 				break;
 
@@ -2422,7 +2549,7 @@ static void
 sigcatch(int signum)
 {
 	ModeInfo   *mi = mode_info(dsp, startscreen, Scr[startscreen].window, False);
-	char       *name = (mi == NULL) ? "unknown" : MI_NAME(mi);
+	const char       *name = (mi == NULL) ? "unknown" : MI_NAME(mi);
 	char       *buf;
 
 
@@ -2440,7 +2567,7 @@ lockDisplay(Display * display, Bool do_display)
 {
 #ifdef USE_VTLOCK
 	/* EL - RCS : lock VT switching */
-	if (vtlock && !vtlocked)
+	if (!nolock && vtlock && !vtlocked)
 		dovtlock();
 #endif
 #if defined( HAVE_SYSLOG_H ) && defined( USE_SYSLOG )
@@ -2518,11 +2645,11 @@ lockDisplay(Display * display, Bool do_display)
 }
 
 static void
-read_plan()
+read_plan(void)
 {
 	FILE       *planf = NULL;
 	char        buf[121];
-	char       *home = getenv("HOME");
+	const char *home = getenv("HOME");
 	char       *buffer;
 	int         i, j, len;
 
@@ -2968,6 +3095,29 @@ main(int argc, char **argv)
 		Screen     *scr = ScreenOfDisplay(dsp, screen);
 		Colormap    cmap = (Colormap) NULL;
 
+/* Start of MI_ROOT_PIXMAP hack */
+		Window 			temp_rw;
+		XGCValues		temp_gcv;
+		GC			temp_gc;
+		XWindowAttributes	temp_xgwa;
+		
+		temp_rw = (parentSet) ? parent : RootWindowOfScreen(scr);
+		XGetWindowAttributes(dsp, temp_rw, &temp_xgwa);
+		temp_gcv.function = GXcopy;
+		temp_gcv.subwindow_mode = IncludeInferiors;
+		temp_gc = XCreateGC(dsp, temp_rw, GCFunction|GCSubwindowMode,
+				   &temp_gcv);
+		Scr[screen].root_pixmap = XCreatePixmap(dsp, temp_rw,
+						   temp_xgwa.width,
+						   temp_xgwa.height,
+						   temp_xgwa.depth);
+		XCopyArea(dsp, temp_rw, Scr[screen].root_pixmap,
+			  temp_gc, 0, 0, temp_xgwa.width, temp_xgwa.height,
+			  0, 0);
+		XFreeGC(dsp, temp_gc);
+						   
+/* End of MI_ROOT_PIXMAP hack */		
+
 #ifdef ORIGINAL_XPM_PATCH
 		if (mailIcon && mailIcon[0]) {
 			if ((mail_xpmimg = (XpmImage *) malloc(sizeof (XpmImage))))
@@ -3258,11 +3408,6 @@ main(int argc, char **argv)
 		}
 #else
 		if (mailCmd && mailCmd[0]) {
-			extern void pickPixmap(Display * display, Drawable drawable, char *name,
-					       int default_width, int default_height, unsigned char *default_bits,
-				    int *width, int *height, Pixmap * pixmap,
-					       int *graphics_format);
-
 			pickPixmap(dsp, Scr[screen].window, nomailIcon,
 				   NOMAIL_WIDTH, NOMAIL_HEIGHT, NOMAIL_BITS,
 				   &(Scr[screen].mb.nomail.width),

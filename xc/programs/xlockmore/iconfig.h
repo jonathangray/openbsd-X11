@@ -403,10 +403,17 @@ SYSTEMDEF = -DLESS_THAN_AIX3_2
 #endif
 XCOMM Use this if your site is using AFS:
 XCOMM  PASSWDDEF = -DAFS
+XCOMM  Solaris 2.x may need the next line
+XCOMM  PASSWDDEF += -DSHADOW
 XCOMM  PASSWDINC = -I/usr/afsws/include
-XCOMM  PASSWDLIB = -L/usr/afsws/lib -L/usr/afsws/lib/afs -lkauth -lubik -lprot -lrxkad -lrx -llwp -lauth -lsys -ldes -lcmd -lcom_err /usr/afsws/lib/afs/util.a
+XCOMM  PASSWDLIB = -L/usr/afsws/lib -L/usr/afsws/lib/afs -L/usr/afsws/domestic/lib -lkauth -lubik -lprot -lrxkad -lrx -llwp -lauth -lsys -ldes -lcmd -lcom_err /usr/afsws/lib/afs/util.a
+XCOMM  SunOS 4.1.x may need the next line
+XCOMM  PASSWDLIB += /usr/afsws/domestic/lib/librxkad.a
+XCOMM  Solaris 2.x may need the next line
+XCOMM  PASSWDLIB += /usr/afsws/domestic/lib/librxkad.a usr/lib/libsocket.so.1 /usr/lib/libnsl.so.1 /usr/ucblib/libucb.a
 XCOMM You may need this one too.
 XCOMM  EXTRA_LIBRARIES = -laudit
+
 
 #else
 #ifdef UltrixArchitecture
@@ -502,4 +509,4 @@ LINTLIBS = $(LINTXLIB)
 SYS_LIBRARIES = $(CRYPTLIB) $(PASSWDLIB) MathLibrary
 
 VER = xlockmore
-DISTVER = xlockmore-4.12
+DISTVER = xlockmore-4.13

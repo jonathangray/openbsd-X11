@@ -113,6 +113,8 @@ static const char sccsid[] = "@(#)life.c	4.07 98/01/18 xlockmore";
 #include "iostuff.h"
 #include "automata.h"
 
+#ifdef MODE_life
+
 /*-
  * neighbors of 0 does not randomize.  All inappropriate
  * modes will be set at 8.  3, 6, 9, & 12 also available.
@@ -1901,12 +1903,13 @@ parseRule(ModeInfo * mi)
 }
 
 static void
-parseFile()
+parseFile(void)
 {
 	FILE       *file;
 	static Bool done = False;
 	int         firstx = 0, x = 0, y = 0, i = 0;
-	char        line[256], c;
+	int         c = 0;
+	char        line[256];
 
 	if (done)
 		return;
@@ -2505,7 +2508,7 @@ init_life(ModeInfo * mi)
 	free_cells(lp);
 
 	if (local_neighbors == 6) {
-		int         nccols, ncrows, i;
+		int         nccols, ncrows, sides;
 
 		if (lp->width < 2)
 			lp->width = 2;
@@ -2529,9 +2532,10 @@ init_life(ModeInfo * mi)
 		lp->nrows = 2 * (ncrows / 4);
 		lp->xb = (lp->width - lp->xs * nccols) / 2 + lp->xs / 2;
 		lp->yb = (lp->height - lp->ys * (ncrows / 2) * 2) / 2 + lp->ys;
-		for (i = 0; i < 6; i++) {
-			lp->shape.hexagon[i].x = (lp->xs - 1) * hexagonUnit[i].x;
-			lp->shape.hexagon[i].y = ((lp->ys - 1) * hexagonUnit[i].y / 2) * 4 / 3;
+		for (sides = 0; sides < 6; sides++) {
+			lp->shape.hexagon[sides].x = (lp->xs - 1) * hexagonUnit[sides].x;
+			lp->shape.hexagon[sides].y =
+				((lp->ys - 1) * hexagonUnit[sides].y / 2) * 4 / 3;
 		}
 		lp->black = MI_BLACK_PIXEL(mi);
 		lp->backGC = MI_GC(mi);
@@ -2579,7 +2583,7 @@ init_life(ModeInfo * mi)
 		lp->xb = (lp->width - lp->xs * lp->ncols) / 2;
 		lp->yb = (lp->height - lp->ys * lp->nrows) / 2;
 	} else {		/* TRI */
-		int         orient, i;
+		int         orient, sides;
 
 		lp->black = MI_BLACK_PIXEL(mi);
 		lp->backGC = MI_GC(mi);
@@ -2604,11 +2608,11 @@ init_life(ModeInfo * mi)
 		lp->xb = (lp->width - lp->xs * lp->ncols) / 2 + lp->xs / 2;
 		lp->yb = (lp->height - lp->ys * lp->nrows) / 2 + lp->ys / 2;
 		for (orient = 0; orient < 2; orient++) {
-			for (i = 0; i < 3; i++) {
-				lp->shape.triangle[orient][i].x =
-					(lp->xs - 2) * triangleUnit[orient][i].x;
-				lp->shape.triangle[orient][i].y =
-					(lp->ys - 2) * triangleUnit[orient][i].y;
+			for (sides = 0; sides < 3; sides++) {
+				lp->shape.triangle[orient][sides].x =
+					(lp->xs - 2) * triangleUnit[orient][sides].x;
+				lp->shape.triangle[orient][sides].y =
+					(lp->ys - 2) * triangleUnit[orient][sides].y;
 			}
 		}
 	}
@@ -2733,11 +2737,11 @@ draw_life(ModeInfo * mi)
 
 	if (lp->redrawing) {
 		for (i = 0; i < REDRAWSTEP; i++) {
-			CellList   *curr = lp->arr[lp->redrawpos];
+			CellList   *redraw_curr = lp->arr[lp->redrawpos];
 
 			/* TODO: More efficient to use list rather than array. */
-			if (curr && curr->info.state == LIVE) {
-				draw_cell(mi, curr->info);
+			if (redraw_curr && redraw_curr->info.state == LIVE) {
+				draw_cell(mi, redraw_curr->info);
 			}
 			if (++(lp->redrawpos) >= lp->npositions) {
 				lp->redrawing = 0;
@@ -2798,6 +2802,11 @@ refresh_life(ModeInfo * mi)
 		lp->redrawpos = 0;
 		lp->painted = False;
 	}
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+        /* This is needed when another program changes the colormap. */
+	free_stuff(MI_DISPLAY(mi), lp);
+	init_stuff(mi);
+#endif
 }
 
 void
@@ -2870,3 +2879,5 @@ change_life(ModeInfo * mi)
 	else
 		GetPattern(mi, lp->patterned_rule, lp->pattern);
 }
+
+#endif /* MODE_life */

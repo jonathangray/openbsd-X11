@@ -1,7 +1,7 @@
-.\" @(#)xlock.man	4.11 98/06/18
+.\" @(#)xlock.man	4.13 99/03/08
 .\" Copyright (c) 1991 - Patrick J. Naughton
 .\" xlockmore updates from David A. Bagley
-.TH XLOCK 1 "18 Jun 1998" "X11R6 Contrib"
+.TH XLOCK 1 "8 Mar 1999" "X11R6 Contrib"
 .SH NAME
 xlock \- Locks the local X display until a password is entered.
 .sp
@@ -60,7 +60,7 @@ xlock \- Locks the local X display until a password is entered.
 .BI -/+allowaccess
 ]
 [
-.BI -/+vtlock
+.BI \-vtlock " modename"
 ]
 [
 .BI -/+nolock
@@ -82,6 +82,9 @@ xlock \- Locks the local X display until a password is entered.
 ]
 [
 .BI -/+debug
+]
+[
+.BI -/+description
 ]
 [
 .BI -/+echokeys
@@ -418,7 +421,8 @@ Shows eyes following a bouncing grelb.
 Shows a fading plot of sine squared.
 .TP 8
 .B flag
-Shows a waving flag of your operating system.
+Shows a waving flag image.  This may be text or a graphic image.
+Default text is the hostname and operating system.
 .TP 8
 .B flame
 Shows cosmic flame fractals.
@@ -595,6 +599,9 @@ Shows a swarm of bees following a wasp.
 .B swirl
 Shows animated swirling patterns.
 .TP 8
+.B tetris
+Shows tetris.
+.TP 8
 .B thornbird
 Shows an animated Bird in a Thorn Bush fractal map.
 .TP 8
@@ -624,6 +631,9 @@ Shows spinning Earths.
 .TP 8
 .B worm
 Shows wiggly worms.
+.TP 8
+.B xjack 
+Shows Jack having one of those days.
 .TP 8
 .B blank
 Shows nothing but a black screen.  Does not show up in random mode.
@@ -895,7 +905,7 @@ for kaleid it is the symmetry,
 width of maze hallway, size of side of penrose tile, radius of loop in lisa,
 radius of ball in roll, number of corners in sierpinski,
 size of tube in tube, width of worm in worm, line width in rotor,
-size of cells in ant, bug, dilemma, life, life1d, pacman, voters,
+size of cells in ant, bug, dilemma, life, life1d, pacman, tetris, voters,
 wator, and wire.  In pipes it is the maximum length of a system.
 In atlantis it is the shark size.
 In sproingies it is the size of the screen.  A negative number
@@ -992,10 +1002,22 @@ this option is that if
 .B xlock
 is killed -KILL, the access control list is not lost.
 .TP 5
-.B -/+vtlock
-This option is used on a XFree86 system to manage VT switching...  When
-.I vtlock
-is true, the VT switching is disabled.
+.BI \-vtlock \ modename
+This option is used on a XFree86 system to manage VT switching in 
+[off|noswitch|switch|restore] mode.
+.TP 10
+.I off
+means no VT switch locking.
+.TP 10
+.I switch
+means VT switch locking + switching to xlock VT when activated.
+.TP 10
+.I restore
+means VT switch locking + switching to xlock VT when activated +
+switching back to previous VT when desactivated.
+.TP 10
+.I noswitch
+means VT switch locking only when xlock VT is active.
 .TP 5
 .B -/+allowroot
 The
@@ -1011,6 +1033,14 @@ was configured.
 Allows
 .B xlock
 to be debugged by doing all but locking the screen.
+.TP 5
+.B -/+description
+The
+.I description
+option causes
+.B xlock
+shows a mode description above password window.  The default is to
+show this description. 
 .TP 5
 .B -/+echokeys
 The
@@ -1642,6 +1672,11 @@ Turn on if you want the pipe system rotated in
 Turn on or off complete graph morphing in
 .I qix.
 .TP 5
+.BI \-size[xyz] \ num
+Number represents the number of cubies on the x, y, or z axis.  Negative
+numbers offer randomness from 2 to the absolute value of the number.
+.I star.
+.TP 5
 .BI -/+hideshuffling
 Turn on or off hidden shuffle phase for
 .I rubik.
@@ -1777,7 +1812,7 @@ X(1), Xlib Documentation.
 .SH AUTHOR
 Maintained by:
 .RS
-David Albert Bagley, <\fIbagleyd@bigfoot.com\fP>
+David Albert Bagley, <\fIbagleyd@tux.org\fP>
 .RE
 .sp
 The latest version is currently at:
