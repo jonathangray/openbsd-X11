@@ -1702,7 +1702,7 @@ FontBaseObj(basename).Z:  FontSrc(basename)				@@\
 #endif /* CompressedFontTarget */
 
 #if !defined(FontTarget) && !defined(FontObj)
-#ifdef CompressAllFonts
+#if CompressAllFonts
 #define FontTarget(basename) CompressedFontTarget(basename)
 #if GzipFontCompression
 #define FontObj(basename) FontBaseObj(basename).gz
