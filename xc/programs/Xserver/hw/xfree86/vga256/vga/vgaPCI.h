@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/vga256/vga/vgaPCI.h,v 3.22.2.37 1999/08/17 13:28:13 hohndel Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/vga256/vga/vgaPCI.h,v 3.22.2.38 1999/08/25 12:21:40 hohndel Exp $ */
 /*
  * PCI Probe
  *
@@ -267,7 +267,7 @@
 #define PCI_CHIP_INTERG_1682	0x1682
 
 /* Increase this as required */
-#define MAX_DEV_PER_VENDOR 32
+#define MAX_DEV_PER_VENDOR 48
 
 typedef struct vgaPCIInformation {
     int Vendor;
