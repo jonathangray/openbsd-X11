@@ -2,17 +2,17 @@
  * Host.def for building OpenBSD bindists
  *
  * $XFree86: xc/programs/Xserver/hw/xfree86/etc/bindist/OpenBSD-ix86/host.def,v 1.1.2.3 1998/10/04 13:37:01 hohndel Exp $
- * $OpenBSD: host.def,v 1.9 2000/03/06 07:16:20 todd Exp $
+ * $OpenBSD: host.def,v 1.10 2000/03/22 21:58:31 todd Exp $
  */
 
 #define InstallEmptyHostDef
 
 #define ForceNormalLib		YES
 
-#define HasPosixThreads		YES                                         
+#define HasPosixThreads		YES
 #define ThreadedX		YES                                     
-#define HasThreadSafeAPI	YES                                     
-#define ThreadsCompileFlags	-pthread                        
+#define HasThreadSafeAPI	NO
+#define ThreadsCompileFlags	-pthread
 #define ThreadsLibraries	-pthread
 
 #define TCL YES
