@@ -4,7 +4,11 @@ SERVERSTYPE = XdmServersType
 
 all:: Xservers.ws xdm-config Xservers
 
-CppFileTarget(Xservers.ws,Xserv.ws.cpp,-DBINDIR=$(BINDIR),NullParameter)
+#if defined(OpenBSDArchitecture) && defined(i386Architecture)
+DEFAULTVT=vt05
+#endif
+
+CppFileTarget(Xservers.ws,Xserv.ws.cpp,-DBINDIR=$(BINDIR) -DDEFAULTVT=$(DEFAULTVT),NullParameter)
 CppFileTarget(xdm-config,xdm-conf.cpp,-DXDMDIR=$(XDMDIR),NullParameter)
 
 LinkFile(Xservers,Xservers.$(SERVERSTYPE))
