@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: ptyx.h /main/67 1996/11/29 10:34:19 swick $
- *	$XFree86: xc/programs/xterm/ptyx.h,v 3.19.2.7 1999/04/21 07:21:29 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/ptyx.h,v 3.47 1999/01/23 09:56:23 dawes Exp $
  */
 
 /*
@@ -334,10 +334,6 @@ typedef struct {
 #else
 #define OPT_I18N_SUPPORT 0
 #endif
-#endif
-
-#ifndef OPT_INITIAL_ERASE
-#define OPT_INITIAL_ERASE 1 /* use pty's erase character if it's not 128 */
 #endif
 
 #ifndef OPT_INPUT_METHOD

@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: resize.c,v 1.34 95/05/24 22:12:04 gildea Exp $
- *	$XFree86: xc/programs/xterm/resize.c,v 3.18.2.8 1999/05/25 06:55:52 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/resize.c,v 3.29 1998/11/22 10:37:49 dawes Exp $
  */
 
 /*
@@ -79,11 +79,6 @@
 #define USE_TERMIOS
 #define USE_TERMINFO
 #define USE_SYSV_UTMP
-#endif
-
-#ifdef __OpenBSD__
-#define USE_TERMINFO
-#include <term.h>
 #endif
 
 #if defined(SYSV) || defined(Lynx) || defined(__CYGWIN32__)
@@ -272,6 +267,12 @@ static char *strindex (char *s1, char *s2);
 #endif /* HAVE_TERMCAP_H  */
 #endif
 
+#if defined(__OpenBSD__)
+#ifndef USE_TERMINFO
+#define USE_TERMINFO
+#endif
+#include <curses.h>
+#endif
 
 /*
    resets termcap string to reflect current screen size
