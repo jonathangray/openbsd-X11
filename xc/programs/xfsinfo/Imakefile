@@ -5,5 +5,5 @@ SRCS = fsinfo.c
 OBJS = fsinfo.o
 INCLUDES = -I$(XBUILDINCDIR)/fonts -I$(FONTINCSRC)
 
-ComplexProgramTarget(fsinfo)
+ComplexProgramTarget(xfsinfo)
 

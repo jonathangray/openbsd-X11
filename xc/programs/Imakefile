@@ -60,7 +60,7 @@ XFINDPROXYSRCDIR = xfindproxy
 SUBDIRS = $(XSSRCDIR)
 #else
 SUBDIRS = \
-	appres bdftopcf bitmap $(SCREENSAVESRCDIR) editres fsinfo \
+	appres bdftopcf bitmap $(SCREENSAVESRCDIR) editres xfsinfo \
 	fslsfonts fstobdf \
 	iceauth  $(KXSRCDIR) mkfontdir oclock $(PROXYMGRSRCDIR) \
 	$(RGBSRCDIR) $(RSTARTSRCDIR) $(SMPROXYSRCDIR) $(SSHASKPASSDIR) \

@@ -9,7 +9,6 @@
 ./usr/X11R6/bin/bmtoa
 ./usr/X11R6/bin/cxpm
 ./usr/X11R6/bin/editres
-./usr/X11R6/bin/fsinfo
 ./usr/X11R6/bin/fslsfonts
 ./usr/X11R6/bin/fstobdf
 ./usr/X11R6/bin/fvwm
@@ -54,6 +53,7 @@
 ./usr/X11R6/bin/xfindproxy
 ./usr/X11R6/bin/xfontsel
 ./usr/X11R6/bin/xfs
+./usr/X11R6/bin/xfsinfo
 ./usr/X11R6/bin/xfwp
 ./usr/X11R6/bin/xgc
 ./usr/X11R6/bin/xhost

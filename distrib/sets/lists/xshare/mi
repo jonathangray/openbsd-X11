@@ -862,7 +862,6 @@
 ./usr/X11R6/man/cat1/bmtoa.0
 ./usr/X11R6/man/cat1/cxpm.0
 ./usr/X11R6/man/cat1/editres.0
-./usr/X11R6/man/cat1/fsinfo.0
 ./usr/X11R6/man/cat1/fslsfonts.0
 ./usr/X11R6/man/cat1/fstobdf.0
 ./usr/X11R6/man/cat1/fvwm.0
@@ -917,6 +916,7 @@
 ./usr/X11R6/man/cat1/xfindproxy.0
 ./usr/X11R6/man/cat1/xfontsel.0
 ./usr/X11R6/man/cat1/xfs.0
+./usr/X11R6/man/cat1/xfsinfo.0
 ./usr/X11R6/man/cat1/xfwp.0
 ./usr/X11R6/man/cat1/xgc.0
 ./usr/X11R6/man/cat1/xhost.0
