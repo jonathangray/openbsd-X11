@@ -1,5 +1,5 @@
 XCOMM $XConsortium: Imakefile /main/81 1996/10/22 18:32:26 kaleb $
-XCOMM $XFree86: xc/programs/xdm/Imakefile,v 3.19.2.11 1999/12/11 17:20:01 hohndel Exp $
+XCOMM $XFree86: xc/programs/xdm/Imakefile,v 3.19.2.13 2001/02/10 17:54:57 herrb Exp $
 #define IHaveSubdirs
 #define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)'
 
@@ -75,6 +75,10 @@ KRB5OBJS = krb5auth.o
 KRB5SRCS = krb5auth.c
 #endif
 
+#if HasSnprintf
+SNPRINTF_DEFINES = -DHAS_SNPRINTF
+#endif
+
 #if SharedLibXdmGreet
 GREET_DIR = greeter
 #if SystemV4 || (SharedLibXdmGreet && (defined(LinuxArchitecture) || defined(NetBSDArchitecture)))
@@ -144,7 +148,7 @@ SYS_LIBRARIES = $(SYS_LIBRARIES1) $(SYS_LIBRARIES2) $(SYS_LIBRARIES3)
 SOCK_DEFINES = -DBSD44SOCKETS
 #endif
 
-#ifdef i386Architecture
+#if defined(i386Architecture) || defined(AmigaArchitecture)
 FRAGILE_DEFINES = -DFRAGILE_DEV_MEM
 #endif
 
@@ -225,7 +229,7 @@ LOCAL_LIBRARIES = $(XPM_LIBRARIES) $(XMULIB) $(XTOOLLIB) $(XLIB) $(XAUTHLIB) $(X
   EXTRA_DEFINES =
 #endif
         DEFINES = -DBINDIR=\"$(BINDIR)\" -DXDMDIR=\"$(XDMDIR)\" \
-		$(SIGNAL_DEFINES) $(CRYPT_DEFINES) \
+		$(SIGNAL_DEFINES) $(CRYPT_DEFINES) $(SNPRINTF_DEFINES) \
 		$(XDMAUTH_DEFINES) $(RPC_DEFINES) $(KRB5_DEFINES) \
 		$(PWD_DEFINES) $(CONN_DEFINES) \
 		$(GREET_DEFINES) $(FRAGILE_DEFINES) $(RANDOM_DEFINES) \
