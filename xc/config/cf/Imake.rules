@@ -1326,6 +1326,9 @@ step:: list								@@\
  * Make links from $LIBDIR (<ProjectRoot>/lib/X11) to /var/X11/
  * For example /usr/X11R6/lib/X11/xdm ==> /var/X11/xdm so that X can be
  * run from a read-only volume like a CD-ROM.
+ *
+ * Since the link is used in the installation process, we need to
+ * make the link relative in order to honor $(DESTDIR) if it is set
  */
 #ifndef LinkVarDirectory
 #if HasVarDirectory && HasSymLinks
@@ -1335,6 +1338,8 @@ install::								@@\
 	MakeDir(Concat($(DESTDIR)$(VARDIR)/,mdir))			@@\
 	@MakeFlagsToShellFlags(i,set +e); \				@@\
 	if [ -d Concat($(DESTDIR)$(LIBDIR)/,cdir) ]; then \		@@\
+	  RELPATH=`echo Concat($(LIBDIR)/,cdir) | \			@@\
+		sed -e 's:^.::' -e 's:[^/.][^/]*:..:'g`; \		@@\
 	  cd Concat($(DESTDIR)$(LIBDIR)/,cdir); \			@@\
 	  if [ -d rdir -a ! -h rdir ]; then \				@@\
 	    (cd rdir; tar cf - . | \					@@\
@@ -1342,7 +1347,7 @@ install::								@@\
 		 tar xf -; exit 0); exit 0); \ 				@@\
 	  fi; \								@@\
 	  $(RM) -r rdir; \						@@\
-	  $(LN) Concat($(VARDIR)/,mdir) ldir; \				@@\
+	  $(LN) Concat($${RELPATH}$(VARDIR)/,mdir) ldir; \		@@\
 	fi
 #else
 #define LinkVarDirectory(mdir,cdir,rdir,ldir)
