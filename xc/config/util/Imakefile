@@ -50,11 +50,13 @@ CppScriptTarget(mergelib,mergelib.cpp,"-DARCMD=$(AR)" "-DRANLIB=$(RANLIB)",$(ICO
 CppScriptTarget(gccmakedep,gccmdep.cpp,-DCCCMD='"'"$(GCCCMD)"'"' -DRMCMD='"'"$(RM)"'"' -DLNCMD='"'"$(LN)"'"' -DMVCMD='"'"$(MV)"'"',$(ICONFIGFILES))
 #endif
 
+#ifndef OpenBSDArchitecture
 #if HasSymLinks
 #if CrossCompiling
 SimpleHostProgramTarget(lndir)
 #else
 SimpleProgramTarget(lndir)
+#endif
 #endif
 #endif
 
