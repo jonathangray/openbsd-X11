@@ -546,6 +546,7 @@ gpasskey(char *pass)
 	/* grab a random printable character that is not a colon */
 	salt[0] = saltchars[LRAND() & (CPASSCHARS - 1)];
 	salt[1] = saltchars[LRAND() & (CPASSCHARS - 1)];
+	salt[2] = '\0';
 	(void) strncpy(pass, (char *) crypt(pw, salt), CPASSLENGTH);
 }
 
