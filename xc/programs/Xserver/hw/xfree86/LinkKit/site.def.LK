@@ -186,7 +186,9 @@ XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/LinkKit/site.def.LK,v 3.25.2.6 19
  * Consult your system administrator before making the X server setuid.
  */
 #if !defined(i386MachArchitecture) && !defined(OS2Architecture)
+#ifndef InstallXserverSetUID
 #define InstallXserverSetUID	YES
+#endif
 #endif
 
 /*
