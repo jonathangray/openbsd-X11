@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.23 1998/04/05 10:53:49 matthieu Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.24 1998/04/05 22:34:08 matthieu Exp $
 XCOMM
 
 #ifndef OSName
@@ -296,7 +296,6 @@ install:: fonts.alias							@@\
 # define InstallXserverSetUID	NO
 
 # define BuildDynamicLoading	YES
-# define CompressAllFonts	NO
 # include <xfree86.cf>
 
 #endif /* i386Architecture */
