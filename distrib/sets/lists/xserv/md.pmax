@@ -1,4 +1,4 @@
-./usr/X11R6/bin/X
+./usr/lib/libc.so.17
 ./usr/X11R6/bin/Xcfbpmax
 ./usr/X11R6/bin/Xmfbpmax
 ./usr/X11R6/bin/Xnest
