@@ -363,7 +363,6 @@ PIXMAPTYPE = x11
 SLEEPDEF = -DHAVE_USLEEP
 BITMAPTYPE = bsd
 PIXMAPTYPE = bsd
-INSTPGMFLAGS = -s -o root -m 4111
 #else
 #ifdef LinuxArchitecture
 SLEEPDEF = -DHAVE_USLEEP
