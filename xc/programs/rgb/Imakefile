@@ -21,7 +21,7 @@ XCOMM $XFree86: xc/programs/rgb/Imakefile,v 3.7 1996/12/23 07:10:45 dawes Exp $
          OBJS = $(OBJS1) $(OBJS2)
      PROGRAMS = $(RGB_PROG) ProgramTargetName(showrgb)
 #if !UseRgbTxt
-#if defined(BSD386Architecture) || defined(NetBSDArchitecture)
+#if defined(BSD386Architecture) || defined(NetBSDArchitecture) || defined(OpenBSDArchitecture)
     DATAFILES = rgb.db
       DATADEP = rgb.db
 #else
