@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.15 1999/03/15 09:26:02 todd Exp $
+#	$OpenBSD: Makefile,v 1.16 1999/03/22 00:33:46 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -7,7 +7,8 @@
 # create a release
 # 
 XHP?=${.CURDIR}/Xhp
-XMACH!= [ "${MACHINE}" = "i386" ] && echo "ix86" || echo "${MACHINE}"
+XMACH!= ([ "${MACHINE}" = "i386" ] && echo "ix86") || \
+	([ "${MACHINE}" = "hp700" ] && echo "hppa") || echo "${MACHINE}"
 HOSTDEF=xc/programs/Xserver/hw/xfree86/etc/bindist/OpenBSD-${XMACH}/host.def
 CONFHOSTDEF=xc/config/cf/host.def
 
