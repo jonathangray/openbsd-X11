@@ -1118,6 +1118,8 @@ xf86MouseAllocate()
 {
     LocalDevicePtr	local = (LocalDevicePtr) xalloc(sizeof(LocalDeviceRec));
     MouseDevPtr		mouse = (MouseDevPtr) xalloc(sizeof(MouseDevRec));
+
+    memset(mouse, 0, sizeof(MouseDevRec));
     
     local->name = "MOUSE";
     local->type_name = "Mouse";
