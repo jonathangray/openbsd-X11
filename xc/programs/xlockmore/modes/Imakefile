@@ -186,7 +186,13 @@ DependTarget()
 LintTarget()
 
 eyes$(O) : eyes$(C) eyes.xbm
+/* XXX gcc 2.8.1 bug: infinite loop at line 2875 of life.c on m68k with -O */
+#if defined(Mc68020Architecture)
+life$(O): life$(C) life.xbm
+	$(CC) -c $(CCOPTIONS) $(THREADS_CFLAGS) $(ALLDEFINES) life$(C)
+#else
 life$(O) : life$(C) life.xbm
+#endif
 life1d$(O) : life1d$(C) life1d.xbm
 pacman$(O) : pacman$(C) ghost.xbm
 # Do not need xpm files if not using them but not worth figuring out
