@@ -600,6 +600,16 @@ MouseDevPtr mouse;
 
 #if defined(WSCONS_SUPPORT)
       case P_WSMOUSE:
+	if (mouse->resolution > 0) {
+	    /* For wsmouse the resolution is in 0-100, while it's 0-300 for 
+	       XF86Config */
+	    static int res;
+	    res = mouse->resolution/3;
+	    if (ioctl(mouse->mseFd, WSMOUSEIO_SRES, &res) < 0) {
+		ErrorF("ioctl(WSMOUSEIO_SRES) failed (%s)\n",
+		       strerror(errno));
+	    }
+	}
 	break;
 #endif
 
