@@ -2,7 +2,7 @@
  * Host.def for building OpenBSD bindists
  *
  * $XFree86: xc/programs/Xserver/hw/xfree86/etc/bindist/OpenBSD-ix86/host.def,v 1.1.2.3 1998/10/04 13:37:01 hohndel Exp $
- * $OpenBSD: host.def,v 1.10 2000/03/22 21:58:31 todd Exp $
+ * $OpenBSD: host.def,v 1.11 2001/02/01 01:56:36 todd Exp $
  */
 
 #define InstallEmptyHostDef
@@ -19,10 +19,10 @@
 #ifdef TCL
 #define HasTcl			YES
 #define HasTk			YES
-#define TkLibName		tk80
-#define TclLibName		tcl80
-#define TclIncDir               /usr/local/include/tcl8.0
-#define TkIncDir                /usr/local/include/tk8.0
+#define TkLibName		tk83
+#define TclLibName		tcl83
+#define TclIncDir               /usr/local/include/tcl8.3
+#define TkIncDir                /usr/local/include/tk8.3
 #else
 #define HasTcl			NO
 #define HasTk			NO
