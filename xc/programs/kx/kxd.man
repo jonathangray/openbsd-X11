@@ -1,4 +1,4 @@
-.\" $Id: kxd.man,v 1.1 1998/03/25 14:48:59 art Exp $
+.\" $Id: kxd.man,v 1.2 1999/11/28 18:44:41 matthieu Exp $
 .\"
 .Dd September 27, 1996
 .Dt KXD 8
@@ -46,7 +46,7 @@ Only usable with
 Put the following in
 .Pa /etc/inetd.conf :
 .Bd -literal
-kx	stream	tcp	nowait	root	/usr/athena/libexec/kxd	kxd
+kx	stream	tcp	nowait	root	/usr/X11R6/bin/kxd	kxd
 .Ed
 .Sh SEE ALSO
 .Xr kx 1 ,
