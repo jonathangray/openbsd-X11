@@ -465,6 +465,21 @@ ServerTarget(Xtga,$(ATGASUBDIRS),$(ATGAOBJS),$(ATGALIBS),$(ATGASYSLIBS))
 #endif
 #endif	/* XalphaTGAServer */
 
+#if XmacppcServer
+XCOMM
+XCOMM macppc server from NetBSD
+XCOMM
+MFBDIR   = mfb
+CFB8DIR  = cfb
+DDXDIR1  = hw/macppc
+PMACDIRS = $(STDDIRS) $(MFBDIR) $(CFB8DIR) $(DDXDIR1) $(DEPDIRS)
+PMACOBJS = hw/macppc/macppcInit.o
+PMACLIBS = hw/macppc/libmacppc.a CFB8Libs
+ServerTarget(Xmacppc,$(PMACDIRS),$(PMACOBJS),$(PMACLIBS),$(SYSLIBS))
+#ifndef ServerToInstall
+#define ServerToInstall Xmacppc
+#endif
+#endif /* XmacppcServer */
 
 #ifdef XFree86Version
 XF86INIT   = $(XF86COMSRC)/xf86Init.o $(XF86CONFIGSRC)/xf86IniExt.o
