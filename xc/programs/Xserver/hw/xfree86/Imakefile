@@ -28,7 +28,7 @@ VGA16SCREEN = vga16
 ACCELDIRS = accel
 #endif
 
-#if !defined(OsfArchitecture) && !defined(AmoebaArchitecture)
+#if !defined(OsfArchitecture) && !defined(AmoebaArchitecture) && !defined(ArcArchitecture)
 SUPERPROBE = SuperProbe
 #endif
 
