@@ -27,6 +27,9 @@ XCOMM $XFree86: xc/programs/xdm/Imakefile,v 3.19.2.4 1998/01/23 12:35:19 dawes E
      SystemV4)
 #endif
 
+#undef SharedLibXdmGreet
+#define SharedLibXdmGreet YES
+
 #ifndef BuildBoth
 #define BuildBoth (defined(LinuxArchitecture) && !SharedLibXdmGreet && !UseElfFormat)
 #endif
@@ -81,7 +84,6 @@ SHADOWLIB = -lshadow
 
 #if HasXpm
 XPM_DEFINES = -DXPM 
-XPM_INCLUDES = -I$(XPMINCDIR)
 XPM_LIBRARIES = XpmLibrary
 #endif
 
