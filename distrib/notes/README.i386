@@ -1,5 +1,5 @@
-Post-installation instructions for X11 on OpenBSD/i386
-------------------------------------------------------
+Post-installation instructions for XFree86[tm] on OpenBSD/i386
+--------------------------------------------------------------
 
 1. Find out about your hardware:
 
