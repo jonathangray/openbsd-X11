@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.13 1998/09/27 03:14:05 todd Exp $
+#	$OpenBSD: Makefile,v 1.14 1998/10/11 17:35:26 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -73,6 +73,7 @@ install-xc:
 	echo /dev/grf0 > ${DESTDIR}/usr/X11R6/lib/X11/X0screens
 	chown root.wheel ${DESTDIR}/usr/X11R6/lib/X11/X0screens
 .endif
+	cd xc/programs/rstart; ${MAKE} install && ${MAKE} install.man
 
 install-contrib:
 	cd contrib; ${MAKE} install && ${MAKE} install.man
