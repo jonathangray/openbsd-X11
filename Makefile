@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.16 1999/03/22 00:33:46 todd Exp $
+#	$OpenBSD: Makefile,v 1.17 1999/10/06 08:21:35 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -17,6 +17,8 @@ CP?= /bin/cp
 MKDIR?= /bin/mkdir -p
 LN?= /bin/ln
 CHOWN?=/usr/sbin/chown
+BINOWN?=root
+BINGRP?=wheel
 CHMOD?=/bin/chmod
 ECHO?=/bin/echo
 RM?= /bin/rm
@@ -57,7 +59,9 @@ release:
 	@${MKDIR} -p ${DESTDIR}/usr/X11R6
 	@${MKDIR} -p ${DESTDIR}/var/X11
 	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/usr/X11R6
+	ls -al ${DESTDIR}/usr/X11R6/
 	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/var/X11
+	ls -al ${DESTDIR}/var/X11
 	@${MAKE} install
 .if defined(MACHINE) && ${MACHINE} == hp300
 	@${CP} ${XHP} ${DESTDIR}/usr/X11R6/bin
@@ -103,3 +107,7 @@ distclean:
 	find xc contrib -name Makefile -mindepth 2 -exec ${RM} -f '{}' ';'
 	find xc contrib -name .depend -exec ${RM} -f '{}' ';'
 	rm -f xc/xmakefile contrib/Makefile
+
+b-r:
+	@echo ${.CURDIR}/build-release
+	@${.CURDIR}/build-release
