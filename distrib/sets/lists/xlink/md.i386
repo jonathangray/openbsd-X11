@@ -753,6 +753,7 @@
 ./usr/X11R6/lib/Server/include/xf86xaa.h
 ./usr/X11R6/lib/Server/lib
 ./usr/X11R6/lib/Server/lib/ddxInit.o
+./usr/X11R6/lib/Server/lib/libServerGlx.a
 ./usr/X11R6/lib/Server/lib/libXau.a
 ./usr/X11R6/lib/Server/lib/libXdmcp.a
 ./usr/X11R6/lib/Server/lib/libcbrt.a
