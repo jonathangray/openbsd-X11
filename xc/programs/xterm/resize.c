@@ -250,12 +250,6 @@ static int checkdigits (char *str);
 static void Usage (void);
 static void readstring (FILE *fp, char *buf, char *str);
 
-static SIGNAL_T onintr PROTO((int sig));
-static SIGNAL_T resize_timeout PROTO((int sig));
-static int checkdigits PROTO((char *str));
-static void Usage PROTO((void));
-static void readstring PROTO((FILE *fp, char *buf, char *str));
-
 #ifdef USE_TERMCAP
 static char *strindex (char *s1, char *s2);
 #if HAVE_TERMCAP_H
