@@ -132,7 +132,7 @@ SOFTWARE.
 
 #endif /* vax */
 
-#if (defined(Lynx) && defined(__powerpc__))
+#if ((defined(Lynx) || defined(__OpenBSD__)) && defined(__powerpc__))
 
 /* For now this is for Xvfb only */
 #define IMAGE_BYTE_ORDER        MSBFirst
