@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.14 1999/12/01 12:49:09 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.60 2001/02/14 00:13:47 todd Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.61 2001/02/27 17:53:06 todd Exp $
 XCOMM
 
 #ifdef Ports
@@ -44,6 +44,31 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 #ifndef HasKrbIV
 #define HasKrbIV		YES
 #endif
+
+#ifndef HasLibPthread
+#define HasLibPthread		NO
+#endif
+
+/*
+ * Multi-thread safe libs 
+ */	
+#if !defined(PpcArchitecture) && (OSMajorVersion == 2 && OSMinorVersion >= 6 || OSMajorVersion >= 3)
+# define HasPosixThreads	YES
+# define ThreadedX		YES
+# define SystemMTDefines	-D_REENTRANT
+# if HasLibPthread
+#  define ThreadsLibraries	-lpthread
+# else
+#  define BuildThreadStubLibrary  YES 
+#  define NeedUIThrStubs          YES 
+#  define ThreadsCompileFlags	-pthread
+#  define ThreadsLibraries	-lc_r
+# endif
+#endif
+
+/* Set this to YES when getpwuid_r is added to libc_r */
+# define HasThreadSafeAPI	NO
+
 
 /*
  * Compiler Features
