@@ -28,6 +28,7 @@ InstallNamedProg(GiveConsole,GiveConsole,$(XDMDIR))
 InstallNamedProg(TakeConsole,TakeConsole,$(XDMDIR))
 InstallNamedProg(Xsetup,Xsetup,$(XDMDIR))
 InstallNamedProg(Xsetup_0,Xsetup_0,$(XDMDIR))
+InstallNamedProg(Startup_0,Startup_0,$(XDMDIR))
 #else
 InstallNonExecFileNoClobber(xdm-config,$(XDMDIR))
 InstallNonExecFileNoClobber(Xresources,$(XDMDIR))
@@ -36,8 +37,9 @@ InstallNonExecFileNoClobber(Xaccess,$(XDMDIR))
 InstallNamedProgNoClobber(Xsession,Xsession,$(XDMDIR))
 InstallNamedProgNoClobber(GiveConsole,GiveConsole,$(XDMDIR))
 InstallNamedProgNoClobber(TakeConsole,TakeConsole,$(XDMDIR))
-InstallNamedProgNoClobber(Xsetup_0,Xsetup_0,$(XDMDIR))
 InstallNamedProgNoClobber(Xsetup,Xsetup,$(XDMDIR))
+InstallNamedProgNoClobber(Xsetup_0,Xsetup_0,$(XDMDIR))
+InstallNamedProgNoClobber(Startup_0,Startup_0,$(XDMDIR))
 #endif
 
 #if HasXpm
