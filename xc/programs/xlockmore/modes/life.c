@@ -163,18 +163,28 @@ ModStruct   life_description =
 #endif
 
 /* aliases for vars defined in the bitmap file */
-#define CELL_WIDTH   image_width
+/*#define CELL_WIDTH   image_width
 #define CELL_HEIGHT    image_height
 #define CELL_BITS    image_bits
+*/
 
-#include "life.xbm"
+/* #include "life.xbm" */
 
 #if defined( USE_XPM ) || defined( USE_XPMINC )
-static char *image_name[] =
+/* static char *image_name[] =
 {""};
+*/
 
-#define CELL_NAME image_name
-#define DEFAULT_XPM 0
+#include "life.xpm"
+#define CELL_NAME life_xpm
+#define TRUE_CELL_WIDTH 26
+#define TRUE_CELL_HEIGHT 23
+#define CELL_BITS 8
+#define DEFAULT_XPM 1
+#define XPATTERNS 4
+#define YPATTERNS 4
+#define CELL_WIDTH TRUE_CELL_WIDTH * XPATTERNS
+#define CELL_HEIGHT TRUE_CELL_HEIGHT * YPATTERNS
 #endif
 
 extern int  neighbors;
@@ -2048,8 +2058,10 @@ draw_cell(ModeInfo * mi, cellstruct info)
  * PURIFY 4.0.1 on SunOS4 and on Solaris 2 reports a 132 byte memory leak on
  * the next line */
 			(void) XPutImage(display, MI_WINDOW(mi), gc, lp->logo,
-			  0, 0, lp->xb + lp->xs * col, lp->yb + lp->ys * row,
-					 lp->logo->width, lp->logo->height);
+			  info.age%XPATTERNS * TRUE_CELL_WIDTH, 
+			  (info.age/XPATTERNS) * TRUE_CELL_HEIGHT, 
+			  lp->xb + lp->xs * col, lp->yb + lp->ys * row,
+					 lp->logo->width/XPATTERNS, lp->logo->height/YPATTERNS);
 	} else {		/* TRI */
 		int         orient = (col + row) % 2;	/* O left 1 right */
 
@@ -2125,6 +2137,10 @@ setcellfromtoggle(ModeInfo * mi, int col, int row)
 		if ((MI_NPIXELS(mi) > 2) &&
 		    (info.age < (unsigned short) (MI_NPIXELS(mi) * 0.7))) {
 			++(info.age);
+#ifdef XPATTERNS
+			if (info.age >= XPATTERNS * YPATTERNS)
+				info.age = XPATTERNS * YPATTERNS;
+#endif
 			curr->info.age = info.age;
 			draw_cell(mi, info);
 		}
@@ -2352,11 +2368,13 @@ init_stuff(ModeInfo * mi)
 	lifestruct *lp = &lifes[MI_SCREEN(mi)];
 
 	if (!lp->logo)
+	   {
 		getImage(mi, &lp->logo, CELL_WIDTH, CELL_HEIGHT, CELL_BITS,
 #if defined( USE_XPM ) || defined( USE_XPMINC )
 			 DEFAULT_XPM, CELL_NAME,
 #endif
 			 &lp->graphics_format, &lp->cmap, &lp->black);
+		}
 	if (lp->cmap != None) {
 		setColormap(display, window, lp->cmap, MI_WIN_IS_INWINDOW(mi));
 		if (lp->backGC == None) {
@@ -2507,11 +2525,11 @@ init_life(ModeInfo * mi)
 			lp->height = 2;
 		if (size == 0 ||
 		    MINGRIDSIZE * size > lp->width || MINGRIDSIZE * size > lp->height) {
-			if (lp->width > MINGRIDSIZE * lp->logo->width &&
-			    lp->height > MINGRIDSIZE * lp->logo->height) {
+			if (lp->width > MINGRIDSIZE * lp->logo->width/XPATTERNS &&
+			    lp->height > MINGRIDSIZE * lp->logo->height/YPATTERNS) {
 				lp->pixelmode = False;
-				lp->xs = lp->logo->width;
-				lp->ys = lp->logo->height;
+				lp->xs = lp->logo->width/XPATTERNS;
+				lp->ys = lp->logo->height/YPATTERNS;
 			} else {
 				lp->pixelmode = True;
 				lp->xs = lp->ys = MAX(MINSIZE, MIN(lp->width, lp->height) /
