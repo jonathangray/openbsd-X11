@@ -41,7 +41,7 @@
 <item><htmlurl name="README for XFree86 3.3.2 on NetBSD"
 	url="NetBSD.html">
 <item><htmlurl name="README for XFree86 3.3.2 on OpenBSD"
-	url="NetBSD.html">
+	url="OpenBSD.html">
 <item><htmlurl name="README for XFree86 3.3.2 on OS/2"
 	url="OS2.html">
 <item><htmlurl name="Notes on Rebuilding XFree86/OS2 from Scratch"
