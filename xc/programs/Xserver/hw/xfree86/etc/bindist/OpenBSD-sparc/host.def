@@ -6,6 +6,9 @@
 
 #define InstallEmptyHostDef
 
+#define HasXpm			YES
+#define XpmLibrary		/usr/X11R6/lib/libXpm.a
+
 #define ForceNormalLib		YES
 
 #define HasTcl			YES
@@ -13,11 +16,12 @@
 #define TkLibName		tk41
 #define TclLibName		tcl75
 
-#define HasLinuxDoc                     NO
-#define HasLatex                        NO
-#define HasDvips                        NO
-#define BuildLinuxDocHtml               NO
-#define BuildAllDocs                    NO
-#define InstallJapaneseDocs             NO
+/* No for now, when utilities installed, yes */
+#define HasLinuxDoc		NO
+#define HasLatex		NO
+#define HasDvips		NO
+#define BuildLinuxDocHtml	NO
+#define BuildAllDocs		NO
+#define InstallJapaneseDocs	NO
 
-#define BuildCyrillicFonts   YES
+#define BuildCyrillicFonts	YES

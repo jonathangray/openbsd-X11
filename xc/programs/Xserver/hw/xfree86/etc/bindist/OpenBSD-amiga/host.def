@@ -8,7 +8,13 @@
 
 #define ForceNormalLib		YES
 
+
+#define HasXpm			YES
+#define XpmLibrary		/usr/X11R6/lib/libXpm.a
+
 #define HasTcl			YES
 #define HasTk			YES
 #define TkLibName		tk41
 #define TclLibName		tcl75
+
+#define BuildCyrillicFonts	YES

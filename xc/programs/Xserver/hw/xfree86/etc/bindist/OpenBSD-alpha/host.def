@@ -6,9 +6,14 @@
 
 #define InstallEmptyHostDef
 
+#define HasXpm			YES
+#define XpmLibrary		/usr/X11R6/lib/libXpm.a
+
 #define ForceNormalLib		YES
 
 #define HasTcl			YES
 #define HasTk			YES
 #define TkLibName		tk41
 #define TclLibName		tcl75
+
+#define BuildCyrillicFonts	YES
