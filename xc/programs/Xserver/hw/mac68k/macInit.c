@@ -15,6 +15,13 @@
 
 #define CATCH_BROKEN_MODE 1
 
+int		mac_adbfd;
+fbinfo_t		mac_fbs[MAXSCREENS];
+Time		mac_lasteventtime;
+int		mac_scrs;
+DevicePtr	mac68k_kbd;
+DevicePtr	mac68k_mouse;
+
 void	ProcessInputEvents();
 int	mac68k_mouseproc(DevicePtr, int);
 int	mac68k_kbdproc(DevicePtr, int);
@@ -99,8 +106,7 @@ parse_args(argc, argv)
 	char **argv;
 {
 	/* try to match argv params to screens and depths */
-	/* BARF I really should do this, but not right now, */
-	/* while I am feverishly trying to finish the other X code. */
+	/* XXX needs implementation */
 }
 
 setup_screens(xsi, argc, argv)

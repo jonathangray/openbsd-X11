@@ -47,5 +47,5 @@ typedef struct fbinfo_s {
 } fbinfo_t;
 
 extern fbinfo_t			mac_fbs[MAXSCREENS];
-extern int			mac_scrs;
 extern miPointerScreenFuncRec	mac_mousefuncs;
+extern int			mac_scrs;
