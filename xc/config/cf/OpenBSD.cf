@@ -222,8 +222,11 @@ install.man:: 								@@\
  */
 #ifdef AlphaArchitecture
 
+# define XF86Contrib
 # include <xf86.rules>
 # define BuildServer		NO
+# define XnestServer		NO
+# define XVirtualFramebufferServer	NO
 
  /*
   * For the current ECOFF system
