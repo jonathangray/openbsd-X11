@@ -1,7 +1,7 @@
+./usr/X11R6/bin/beforelight
 ./usr/X11R6/bin/showrgb
 ./usr/X11R6/bin/xsetmode
 ./usr/X11R6/bin/xsetpointer
-./usr/X11R6/include/X11/extensions/XKBui.h
 ./usr/X11R6/lib/X11/rgb.txt
 ./usr/X11R6/lib/libICE.so.6.3
 ./usr/X11R6/lib/libPEX5.so.6.0
@@ -17,7 +17,7 @@
 ./usr/X11R6/lib/libXt.so.6.0
 ./usr/X11R6/lib/libXtst.so.6.1
 ./usr/X11R6/lib/liboldX.so.6.0
-./usr/X11R6/lib/libxkbui.a
+./usr/X11R6/man/cat1/beforelight.0
 ./usr/X11R6/man/cat1/showrgb.0
 ./usr/X11R6/man/cat1/xsetmode.0
 ./usr/X11R6/man/cat1/xsetpointer.0
