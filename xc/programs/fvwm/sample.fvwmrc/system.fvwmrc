@@ -107,7 +107,7 @@ AddToMenu RootMenu	"Root Menu"	Title
 +			"Exit Fvwm"	Popup Quit-Verify
 
 AddToMenu Utilities     "Utilities" Title
-+			"Top"		Exec exec xterm -bg black -fg white -T Top -n Top -e top
++			"Top"		Exec exec xterm -T Top -n Top -e top
 +			"Calculator"	Exec exec xcalc
 +			"Xman"		Exec exec xman
 +			"Xmag"		Exec exec xmag
