@@ -19,7 +19,6 @@ support the follwing graphic modes:
 .nf
 Amiga CustomChips Color/Monochrome (ECS/AGA)
 General Gfx Board (Dumb Chunky Framebuffer)
-GFX accelerator for the RetinaZ2 Graphics board
 GFX accelerator for the RetinaZ3 Graphics board
 Cirrus 5426 based Graphics Board (Picollo, Picollo SD64, Spectrum, PicassoII)
 GFX accelerator for the CV64 Graphics board
