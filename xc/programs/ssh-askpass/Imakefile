@@ -1,4 +1,4 @@
-XCOMM $OpenBSD: Imakefile,v 1.4 2000/08/29 10:03:45 matthieu Exp $
+XCOMM $OpenBSD: Imakefile,v 1.5 2000/08/29 18:36:02 matthieu Exp $
 
            SRCS = drawing.c dynlist.c resources.c x11-ssh-askpass.c
            OBJS = drawing.o dynlist.o resources.o x11-ssh-askpass.o
@@ -31,6 +31,7 @@ includes:: $(CLASS)_ad.h $(NAME).man
 
 clean::
 	$(RM) -f $(CLASS)_ad.h $(CLASS).ad
+	$(RM) -f $(NAME).man
 
 ComplexProgramTarget($(NAME))
 InstallAppDefaults($(CLASS))
