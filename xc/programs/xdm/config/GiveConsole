@@ -8,3 +8,4 @@
 # causing serious grief.
 #
 chown $USER /dev/console
+/usr/X11R6/bin/sessreg -a -l $DISPLAY -u /var/run/utmp -x /usr/X11R6/lib/xdm/Xservers $USER
