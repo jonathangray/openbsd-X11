@@ -385,7 +385,7 @@ SOFTWARE.
 
 #endif /* linux/m68k */
 
-#if defined (linux) && defined(__powerpc__)
+#if (defined (linux) || defined(__OpenBSD__)) && defined(__powerpc__)
 
 #define IMAGE_BYTE_ORDER       MSBFirst
 #define BITMAP_BIT_ORDER       MSBFirst
