@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.23 2000/05/04 19:34:07 todd Exp $
+#	$OpenBSD: Makefile,v 1.24 2000/06/01 06:56:21 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -14,7 +14,7 @@ CONFHOSTDEF=xc/config/cf/host.def
 
 
 CP?= /bin/cp
-MKDIR?= /bin/mkdir -p
+MKDIR?= /bin/mkdir
 LN?= /bin/ln
 CHOWN?=/usr/sbin/chown
 BINOWN?=root
@@ -69,6 +69,7 @@ release:
 	fi
 	@${MKDIR} -p ${DESTDIR}/usr/X11R6
 	@${MKDIR} -p ${DESTDIR}/var/X11
+	@${MKDIR} -p ${DESTDIR}/usr/local/lib/X11
 	${MAKE} perms
 	@${MAKE} install
 .if defined(MACHINE) && ${MACHINE} == hp300
