@@ -344,7 +344,8 @@ _XlcResolveLocaleName(lc_name, pub)
     tmp_siname = Xrealloc (pub->siname, 2 * (sinamelen + 1));
     if (tmp_siname == NULL) {
 	return 0;
-    }
+    } 
+    pub->siname = tmp_siname;
 
     /* language */
     dst = &pub->siname[sinamelen + 1];
