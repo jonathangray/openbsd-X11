@@ -29,6 +29,7 @@
 ./usr/X11R6/bin/setxkbmap
 ./usr/X11R6/bin/showfont
 ./usr/X11R6/bin/smproxy
+./usr/X11R6/bin/ssh-askpass
 ./usr/X11R6/bin/sxpm
 ./usr/X11R6/bin/twm
 ./usr/X11R6/bin/viewres

@@ -1899,6 +1899,7 @@
 ./var/X11/app-defaults/Clock-color
 ./var/X11/app-defaults/Editres
 ./var/X11/app-defaults/Editres-color
+./var/X11/app-defaults/SshAskpass
 ./var/X11/app-defaults/Viewres
 ./var/X11/app-defaults/XCalc
 ./var/X11/app-defaults/XCalc-color
