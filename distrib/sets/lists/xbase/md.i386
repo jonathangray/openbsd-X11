@@ -110,8 +110,8 @@
 ./usr/X11R6/lib/X11/doc/README.Config
 ./usr/X11R6/lib/X11/doc/README.DECtga
 ./usr/X11R6/lib/X11/doc/README.DGA
-./usr/X11R6/lib/X11/doc/README.LinkKit
 ./usr/X11R6/lib/X11/doc/README.I128
+./usr/X11R6/lib/X11/doc/README.LinkKit
 ./usr/X11R6/lib/X11/doc/README.MGA
 ./usr/X11R6/lib/X11/doc/README.Mach32
 ./usr/X11R6/lib/X11/doc/README.Mach64
@@ -190,8 +190,8 @@
 ./usr/X11R6/lib/modules/xf86Wacom.so
 ./usr/X11R6/lib/modules/xie.so
 ./usr/X11R6/man/cat1/SuperProbe.0
-./usr/X11R6/man/cat1/XF86_S3V.0
 ./usr/X11R6/man/cat1/XF86Setup.0
+./usr/X11R6/man/cat1/XF86_S3V.0
 ./usr/X11R6/man/cat1/XFree86.0
 ./usr/X11R6/man/cat1/beforelight.0
 ./usr/X11R6/man/cat1/dga.0
