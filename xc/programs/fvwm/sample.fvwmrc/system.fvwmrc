@@ -16,7 +16,7 @@ ClickTime 750
 WindowFont -adobe-times-bold-r-*-*-14-*-*-*-*-*-*-*
 IconFont -adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*
 
-HilightColor #bebebe darkblue
+HilightColor #bebebe blue
 MenuStyle #4d4d4d #bebebe #e7e7e7 -adobe-times-bold-r-*-*-12-*-*-*-*-*-*-* fvwm
 
 DeskTopSize 3x2
@@ -25,7 +25,7 @@ ColormapFocus FollowsMouse
 
 # default Styles:
 Style "*"           BorderWidth 7, HandleWidth 7
-Style "*"           Icon unknown1.xpm, Color #bebebe/#4d4d4d
+Style "*"           Icon unknown1.xpm, Color #bebebe/darkred
 Style "*"           MWMFunctions, MWMDecor, HintOverride
 Style "*"           DecorateTransient, NoPPosition
 Style "*"           IconBox 0 -10 -280 -1
@@ -374,9 +374,9 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 *RloginButtonFont   *helvetica*m*o*n*12*
 *RloginInputFont    *cour*m*r*n*12*
 *RloginFore         Black
-*RloginBack         Light Gray
-*RloginItemFore          Wheat
-*RloginItemBack          Gray50
+*RloginBack         White
+*RloginItemFore     Yellow
+*RloginItemBack     Wheat
 # begin items
 *RloginLine         center
 *RloginText         "Login to Remote Host"
