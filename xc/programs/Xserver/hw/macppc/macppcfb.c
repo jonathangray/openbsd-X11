@@ -1,7 +1,7 @@
 
 /* $XConsortium: sunCfb.c,v 1.15.1.2 95/01/12 18:54:42 kaleb Exp $ */
 /* $XFree86: xc/programs/Xserver/hw/sun/sunCfb.c,v 3.2 1995/02/12 02:36:22 dawes Exp $ */
-/* $OpenBSD: macppcfb.c,v 1.3 2000/10/01 16:51:59 matthieu Exp $ */
+/* $OpenBSD: macppcfb.c,v 1.4 2001/02/28 19:17:30 drahn Exp $ */
 
 /*
 Copyright (c) 1990  X Consortium
@@ -254,7 +254,8 @@ Bool macppcFBInit (screen, pScreen, argc, argv)
 	if (!fb) {
 		int offset;
 
-		if ((fb = macppcMemoryMap ((size_t)wf->height * wf->width,
+		if ((fb = macppcMemoryMap ((size_t)wf->height *
+					   macppcFbs[screen].linebytes,
 					   0, macppcFbs[screen].fd)) == NULL)
 			return FALSE;
 	        macppcFbs[screen].fb = fb;
@@ -264,7 +265,7 @@ Bool macppcFBInit (screen, pScreen, argc, argv)
 	    macppcFbs[screen].info.width,
 	    macppcFbs[screen].info.height,
 	    monitorResolution, monitorResolution,
-	    macppcFbs[screen].info.width))
+	    macppcFbs[screen].linebytes))
             return FALSE;
 
 	CGScreenInit(pScreen);

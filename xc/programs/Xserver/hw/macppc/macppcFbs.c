@@ -277,7 +277,8 @@ Bool macppcInitCommon (scrn, pScrn, offset, init1, init2, cr_cm, save, fb_off)
     if (!macppcScreenAllocate (pScrn))
 	return FALSE;
     if (!fb) {
-	if ((fb = macppcMemoryMap ((size_t) wf->width * wf->height,
+	if ((fb = macppcMemoryMap (
+			     (size_t) macppcFbs[scrn].linebytes * wf->height,
 			     offset,
 			     macppcFbs[scrn].fd)) == NULL)
 	    return FALSE;
@@ -288,7 +289,7 @@ Bool macppcInitCommon (scrn, pScrn, offset, init1, init2, cr_cm, save, fb_off)
 	    macppcFbs[scrn].info.width,
 	    macppcFbs[scrn].info.height,
 	    monitorResolution, monitorResolution,
-	    macppcFbs[scrn].info.width,
+	    macppcFbs[scrn].linebytes,
 	    macppcFbs[scrn].info.depth))
 	    return FALSE;
     /* macppcCGScreenInit() if cfb... */
