@@ -1,4 +1,4 @@
-XCOMM $OpenBSD: Imakefile,v 1.6 2000/11/07 22:50:38 matthieu Exp $
+XCOMM $OpenBSD: Imakefile,v 1.7 2000/11/18 10:23:01 matthieu Exp $
 
            SRCS = drawing.c dynlist.c resources.c x11-ssh-askpass.c
            OBJS = drawing.o dynlist.o resources.o x11-ssh-askpass.o
@@ -7,8 +7,8 @@ LOCAL_LIBRARIES = $(XTOOLLIB) $(XLIB)
 
            NAME = ssh-askpass
           CLASS = SshAskpass
-        VERSION = 1.1.0
-           DATE = November 7, 2000
+        VERSION = 1.1.1
+           DATE = November 8, 2000
    APP_DEFAULTS = $(CLASS)-default.ad
 
 $(CLASS)_ad.h: $(CLASS).ad

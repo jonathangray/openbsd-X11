@@ -1,3 +1,13 @@
+2000-11-08 23:19  jmknoble
+
+	* Imakefile: New version 1.1.1.
+
+2000-11-08 23:19  jmknoble
+
+	* x11-ssh-askpass.c: Fixed problem where inputTimeout of '0' was
+	considered invalid due to bad octal conversion.  Fixed small
+	potential memory leak.
+
 2000-11-07 06:20  jmknoble
 
 	* Imakefile: Bumped version to 1.1.0.
