@@ -124,6 +124,10 @@ struct verify_info	*verify;
 #ifdef USESHADOW
 	struct spwd	*sp;
 #endif
+#ifdef __OpenBSD__
+	char            *s;
+	struct timeval  tp;
+#endif
 	char		*user_pass;
 #if !defined(SVR4) || !defined(GREET_LIB) /* shared lib decls handle this */
 	char		*crypt ();
@@ -206,6 +210,46 @@ struct verify_info	*verify;
 		} /* else: null passwd okay */
 	}
 done:
+#ifdef __OpenBSD__
+	/*
+	 * Shell must be in /etc/shells 
+	 */
+	for (;;) {
+		s = getusershell();
+		if (s == NULL) {
+			/* did not found the shell in /etc/shells 
+			   -> failure */
+			Debug("shell not in /etc/shells\n");
+			bzero(greet->password, strlen(greet->password));
+			endusershell();
+			return 0;
+		}
+		if (strcmp(s, p->pw_shell) == 0) {
+			/* found the shell in /etc/shells */
+			endusershell();
+			break;
+		}
+	} 
+	/*
+	 * Test for expired password
+	 */
+	if (p->pw_change || p->pw_expire)
+		(void)gettimeofday(&tp, (struct timezone *)NULL);
+	if (p->pw_change) {
+		if (tp.tv_sec >= p->pw_change) {
+			Debug("Password has expired.\n");
+			bzero(greet->password, strlen(greet->password));
+			return 0;
+		}
+	}
+	if (p->pw_expire) {
+		if (tp.tv_sec >= p->pw_expire) {
+			Debug("account has expired.\n");
+			bzero(greet->password, strlen(greet->password));
+			return 0;
+		} 
+	}
+#endif /* __OpenBSD__ */
 	Debug ("verify succeeded\n");
 	bzero(user_pass, strlen(user_pass)); /* in case shadow password */
 	/* The password is passed to StartClient() for use by user-based
