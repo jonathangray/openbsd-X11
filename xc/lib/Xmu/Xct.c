@@ -336,7 +336,7 @@ ShiftGRToGL(data, hasCdata)
     if (data->item_length > priv->buf_count) {
 	priv->buf_count = data->item_length;
 	if (priv->itembuf) {
-	    XctString *tmpbuf = (XctString)realloc((char *)priv->itembuf,
+	    XctString tmpbuf = (XctString)realloc((char *)priv->itembuf,
 						   priv->buf_count);
 	    if (tmpbuf) 
 		priv->itembuf = tmpbuf;
