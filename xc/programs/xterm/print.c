@@ -1,5 +1,5 @@
 /*
- * $XFree86: xc/programs/xterm/print.c,v 1.3.2.1 1998/02/15 16:10:08 hohndel Exp $
+ * $XFree86: xc/programs/xterm/print.c,v 1.3.2.3 1998/04/29 11:18:07 dawes Exp $
  */
 
 /************************************************************
@@ -42,6 +42,7 @@ authorization.
 
 #include "ptyx.h"
 #include "data.h"
+#include "error.h"
 #include "xterm.h"
 
 #define Strlen(a) strlen((char *)a)
@@ -172,8 +173,33 @@ static void charToPrinter(chr)
 {
 	static int initialized;
 	if (!initialized) {
+		FILE	*input;
+		int	my_pipe[2];
+		int	my_pid;
+		int	c;
 		register TScreen *screen = &term->screen;
-		Printer = popen(screen->printer_command, "w");
+
+	    	if (pipe(my_pipe))
+			SysError (ERROR_FORK);
+		if ((my_pid = fork()) < 0)
+			SysError (ERROR_FORK);
+
+		if (my_pid == 0) {
+			close(my_pipe[1]);	/* printer is silent */
+			setgid (screen->gid);
+			setuid (screen->uid);
+			Printer = popen(screen->printer_command, "w");
+			input = fdopen(my_pipe[0], "r");
+			while ((c = fgetc(input)) != EOF) {
+				fputc(c, Printer);
+				if (chr == '\r' || chr == '\n' || chr == '\f')
+					fflush(Printer);
+			}
+			exit(0);
+		} else {
+			close(my_pipe[0]);	/* won't read from printer */
+			Printer = fdopen(my_pipe[1], "w");
+		}
 		initialized++;
 	}
 	if (Printer != 0) {

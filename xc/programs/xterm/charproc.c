@@ -1,6 +1,6 @@
 /*
  * $XConsortium: charproc.c /main/196 1996/12/03 16:52:46 swick $
- * $XFree86: xc/programs/xterm/charproc.c,v 3.42.2.5 1998/02/15 16:09:58 hohndel Exp $
+ * $XFree86: xc/programs/xterm/charproc.c,v 3.42.2.7 1998/04/29 10:51:58 dawes Exp $
  */
 
 /*
@@ -4030,7 +4030,6 @@ static void VTInitI18N()
 	       *s,
 	       *ns,
 	       *end,
-		tmp[1024],
 	  	buf[32];
     XIM		xim = (XIM) NULL;
     XIMStyles  *xim_styles;
@@ -4045,17 +4044,18 @@ static void VTInitI18N()
 	if ((p = XSetLocaleModifiers("@im=none")) != NULL && *p)
 	    xim = XOpenIM(XtDisplay(term), NULL, NULL, NULL);
     } else {
-	strcpy(tmp, term->misc.input_method);
-	for(ns=s=tmp; ns && *s;) {
+	for(ns=s=term->misc.input_method; ns && *s;) { 
 	    while (*s && isspace(*s)) s++;
 	    if (!*s) break;
 	    if ((ns = end = strchr(s, ',')) == 0)
 		end = s + strlen(s);
 	    while (isspace(*end)) end--;
-	    *end = '\0';
 
 	    strcpy(buf, "@im=");
-	    strcat(buf, s);
+	    if (end - (s + (sizeof(buf) - 5)) > 0)
+		end = s + (sizeof(buf) - 5); 
+	    strncat(buf, s, end - s); 
+ 
 	    if ((p = XSetLocaleModifiers(buf)) != NULL && *p
 		&& (xim = XOpenIM(XtDisplay(term), NULL, NULL, NULL)) != NULL)
 		break;
@@ -4080,8 +4080,7 @@ static void VTInitI18N()
     }
 
     found = False;
-    strcpy(tmp, term->misc.preedit_type);
-    for(s = tmp; s && !found;) {
+    for(s = term->misc.preedit_type; s && !found;) { 
 	while (*s && isspace(*s)) s++;
 	if (!*s) break;
 	if ((ns = end = strchr(s, ',')) != 0)
@@ -4089,13 +4088,12 @@ static void VTInitI18N()
 	else
 	    end = s + strlen(s);
 	while (isspace(*end)) end--;
-	*end = '\0';
 
-	if (!strcmp(s, "OverTheSpot")) {
+	if (!strncmp(s, "OverTheSpot", end - s)) { 
 	    input_style = (XIMPreeditPosition | XIMStatusArea);
-	} else if (!strcmp(s, "OffTheSpot")) {
+	} else if (!strncmp(s, "OffTheSpot", end - s)) { 
 	    input_style = (XIMPreeditArea | XIMStatusArea);
-	} else if (!strcmp(s, "Root")) {
+	} else if (!strncmp(s, "Root", end - s)) { 
 	    input_style = (XIMPreeditNothing | XIMStatusNothing);
 	}
 	for (i = 0; (unsigned short)i < xim_styles->count_styles; i++)
@@ -4646,7 +4644,7 @@ static void HandleKeymapChange(w, event, params, param_count)
 	XtOverrideTranslations(w, original);
 	return;
     }
-    (void) sprintf( mapName, "%sKeymap", params[0] );
+    (void) sprintf( mapName, "%.*sKeymap", (int)sizeof(mapName) - 10, params[0] ); 
     (void) strcpy( mapClass, mapName );
     if (islower(mapClass[0])) mapClass[0] = toupper(mapClass[0]);
     XtGetSubresources( w, (XtPointer)&keymap, mapName, mapClass,
@@ -5075,7 +5073,7 @@ set_cursor_gcs (screen)
      * not be set before the widget's realized, so it's tested separately).
      */
     if(screen->colorMode) {
-	if (TextWindow(screen) != 0 && (cc != bg)) {
+	if (TextWindow(screen) != 0 && (cc != bg) && (cc != fg)) {
 	    /* we might have a colored foreground/background later */
 	    xgcv.font = screen->fnt_norm->fid;
 	    mask = (GCForeground | GCBackground | GCFont);

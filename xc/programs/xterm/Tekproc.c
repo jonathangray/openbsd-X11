@@ -1,6 +1,6 @@
 /*
  * $XConsortium: Tekproc.c /main/120 1996/11/29 10:33:20 swick $
- * $XFree86: xc/programs/xterm/Tekproc.c,v 3.13.2.2 1998/02/15 16:09:55 hohndel Exp $
+ * $XFree86: xc/programs/xterm/Tekproc.c,v 3.13.2.4 1998/04/29 11:18:06 dawes Exp $
  *
  * Warning, there be crufty dragons here.
  */
@@ -74,6 +74,9 @@ in this Software without prior written authorization from the X Consortium.
 #include <errno.h>
 #include <setjmp.h>
 #include <signal.h>
+
+#include "xterm.h"
+
 #include "Tekparse.h"
 #include "data.h"
 #include "error.h"
@@ -120,8 +123,6 @@ extern char *malloc();
 extern void exit();
 extern long time();		/* included in <time.h> by Xos.h */
 #endif
-
-#include "xterm.h"
 
 #define DefaultGCID XGContextFromGC(DefaultGC(screen->display, DefaultScreen(screen->display)))
 
@@ -1723,7 +1724,9 @@ void TekSimulatePageButton (reset)
 
 
 #ifndef X_NOT_POSIX
+#ifndef linux
 #define HAS_WAITPID
+#endif
 #endif
 
 #ifdef HAS_WAITPID
@@ -1742,7 +1745,7 @@ TekCopy()
 	int pid;
 #ifndef HAS_WAITPID
 	int waited;
-	int (*chldfunc)();
+	SIGNAL_T (*chldfunc) PROTO((int n));
 
 	chldfunc = signal(SIGCHLD, SIG_DFL);
 #endif

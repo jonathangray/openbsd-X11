@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: data.c,v 1.12 95/04/05 19:58:47 kaleb Exp $
- *	$XFree86: xc/programs/xterm/data.c,v 3.2.4.2 1998/02/15 16:10:03 hohndel Exp $
+ *	$XFree86: xc/programs/xterm/data.c,v 3.2.4.3 1998/04/29 04:18:39 dawes Exp $
  */
 
 /*
@@ -101,7 +101,6 @@ Boolean sunKeyboard;
 #endif
 
 int am_slave = 0;	/* set to 1 if running as a slave process */
-int done_setuid = 0;	/* set to 1 after resetting setuid */
 int max_plus1;
 fd_set Select_mask;
 fd_set X_mask;

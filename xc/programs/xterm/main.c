@@ -64,7 +64,7 @@ SOFTWARE.
 
 ******************************************************************/
 
-/* $XFree86: xc/programs/xterm/main.c,v 3.47.2.8 1998/02/27 01:29:29 dawes Exp $ */
+/* $XFree86: xc/programs/xterm/main.c,v 3.47.2.10 1998/04/29 10:52:00 dawes Exp $ */
 
 
 /* main.c */
@@ -325,9 +325,11 @@ static Bool IsPts = False;
 #endif
 #ifdef SVR4
 #define USE_POSIX_WAIT
+#define HAS_SAVED_IDS_AND_SETEUID
 #endif
 
 #ifdef linux
+#define HAS_SAVED_IDS_AND_SETEUID
 #ifndef CBAUD
 #define CBAUD 0010017
 #endif
@@ -341,6 +343,7 @@ static Bool IsPts = False;
 #define USE_POSIX_WAIT
 #define LASTLOG
 #define WTMP
+#define HAS_SAVED_IDS_AND_SETEUID
 #endif
 
 #include <stdio.h>
@@ -976,6 +979,12 @@ static char *message[] = {
 "will be started.  Options that start with a plus sign (+) restore the default.",
 NULL};
 
+static int abbrev (char *tst, char *cmp)
+{
+	size_t len = strlen(tst);
+	return ((len >= 2) && (!strncmp(tst, cmp, len)));
+}
+
 static void Syntax (badOption)
     char *badOption;
 {
@@ -1115,9 +1124,9 @@ char **argv;
 	/* Do these first, since we may not be able to open the display */
 	ProgramName = argv[0];
 	if (argc > 1) {
-		if (!strncmp(argv[1], "-v", 2))
+		if (abbrev(argv[1], "-version"))
 			Version();
-		if (!strncmp(argv[1], "-h", 2) && strncmp(argv[1], "-hc", 3))
+		if (abbrev(argv[1], "-help"))
 			Help();
 	}
 
@@ -1725,15 +1734,6 @@ char **argv;
 	XSetErrorHandler(xerror);
 	XSetIOErrorHandler(xioerror);
 
-#ifndef HAS_SAVED_IDS_AND_SETEUID
-	(void) setuid (screen->uid); /* we're done with privileges... */
-	(void) setgid (screen->gid);
-	done_setuid = 1;
-#else
-	seteuid(screen->uid);
-	setegid(screen->gid);
-#endif
-
 #ifdef ALLOWLOGGING
 	if (term->misc.log_on) {
 		StartLog(screen);
@@ -2159,10 +2159,6 @@ spawn ()
 
 	screen->uid = getuid();
 	screen->gid = getgid();
-#ifdef HAS_SAVED_IDS_AND_SETEUID
-	screen->euid = geteuid();
-	screen->egid = getegid();
-#endif
 
 #ifdef linux
 	bzero(termcap, sizeof termcap);
@@ -3553,7 +3549,7 @@ static int spawn()
     int i, n, ncap;
     errstat err;
     struct caplist *cl;
-    char buf[64], numbuf[12];
+    char buf[64];
     struct caplist *capvnew;
     int ttythread();
     int xwatchdogthread();
@@ -3892,10 +3888,6 @@ Exit(n)
 	register int wfd;
 	struct utmp utmp;
 
-#ifdef HAS_SAVED_IDS_AND_SETEUID
-        setegid(screen->egid);
-        seteuid(screen->euid);
-#endif
 	if (!resource.utmpInhibit && added_utmp_entry &&
 	    (!am_slave && tslot > 0 && (wfd = open(etc_utmp, O_WRONLY)) >= 0)){
 		bzero((char *)&utmp, sizeof(struct utmp));
@@ -3914,10 +3906,6 @@ Exit(n)
 		}
 #endif /* WTMP */
 	}
-#ifdef HAS_SAVED_IDS_AND_SETEUID
-	setegid(screen->gid);
-	seteuid(screen->uid);
-#endif  /* HAS_SAVED_IDS_AND_SETEUID */
 #endif	/* USE_SYSV_UTMP */
 #endif	/* UTMP */
 #ifndef AMOEBA

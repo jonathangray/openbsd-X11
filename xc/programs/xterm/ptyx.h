@@ -529,10 +529,6 @@ typedef enum {
 #define DoSM(code,value) screen->save_modes[code] = value
 #define DoRM(code,value) value = screen->save_modes[code]
 
-#if defined(SVR4) || defined(linux) || defined(CSRG_BASED)
-#define HAS_SAVED_IDS_AND_SETEUID
-#endif
-
 typedef struct {
 	Boolean		saved;
 	int		row;
@@ -561,10 +557,6 @@ typedef struct {
 	long		pid;		/* pid of process on far side   */
 	int		uid;		/* user id of actual person	*/
 	int		gid;		/* group id of actual person	*/
-#ifdef HAS_SAVED_IDS_AND_SETEUID
-        int             euid;
-        int             egid;
-#endif
 	GC		cursorGC;	/* normal cursor painting	*/
 	GC		fillCursorGC;	/* special cursor painting	*/
 	GC		reversecursorGC;/* reverse cursor painting	*/
