@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.20 1999/10/29 06:08:25 todd Exp $
+#	$OpenBSD: Makefile,v 1.21 2000/04/27 06:10:10 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -85,7 +85,7 @@ perms:
 
 dist:
 	${MAKE} perms
-	cd distrib/sets && ./maketars ${OSrev} && ./checkflist
+	cd distrib/sets && csh ./maketars ${OSrev} && csh ./checkflist
 
 install: install-xc install-contrib install-linkkit install-distrib
 	/usr/libexec/makewhatis ${DESTDIR}/usr/X11R6/man
