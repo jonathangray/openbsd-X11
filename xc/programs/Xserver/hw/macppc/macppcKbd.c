@@ -422,7 +422,7 @@ int macppcKbdProc (device, what)
 
     switch (what) {
     case DEVICE_INIT:
-        ErrorF("kbd device init\n");
+
 	if (pKeyboard != LookupKeyboardDevice()) {
 	    ErrorF ("Cannot open non-system keyboard\n");
 	    return (!Success);

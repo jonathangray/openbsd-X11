@@ -206,7 +206,6 @@ void OsVendorInit(
 
 	static int inited;
 
-	ErrorF("OsVendorInit\n");
 	if (inited)
 	    return;
 
@@ -250,7 +249,6 @@ void OsVendorInit(
 	else
 	    macppcKbdPriv.type = 0;	/* ADB keyboard */
 
-	ErrorF("kbdtype = %d\n", macppcKbdPriv.type);
 }
 
 /*-
