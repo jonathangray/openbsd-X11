@@ -1,5 +1,7 @@
 /* $XConsortium: sunIo.c,v 5.26.1.3 95/01/25 23:02:33 kaleb Exp $ */
 /* $XFree86: xc/programs/Xserver/hw/sun/sunIo.c,v 3.1 1995/01/28 15:46:06 dawes Exp $ */
+/* $OpenBSD: macppcIo.c,v 1.3 2000/10/01 19:13:34 matthieu Exp $ */
+
 /*-
  * sunIo.c --
  *	Functions to handle input from the keyboard and mouse.
@@ -161,15 +163,41 @@ void macppcEnqueueEvents (
 void 
 AbortDDX()
 {
+    int         i;
+    ScreenPtr   pScreen;
+    DevicePtr   devPtr;
+    struct wsdisplay_cmap cmap;
+    u_char map[2];
 
     OsSignal (SIGIO, SIG_IGN);
+
+    cmap.count = 1;
+    cmap.red = map;
+    cmap.green = map;
+    cmap.blue = map;
+
+    for (i = 0; i < screenInfo.numScreens; i++)
+    {
+        int mode = WSDISPLAYIO_MODE_EMUL;
+
+        pScreen = screenInfo.screens[i];
+        (*pScreen->SaveScreen)(pScreen, SCREEN_SAVER_OFF);
+        ioctl(macppcFbs[pScreen->myNum].fd, WSDISPLAYIO_SMODE, &mode);
+
+	cmap.index = 0;
+	map[0] = 0;
+	ioctl(macppcFbs[pScreen->myNum].fd, WSDISPLAYIO_PUTCMAP, &cmap);
+	cmap.index = 255;
+	map[0] = 255;
+	ioctl(macppcFbs[pScreen->myNum].fd, WSDISPLAYIO_PUTCMAP, &cmap);
+    }
 }
 
 /* Called by GiveUp(). */
 void
 ddxGiveUp()
 {
-    AbortDDX ();
+    /* Nothing to do */
 }
 
 int
