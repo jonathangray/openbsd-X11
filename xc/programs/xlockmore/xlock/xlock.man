@@ -171,9 +171,6 @@ xlock \- Locks the local X display until a password is entered.
 .BI \-glgeometry " geom"
 ]
 [
-.BI -/+fullrandom
-]
-[
 .BI -/+wireframe
 ]
 [
@@ -211,12 +208,6 @@ xlock \- Locks the local X display until a password is entered.
 ]
 [
 .BI \-bitmap " filename"
-]
-[
-.BI \-neighbors " num"
-]
-[
-.BI -/+mouse
 ]
 [
 .BI \-cpasswd " crypted-password"
@@ -393,7 +384,7 @@ Shows polygons in 2D plane groups.
 Shows a meadow of daisies.
 .TP 8
 .B dclock
-Shows a floating digital clock.
+Shows a floating digital clock or message.
 .TP 8
 .B deco
 Shows art as ugly as sin.
@@ -502,6 +493,9 @@ Shows mandelbrot sets.
 .B marquee
 Shows text.
 .TP 8
+.B matrix
+Shows the matrix.
+.TP 8
 .B maze
 Shows a random maze and a depth first search solution.
 .TP 8
@@ -600,10 +594,13 @@ Shows a swarm of bees following a wasp.
 Shows animated swirling patterns.
 .TP 8
 .B tetris
-Shows tetris.
+Shows an autoplaying tetris game.
 .TP 8
 .B thornbird
 Shows an animated Bird in a Thorn Bush fractal map.
+.TP 8
+.B tik_tak
+Shows rotating polygons.
 .TP 8
 .B triangle
 Shows a triangular mountain range.
@@ -767,6 +764,8 @@ In mandelbrot mode it is the order.
 
 In marquee mode it means nothing.
 
+In matrix mode it means nothing.
+
 In maze mode it means nothing.
 
 In moebius mode it is means nothing.
@@ -899,9 +898,9 @@ The
 option sets the size maximum size of a star in bouboule, pyro and star,
 size of ball in ball and bounce, size of bat in bat,
 maximum size of bubble in bubble, size of clock in clock,
-minimum size of rectangles in deco, size of the polygon in crystal,
-size of polyhedron in ico, size of lissie in lissie, size of dots of flag,
-for kaleid it is the symmetry,
+minimum size of rectangles in deco, size of the polygons in crystal and
+tik_tak, size of polyhedron in ico, size of lissie in lissie, size of dots
+of flag, for kaleid it is the symmetry,
 width of maze hallway, size of side of penrose tile, radius of loop in lisa,
 radius of ball in roll, number of corners in sierpinski,
 size of tube in tube, width of worm in worm, line width in rotor,
@@ -1230,10 +1229,6 @@ option sets
 .I geom
 the size of the screen for gl modes.  Not normally available or needed.
 .TP 5
-.B -/+fullrandom
-Turn on/off randomness options within modes.  Not implemented on all
-mode options.
-.TP 5
 .B -/+wireframe
 Turn on/off wireframe, available on atlantis, daisy, gears, life3d, mountain,
 sproingies, superquadrics, and triangle.
@@ -1297,17 +1292,7 @@ The
 option sets the xbm, xpm, or ras file to be displayed with flag, image, life,
 life1d, maze, or puzzle mode.  For eyes and pacman only a xbm file is
 accepted.  Certain modes reject the bitmap if too big.
-.TP 5
-.BI \-neighbors \ num
-The
-.I neighbors 
-option sets the number of neighbors of a cell to 3, 4, 6, 9 (may not have
-real mathematical meaning), or 12 for several automata modes.  Setting it to
-0 typically randomizes this, except in life where it is set to 8.
-.TP 5
-.BI -/+mouse
-Turn on and off mouse interaction in
-.I eyes, julia, and swarm.
+/
 .sp
 .SH "MORE OPTIONS (these may not be available)"
 .TP 5
@@ -1445,6 +1430,64 @@ compiled in.
 .sp
 .SH "SPECIAL MODE DEPENDENT OPTIONS"
 .TP 5
+.BI \-neighbors \ num
+The
+.I neighbors 
+option sets the number of neighbors of a cell to 3, 4, 6, 9 (may not have
+real mathematical meaning), or 12 for several automata modes
+.I (ant, bug, demon, dilemma, life, loop, voters, wator,
+and
+.I wire) (bug and loop
+do not span this full range).  Setting it to 0 typically randomizes this,
+except where bitmaps are used 
+.I (dilemma, life, voters,
+and
+.I wator).
+.TP 5
+.BI -/+eyes
+Turn on and off eyes for 
+.I ant
+and
+.I bug.
+.TP 5
+.BI -/+cycle
+Turn on and off colour cycling in
+.I crystal, starfish, tetris,
+and
+.I tik_tak.
+.TP 5
+.BI -/+trackmouse
+Turn on and off mouse interaction in
+.I eyes, julia,
+and
+.I swarm.
+.TP 5
+.BI \-rule \ S<neighborhood>/B<neighborhood>
+Allows one to set the rule for
+.I life
+and
+.I life3d.
+Special parameters: P, picks a random rule from all rules that have known
+patterns; G, picks a random rule from all rules that have known gliders.
+For
+.I life
+a good example is Conway's rule which is S23/B3.
+For
+.I life3d
+good examples are Bay's rules which are S45/B5, S567/B6, S56/B5, and S67/B67.
+.TP 5
+.BI \-lifefile \ filename
+The
+.I lifefile
+option sets the
+.I life
+and
+.I life3d
+lifeform.  Only one format is currently supported, similar to the #P xlife
+format.  For
+.I life3d,
+2 linefeeds in a row are assumed to advance the depth.
+.TP 5
 .BI \-whalespeed \ num
 Allows one to set the speed of the whales and dolphin in
 .I atlantis.
@@ -1481,25 +1524,41 @@ Turn on and off the drawing of unit cell in
 Turn on and off the drwing of grid of unit cells (if -cell is on) in
 .I crystal.
 .TP 5
-.BI -/+shift
-Turn on and off colour cycling in
-.I crystal.
-.TP 5
-.BI -/+forest
-Turn on and off the tropical deforest (hectares/acres) counter in
-.I dclock.
+.BI -/+garden
+Turn off and on garden look in
+.I daisy.
 .TP 5
 .BI -/+popex
 Turn on and off the population explosion counter in
 .I dclock.
 .TP 5
+.BI -/+forest
+Turn on and off the tropical deforest (hectares/acres) counter in
+.I dclock.
+.TP 5
+.BI -/+hiv
+Turn on and off the HIV infection counter in
+.I dclock.
+.TP 5
+.BI -/+lab
+Turn on and off the Animal Research counter in
+.I dclock.
+.TP 5
+.BI -/+veg
+Turn on and off the Animal Consumation counter in
+.I dclock.
+.TP 5
+.BI -/+y2k
+Turn on and off the Year 2000 countdown in
+.I dclock.
+.TP 5
+.BI -/+millennium
+Turn on and off the Second Millennium (January 1, 2001) countdown in
+.I dclock.
+.TP 5
 .BI \-bonus \ value
 Allows one to set the bonus for cheating... between 1.0 and 4.0 in
 .I dilemma.
-.TP 5
-.BI -/+garden
-Turn off and on garden look in
-.I daisy.
 .TP 5
 .BI -/+conscious
 Turn off and on self-awareness in
@@ -1588,19 +1647,6 @@ Turn on and off oct mirrored/rotated mode similar to size 8 in
 Turn on and off Cartesian/Polar coordinate mode in 
 .I kaleid.
 .TP 5
-.BI \-rule \ S<neighborhood>/B<neighborhood>
-Allows one to set
-.I life
-survival and birth parameters.  For example, Conway's rule is S23/B3.
-Special parameters: P, picks a random rule from all rules that have known
-patterns; G, picks a random rule from all rules that have known gliders.
-.TP 5
-.BI \-lifefile \ filename
-The
-.I lifefile
-option sets the lifeform.  Only one format is currently supported, the
-#P xlife format.
-.TP 5
 .BI -/+callahan
 Turn on and off Paul Callahan's S2b34/B2a hexagonal
 .I life.
@@ -1614,22 +1660,6 @@ Turn on and off totalistic rules for
 .I life1d.
 If this is off then it follows rules of the LCAU collection.  These
 rules may not be symmetric and are more general.
-.TP 5
-.BI \-rule3d \ S<neighborhood>/B<neighborhood>
-Allows one to set
-.I life3d
-survival and birth parameters.  For example, Bay's rules are S45/B5, S567/B6
-S56/B5, and S67/B67.  There is currently no way of accessing neighborhoods
-beyond 9.  Special parameters: P, picks a random rule from all rules that
-have known patterns; G, picks a random rule from all rules that have known
-gliders.
-.TP 5
-.BI \-life3dfile \ filename
-The
-.I life3dfile
-option sets the lifeform.  Only one format is currently supported, similar
-to the #P xlife format.  2 linefeeds in a row are assumed to advance the
-depth.
 .TP 5
 .BI -/+additive
 Turn on and off additive functions mode in
@@ -1719,10 +1749,6 @@ Set rotation velocity in
 Set thickness in
 .I starfish.
 .TP 5
-.BI -/+cycle
-Turn on and off cycle for
-.I starfish.
-.TP 5
 .BI -/+rock
 Turn on and off blob for
 .I starfish.
@@ -1735,6 +1761,11 @@ Set speed of rotation, in degrees per frame for
 Allows one to set a duration for a mode in
 .I random.
 Duration of 0 is defined as infinite.
+.TP 5
+.B -/+fullrandom
+Turn on/off randomness options within modes in
+.I random.
+Not implemented for all mode options.
 .TP 5
 .BI \-modelist \ textstring
 Allows one to pass a list of files to randomly display to

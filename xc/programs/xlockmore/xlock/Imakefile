@@ -15,22 +15,22 @@ OU = $(O)$(S)$(DOU)
 CU = $(C) $(DU)
 
 XCOMM  List of object files
-XLOCKUTILOBJS = $(DOU)xlock$(OU)passwd$(OU)resource$(O)$(S)\
+XLOCKUTILOBJS = $(DOU)xlock$(OU)passwd$(OU)resource$(OU)parsecmd$(O)$(S)\
 $(DOU)util$(OU)logout$(OU)mode$(OU)ras$(OU)xbm$(O)$(S)\
 $(DOU)vis$(OU)color$(OU)random$(OU)iostuff$(OU)automata$(O)$(S)\
-$(DOU)spline$(OU)erase$(OU)sound$(O)$(S)\
-$(DOU)vtlock$(O)
+$(DOU)spline$(OU)sound$(OU)erase$(O)$(S)\
+$(DOU)vtlock$(OU)vtlock_proc$(O)
 #ifdef Check
 XLOCKCHECKOBJS = $(S)memcheck$(O)
 #endif
 
 XCOMM  List of source files
 XLOCKUTILHDRS = xlock.h mode.h vroot.h ras.h version.h config.h
-XLOCKUTILSRCS = $(DU)xlock$(CU)passwd$(CU)resource$(C) \
+XLOCKUTILSRCS = $(DU)xlock$(CU)passwd$(CU)resource$(CU)parsecmd$(C) \
 $(DU)util$(CU)logout$(CU)mode$(CU)ras$(CU)xbm$(C) \
 $(DU)vis$(CU)color$(CU)random$(CU)iostuff$(CU)automata$(C) \
-$(DU)spline$(CU)erase$(CU)sound$(C) \
-$(DU)vtlock$(C)
+$(DU)spline$(CU)sound$(CU)erase$(C) \
+$(DU)vtlock$(CU)vtlock_proc$(C)
 XLOCKCHECKSRCS = $(DU)memcheck$(C)
 
 XCOMM default target

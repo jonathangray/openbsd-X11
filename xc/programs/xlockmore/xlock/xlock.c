@@ -210,7 +210,6 @@ extern ModeSpecOpt xlockmore_opts[];
 extern const char *app_defaults;
 char       *message, *messagefile, *messagesfile, *program;
 char       *messagefontname;
-int         neighbors;
 
 void
 pre_merge_options(void)
@@ -246,8 +245,8 @@ pre_merge_options(void)
 	{
 		char       *args[] =
 		{"-delay", "-count", "-cycles", "-size", "-ncolors", "-bitmap",
-		 "-text", "-filename", "-program", "-neighbors",
-		 "-wireframe", "-use3d", "-mouse", "-fullrandom", "-verbose"};
+		 "-text", "-filename", "-program",
+		 "-wireframe", "-use3d", "-verbose"};
 
 		for (j = 0; j < countof(args); j++)
 			if (strstr(app_defaults, args[j] + 1)) {
@@ -270,24 +269,6 @@ pre_merge_options(void)
 					new->value = "True";
 					new = &options[i++];
 					new->option = "-no-3d";
-					new->specifier = options[i - 2].specifier;
-					new->argKind = XrmoptionNoArg;
-					new->value = "False";
-				} else if (!strcmp(new->option, "-mouse")) {
-					new->option = "-mouse";
-					new->argKind = XrmoptionNoArg;
-					new->value = "True";
-					new = &options[i++];
-					new->option = "-no-mouse";
-					new->specifier = options[i - 2].specifier;
-					new->argKind = XrmoptionNoArg;
-					new->value = "False";
-				} else if (!strcmp(new->option, "-fullrandom")) {
-					new->option = "-fullrandom";
-					new->argKind = XrmoptionNoArg;
-					new->value = "True";
-					new = &options[i++];
-					new->option = "-no-fullrandom";
 					new->specifier = options[i - 2].specifier;
 					new->argKind = XrmoptionNoArg;
 					new->value = "False";
@@ -409,7 +390,7 @@ xlockmore_screenhack(Display * dpy, Window window,
 	(void) memset((char *) &mi, 0, sizeof (mi));
 	mi.dpy = dpy;
 	mi.window = window;
-	XGetWindowAttributes(dpy, window, &mi.xgwa);
+	(void) XGetWindowAttributes(dpy, window, &mi.xgwa);
 
 	color.flags = DoRed | DoGreen | DoBlue;
 	color.red = color.green = color.blue = 0;
@@ -489,7 +470,6 @@ xlockmore_screenhack(Display * dpy, Window window,
 	messagefile = get_string_resource("filename", "String");
 	messagesfile = get_string_resource("fortunefile", "String");
 	program = get_string_resource("program", "String");
-	neighbors = get_integer_resource("neighbors", "Int");
 
 
 #if 0
@@ -533,9 +513,7 @@ xlockmore_screenhack(Display * dpy, Window window,
 	mi.threed_none_color = get_pixel_resource("none3d", "Color", dpy,
 						  mi.xgwa.colormap);
 
-	mi.mouse = get_boolean_resource("mouse", "Boolean");
 	mi.wireframe_p = get_boolean_resource("wireframe", "Boolean");
-	mi.fullrandom = get_boolean_resource("fullrandom", "Boolean");
 	mi.verbose = get_boolean_resource("verbose", "Boolean");
 
 	mi.root_p = (window == RootWindowOfScreen(mi.xgwa.screen));
@@ -645,6 +623,10 @@ struct itmlst_3 {
 
 #endif
 
+#ifdef __FreeBSD__
+#include <floatingpoint.h>
+#endif
+
 extern char *getenv(const char *);
 extern void checkResources(void);
 extern void defaultVisualInfo(Display * display, int screen);
@@ -722,7 +704,6 @@ extern int  lockdelay;
 extern int  timeout;
 extern Bool wireframe;
 extern Bool use3d;
-extern Bool mouse;
 
 extern char *fontname;
 extern char *planfontname;
@@ -1190,7 +1171,6 @@ mode_info(Display * display, int scrn, Window window, int iconic)
 		MI_SET_FLAG_STATE(mi, WI_FLAG_VERBOSE, verbose);
 		MI_SET_FLAG_STATE(mi, WI_FLAG_FULLRANDOM, False);
 		MI_SET_FLAG_STATE(mi, WI_FLAG_WIREFRAME, wireframe);
-		MI_SET_FLAG_STATE(mi, WI_FLAG_MOUSE, mouse);
 		MI_SET_FLAG_STATE(mi, WI_FLAG_INFO_INITTED, True);
 		MI_IS_DRAWN(mi) = False;
 	}
@@ -1723,6 +1703,12 @@ runMainLoop(int maxtime, int iconscreen)
 
 		FD_ZERO(&reads);
 		FD_SET(fd, &reads);
+#ifdef VMS
+		/* Seems to work for UNIX to but... */
+		FD_SET(fd + 1, &reads);
+#else
+		FD_SET(fd, &reads);
+#endif
 
 #if DCE_PASSWD
 		r = _select_sys(fd + 1,
@@ -1803,7 +1789,11 @@ runMainLoop(int maxtime, int iconscreen)
 #endif /* !USE_OLD_EVENT_LOOP */
 
 static int
-ReadXString(char *s, int slen, Bool pass)
+ReadXString(char *s, int slen
+#ifdef GLOBAL_UNLOCK
+  , Bool pass
+#endif
+)
 {
 	XEvent      event;
 	char        keystr[20];
@@ -2298,7 +2288,11 @@ getPassword(void)
 			global_user, strlen(global_user));
 		checkUser(global_user);
 #endif
-		if (ReadXString(buffer, PASSLENGTH, True))
+		if (ReadXString(buffer, PASSLENGTH
+#ifdef GLOBAL_UNLOCK
+		    , True
+#endif
+		    ))
 			break;
 		y = remy;
 
@@ -2530,7 +2524,7 @@ justDisplay(Display * display)
 		if (!nolock && lock_delay &&
 		    (lock_delay <= (int) (seconds() - start_time))) {
 			timetodie = True;
-			not_done = False;
+			/* not_done = False; */
 		}
 	}
 
@@ -2841,6 +2835,11 @@ main(int argc, char **argv)
 	(void) signal(SIGUSR1, SigUsr1);
 	(void) signal(SIGUSR2, SigUsr2);
 
+#if defined( __FreeBSD__ ) && !defined( DEBUG )
+	/* do not exit on FPE */
+	fpsetmask(0);
+#endif
+        
 #ifdef OSF1_ENH_SEC
 	set_auth_parameters(argc, argv);
 #endif
@@ -2933,11 +2932,19 @@ main(int argc, char **argv)
 	/* We need later to be able to do another seteuid(0), so let's */
 	/* disable the overwrite of saved uid/gid */
 
+#ifdef BAD_PAM
+/* BAD_PAM must have root access to authenticate against shadow passwords */
+      (void) seteuid(ruid);
+/* for BAD_PAM to use shadow passwords, must call seteuid() later */
+#else
+
 #ifdef USE_VTLOCK
 	if (!vtlock)
 #endif
 		(void) setgid(rgid);
 #endif
+#endif
+
 #ifdef USE_VTLOCK
 	if (!vtlock)
 #endif
@@ -3102,7 +3109,7 @@ main(int argc, char **argv)
 		XWindowAttributes	temp_xgwa;
 		
 		temp_rw = (parentSet) ? parent : RootWindowOfScreen(scr);
-		XGetWindowAttributes(dsp, temp_rw, &temp_xgwa);
+		(void) XGetWindowAttributes(dsp, temp_rw, &temp_xgwa);
 		temp_gcv.function = GXcopy;
 		temp_gcv.subwindow_mode = IncludeInferiors;
 		temp_gc = XCreateGC(dsp, temp_rw, GCFunction|GCSubwindowMode,

@@ -1,5 +1,5 @@
 !!!!
-! XLock: Class resource for xlock (xlockmore-4.13)
+! XLock: Class resource for xlock (xlockmore-4.14)
 !!!!
 XLock.mode: random
 !XLock.mode: blank
@@ -53,6 +53,9 @@ XLock.left3d: Red
 XLock.both3d: Magenta
 
 ! For marquee & nose modes
+!XLock.program: fortune -o
+!XLock.program: fortune -s
+!XLock.program: fortune
 !XLock.program: /usr/games/fortune -o
 XLock.program: /usr/games/fortune -s
 !XLock.program: /usr/games/fortune
@@ -70,17 +73,10 @@ XLock.messagefont: -b&h-lucida-medium-r-normal-sans-24-*-*-*-*-*-iso8859-1
 
 ! For mailbox check application
 !XLock.mailCmd: /usr/ucb/mail -e
+!XLock.mailCmd: /usr/bin/mail -e
 !XLock.mailCmd: /usr/local/bin/chkmbox
 !XLock.mailIcon:
 !XLock.nomailIcon:
-
-! For automata modes
-!XLock.neighbors: 6
-!XLock.neighbors: 4
-XLock.neighbors: 0
-
-! For eyes, julia, & swarm modes
-XLock.mouse: off
 
 ! 0 defaults to maximum defined value
 XLock.logoutAuto: 0
@@ -99,8 +95,12 @@ XLock.ant.delay: 1000
 XLock.ant.count: -3
 XLock.ant.cycles: 40000
 XLock.ant.size: -12
-XLock.ant.truchet: on
 XLock.ant.saturation: 1.0
+XLock.ant.truchet: on
+XLock.ant.eyes: off
+XLock.ant.sharpturn: off
+! ant neighbors (3, 4, 6, 8, 12, all else random)
+XLock.ant.neighbors: 0
 XLock.atlantis.delay: 1000
 XLock.atlantis.count: 4
 XLock.atlantis.cycles: 250
@@ -147,6 +147,9 @@ XLock.bug.count: 10
 XLock.bug.cycles: 32767
 XLock.bug.size: -4
 XLock.bug.saturation: 1.0
+! bug neighbors (3, 4, 6, 8, 12, all else random)
+XLock.bug.neighbors: 0
+XLock.bug.eyes: off
 XLock.cage.delay: 1000
 !XLock.cage.count: 1
 !XLock.cage.cycles: 1
@@ -178,7 +181,7 @@ XLock.crystal.cell: on
 XLock.crystal.grid: off
 XLock.crystal.centre: off
 XLock.crystal.maxsize: off
-XLock.crystal.shift: on
+XLock.crystal.cycle: on
 XLock.daisy.delay: 100000
 XLock.daisy.count: 300
 XLock.daisy.cycles: 350
@@ -190,6 +193,13 @@ XLock.dclock.delay: 10000
 XLock.dclock.cycles: 10000
 !XLock.dclock.size: 1
 XLock.dclock.saturation: 0.3
+XLock.dclock.popex: off
+XLock.dclock.forest: off
+XLock.dclock.hiv: off
+XLock.dclock.lab: off
+XLock.dclock.veg: off
+XLock.dclock.y2k: off
+XLock.dclock.millennium: off
 XLock.deco.delay: 1000000
 XLock.deco.count: -30
 XLock.deco.cycles: 2
@@ -200,6 +210,8 @@ XLock.demon.count: 0
 XLock.demon.cycles: 1000
 XLock.demon.size: -7
 XLock.demon.saturation: 1.0
+! demon neighbors (3, 4, 6, 8, 9, 12, all else random)
+XLock.demon.neighbors: 0
 XLock.dilemma.delay: 200000
 XLock.dilemma.count: -2
 XLock.dilemma.cycles: 1000
@@ -207,6 +219,8 @@ XLock.dilemma.size: 0
 XLock.dilemma.saturation: 1.0
 XLock.dilemma.bonus: 1.85
 XLock.dilemma.conscious: on
+! dilemma neighbors (3, 4, 6, 8, 9, 12, all else defaults to 4 or 8 for bitmap)
+XLock.dilemma.neighbors: 0
 XLock.discrete.delay: 1000
 XLock.discrete.count: 4096
 XLock.discrete.cycles: 2500
@@ -224,6 +238,7 @@ XLock.eyes.count: -8
 XLock.eyes.cycles: 5
 !XLock.eyes.size: 1
 XLock.eyes.saturation: 1.0
+XLock.eyes.trackmouse: off
 XLock.fadeplot.delay: 30000
 XLock.fadeplot.count: 10
 XLock.fadeplot.cycles: 1500
@@ -234,6 +249,7 @@ XLock.flag.delay: 50000
 XLock.flag.cycles: 1000
 XLock.flag.size: -7
 XLock.flag.saturation: 1.0
+XLock.flag.invert: off
 XLock.flame.delay: 750000
 XLock.flame.count: 20
 XLock.flame.cycles: 10000
@@ -299,11 +315,16 @@ XLock.hyper.count: -6
 XLock.hyper.cycles: 300
 !XLock.hyper.size: 1
 XLock.hyper.saturation: 1.0
+XLock.hyper.randomStart: on
+XLock.hyper.showAxes: on
+XLock.hyper.showPlanes: off
 XLock.ico.delay: 100000
 XLock.ico.count: 0
 XLock.ico.cycles: 400
 XLock.ico.size: 0
 XLock.ico.saturation: 1.0
+XLock.ico.faces: off
+XLock.ico.trail: on
 XLock.ifs.delay: 1000
 !XLock.ifs.count: 1
 !XLock.ifs.cycles: 1
@@ -319,6 +340,7 @@ XLock.julia.count: 1000
 XLock.julia.cycles: 20
 !XLock.julia.size: 1
 XLock.julia.saturation: 1.0
+XLock.julia.trackmouse: off
 XLock.kaleid.delay: 60000
 XLock.kaleid.count: -8
 XLock.kaleid.cycles: 40
@@ -327,11 +349,16 @@ XLock.kaleid.saturation: 0.6
 XLock.kaleid.alternate: off
 XLock.kaleid.serial: off
 XLock.kaleid.disconnected: on
+XLock.kaleid.quad: off
+XLock.kaleid.oct: off
+XLock.kaleid.linear: off
 XLock.kumppa.delay: 10000
 !XLock.kumppa.count: 1
 !XLock.kumppa.cycles: 1000
 !XLock.kumppa.size: 1
 XLock.kumppa.saturation: 1.0
+XLock.kumppa.dbuf: off
+XLock.kumppa.rrandom: on
 XLock.laser.delay: 20000
 XLock.laser.count: -10
 XLock.laser.cycles: 200
@@ -344,9 +371,11 @@ XLock.life.size: 0
 XLock.life.saturation: 1.0
 !XLock.life.rule: P
 XLock.life.rule: G
-!XLock.neighbor: 8
+! life neighbors (3, 4, 6, 8, 9, 12, all else defaults to 8 for bitmap and Conway's Life)
+XLock.life.neighbors: 0
+!XLock.life.neighbors: 8
 !XLock.life.rule: S23/B3
-!XLock.neighbor: 6
+!XLock.life.neighbors: 6
 !XLock.life.rule: S2b34/B2a
 !XLock.life.rule: S2a2b4a/B2b3a4b
 !XLock.life.rule: S12b2c3a4b4c6/B2a3b3c5
@@ -365,8 +394,8 @@ XLock.life3d.count: 35
 XLock.life3d.cycles: 85
 !XLock.life3d.size: 1
 XLock.life3d.saturation: 1.0
-!XLock.life3d.rule3d: P
-XLock.life3d.rule3d: G
+!XLock.life3d.rule: P
+XLock.life3d.rule: G
 !XLock.life3d.rule: S45/B5
 !XLock.life3d.rule3d: S567/B6
 !XLock.life3d.rule3d: S56/B5
@@ -381,6 +410,7 @@ XLock.lisa.count: 1
 XLock.lisa.cycles: 256
 XLock.lisa.size: -1
 XLock.lisa.saturation: 1.0
+XLock.lisa.additive: on
 XLock.lissie.delay: 10000
 XLock.lissie.count: 1
 XLock.lissie.cycles: 2000
@@ -391,17 +421,26 @@ XLock.loop.delay: 100000
 XLock.loop.cycles: 1600
 XLock.loop.size: -12
 XLock.loop.saturation: 1.0
+! loop neighbors (4, 6, all else random)
+XLock.loop.neighbors: 0
 XLock.mandelbrot.delay: 25000
 XLock.mandelbrot.count: -8
 XLock.mandelbrot.cycles: 20000
 !XLock.mandelbrot.size: 1
 XLock.mandelbrot.saturation: 1.0
 XLock.mandelbrot.increment: 1.0
+XLock.mandelbrot.binary: off
+XLock.mandelbrot.dem: off
 XLock.marquee.delay: 100000
 !XLock.marquee.count: 1
 !XLock.marquee.cycles: 1
 !XLock.marquee.size: 1
 XLock.marquee.saturation: 1.0
+XLock.matrix.delay: 1000
+!XLock.matrix.count: 1
+!XLock.matrix.cycles: 1
+!XLock.matrix.size: 1
+XLock.matrix.saturation: 1.0
 XLock.maze.delay: 1000
 !XLock.maze.count: 1
 XLock.maze.cycles: 3000
@@ -475,6 +514,7 @@ XLock.qix.cycles: 32
 !XLock.qix.size: 1
 XLock.qix.saturation: 1.0
 XLock.qix.complete: off
+XLock.qix.kaleid: off
 XLock.roll.delay: 100000
 XLock.roll.count: 25
 !XLock.roll.cycles: 1
@@ -569,6 +609,7 @@ XLock.swarm.count: 100
 !XLock.swarm.cycles: 1
 !XLock.swarm.size: 1
 XLock.swarm.saturation: 1.0
+XLock.swarm.trackmouse: off
 XLock.swirl.delay: 5000
 XLock.swirl.count: 5
 !XLock.swirl.cycles: 1
@@ -579,11 +620,18 @@ XLock.tetris.delay: 50000
 !XLock.tetris.cycles: 1
 XLock.tetris.size: 0
 XLock.tetris.saturation: 1.0
+XLock.tetris.cycle: on
 XLock.thornbird.delay: 1000
 XLock.thornbird.count: 800
 XLock.thornbird.cycles: 16
 !XLock.thornbird.size: 1
 XLock.thornbird.saturation: 1.0
+XLock.tik_tak.delay: 60000
+!XLock.tik_tak.count: -20
+!XLock.tik_tak.cycles: 200
+XLock.tik_tak.size: -1000
+XLock.tik_tak.saturation: 1.0
+XLock.tik_tak.cycle: on
 XLock.triangle.delay: 10000
 !XLock.triangle.count: 1
 !XLock.triangle.cycles: 1
@@ -609,16 +657,22 @@ XLock.voters.count: 0
 XLock.voters.cycles: 327670
 XLock.voters.size: 0
 XLock.voters.saturation: 1.0
+! voters neighbors (3, 4, 6, 8, 9, 12, all else defaults to 4 or 8 for bitmap)
+XLock.voters.neighbors: 0
 XLock.wator.delay: 750000
 !XLock.wator.count: 1
 XLock.wator.cycles: 32767
 XLock.wator.size: 0
 XLock.wator.saturation: 1.0
+! wator neighbors (3, 4, 6, 8, 9, 12, all else defaults to 4 or 8 for bitmap)
+XLock.wator.neighbors: 0
 XLock.wire.delay: 500000
 XLock.wire.count: 1000
 XLock.wire.cycles: 150
 XLock.wire.size: -8
 XLock.wire.saturation: 1.0
+! wire neighbors (3, 4, 6, 8, 9, 12, all else random)
+XLock.wire.neighbors: 0
 XLock.world.delay: 100000
 XLock.world.count: -16
 !XLock.world.cycles: 1

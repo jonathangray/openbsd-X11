@@ -26,6 +26,7 @@ OG = $(O)$(S)$(DOG)
 CM = $(C) $(DM)
 CU = $(C) $(DU)
 CG = $(C) $(DG)
+CG = $(CX) $(DG)
 
 XCOMM  please define
 XCOMM  C as the C source code extension
@@ -67,6 +68,7 @@ FLAGPIXMAP = $(MEDIUMPIXMAP)
 XCOMM FLAGPIXMAP = m-xlock
 IMAGEPIXMAP = $(MEDIUMPIXMAP)
 XCOMM IMAGEPIXMAP = m-xlock
+LIFEPIXMAP = s-grelb
 MAZEPIXMAP = $(MEDIUMPIXMAP)
 XCOMM MAZEPIXMAP = m-xlock
 XCOMM PUZZLEPIXMAP = $(LARGEPIXMAP)
@@ -74,11 +76,11 @@ PUZZLEPIXMAP = l-xlock
 XCOMM PUZZLEPIXMAP = l-linux
 
 XCOMM  List of object files
-XLOCKUTILOBJS = $(DOU)xlock$(OU)passwd$(OU)resource$(O)$(S)\
+XLOCKUTILOBJS = $(DOU)xlock$(OU)passwd$(OU)resource$(OU)parsecmd$(O)$(S)\
 $(DOU)util$(OU)logout$(OU)mode$(OU)ras$(OU)xbm$(O)$(S)\
 $(DOU)vis$(OU)color$(OU)random$(OU)iostuff$(OU)automata$(O)$(S)\
 $(DOU)spline$(OU)erase$(OU)sound$(O)$(S)\
-$(DOU)vtlock$(O)
+$(DOU)vtlock$(OU)vtlock_proc$(O)
 #ifdef Check 
 XLOCKCHECKOBJS = $(S)memcheck$(O)
 #endif
@@ -103,7 +105,7 @@ qix$(OM)roll$(OM)rotor$(OM)\
 shape$(OM)sierpinski$(OM)slip$(OM)\
 sphere$(OM)spiral$(OM)spline$(OM)\
 star$(OM)starfish$(OM)strange$(OM)swarm$(OM)swirl$(OM)\
-tetris$(OM)thornbird$(OM)triangle$(OM)tube$(OM)turtle$(OM)\
+tetris$(OM)thornbird$(OM)tik_tak$(OM)triangle$(OM)tube$(OM)turtle$(OM)\
 vines$(OM)voters$(OM)\
 wator$(OM)wire$(OM)world$(OM)worm$(OM)xjack$(OM)\
 $(XLOCKUNSTABLEOBJS)
@@ -112,8 +114,15 @@ XLOCKXPMOBJS = $(DOM)cartoon$(O)
 #endif
 #ifdef GLLibrary
 #ifdef XpmLibrary
+XLOCKXPMGLOBJS = $(DOG)lament$(O)
+#endif
+#ifdef CPPCompiler
+XLOCKCPPGLOBJS = $(DOG)invert$(OG)i_figureeight$(OG)i_linkage$(O)$(S)\
+$(DOG)i_sphere$(OG)i_spline$(O)$(S)\
+$(DOG)i_threejet$(OG)i_threejetvec$(O)$(S)\
+$(DOG)i_twojet$(OG)i_twojetvec$(O)
 #ifdef Unstable
-XLOCKUNSTABLEGLOBJS = $(DOG)lament$(O)
+XLOCKUNSTABLETEXTGLOBJS = $(DOG)text3d$(O)
 #endif
 #endif
 XLOCKGLOBJS = $(DOG)cage$(OG)gears$(O)$(S)\
@@ -124,7 +133,7 @@ $(DOG)sproingies$(OG)sproingiewrap$(OG)s1_b$(O)$(S)\
 $(DOG)s1_1$(OG)s1_2$(OG)s1_3$(OG)s1_4$(OG)s1_5$(OG)s1_6$(O)$(S)\
 $(DOG)atlantis$(OG)dolphin$(OG)shark$(OG)swim$(OG)whale$(O)$(S)\
 $(DOG)bubble3d$(OG)b_draw$(OG)b_sphere$(OG)b_lockglue$(O)$(S)\
-$(XLOCKUNSTABLEGLOBJS)
+$(XLOCKXPMGLOBJS) $(XLOCKCPPGLOBJS) $(XLOCKUNSTABLETEXTGLOBJS)
 #endif
 #if 1
 XLOCKBOMBOBJS = $(DOM)bomb$(O)
@@ -136,13 +145,15 @@ XLOCKALLUTILOBJS = $(XLOCKUTILOBJS)$(XLOCKCHECKOBJS)
 XLOCKOBJS = $(XLOCKALLUTILOBJS)$(S)$(XLOCKALLMODEOBJS)
 
 XCOMM  List of source files
-BITMAPS = eyes.xbm flag.xbm ghost.xbm image.xbm life.xbm life1d.xbm \
-maze.xbm puzzle.xbm
+BITMAPS = decay.xbm eyes.xbm eyes2.xbm flag.xbm ghost.xbm image.xbm \
+life.xbm life2.xbm life1d.xbm maze.xbm puzzle.xbm
 PIXMAPS = flag.xpm image.xpm maze.xpm puzzle.xpm
+XCOMM life.xpm
 XLOCKUTILHDRS = xlock.h mode.h vroot.h ras.h spline.h version.h config.h
-XLOCKUTILSRCS = $(DU)xlock$(CU)passwd$(CU)resource$(C) \
+XLOCKUTILSRCS = $(DU)xlock$(CU)passwd$(CU)resource$(CU)parsecmd$(C) \
 $(DU)vis$(CU)color$(CU)random$(CU)iostuff$(CU)automata$(C) \
-$(DU)spline$(CU)sound$(C)
+$(DU)spline$(CU)sound$(CU)erase$(C) \
+$(DU)vtlock$(CU)vtlock_proc$(C)
 XLOCKCHECKSRCS = $(DU)memcheck$(C)
 XLOCKMODESRCS = $(DM)ant$(CM)ball$(CM)bat$(CM)blot$(C) \
 $(DM)bouboule$(CM)bounce$(CM)braid$(CM)bubble$(CM)bug$(C) \
@@ -162,7 +173,7 @@ $(DM)qix$(CM)roll$(CM)rotor$(C) \
 $(DM)shape$(CM)sierpinski$(CM)slip$(C) \
 $(DM)space$(CM)sphere$(CM)spiral$(CM)spline$(C) \
 $(DM)star$(CM)starfish$(CM)strange$(CM)swarm$(CM)swirl$(C) \
-$(DM)tetris$(CM)thornbird$(CM)triangle$(CM)tube$(CM)turtle$(C) \
+$(DM)tetris$(CM)thornbird$(CM)tik_tak$(CM)triangle$(CM)tube$(CM)turtle$(C) \
 $(DM)vines$(CM)voters$(C) \
 $(DM)wator$(CM)wire$(CM)world$(CM)worm$(CM)xjack$(C)
 XLOCKXPMSRCS = $(DM)cartoon$(C)
@@ -173,7 +184,11 @@ $(DG)buildlwo$(CG)pipes$(CG)pipeobjs$(C) \
 $(DG)sproingies$(CG)sproingiewrap$(CG)s1_b$(C) \
 $(DG)s1_1$(CG)s1_2$(CG)s1_3$(CG)s1_4$(CG)s1_5$(CG)s1_6$(C) \
 $(DG)atlantis$(CG)dolphin$(CG)shark$(CG)swim$(CG)whale$(C) \
-$(DG)bubble3d$(CG)b_draw$(CG)b_sphere$(CG)b_lockglue$(C)
+$(DG)bubble3d$(CG)b_draw$(CG)b_sphere$(CG)b_lockglue$(C) \
+$(DG)invert$(CG)i_figureeight$(CXG)i_linkage$(CX) \
+$(DG)i_sphere$(CXG)i_spline$(CX) \
+$(DG)i_threejet$(CXG)i_threejetvec$(CX) \
+$(DG)i_twojet$(CXG)i_twojetvec$(CXG)text3d$(CX)
 XLOCKBOMBSRCS = $(DM)bomb$(C)
 XLOCKUTILMODESRCS = $(XLOCKBOMBSRCS) $(DM)blank$(CM)random$(C)
 XLOCKSRCS = $(XLOCKUTILSRCS) $(XLOCKCHECKSRCS) $(XLOCKXPMSRCS) $(XLOCKGLSRCS) \
@@ -216,13 +231,13 @@ DependTarget()
 LintTarget()
 
 decay$(O) : decay$(C) decay.xbm decay.xpm
-eyes$(O) : eyes$(C) eyes.xbm
+eyes$(O) : eyes$(C) eyes.xbm eyes2.xbm
 /* XXX gcc 2.8.1 bug: infinite loop at line 2875 of life.c on m68k with -O */
 #if defined(Mc68020Architecture)
-life$(O): life$(C) life.xbm
+life$(O) : life$(C) life.xbm life2.xbm
 	$(CC) -c $(CCOPTIONS) $(THREADS_CFLAGS) $(ALLDEFINES) life$(C)
 #else
-life$(O) : life$(C) life.xbm
+life$(O) : life$(C) life.xbm life2.xbm
 #endif
 life1d$(O) : life1d$(C) life1d.xbm
 pacman$(O) : pacman$(C) ghost.xbm
@@ -238,6 +253,9 @@ decay.xbm : $(BITMAPDIR)$(DECAYBITMAP).xbm
 eyes.xbm : $(BITMAPDIR)$(EYESBITMAP).xbm
 	$(RM) eyes.xbm ; $(LN_S) $(BITMAPDIR)$(EYESBITMAP).xbm eyes.xbm
 
+eyes2.xbm : $(BITMAPDIR)m-grelb-2.xbm
+	$(RM) eyes2.xbm ; $(LN_S) $(BITMAPDIR)m-grelb-2.xbm eyes2.xbm
+
 flag.xbm : $(BITMAPDIR)$(FLAGBITMAP).xbm
 	$(RM) flag.xbm ; $(LN_S) $(BITMAPDIR)$(FLAGBITMAP).xbm flag.xbm
 
@@ -250,6 +268,9 @@ ghost.xbm : $(BITMAPDIR)$(PACMANBITMAP).xbm
 life.xbm : $(BITMAPDIR)$(LIFEBITMAP).xbm
 	$(RM) life.xbm ; $(LN_S) $(BITMAPDIR)$(LIFEBITMAP).xbm life.xbm
 
+life2.xbm : $(BITMAPDIR)s-grelb-2.xbm
+	$(RM) life2.xbm ; $(LN_S) $(BITMAPDIR)s-grelb-2.xbm life2.xbm
+
 life1d.xbm : $(BITMAPDIR)$(LIFE1DBITMAP).xbm
 	$(RM) life1d.xbm ; $(LN_S) $(BITMAPDIR)$(LIFE1DBITMAP).xbm life1d.xbm
 
@@ -259,11 +280,17 @@ maze.xbm : $(BITMAPDIR)$(MAZEBITMAP).xbm
 puzzle.xbm : $(BITMAPDIR)$(PUZZLEBITMAP).xbm
 	$(RM) puzzle.xbm ; $(LN_S) $(BITMAPDIR)$(PUZZLEBITMAP).xbm puzzle.xbm
 
+decay.xpm : $(PIXMAPDIR)$(DECAYPIXMAP).xpm
+	$(RM) flag.xpm ; $(LN_S) $(PIXMAPDIR)$(DECAYPIXMAP).xpm decay.xpm
+
 flag.xpm : $(PIXMAPDIR)$(FLAGPIXMAP).xpm
 	$(RM) flag.xpm ; $(LN_S) $(PIXMAPDIR)$(FLAGPIXMAP).xpm flag.xpm
 
 image.xpm : $(PIXMAPDIR)$(IMAGEPIXMAP).xpm
 	$(RM) image.xpm ; $(LN_S) $(PIXMAPDIR)$(IMAGEPIXMAP).xpm image.xpm
+
+life.xpm : $(PIXMAPDIR)$(LIFEPIXMAP).xpm
+	$(RM) life.xpm ; $(LN_S) $(PIXMAPDIR)$(LIFEPIXMAP).xpm life.xpm
 
 maze.xpm : $(PIXMAPDIR)$(MAZEPIXMAP).xpm
 	$(RM) maze.xpm ; $(LN_S) $(PIXMAPDIR)$(MAZEPIXMAP).xpm maze.xpm
@@ -277,6 +304,7 @@ decay.xpm : $(PIXMAPDIR)$(DECAYPIXMAP).xpm
 $(UTILOBJDIR)xlock.o : $(UTILDIR)xlock.c
 $(UTILOBJDIR)passwd.o : $(UTILDIR)passwd.c
 $(UTILOBJDIR)resource.o : $(UTILDIR)resource.c
+$(UTILOBJDIR)parsecmd.o : $(UTILDIR)parsecmd.c
 $(UTILOBJDIR)util.o : $(UTILDIR)util.c
 $(UTILOBJDIR)logout.o : $(UTILDIR)logout.c
 $(UTILOBJDIR)mode.o : $(UTILDIR)mode.c
@@ -289,7 +317,9 @@ $(UTILOBJDIR)iostuff.o : $(UTILDIR)iostuff.c
 $(UTILOBJDIR)automata.o : $(UTILDIR)automata.c
 $(UTILOBJDIR)spline.o : $(UTILDIR)spline.c
 $(UTILOBJDIR)sound.o : $(UTILDIR)sound.c
+$(UTILOBJDIR)erase.o : $(UTILDIR)erase.c
 $(UTILOBJDIR)vtlock.o : $(UTILDIR)vtlock.c
+$(UTILOBJDIR)vtlock_proc.o : $(UTILDIR)vtlock_proc.c
 $(UTILOBJDIR)memcheck.o : $(UTILDIR)memcheck.c
 
 $(XLOCKUTILOBJS) :
@@ -323,8 +353,18 @@ $(GLOBJDIR)shark.o : $(GLDIR)shark.c
 $(GLOBJDIR)whale.o : $(GLDIR)whale.c
 $(GLOBJDIR)bubble3d.o : $(GLDIR)bubble3d.c
 $(GLOBJDIR)b_draw.o : $(GLDIR)b_draw.c
-$(GLOBJDIR)b_sphere.o : $(GLDIR)b_sphere.c
 $(GLOBJDIR)b_lockglue.o : $(GLDIR)b_lockglue.c
+$(GLOBJDIR)b_sphere.o : $(GLDIR)b_sphere.c
+$(GLOBJDIR)invert.o : $(GLDIR)invert.c
+$(GLOBJDIR)i_figureeight.o : $(GLDIR)i_figureeight.cc
+$(GLOBJDIR)i_linkage.o : $(GLDIR)i_linkage.cc
+$(GLOBJDIR)i_sphere.o : $(GLDIR)i_sphere.cc
+$(GLOBJDIR)i_spline.o : $(GLDIR)i_spline.cc
+$(GLOBJDIR)i_threejet.o : $(GLDIR)i_threejet.cc
+$(GLOBJDIR)i_threejetvec.o : $(GLDIR)i_threejetvec.cc
+$(GLOBJDIR)i_twojet.o : $(GLDIR)i_twojet.cc
+$(GLOBJDIR)i_twojetvec.o : $(GLDIR)i_twojetvec.cc
+$(GLOBJDIR)text3d.o : $(GLDIR)text3d.cc
 
 $(XLOCKGLOBJS) :
 	cd $(GLDIR) ; \

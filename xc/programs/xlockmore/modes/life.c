@@ -76,7 +76,7 @@ static const char sccsid[] = "@(#)life.c	4.07 98/01/18 xlockmore";
  */
 
 /*-
-  Grid     Number of Neigbors
+  Grid     Number of Neighbors
   ----     ------------------
   Square   4 or 8
   Hexagon  6
@@ -119,7 +119,7 @@ static const char sccsid[] = "@(#)life.c	4.07 98/01/18 xlockmore";
  * neighbors of 0 does not randomize.  All inappropriate
  * modes will be set at 8.  3, 6, 9, & 12 also available.
  */
-extern int  neighbors;
+#define DEF_NEIGHBORS  "0"      /* choose best value (8) */
 
 #if 1
 #define DEF_RULE  "G"		/* All rules with known gliders */
@@ -133,13 +133,15 @@ extern int  neighbors;
 #define DEF_CALLAHAN  "FALSE"
 #define DEF_ANDREEN  "FALSE"
 
+static int  neighbors;
 static char *rule;
 static char *lifefile;
-
 static Bool callahan;
 static Bool andreen;
+
 static XrmOptionDescRec opts[] =
 {
+	{"-neighbors", ".life.neighbors", XrmoptionSepArg, (caddr_t) NULL},
 	{"-rule", ".life.rule", XrmoptionSepArg, (caddr_t) NULL},
 	{"-lifefile", ".life.lifefile", XrmoptionSepArg, (caddr_t) NULL},
 	{"-callahan", ".life.callahan", XrmoptionNoArg, (caddr_t) "on"},
@@ -149,6 +151,7 @@ static XrmOptionDescRec opts[] =
 };
 static argtype vars[] =
 {
+	{(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int},
 	{(caddr_t *) & rule, "rule", "Rule", DEF_RULE, t_String},
 	{(caddr_t *) & lifefile, "lifefile", "LifeFile", "", t_String},
       {(caddr_t *) & callahan, "callahan", "Callahan", DEF_CALLAHAN, t_Bool},
@@ -156,6 +159,7 @@ static argtype vars[] =
 };
 static OptionStruct desc[] =
 {
+	{"-neighbors num", "squares 4 or 8, hexagons 6, triangles 3, 9 or 12"},
 	{"-rule string", "S<survival_neighborhood>/B<birth_neighborhood> parameters                                                                                "},
 	{"-lifefile file", "life file"},
 	{"-/+callahan", "turn on/off Callahan's hex rule B2a/S2b34"},
@@ -175,32 +179,36 @@ ModStruct   life_description =
 #endif
 
 /* aliases for vars defined in the bitmap file */
-/*#define CELL_WIDTH   image_width
+/* 
+#define CELL_WIDTH   image_width
 #define CELL_HEIGHT    image_height
 #define CELL_BITS    image_bits
-*/
 
-/* #include "life.xbm" */
+#include "life.xbm" 
+*/
+#ifdef XBM_GRELB
+#include "life2.xbm"
+#define CELL2_WIDTH   image2_width
+#define CELL2_HEIGHT  image2_height
+#define CELL2_BITS    image2_bits
+static XImage bimage =
+{
+  0, 0, 0, XYBitmap, 0, LSBFirst, 8, LSBFirst, 8, 1
+};
+#endif
 
 #if defined( USE_XPM ) || defined( USE_XPMINC )
-/* static char *image_name[] =
-{""};
-*/
-
 #include "life.xpm"
 #define CELL_NAME life_xpm
 #define TRUE_CELL_WIDTH 26
 #define TRUE_CELL_HEIGHT 23
-#define CELL_BITS 8
 #define DEFAULT_XPM 1
 #define XPATTERNS 4
 #define YPATTERNS 4
+#define CELL_BITS ""
 #define CELL_WIDTH TRUE_CELL_WIDTH * XPATTERNS
 #define CELL_HEIGHT TRUE_CELL_HEIGHT * YPATTERNS
 #endif
-
-static int  local_neighbors = 0;
-static int  neighbor_kind = 0;
 
 #define REDRAWSTEP 2000		/* How many cells to draw per cycle */
 #define MINGRIDSIZE 20
@@ -252,16 +260,22 @@ typedef struct {
 		XPoint      triangle[2][3];
 	} shape;
 	XImage     *logo;
+#ifdef XBM_GRELB
+	XImage     *logo2;
+#endif
 	Colormap    cmap;
 	unsigned long black;
 	int         graphics_format;
 	GC          backGC;
+	int neighbors;
+	int callahan, andreen;
+	int allPatterns, allGliders;
+	paramstruct input_param;
+
 } lifestruct;
 
 static lifestruct *lifes = NULL;
 
-static paramstruct input_param;
-static Bool allPatterns = False, allGliders = False;
 static char *filePattern = NULL;
 
 static char plots[NEIGHBORKINDS] =
@@ -751,6 +765,28 @@ static char patterns_8S23B3[][2 * NUMPTS + 1] =
 		-14, 8, -13, 8, 13, 8, 14, 8,
 		127
 	},
+	{			/* P88 PI OSCILLATOR (OSC88) */
+		6, -12,
+		4, -11, 5, -11, 6, -11,
+		3, -10,
+		3, -9, 4, -9,
+		-13, -8, -12, -8, 8, -8, 9, -8,
+		-12, -7, 8, -7,
+		-12, -6, -10, -6, 6, -6, 8, -6,
+		-11, -5, -10, -5, 6, -5, 7, -5,
+		0, -3, 1, -3, 2, -3,
+		0, -2, 2, -2,
+		0, -1, 2, -1,
+		-7, 5, -6, 5, 10, 5, 11, 5,
+		-8, 6, -6, 6, 10, 6, 12, 6,
+		-8, 7, 12, 7,
+		-9, 8, -8, 8, 12, 8, 13, 8,
+		-4, 9, -3, 9,
+		-3, 10,
+		-6, 11, -5, 11, -4, 11,
+		-6, 12,
+		127
+	},
 	{			/* SWITCH ENGINE */
 		-12, -3, -10, -3,
 		-13, -2,
@@ -1014,6 +1050,29 @@ static char patterns_8S23B3[][2 * NUMPTS + 1] =
 		2, 7, 3, 7,
 		127
 	},
+	{			/* Small c/4 diagonal sparker */
+		1, -11,
+		0, -10, 1, -10,
+		-2, -8, -1, -8, 0, -8,
+		-2, -7, -1, -7, 0, -7,
+		-3, -4, -2, -4, -1, -4,
+		-3, -3, -2, -3,
+		-4, -2, -1, -2, 0, -2, 1, -2, 3, -2,
+		-4, -1, -3, -1, -1, -1, 3, -1,
+		-4, 0, -3, 0, -1, 0, 0, 0, 2, 0, 3, 0,
+		-4, 1, -3, 1, -2, 1,
+		-4, 2, -3, 2,
+		-4, 3,
+		-4, 4, -3, 4,
+		-3, 5, -1, 5,
+		1, 6,
+		-1, 7, 2, 7,
+		0, 8, 3, 8,
+		0, 9,
+		3, 10,
+		1, 11, 2, 11, 3, 11,
+		127
+	},
 	{			/* PI HEPTOMINO (], NEAR SHIP) */
 		-2, -1, -1, -1, 0, -1,
 		1, 0,
@@ -1042,6 +1101,8 @@ static char patterns_8S23B3[][2 * NUMPTS + 1] =
  *    DEF          ->      D E F
  *    GHI                 G H I
  */
+
+/* CALLAHAN */
 static char patterns_6S2b34B2a[][2 * NUMPTS + 1] =
 {
 #if 0
@@ -1381,9 +1442,11 @@ static char patterns_6S2b34B2a[][2 * NUMPTS + 1] =
 	},
 };
 
+/* ANDREEN */
 static char patterns_6S2a2b4aB2a3a4b[][2 * NUMPTS + 1] =
 {
-	{			/* GLIDERS */
+#if 0
+	{			/* 3 DIFFERENT GLIDERS */
 		-5, -9,
 		-5, -8,
 		-4, -7, -3, -7,
@@ -1401,6 +1464,7 @@ static char patterns_6S2a2b4aB2a3a4b[][2 * NUMPTS + 1] =
 		3, 9,
 		127
 	},
+#endif
 	{			/* SYMMETRIC 4 GLIDER GUN */
 		-2, -3, -1, -3, 0, -3,
 		-3, -2, -2, -2, 3, -2,
@@ -1429,6 +1493,7 @@ static char patterns_6S2a2b4aB2a3a4b[][2 * NUMPTS + 1] =
 		127
 	},
 };
+
 
 static int  patterns_6rules[] =
 {
@@ -1464,20 +1529,43 @@ static paramstruct param_8rules[] =
 	}
 };
 
-#define LIFE_6S2b34B2a 0
+#define LIFE_6S2b34B2a 0 /* CALLAHAN */
 #define LIFE_6GLIDERS 1		/* GLIDER rules are first in param_6rules */
-#define LIFE_6S2a2b4aB2a3a4b 1
+#define LIFE_6S2a2b4aB2a3a4b 1 /* ANDREEN */
 #define LIFE_6RULES (sizeof param_6rules / sizeof param_6rules[0])
-#define LIFE_8S23B3 0
+#define LIFE_8S23B3 0 /* CONWAY */
 #define LIFE_8GLIDERS 1		/* GLIDER rules are first in param_8rules */
 #define LIFE_8RULES (sizeof param_8rules / sizeof param_8rules[0])
 
 static int
-codeToPatternedRule(paramstruct param)
+invplot(int local_neighbors)
+{
+	switch (local_neighbors) {
+		case 3:
+			return 0;
+		case 4:
+			return 1;
+		case 6:
+			return 2;
+		case 8:
+			return 3;
+		case 9:
+			return 4;
+		case 12:
+			return 5;
+		default:
+			(void) fprintf(stderr, "no neighborhood like %d known\n", local_neighbors);
+			return 3;
+	}
+}
+
+static int
+codeToPatternedRule(int local_neighbors, paramstruct param)
 {
 	unsigned int i;
-	int         g;
+	int         g, neighbor_kind;
 
+	neighbor_kind = invplot(local_neighbors);
 	switch (local_neighbors) {
 		case 6:
 			for (i = 0; i < LIFE_6RULES; i++)
@@ -1516,10 +1604,11 @@ codeToPatternedRule(paramstruct param)
 }
 
 static void
-copyFromPatternedRule(paramstruct * param, int patterned_rule)
+copyFromPatternedRule(int local_neighbors,  paramstruct * param, int patterned_rule)
 {
-	int         i;
+	int         i, neighbor_kind;
 
+	neighbor_kind = invplot(local_neighbors);
 	switch (local_neighbors) {
 		case 6:
 			param->survival = param_6rules[patterned_rule].survival;
@@ -1545,12 +1634,13 @@ copyFromPatternedRule(paramstruct * param, int patterned_rule)
 }
 
 static void
-printRule(paramstruct param)
+printRule(int local_neighbors, paramstruct param)
 {
-	int         l, g;
+	int         l, g, neighbor_kind;
 	Bool        found;
 
 	(void) fprintf(stdout, "rule (Survival/Birth neighborhood): S");
+	neighbor_kind = invplot(local_neighbors);
 	for (l = 0; l <= local_neighbors; l++) {
 		if (param.survival & (1 << l))
 			(void) fprintf(stdout, "%d", l);
@@ -1589,9 +1679,9 @@ printRule(paramstruct param)
 static int
 position_of_neighbor(lifestruct * lp, int n, int col, int row)
 {
-	int         dir = n * 360 / local_neighbors;
+	int         dir = n * 360 / lp->neighbors;
 
-	if (local_neighbors == 6) {
+	if (lp->neighbors == 6) {
 		switch (dir) {
 			case 0:
 				col = (col + 1 == lp->ncols) ? 0 : col + 1;
@@ -1622,7 +1712,7 @@ position_of_neighbor(lifestruct * lp, int n, int col, int row)
 			default:
 				(void) fprintf(stderr, "wrong direction %d\n", dir);
 		}
-	} else if (local_neighbors == 4 || local_neighbors == 8) {
+	} else if (lp->neighbors == 4 || lp->neighbors == 8) {
 		switch (dir) {
 			case 0:
 				col = (col + 1 == lp->ncols) ? 0 : col + 1;
@@ -1811,50 +1901,52 @@ position_of_neighbor(lifestruct * lp, int n, int col, int row)
 static void
 parseRule(ModeInfo * mi)
 {
-	int         n, g, l;
+	lifestruct *lp = &lifes[MI_SCREEN(mi)];
+	int         n, g, l, neighbor_kind;
 	char        serving = 0;
 	static Bool found = False;
 
 	if (found)
 		return;
-	input_param.survival = input_param.birth = 0;
+	lp->input_param.survival = lp->input_param.birth = 0;
 	for (n = 0; n < MAXGROUPS; n++) {
-		input_param.survival_group[n] = input_param.birth_group[n] = 0;
+		lp->input_param.survival_group[n] = lp->input_param.birth_group[n] = 0;
 	}
-	if (callahan) {
-		local_neighbors = 6;
+	if (lp->callahan) {
+		lp->neighbors = 6;
 		neighbor_kind = 2;
-		found = True;
-		input_param.survival = param_6rules[0].survival;
-		input_param.birth = param_6rules[0].birth;
+		found = !MI_IS_FULLRANDOM(mi);
+		lp->input_param.survival = param_6rules[0].survival;
+		lp->input_param.birth = param_6rules[0].birth;
 		for (n = 0; n < maxgroups[neighbor_kind]; n++) {
-			input_param.survival_group[n] = param_6rules[0].survival_group[n];
-			input_param.birth_group[n] = param_6rules[0].birth_group[n];
+			lp->input_param.survival_group[n] = param_6rules[0].survival_group[n];
+			lp->input_param.birth_group[n] = param_6rules[0].birth_group[n];
 		}
 		return;
-	} else if (andreen) {
-		local_neighbors = 6;
+	} else if (lp->andreen) {
+		lp->neighbors = 6;
 		neighbor_kind = 2;
-		found = True;
-		input_param.survival = param_6rules[1].survival;
-		input_param.birth = param_6rules[1].birth;
+		found = !MI_IS_FULLRANDOM(mi);
+		lp->input_param.survival = param_6rules[1].survival;
+		lp->input_param.birth = param_6rules[1].birth;
 		for (n = 0; n < maxgroups[neighbor_kind]; n++) {
-			input_param.survival_group[n] = param_6rules[1].survival_group[n];
-			input_param.birth_group[n] = param_6rules[1].birth_group[n];
+			lp->input_param.survival_group[n] = param_6rules[1].survival_group[n];
+			lp->input_param.birth_group[n] = param_6rules[1].birth_group[n];
 		}
 		return;
 	}
-	if (rule) {
+	neighbor_kind = invplot(lp->neighbors);
+	if (rule && !MI_IS_FULLRANDOM(mi)) {
 		n = 0;
 		while (rule[n]) {
 			if (rule[n] == 'P') {
-				allPatterns = True;
+				lp->allPatterns = True;
 				found = True;
 				if (MI_IS_VERBOSE(mi))
 					(void) fprintf(stdout, "rule: All rules with known patterns\n");
 				return;
 			} else if (rule[n] == 'G') {
-				allGliders = True;
+				lp->allGliders = True;
 				found = True;
 				if (MI_IS_VERBOSE(mi))
 					(void) fprintf(stdout, "rule: All rules with known gliders\n");
@@ -1865,24 +1957,24 @@ parseRule(ModeInfo * mi)
 				serving = 'B';
 			} else {
 				l = rule[n] - '0';
-				if (l >= 0 && l <= 9 && l <= local_neighbors) {		/* no 10, 11, 12 */
+				if (l >= 0 && l <= 9 && l <= lp->neighbors) {		/* no 10, 11, 12 */
 					g = rule[n + 1] - 'a';
 					if (l >= FIRSTGROUP && l < FIRSTGROUP + maxgroups[neighbor_kind] &&
 					    g >= 0 && g < groupnumber[neighbor_kind][l]) {	/* Groupings */
 						if (serving == 'S') {
 							found = True;
-							input_param.survival_group[l - FIRSTGROUP] |= (1 << g);
+							lp->input_param.survival_group[l - FIRSTGROUP] |= (1 << g);
 						} else if (serving == 'B') {
 							found = True;
-							input_param.birth_group[l - FIRSTGROUP] |= (1 << g);
+							lp->input_param.birth_group[l - FIRSTGROUP] |= (1 << g);
 						}
 					} else {
 						if (serving == 'S') {
 							found = True;
-							input_param.survival |= (1 << l);
+							lp->input_param.survival |= (1 << l);
 						} else if (serving == 'B') {
 							found = True;
-							input_param.birth |= (1 << l);
+							lp->input_param.birth |= (1 << l);
 						}
 					}
 				}
@@ -1891,19 +1983,19 @@ parseRule(ModeInfo * mi)
 		}
 	}
 	if (!found) {		/* Default to Conway's rule if very stupid */
-		allGliders = True;
-		found = True;
+		lp->allGliders = True;
+		found = !MI_IS_FULLRANDOM(mi);
 		if (MI_IS_VERBOSE(mi))
 			(void) fprintf(stdout,
 			"rule: Defaulting to all rules with known gliders\n");
 		return;
 	}
 	if (MI_IS_VERBOSE(mi))
-		printRule(input_param);
+		printRule(lp->neighbors, lp->input_param);
 }
 
 static void
-parseFile(void)
+parseFile(ModeInfo *mi)
 {
 	FILE       *file;
 	static Bool done = False;
@@ -1914,7 +2006,7 @@ parseFile(void)
 	if (done)
 		return;
 	done = True;
-	if (!lifefile || !*lifefile || ((file = my_fopen(lifefile, "r")) == NULL)) {
+	if (MI_IS_FULLRANDOM(mi) || !lifefile || !*lifefile || ((file = my_fopen(lifefile, "r")) == NULL)) {
 		/*(void) fprintf(stderr, "could not read file \"%s\"\n", lifefile); */
 		return;
 	}
@@ -2052,41 +2144,50 @@ draw_cell(ModeInfo * mi, cellstruct info)
 	} else
 		XSetForeground(display, gc, lp->black);
 
-	if (local_neighbors == 6) {
+	if (lp->neighbors == 6) {
 		int         ccol = 2 * col + !(row & 1), crow = 2 * row;
 
 		lp->shape.hexagon[0].x = lp->xb + ccol * lp->xs;
 		lp->shape.hexagon[0].y = lp->yb + crow * lp->ys;
 		if (lp->xs == 1 && lp->ys == 1)
-			XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi),
-				       lp->backGC, lp->shape.hexagon[0].x, lp->shape.hexagon[0].y, 1, 1);
+			XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi),
+				       lp->backGC, lp->shape.hexagon[0].x, lp->shape.hexagon[0].y);
 		else
 			XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), lp->backGC,
 			    lp->shape.hexagon, 6, Convex, CoordModePrevious);
-	} else if (local_neighbors == 4 || local_neighbors == 8) {
+	} else if (lp->neighbors == 4 || lp->neighbors == 8) {
 		if (lp->pixelmode || info.state == DEAD)
 			XFillRectangle(display, MI_WINDOW(mi), gc,
 				       lp->xb + lp->xs * col, lp->yb + lp->ys * row,
 				 lp->xs - (lp->xs > 3 && lp->pixelmode),
 				 lp->ys - (lp->ys > 3 && lp->pixelmode));
-		else
+		else {
 /*-
  * PURIFY 4.0.1 on SunOS4 and on Solaris 2 reports a 132 byte memory leak on
  * the next line */
+#ifdef XBM_GRELB
+		if (lp->logo2) {
+			(void) XPutImage(display, MI_WINDOW(mi), gc,
+				(LRAND() & 1) ? lp->logo : lp->logo2,
+			  0, 0, lp->xb + lp->xs * col, lp->yb + lp->ys * row,
+					 lp->logo->width, lp->logo->height);
+		} else
+#endif
 			(void) XPutImage(display, MI_WINDOW(mi), gc, lp->logo,
-			  info.age%XPATTERNS * TRUE_CELL_WIDTH, 
-			  (info.age/XPATTERNS) * TRUE_CELL_HEIGHT, 
-			  lp->xb + lp->xs * col, lp->yb + lp->ys * row,
-					 lp->logo->width/XPATTERNS, lp->logo->height/YPATTERNS);
+							 info.age%XPATTERNS * TRUE_CELL_WIDTH, 
+							 (info.age/XPATTERNS) * TRUE_CELL_HEIGHT, 
+							 lp->xb + lp->xs * col, lp->yb + lp->ys * row,
+							 lp->logo->width/XPATTERNS, lp->logo->height/YPATTERNS); 
+		}
 	} else {		/* TRI */
 		int         orient = (col + row) % 2;	/* O left 1 right */
 
 		lp->shape.triangle[orient][0].x = lp->xb + col * lp->xs;
 		lp->shape.triangle[orient][0].y = lp->yb + row * lp->ys;
 		if (lp->xs <= 3 || lp->ys <= 3)
-			XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), lp->backGC,
+			XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), lp->backGC,
 			((orient) ? -1 : 1) + lp->shape.triangle[orient][0].x,
-				       lp->shape.triangle[orient][0].y, 1, 1);
+				       lp->shape.triangle[orient][0].y);
 		else {
 			if (orient)
 				lp->shape.triangle[orient][0].x += (lp->xs / 2 - 1);
@@ -2127,7 +2228,7 @@ setcellfromtoggle(ModeInfo * mi, int col, int row)
 	curr = lp->arr[position];
 	if ((curr && curr->info.state == DEAD && curr->info.toggle) ||
 	    (curr && curr->info.state == LIVE && !curr->info.toggle)) {
-		for (n = 0; n < local_neighbors; n++) {
+		for (n = 0; n < lp->neighbors; n++) {
 			neighbor = position_of_neighbor(lp, n, col, row);
 			currn = lp->arr[neighbor];
 			if (!currn) {
@@ -2171,6 +2272,9 @@ setcell(ModeInfo * mi, int col, int row, int state)
 	cellstruct  info;
 	CellList   *curr, *currn;
 
+	if (col < 0 || row < 0 || col >= lp->ncols || row >= lp->nrows)
+		return;
+
 	position = row * lp->ncols + col;
 	curr = lp->arr[position];
 	if (state == LIVE) {
@@ -2179,7 +2283,7 @@ setcell(ModeInfo * mi, int col, int row, int state)
 			curr = NULL;
 		}
 		if (!curr) {
-			for (n = 0; n < local_neighbors; n++) {
+			for (n = 0; n < lp->neighbors; n++) {
 				neighbor = position_of_neighbor(lp, n, col, row);
 				currn = lp->arr[neighbor];
 				if (!currn) {
@@ -2234,7 +2338,7 @@ n_neighbors(lifestruct * lp, CellList * curr)
 
 	col = curr->info.position % lp->ncols;
 	row = curr->info.position / lp->ncols;
-	for (n = 0; n < local_neighbors; n++) {
+	for (n = 0; n < lp->neighbors; n++) {
 		p = position_of_neighbor(lp, n, col, row);
 		if (lp->arr[p] && lp->arr[p]->info.state == LIVE) {
 			count++;
@@ -2251,7 +2355,7 @@ ng_neighbors(lifestruct * lp, CellList * curr, int *group)
 
 	col = (int) (curr->info.position % lp->ncols);
 	row = (int) (curr->info.position / lp->ncols);
-	for (n = 0; n < local_neighbors; n++) {
+	for (n = 0; n < lp->neighbors; n++) {
 		p = position_of_neighbor(lp, n, col, row);
 		gcount <<= 1;
 		if (lp->arr[p] && lp->arr[p]->info.state == LIVE) {
@@ -2274,8 +2378,7 @@ RandomSoup(ModeInfo * mi, int n, int v)
 		v = 1;
 	for (row = lp->nrows / 2 - v; row < lp->nrows / 2 + v; ++row)
 		for (col = lp->ncols / 2 - v; col < lp->ncols / 2 + v; ++col)
-			if (NRAND(100) < n && col > 1 && row > 1 &&
-			    col < lp->ncols && row < lp->nrows)
+			if (NRAND(100) < n)
 				setcell(mi, col, row, LIVE);
 	if (MI_IS_VERBOSE(mi))
 		(void) fprintf(stdout, "random pattern\n");
@@ -2291,7 +2394,7 @@ GetPattern(ModeInfo * mi, int pattern_rule, int pattern)
 	if (filePattern) {
 		patptr = &filePattern[0];
 	} else {
-		switch (local_neighbors) {
+		switch (lp->neighbors) {
 			case 6:
 				switch (pattern_rule) {
 					case LIFE_6S2b34B2a:
@@ -2314,7 +2417,7 @@ GetPattern(ModeInfo * mi, int pattern_rule, int pattern)
 	while ((col = *patptr++) != 127) {
 		row = *patptr++;
 		col += lp->ncols / 2;
-		if (local_neighbors == 6) {
+		if (lp->neighbors == 6) {
 			if (row < 0)
 				col += (lp->nrows / 2 % 2) ? -row / 2 : -(row - 1) / 2;
 			else
@@ -2322,8 +2425,7 @@ GetPattern(ModeInfo * mi, int pattern_rule, int pattern)
 		}
 		row += lp->nrows / 2;
 
-		if (col >= 0 && row >= 0 && col < lp->ncols && row < lp->nrows)
-			setcell(mi, col, row, LIVE);
+		setcell(mi, col, row, LIVE);
 	}
 	if (MI_IS_VERBOSE(mi) && !filePattern)
 		(void) fprintf(stdout, "table number %d\n", pattern);
@@ -2336,28 +2438,154 @@ shooter(ModeInfo * mi)
 	int         hsp, vsp, hoff = 1, voff = 1, temp;
 
 	/* Generate the glider at the edge of the screen */
-	if (local_neighbors == 6 && lp->patterned_rule == LIFE_6S2b34B2a) {
-		/*-
-     * Generate gliders on left and right.... more could be done from top and
-     * bottom... also phase with voff
-     */
-		hsp = (LRAND() & 1) ? 0 : lp->ncols - 1;
-		hsp = lp->ncols - 1;
-		temp = MIN(lp->nrows, 12);
-		vsp = lp->nrows / 2 + NRAND(temp) - temp / 2;
-		if (hsp > lp->ncols / 2) {
-			hoff = -1;
-			temp = (vsp % 2) ? 0 : hoff;
-		} else
-			temp = (vsp % 2) ? hoff : 0;
+	if (lp->neighbors == 6 && (lp->patterned_rule == LIFE_6S2b34B2a ||
+	    lp->patterned_rule == LIFE_6S2a2b4aB2a3a4b)) {
+		int         hhex = 0, diagonal;
 
-		setcell(mi, hsp + temp + 2 * hoff, vsp + 4 * voff, LIVE);
-		setcell(mi, hsp + 3 * hoff, vsp + 3 * voff, LIVE);
-		setcell(mi, hsp + temp + 3 * hoff, vsp + 2 * voff, LIVE);
-		setcell(mi, hsp + temp + 0 * hoff, vsp + 2 * voff, LIVE);
-		setcell(mi, hsp + 4 * hoff, vsp + 1 * voff, LIVE);
-		setcell(mi, hsp + temp + 3 * hoff, vsp + 0 * voff, LIVE);
-	} else if (local_neighbors == 8 && lp->patterned_rule == LIFE_8S23B3) {
+		diagonal = NRAND(3);
+		if (diagonal) {
+			temp = MIN((lp->nrows + lp->ncols) / 3, 18);
+			temp = NRAND(temp) - temp / 2;
+			/* Take into account it is a 60 degree angle not 45 */
+			if ((lp->ncols + temp) * 1.35 > lp->nrows) {
+				hsp = ((lp->ncols + temp) * 1.35 - lp->nrows) / 2;
+				vsp = 0;
+			} else {
+				hsp = 0;
+				vsp = (lp->nrows - (lp->ncols - temp) * 1.35) / 2;
+			}
+			switch NRAND(4) {
+				case 0:  /* Upper left */
+					break;
+				case 1:  /* Upper right */
+					hhex = -1;
+					hoff = -1;
+					hsp = lp->ncols - 1 - hsp;
+					break;
+				case 2:  /* Lower left */
+					hhex = 1;
+					voff = -1;
+					vsp = lp->nrows - 1 - vsp;
+					break;
+				case 3:  /* Lower right */
+					voff = -1;
+					hoff = -1;
+					hsp = lp->ncols - 1 - hsp;
+					vsp = lp->nrows - 1 - vsp;
+			}
+		} else {
+			temp = MIN(lp->nrows / 3, 18);
+			vsp = lp->nrows / 2 + NRAND(temp) - temp / 2;
+			if (LRAND() & 1) {
+				hsp = lp->ncols - 1;
+				hoff = -1;
+				hhex = (vsp % 2) ? 0 : hoff;
+			} else {
+				hsp = 0;
+				hhex = (vsp % 2) ? hoff : 0;
+			}
+			voff = (LRAND() & 1) ? 1 : -1; /* Mirror image */
+		}
+		if (lp->patterned_rule == LIFE_6S2b34B2a) {
+			if (diagonal) {
+				setcell(mi, hsp + hhex, vsp, LIVE);
+				if (LRAND() & 1) {
+					setcell(mi, hsp + 3 * hoff, vsp + 1 * voff, LIVE);
+					setcell(mi, hsp + 2 * hoff + hhex, vsp + 2 * voff, LIVE);
+					setcell(mi, hsp + 2 * hoff, vsp + 3 * voff, LIVE);
+					setcell(mi, hsp + 1 * hoff + hhex, vsp + 4 * voff, LIVE);
+					setcell(mi, hsp + hhex, vsp + 4 * voff, LIVE);
+				} else { /* Mirror image */
+					setcell(mi, hsp + 3 * hoff + hhex, vsp + 2 * voff, LIVE);
+					setcell(mi, hsp + 0 * hoff, vsp + 3 * voff, LIVE);
+					setcell(mi, hsp + 1 * hoff, vsp + 3 * voff, LIVE);
+					setcell(mi, hsp + 2 * hoff, vsp + 3 * voff, LIVE);
+					setcell(mi, hsp + 3 * hoff, vsp + 3 * voff, LIVE);
+				}
+			} else {
+				setcell(mi, hsp + 2 * hoff + hhex, vsp + 2 * voff, LIVE);
+				setcell(mi, hsp + 3 * hoff, vsp + 1 * voff, LIVE);
+				setcell(mi, hsp + 3 * hoff + hhex, vsp + 0 * voff, LIVE);
+				setcell(mi, hsp + 0 * hoff + hhex, vsp + 0 * voff, LIVE);
+				setcell(mi, hsp + 4 * hoff, vsp - 1 * voff, LIVE);
+				setcell(mi, hsp + 3 * hoff + hhex, vsp - 2 * voff, LIVE);
+			}
+		} else /* if (lp->patterned_rule == LIFE_6S2a2b4aB2a3a4b) */ {
+			if (diagonal) {
+				switch (NRAND(3)) { /* 3 different gliders */
+					case 0:
+						/* No mirror image */
+						setcell(mi, hsp + 2 * hoff + hhex, vsp + 0 * voff, LIVE);
+						setcell(mi, hsp + 3 * hoff + hhex, vsp + 0 * voff, LIVE);
+						setcell(mi, hsp + 1 * hoff, vsp + 1 * voff, LIVE);
+						setcell(mi, hsp + 2 * hoff, vsp + 1 * voff, LIVE);
+						setcell(mi, hsp + 0 * hoff + hhex, vsp + 2 * voff, LIVE);
+						break;	
+					case 1:
+						if (LRAND() & 1) {
+							setcell(mi, hsp + 0 * hoff + hhex, vsp + 0 * voff, LIVE);
+							setcell(mi, hsp + 1 * hoff + hhex, vsp + 0 * voff, LIVE);
+							setcell(mi, hsp + 3 * hoff, vsp + 1 * voff, LIVE);
+							setcell(mi, hsp + 4 * hoff, vsp + 1 * voff, LIVE);
+							setcell(mi, hsp + 0 * hoff + hhex, vsp + 2 * voff, LIVE);
+							setcell(mi, hsp + 1 * hoff + hhex, vsp + 2 * voff, LIVE);
+							setcell(mi, hsp + 2 * hoff + hhex, vsp + 2 * voff, LIVE);
+						} else {
+							setcell(mi, hsp + 1 * hoff + hhex, vsp + 0 * voff, LIVE);
+							setcell(mi, hsp + 1 * hoff, vsp + 1 * voff, LIVE);
+							setcell(mi, hsp + 3 * hoff, vsp + 1 * voff, LIVE);
+							setcell(mi, hsp + 2 * hoff + hhex, vsp + 2 * voff, LIVE);
+							setcell(mi, hsp + 1 * hoff, vsp + 3 * voff, LIVE);
+							setcell(mi, hsp + 2 * hoff, vsp + 3 * voff, LIVE);
+							setcell(mi, hsp + 0 * hoff + hhex, vsp + 4 * voff, LIVE);
+						}
+						break;	
+					case 2:
+						if (LRAND() & 1) {
+							setcell(mi, hsp + 1 * hoff + hhex, vsp + 0 * voff, LIVE);
+							setcell(mi, hsp + 2 * hoff + hhex, vsp + 2 * voff, LIVE);
+							setcell(mi, hsp + 3 * hoff + hhex, vsp + 2 * voff, LIVE);
+							setcell(mi, hsp + 0 * hoff, vsp + 3 * voff, LIVE);
+							setcell(mi, hsp + 1 * hoff, vsp + 3 * voff, LIVE);
+							setcell(mi, hsp + 2 * hoff, vsp + 3 * voff, LIVE);
+						} else {
+							setcell(mi, hsp + 0 * hoff + hhex, vsp + 0 * voff, LIVE);
+							setcell(mi, hsp + 3 * hoff + hhex, vsp + 0 * voff, LIVE);
+							setcell(mi, hsp + 3 * hoff, vsp + 1 * voff, LIVE);
+							setcell(mi, hsp + 1 * hoff + hhex, vsp + 2 * voff, LIVE);
+							setcell(mi, hsp + 2 * hoff + hhex, vsp + 2 * voff, LIVE);
+							setcell(mi, hsp + 1 * hoff, vsp + 3 * voff, LIVE);
+						}
+				}
+			} else {
+				switch (NRAND(3)) { /* 3 different gliders */
+					case 0:
+						setcell(mi, hsp + 0 * hoff + hhex, vsp + 0 * voff, LIVE);
+						setcell(mi, hsp + 0 * hoff + hhex, vsp - 2 * voff, LIVE);
+						setcell(mi, hsp + 0 * hoff + hhex, vsp + 2 * voff, LIVE);
+						setcell(mi, hsp + 0 * hoff, vsp - 1 * voff, LIVE);
+						setcell(mi, hsp + 0 * hoff, vsp + 1 * voff, LIVE);
+						break;	
+					case 1:
+						setcell(mi, hsp + 0 * hoff + hhex, vsp + 0 * voff, LIVE);
+						setcell(mi, hsp + 0 * hoff, vsp + 1 * voff, LIVE);
+						setcell(mi, hsp + 1 * hoff + hhex, vsp + 2 * voff, LIVE);
+						setcell(mi, hsp + 2 * hoff + hhex, vsp - 2 * voff, LIVE);
+						setcell(mi, hsp + 2 * hoff, vsp - 1 * voff, LIVE);
+						setcell(mi, hsp + 2 * hoff + hhex, vsp + 0 * voff, LIVE);
+						setcell(mi, hsp + 2 * hoff, vsp + 1 * voff, LIVE);
+						break;	
+					case 2:
+						setcell(mi, hsp + 0 * hoff, vsp - 1 * voff, LIVE);
+						setcell(mi, hsp + 1 * hoff + hhex, vsp + 2 * voff, LIVE);
+						setcell(mi, hsp + 2 * hoff + hhex, vsp - 2 * voff, LIVE);
+						setcell(mi, hsp + 2 * hoff, vsp - 1 * voff, LIVE);
+						setcell(mi, hsp + 2 * hoff + hhex, vsp + 0 * voff, LIVE);
+						setcell(mi, hsp + 2 * hoff, vsp + 1 * voff, LIVE);
+				}
+			}
+		}
+	} else if (lp->neighbors == 8 && lp->patterned_rule == LIFE_8S23B3) {
 		if (LRAND() & 1) {
 			hsp = (LRAND() & 1) ? 0 : lp->ncols - 1;
 			vsp = NRAND(lp->nrows);
@@ -2384,14 +2612,25 @@ init_stuff(ModeInfo * mi)
 	Window      window = MI_WINDOW(mi);
 	lifestruct *lp = &lifes[MI_SCREEN(mi)];
 
-	if (!lp->logo)
-	   {
+	if (!lp->logo) {
 		getImage(mi, &lp->logo, CELL_WIDTH, CELL_HEIGHT, CELL_BITS,
 #if defined( USE_XPM ) || defined( USE_XPMINC )
 			 DEFAULT_XPM, CELL_NAME,
 #endif
 			 &lp->graphics_format, &lp->cmap, &lp->black);
-	   }
+#ifdef XBM_GRELB
+    if (lp->cmap == None && lp->graphics_format == IS_XBM) {
+    	/* probably do not need the first but I am cautious... */
+			if (!bimage.data) { /* Only need to do this once */
+				bimage.data = (char *) CELL2_BITS;
+				bimage.width = CELL2_WIDTH;
+				bimage.height = CELL2_HEIGHT;
+				bimage.bytes_per_line = (CELL2_WIDTH + 7) / 8;
+			}
+			lp->logo2 = &bimage;
+		}
+#endif
+	}
 #ifndef STANDALONE
 	if (lp->cmap != None) {
 		setColormap(display, window, lp->cmap, MI_IS_INWINDOW(mi));
@@ -2421,8 +2660,29 @@ free_stuff(Display * display, lifestruct * lp)
 		lp->cmap = None;
 	} else
 		lp->backGC = None;
-	if (lp->logo)
+}
+
+static void
+free_life(Display * display, lifestruct * lp)
+{
+	int         state;
+
+	for (state = 0; state < STATES; state++) {
+		if (lp->first[state])
+			flush_list(lp, state);
+		if (lp->last[state])
+			(void) free((void *) lp->last[state]);
+		lp->last[state] = NULL;
+		if (lp->first[state])
+			(void) free((void *) lp->first[state]);
+		lp->first[state] = NULL;
+	}
+	free_cells(lp);
+	free_stuff(display, lp);
+	if (lp->logo) {
 		destroyImage(&lp->logo, &lp->graphics_format);
+		lp->logo = NULL;
+	}
 }
 
 void
@@ -2441,30 +2701,43 @@ init_life(ModeInfo * mi)
 	lp->generation = 0;
 	lp->redrawing = 0;
 
-	if (!local_neighbors) {
+	if (MI_IS_FULLRANDOM(mi)) {
+#if 1
+		lp->neighbors = (NRAND((patterns_6rules[0] + patterns_6rules[1]) / 2 + patterns_8rules[0]) < patterns_8rules[0]) ? 8 : 6;
+#else
+		lp->neighbors = 8;
+#endif
+		if  (lp->neighbors == 6) {
+			lp->callahan = (NRAND(patterns_6rules[0] + patterns_6rules[1]) < patterns_6rules[0]);
+	   		lp->andreen = !lp->callahan;
+		} else {
+	   		lp->andreen = lp->callahan = False;
+		}
+	} else {
+	   	lp->callahan = callahan;
+	   	lp->andreen = andreen;
+	}
+	if (!lp->neighbors) {
 		for (i = 0; i < NEIGHBORKINDS; i++) {
 			if (neighbors == plots[i]) {
-				local_neighbors = neighbors;
-				neighbor_kind = i;
+				lp->neighbors = neighbors;
 				break;
 			}
 			if (i == NEIGHBORKINDS - 1) {
 #if 0
-				local_neighbors = plots[NRAND(NEIGHBORKINDS)];
-				local_neighbors = (LRAND() & 1) ? 4 : 8;
-				neighbor_kind = (local_neighbors == 4) ? 1 : 3;
+				lp->neighbors = plots[NRAND(NEIGHBORKINDS)];
+				lp->neighbors = (LRAND() & 1) ? 4 : 8;
 #else
-				local_neighbors = 8;
-				neighbor_kind = 3;
+				lp->neighbors = 8;
 #endif
 				break;
 			}
 		}
 	}
 	parseRule(mi);
-	parseFile();
-	if (allPatterns) {
-		switch (local_neighbors) {
+	parseFile(mi);
+	if (lp->allPatterns) {
+		switch (lp->neighbors) {
 			case 6:
 				lp->patterned_rule = NRAND(LIFE_6RULES);
 				break;
@@ -2472,11 +2745,11 @@ init_life(ModeInfo * mi)
 				lp->patterned_rule = NRAND(LIFE_8RULES);
 				break;
 		}
-		copyFromPatternedRule(&lp->param, lp->patterned_rule);
+		copyFromPatternedRule(lp->neighbors, &lp->param, lp->patterned_rule);
 		if (MI_IS_VERBOSE(mi))
-			printRule(lp->param);
-	} else if (allGliders) {
-		switch (local_neighbors) {
+			printRule(lp->neighbors, lp->param);
+	} else if (lp->allGliders) {
+		switch (lp->neighbors) {
 			case 6:
 				lp->patterned_rule = NRAND(LIFE_6GLIDERS);
 				break;
@@ -2484,17 +2757,17 @@ init_life(ModeInfo * mi)
 				lp->patterned_rule = NRAND(LIFE_8GLIDERS);
 				break;
 		}
-		copyFromPatternedRule(&lp->param, lp->patterned_rule);
+		copyFromPatternedRule(lp->neighbors, &lp->param, lp->patterned_rule);
 		if (MI_IS_VERBOSE(mi))
-			printRule(lp->param);
+			printRule(lp->neighbors, lp->param);
 	} else {
-		lp->param.survival = input_param.survival;
-		lp->param.birth = input_param.birth;
-		for (i = 0; i < maxgroups[neighbor_kind]; i++) {
-			lp->param.survival_group[i] = input_param.survival_group[i];
-			lp->param.birth_group[i] = input_param.birth_group[i];
+		lp->param.survival = lp->input_param.survival;
+		lp->param.birth = lp->input_param.birth;
+		for (i = 0; i < maxgroups[invplot(lp->neighbors)]; i++) {
+			lp->param.survival_group[i] = lp->input_param.survival_group[i];
+			lp->param.birth_group[i] = lp->input_param.birth_group[i];
 		}
-		lp->patterned_rule = codeToPatternedRule(lp->param);
+		lp->patterned_rule = codeToPatternedRule(lp->neighbors, lp->param);
 	}
 	lp->width = MI_WIDTH(mi);
 	lp->height = MI_HEIGHT(mi);
@@ -2507,7 +2780,7 @@ init_life(ModeInfo * mi)
 			init_list(lp, i);
 	free_cells(lp);
 
-	if (local_neighbors == 6) {
+	if (lp->neighbors == 6) {
 		int         nccols, ncrows, sides;
 
 		if (lp->width < 2)
@@ -2539,7 +2812,7 @@ init_life(ModeInfo * mi)
 		}
 		lp->black = MI_BLACK_PIXEL(mi);
 		lp->backGC = MI_GC(mi);
-	} else if (local_neighbors == 4 || local_neighbors == 8) {
+	} else if (lp->neighbors == 4 || lp->neighbors == 8) {
 		init_stuff(mi);
 		if (lp->width < 2)
 			lp->width = 2;
@@ -2555,10 +2828,10 @@ init_life(ModeInfo * mi)
 		if (size == 0 ||
 		    MINGRIDSIZE * size > lp->width || MINGRIDSIZE * size > lp->height) {
 			if (lp->width > MINGRIDSIZE * lp->logo->width/XPATTERNS &&
-			    lp->height > MINGRIDSIZE * lp->logo->height/YPATTERNS) {
+				lp->height > MINGRIDSIZE * lp->logo->height/YPATTERNS) {
 				lp->pixelmode = False;
 				lp->xs = lp->logo->width/XPATTERNS;
-				lp->ys = lp->logo->height/YPATTERNS;
+				lp->ys = lp->logo->height/YPATTERNS;	
 			} else {
 				lp->pixelmode = True;
 				lp->xs = lp->ys = MAX(MINSIZE, MIN(lp->width, lp->height) /
@@ -2622,9 +2895,9 @@ init_life(ModeInfo * mi)
 	lp->painted = False;
 	alloc_cells(lp);
 
-	lp->patterned_rule = codeToPatternedRule(lp->param);
+	lp->patterned_rule = codeToPatternedRule(lp->neighbors, lp->param);
 	npats = 0;
-	switch (local_neighbors) {
+	switch (lp->neighbors) {
 		case 6:
 			if ((unsigned) lp->patterned_rule < LIFE_6RULES)
 				npats = patterns_6rules[lp->patterned_rule];
@@ -2648,7 +2921,7 @@ draw_life(ModeInfo * mi)
 	CellList   *middle[STATES];	/* To distinguish between old and new stuff */
 	CellList   *curr;
 	cellstruct  info;
-	int         i, count, gcount;
+	int         i, count, gcount, neighbor_kind;
 
 /*-
  * LIVE list are the on cells
@@ -2673,7 +2946,7 @@ draw_life(ModeInfo * mi)
 	while (curr != lp->last[DEAD]) {
 		count = ng_neighbors(lp, curr, &gcount);
 		if ((lp->param.birth & (1 << count)) || (count >= FIRSTGROUP &&
-			     count < FIRSTGROUP + maxgroups[neighbor_kind] &&
+			     count < FIRSTGROUP + maxgroups[invplot(lp->neighbors)] &&
 				 (lp->param.birth_group[count - FIRSTGROUP] &
 				  (1 << style6[gcount])))) {
 			setcelltoggles(mi, (int) (curr->info.position % lp->ncols),
@@ -2682,6 +2955,7 @@ draw_life(ModeInfo * mi)
 		curr = curr->next;
 	}
 	curr = lp->first[LIVE]->next;
+	neighbor_kind = invplot(lp->neighbors);
 	while (curr != lp->last[LIVE]) {
 		count = ng_neighbors(lp, curr, &gcount);
 		if (!((lp->param.survival & (1 << count)) || (count >= FIRSTGROUP &&
@@ -2773,18 +3047,8 @@ release_life(ModeInfo * mi)
 
 		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
 			lifestruct *lp = &lifes[screen];
-			int         state;
 
-			for (state = 0; state < STATES; state++) {
-				if (lp->first[0])
-					flush_list(lp, state);
-				if (lp->last[state])
-					(void) free((void *) lp->last[state]);
-				if (lp->first[state])
-					(void) free((void *) lp->first[state]);
-			}
-			free_cells(lp);
-			free_stuff(MI_DISPLAY(mi), lp);
+			free_life(MI_DISPLAY(mi), lp);
 		}
 		(void) free((void *) lifes);
 		lifes = NULL;
@@ -2796,17 +3060,20 @@ refresh_life(ModeInfo * mi)
 {
 	lifestruct *lp = &lifes[MI_SCREEN(mi)];
 
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+	if (lp->graphics_format >= IS_XPM) {
+		/* This is needed when another program changes the colormap. */
+		free_life(MI_DISPLAY(mi), lp);
+		init_life(mi);
+		return;
+	}
+#endif
 	if (lp->painted) {
 		MI_CLEARWINDOWCOLORMAP(mi, lp->backGC, lp->black);
 		lp->redrawing = 1;
 		lp->redrawpos = 0;
 		lp->painted = False;
 	}
-#if defined( USE_XPM ) || defined( USE_XPMINC )
-        /* This is needed when another program changes the colormap. */
-	free_stuff(MI_DISPLAY(mi), lp);
-	init_stuff(mi);
-#endif
 }
 
 void
@@ -2828,9 +3095,9 @@ change_life(ModeInfo * mi)
 	MI_CLEARWINDOWCOLORMAP(mi, lp->backGC, lp->black);
 
 	lp->pattern++;
-	lp->patterned_rule = codeToPatternedRule(lp->param);
+	lp->patterned_rule = codeToPatternedRule(lp->neighbors, lp->param);
 	npats = 0;
-	switch (local_neighbors) {
+	switch (lp->neighbors) {
 		case 6:
 			if ((unsigned) lp->patterned_rule < LIFE_6RULES)
 				npats = patterns_6rules[lp->patterned_rule];
@@ -2842,9 +3109,9 @@ change_life(ModeInfo * mi)
 	}
 	if (lp->pattern >= npats + 2) {
 		lp->pattern = 0;
-		if (allPatterns) {
+		if (lp->allPatterns) {
 			lp->patterned_rule++;
-			switch (local_neighbors) {
+			switch (lp->neighbors) {
 				case 6:
 					if ((unsigned) lp->patterned_rule >= LIFE_6RULES)
 						lp->patterned_rule = 0;
@@ -2854,12 +3121,12 @@ change_life(ModeInfo * mi)
 						lp->patterned_rule = 0;
 					break;
 			}
-			copyFromPatternedRule(&lp->param, lp->patterned_rule);
+			copyFromPatternedRule(lp->neighbors, &lp->param, lp->patterned_rule);
 			if (MI_IS_VERBOSE(mi))
-				printRule(lp->param);
-		} else if (allGliders) {
+				printRule(lp->neighbors, lp->param);
+		} else if (lp->allGliders) {
 			lp->patterned_rule++;
-			switch (local_neighbors) {
+			switch (lp->neighbors) {
 				case 6:
 					if ((unsigned) lp->patterned_rule >= LIFE_6GLIDERS)
 						lp->patterned_rule = 0;
@@ -2869,9 +3136,9 @@ change_life(ModeInfo * mi)
 						lp->patterned_rule = 0;
 					break;
 			}
-			copyFromPatternedRule(&lp->param, lp->patterned_rule);
+			copyFromPatternedRule(lp->neighbors, &lp->param, lp->patterned_rule);
 			if (MI_IS_VERBOSE(mi))
-				printRule(lp->param);
+				printRule(lp->neighbors, lp->param);
 		}
 	}
 	if (lp->pattern >= npats)

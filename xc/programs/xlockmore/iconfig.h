@@ -12,6 +12,7 @@
 
 XCOMM !!!WARNING!!! Known security hole with MesaGL < 3.0 if setuid root
 XCOMM Define these now or down further below, see below for explaination.
+XCOMM  #define CPPCompiler
 XCOMM  #define XpmLibrary /* On OpenBSD this is HasXpm */
 XCOMM  #define XmLibrary
 XCOMM  #define XawLibrary
@@ -27,9 +28,9 @@ XCOMM  #define Unstable
 N =
 O = .o
 XCOMM  O = .obj
-C=.c
-XCOMM  C = .cc
-S=$(N) $(N)
+C = .c
+CX = .cc
+S = $(N) $(N)
 XCOMM  S = ,
 
 XCOMM please define
@@ -45,9 +46,26 @@ XCOMM  CC = g++ -Wall
 
 LN_S = $(LN)
 
+XCOMM   *** BEGIN C++ CONFIG SECTION ***
+
+XCOMM Only the invert.c and text3d.cc modes use this.
+XCOMM modes use this.
+XCOMM If your system has libXpm, remove the 'XCOMM  ' from the next line.
+XCOMM  #define CPPCompiler
+
+XCOMM If your system has C++, remove the 'XCOMM  ' from the next line.
+#ifdef CPPCompiler
+CPPDEF = -DHAVE_CXX
+XCOMM Need this to get text3d.cc to work.
+XCOMM CPPDEF += -DHAVE_TTF -DHAVE_GLTT
+#endif
+
+XCOMM   *** END C++ CONFIG SECTION ***
+
 XCOMM   *** BEGIN XPM CONFIG SECTION ***
 
-XCOMM Only the image.c and bat.c modes use this.
+XCOMM Only the bat.c, cartoon.c, flag.c, image.c, maze.c, and puzzle.c
+XCOMM modes use this.
 XCOMM If your system has libXpm, remove the 'XCOMM  ' from the next line.
 XCOMM  #define XpmLibrary
 
@@ -284,6 +302,17 @@ CHECKDEF = -DDEBUG
  
 XCOMM      *** END DEBUG CHECK SECTION ***
 
+XCOMM      *** BEGIN UNSTABLE CHECK SECTION ***
+ 
+XCOMM #define Unstable
+ 
+#ifdef Unstable
+XCOMM Experimental modes
+UNSTABLEDEF = -DUSE_UNSTABLE
+#endif
+ 
+XCOMM      *** END DEBUG CHECK SECTION ***
+
 #ifndef __QNX__
 #ifndef MathLibrary
 #define MathLibrary -lm
@@ -324,8 +353,10 @@ PASSWDDEF = -DHAVE_SHADOW
 #if SystemV4
 #if OSMajorVersion == 2 && OSMinorVersion < 5
 SYSTEMDEF = -DLESS_THAN_SOLARIS2_5 -DSOLARIS2
+SLEEPDEF = -DHAVE_NANOSLEEP
 #else
 SYSTEMDEF = -DSOLARIS2
+SLEEPDEF = -DHAVE_USLEEP
 #endif
 XCOMM imake is usually not set up right here.
 XCOMM Assume shadowing... usually more correct.
@@ -333,7 +364,6 @@ XCOMM  #if HasShadowPasswd
 XCOMM  PASSWDDEF = -DHAVE_SHADOW
 XCOMM  #endif
 PASSWDDEF = -DHAVE_SHADOW
-XCOMM  SLEEPDEF = -DHAVE_NAONOSLEEP
 
 XCOMM Problems finding libXext.so.0 when sticky bit is set
 EXTRA_LDOPTIONS = -R/usr/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib
@@ -492,8 +522,9 @@ XCOMM  OPTDEF += -DSTAFF_FILE=\"/etc/xlock.staff\"
 XCOMM  OPTDEF += -DSTAFF_NETGROUP=\"/etc/xlock.netgroup\"
 
 DEFINES = -DDEF_FILESEARCHPATH=\"$(LIBDIR)/%T/%N%S\" \
-$(SYSTEMDEF) $(EDITRESDEF) $(SLEEPDEF) $(OPTDEF) $(RANDDEF) $(MODULEDEF) \
-$(PASSWDDEF) $(XMINC) $(XAWINC) $(XPMDEF) $(GLDEF) $(DTSAVERDEF) $(DPMSDEF) \
+$(SYSTEMDEF) $(EDITRESDEF) $(SLEEPDEF) $(OPTDEF) $(RANDDEF) \
+$(MODULEDEF) $(CHECKDEF) $(UNSTABLEDEF) $(PASSWDDEF) $(XMINC) $(XAWINC) \
+$(CPPDEF) $(XPMDEF) $(GLDEF) $(DTSAVERDEF) $(DPMSDEF) \
 $(SOUNDDEF) $(PASSWDINC) $(XPMINC) $(GLINC) $(DTSAVERINC) $(DPMSINC) \
 $(SOUNDINC) $(XLOCKINC)
 

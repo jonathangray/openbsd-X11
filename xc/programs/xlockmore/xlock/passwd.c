@@ -776,9 +776,13 @@ getCryptedUserPasswd(void)
 			(void) fprintf(stderr, "Contact your administrator to setgid or\n");
 			(void) fprintf(stderr, "setuid %s for /etc/shadow read access.\n",
 				       ProgramName);
+#ifdef FALLBACK_XLOCKRC
 			(void) fprintf(stderr, "Falling back on $HOME/.xlockrc password.\n");
+#endif
 		}
+#ifdef FALLBACK_XLOCKRC
 		gpass();
+#endif
 	}
 #endif /* !AFS */
 #endif /* HAVE_SHADOW */
@@ -1028,13 +1032,25 @@ checkPasswd(char *buffer)
  */
 	pam_handle_t *pamh;
 	int         pam_error;
+#if BAD_PAM
+	uid_t       ruid;
+#define BAD_PAM_SETUID	seteuid(ruid);
+#else
+#define BAD_PAM_SETUID
+#endif
 
 #define PAM_BAIL if (pam_error != PAM_SUCCESS) { \
-    pam_end(pamh, 0); return 0; \
+    pam_end(pamh, 0); BAD_PAM_SETUID return 0; \
 }
+#if BAD_PAM
+	ruid = getuid();  /* the real user we are running as */
+#endif
 	PAM_password = buffer;
 	pam_error = pam_start("xlock", user, &PAM_conversation, &pamh);
 	PAM_BAIL;
+#if BAD_PAM
+	(void) seteuid(0); /* temporarily go to root so that pam can get shadow password */
+#endif
 	pam_error = pam_authenticate(pamh, 0);
 	if (pam_error != PAM_SUCCESS) {
                 if (!allowroot) {
@@ -1048,8 +1064,11 @@ checkPasswd(char *buffer)
 		pam_error = pam_authenticate(pamh, 0);
 		PAM_BAIL;
 	}
-	/* Don't do account management or credentials; credentials
-	 * aren't needed and account management would just lock up
+#if BAD_PAM
+	(void) seteuid(ruid); /* back to user's privileges */
+#endif
+	/* Do not do account management or credentials; credentials
+	 * are not needed and account management would just lock up
 	 * a computer and require root to come and unlock it.  Blech.
 	 */
 	pam_end(pamh, PAM_SUCCESS);
@@ -1501,7 +1520,7 @@ krb_check_password(struct passwd *pwd, char *pass)
 		return False;
 
 	/* Construct a ticket file */
-	(void) sprintf(tkfile, "/tmp/xlock_tkt_%d", getpid());
+	(void) sprintf(tkfile, "/tmp/tkt_%d", pwd->pw_uid);
 
 	/* Now, let's make the ticket file named above the _active_ tkt file */
 	krb_set_tkt_string(tkfile);
@@ -1510,10 +1529,8 @@ krb_check_password(struct passwd *pwd, char *pass)
 	if (krb_get_pw_in_tkt(pwd->pw_name, "", realm,
 			      "krbtgt", realm,
 			      DEFAULT_TKT_LIFE,
-			      pass) == INTK_OK) {
-		(void) unlink(tkfile);
+			      pass) == INTK_OK)
 		return True;
-	}
 	return False;
 }
 #endif /* HAVE_KERB4 */
@@ -1902,7 +1919,14 @@ initPasswd(void)
 #ifdef USE_XLOCKRC
 		gpass();
 #else
+#ifdef FALLBACK_XLOCKRC
+		if (!cpasswd || !*cpasswd)
+			getCryptedUserPasswd();
+		else
+			gpass();
+#else
 		getCryptedUserPasswd();
+#endif
 #endif
 		if (allowroot)
 			getCryptedRootPasswd();
