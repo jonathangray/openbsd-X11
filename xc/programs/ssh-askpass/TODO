@@ -1,0 +1,17 @@
+# TODO: Notes about future work on x11-ssh-askpass
+# created 2000-Aug-28 03:32 jmk
+# autodate: 2000-Aug-28 03:34
+
++---------------+
+| High Priority |
++---------------+
+
+No items.
+
++--------------+
+| Low Priority |
++--------------+
+
+- Investigate use of malloc() vs realloc(NULL,) for SunOS and other
+  older systems.  Charles Levert <charles@comm.polymtl.ca>
+
