@@ -22,7 +22,6 @@
 ./usr/X11R6/bin/kxd
 ./usr/X11R6/bin/lbxproxy
 ./usr/X11R6/bin/listres
-./usr/X11R6/bin/lndir
 ./usr/X11R6/bin/makedepend
 ./usr/X11R6/bin/makeg
 ./usr/X11R6/bin/mergelib
@@ -1026,7 +1025,6 @@
 ./usr/X11R6/man/cat1/kxd.0
 ./usr/X11R6/man/cat1/lbxproxy.0
 ./usr/X11R6/man/cat1/listres.0
-./usr/X11R6/man/cat1/lndir.0
 ./usr/X11R6/man/cat1/makedepend.0
 ./usr/X11R6/man/cat1/makeg.0
 ./usr/X11R6/man/cat1/makestrs.0
