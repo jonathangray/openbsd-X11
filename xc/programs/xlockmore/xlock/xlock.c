@@ -296,13 +296,13 @@ pre_merge_options(void)
 
 	/* Put on the PROGCLASS.background/foreground resources. */
 	s = (char *) malloc(50);
-	(void) strcpy(s, progclass);
-	(void) strcat(s, ".background: black");
+	(void) strlcpy(s, progclass, 50);
+	(void) strlcat(s, ".background: black", 50);
 	defaults[i++] = s;
 
 	s = (char *) malloc(50);
-	(void) strcpy(s, progclass);
-	(void) strcat(s, ".foreground: white");
+	(void) strlcpy(s, progclass, 50);
+	(void) strlcat(s, ".foreground: white", 50);
 	defaults[i++] = s;
 
 	/* Copy the lines out of the `app_defaults' var and into this array. */
