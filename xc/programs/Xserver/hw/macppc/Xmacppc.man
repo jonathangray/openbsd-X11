@@ -44,13 +44,13 @@ from 1024x768 to 1280x1024.
 .I Xmacppc
 supports.
 .PP
-Xmacppc uses the wscons(4) console driver to access the keyboard and
+Xmacppc uses the \fIwscons(4)\fP console driver to access the keyboard and
 framebuffer. Normally it uses the /dev/ttyE0 device. 
 .PP
 .SH KEYBOARDS
 .PP
-Xmacppc, supports many variations of the USB and ADB keyboards through 
-the X Keyboard extension. 
+Xmacppc supports USB and ADB keyboards with US layout only. Other
+layouts must be programmed with \fIxmodmap(1)\fP.
 .SH OPTIONS
 .PP
 In addition to the normal server options described in the \fIXserver(1)\fP
