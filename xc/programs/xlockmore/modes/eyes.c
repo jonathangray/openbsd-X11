@@ -45,12 +45,16 @@ static const char sccsid[] = "@(#)eyes.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 20000 \n" \
  "*count: -8 \n" \
  "*cycles: 5 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*bitmap: \n" \
+ "*mouse: False \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
+
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 ModeSpecOpt eyes_opts =
 {0, NULL, 0, NULL, NULL};
@@ -64,8 +68,6 @@ ModStruct   eyes_description =
 
 #endif
 
-extern Bool mouse;
-
 /* definitions for the xlock version of xeyes */
 #define MAX_EYES		200	/* limit or uses too much memory */
 #define MIN_EYE_SIZE		50	/* smallest size eyes can be */
@@ -73,8 +75,8 @@ extern Bool mouse;
 #define FLY_MAX_SPEED		10	/* max (slowest) delay between steps */
 #define FLY_SIDE_LEFT		0	/* enter and leave by left side */
 #define FLY_SIDE_RIGHT		1	/* enter and leave by right side */
-#define LIFE_MIN		5	/* shortest life, real-time seconds */
-#define LIFE_RANGE		60	/* range of possible lifetimes */
+#define LIFE_MIN		100	/* shortest life, cycles  */
+#define LIFE_RANGE		1000	/* range of possible lifetimes */
 #define MAX_CYCLES		10	/* max value of cycles */
 #define FRICTION		24	/* affects bounciness */
 
@@ -167,6 +169,7 @@ typedef struct {		/* per-screen info */
 	Eyes       *eyes;
 	Fly         fly;
 	Cursor      cursor;
+	unsigned long time;
 } EyeScrInfo;
 
 /* ---------------------------------------------------------------------- */
@@ -434,14 +437,14 @@ static void
 init_fly(ModeInfo * mi, Fly * f)
 {
 	EyeScrInfo *ep = &eye_info[MI_SCREEN(mi)];
-	int         win_width = MI_WIN_WIDTH(mi);
-	int         win_height = MI_WIN_HEIGHT(mi);
+	int         win_width = MI_WIDTH(mi);
+	int         win_height = MI_HEIGHT(mi);
 
 	(void) memset((char *) f, 0, sizeof (Fly));	/* clear everything to zero */
 
 	f->side = FLY_SIDE_LEFT;
 
-	if (MI_WIN_IS_ICONIC(mi)) {
+	if (MI_IS_ICONIC(mi)) {
 		/* image is just a dot when iconic */
 		f->width = f->height = FLY_ICON_SIZE;
 		f->vx = NRAND(4) + 1;	/* slower when iconic */
@@ -478,7 +481,7 @@ unpaint_fly(ModeInfo * mi, Fly * f)
 	Window      window = MI_WINDOW(mi);
 	GC          gc = MI_GC(mi);
 
-	if (MI_WIN_IS_ICONIC(mi)) {
+	if (MI_IS_ICONIC(mi)) {
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 		XFillArc(display, window, gc, f->oldx, f->oldy,
 			 f->width, f->height, 90 * 64, 360 * 64);
@@ -509,7 +512,7 @@ paint_fly(ModeInfo * mi, Fly * f)
 	Window      window = MI_WINDOW(mi);
 	int         x = f->x, y = f->y;
 
-	if (MI_WIN_IS_ICONIC(mi)) {
+	if (MI_IS_ICONIC(mi)) {
 		/* don't need to unpaint when iconic
 		 * ep->flyGC has stipple set, don't use when iconic
 		 */
@@ -539,12 +542,12 @@ paint_fly(ModeInfo * mi, Fly * f)
 static void
 move_fly(ModeInfo * mi, Fly * f)
 {
-	int         win_width = MI_WIN_WIDTH(mi);
-	int         win_height = MI_WIN_HEIGHT(mi);
+	int         win_width = MI_WIDTH(mi);
+	int         win_height = MI_HEIGHT(mi);
 	int         left = (f->side == FLY_SIDE_LEFT) ? -(f->width) : 0;
 	int         right = (f->side == FLY_SIDE_RIGHT) ? win_width :
 	win_width - f->width;
-	Bool        track_p = mouse;
+	Bool        track_p = MI_IS_MOUSE(mi);
 	int         cx, cy;
 
 
@@ -559,8 +562,8 @@ move_fly(ModeInfo * mi, Fly * f)
 		(void) XQueryPointer(MI_DISPLAY(mi), MI_WINDOW(mi),
 				     &r, &c, &rx, &ry, &cx, &cy, &m);
 		if (cx <= 0 || cy <= 0 ||
-		    cx >= MI_WIN_WIDTH(mi) - f->width - 1 ||
-		    cy >= MI_WIN_HEIGHT(mi) - f->width - 1)
+		    cx >= MI_WIDTH(mi) - f->width - 1 ||
+		    cy >= MI_HEIGHT(mi) - f->width - 1)
 			track_p = False;
 	}
 	if (track_p) {
@@ -627,11 +630,11 @@ create_eyes(ModeInfo * mi, Eyes * e, Eyes * eyes, int num_eyes)
 	EyeScrInfo *ep = &eye_info[MI_SCREEN(mi)];
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
-	int         win_width = MI_WIN_WIDTH(mi);
-	int         win_height = MI_WIN_HEIGHT(mi);
+	int         win_width = MI_WIDTH(mi);
+	int         win_height = MI_HEIGHT(mi);
 	unsigned long black_pixel = MI_BLACK_PIXEL(mi);
 	unsigned long white_pixel = MI_WHITE_PIXEL(mi);
-	Bool        iconic = MI_WIN_IS_ICONIC(mi);
+	Bool        iconic = MI_IS_ICONIC(mi);
 	Pixmap      pix = e->pixmap;	/* preserve pixmap handle */
 	int         w = e->width;	/* remember last w/h */
 	int         h = e->height;
@@ -651,7 +654,7 @@ create_eyes(ModeInfo * mi, Eyes * e, Eyes * eyes, int num_eyes)
 		cycs = MAX_CYCLES;
 	e->time_to_die = (unsigned long) LIFE_MIN + NRAND(LIFE_RANGE);
 	e->time_to_die *= (unsigned long) cycs;		/* multiply life by cycles */
-	e->time_to_die += seconds();	/* add the time now */
+	e->time_to_die += ep->time;
 
 	e->pupil_pixel = black_pixel;	/* pupil is always black */
 
@@ -743,8 +746,7 @@ paint_eyes(ModeInfo * mi, Eyes * e, Fly * f, Eyes * eyes, int num_eyes)
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
 	GC          gc = ep->eyeGC;
-	Bool        iconic = MI_WIN_IS_ICONIC(mi);
-	unsigned long now = seconds();
+	Bool        iconic = MI_IS_ICONIC(mi);
 	int         focusx = (f->x + (f->width / 2)) - e->x;
 	int         focusy = (f->y + (f->height / 2)) - e->y;
 	Pixmap      pix = e->pixmap;
@@ -754,7 +756,7 @@ paint_eyes(ModeInfo * mi, Eyes * e, Fly * f, Eyes * eyes, int num_eyes)
 	if (pix == None) {
 		e->time_to_die = 0;	/* "should not happen" */
 	}
-	if (now >= e->time_to_die) {
+	if (ep->time >= e->time_to_die) {
 		/* Sorry Bud, your time is up */
 		if (e->painted) {
 			/* only unpaint it if previously painted */
@@ -878,12 +880,8 @@ init_eyes(ModeInfo * mi)
 	}
 	ep = &eye_info[MI_SCREEN(mi)];
 
-#ifdef STANDALONE
-	mouse = get_boolean_resource("mouse", "Boolean");
-#endif /* !STANDALONE */
-
 	if (ep->flypix == None) {
-		getPixmap(display, window, FLY_WIDTH, FLY_HEIGHT, FLY_BITS,
+		getPixmap(mi, window, FLY_WIDTH, FLY_HEIGHT, FLY_BITS,
 			  &(ep->flywidth), &(ep->flyheight), &(ep->flypix),
 			  &(ep->graphics_format));
 		if (ep->flypix == None) {
@@ -907,14 +905,15 @@ init_eyes(ModeInfo * mi)
 			return;
 		}
 	}
+	ep->time = 0;
 	/* don't want any exposure events from XCopyArea */
 	XSetGraphicsExposures(display, ep->eyeGC, False);
 
 	free_eyes(display, ep);
-	if (MI_WIN_IS_ICONIC(mi))
+	if (MI_IS_ICONIC(mi))
 		ep->num_eyes = 1;
 	else {
-		ep->num_eyes = MI_BATCHCOUNT(mi);
+		ep->num_eyes = MI_COUNT(mi);
 		/* MAX_EYES is used or one may quickly run out of memory */
 		if (ep->num_eyes > MAX_EYES)
 			ep->num_eyes = MAX_EYES;
@@ -936,11 +935,13 @@ init_eyes(ModeInfo * mi)
 
 	init_fly(mi, &(ep->fly));	/* init the bouncer */
 
-	if (mouse && !ep->cursor) {	/* Create an invisible cursor */
+	if (MI_IS_MOUSE(mi) && !ep->cursor) {	/* Create an invisible cursor */
 		Pixmap      bit;
 		XColor      black;
 
-		black.red = black.green = black.blue = 0;
+		black.red = 0;
+		black.green = 0;
+		black.blue = 0;
 		black.flags = DoRed | DoGreen | DoBlue;
 		bit = XCreatePixmapFromBitmapData(display, window, "\000", 1, 1,
 						  MI_BLACK_PIXEL(mi),
@@ -963,23 +964,22 @@ init_eyes(ModeInfo * mi)
 void
 draw_eyes(ModeInfo * mi)
 {
-	int         screen = MI_SCREEN(mi);
+	EyeScrInfo *ep = &eye_info[MI_SCREEN(mi)];
 	int         i;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (!stuff_alloced) {
 		/* if startup init didn't finish, do nothing */
 		return;
 	}
-	move_fly(mi, &eye_info[screen].fly);
-
-	for (i = 0; i < eye_info[screen].num_eyes; i++) {
-		paint_eyes(mi, &eye_info[screen].eyes[i],
-			   &eye_info[screen].fly,
-			   eye_info[screen].eyes,
-			   eye_info[screen].num_eyes);
+	move_fly(mi, &(ep->fly));
+	ep->time++;
+	for (i = 0; i < ep->num_eyes; i++) {
+		paint_eyes(mi, &(ep->eyes[i]), &(ep->fly), ep->eyes, ep->num_eyes);
 	}
 
-	paint_fly(mi, &eye_info[screen].fly);
+	paint_fly(mi, &(ep->fly));
 }
 
 /* ---------------------------------------------------------------------- */

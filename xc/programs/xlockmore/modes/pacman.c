@@ -42,12 +42,16 @@ static const char sccsid[] = "@(#)pacman.c	4.07 97/11/24 xlockmore";
 #define pacman_opts xlockmore_opts
 #define DEFAULTS "*delay: 100000 \n" \
  "*count: 10 \n" \
- "*size: 0 \n"
-"*ncolors: 6 \n"
+ "*size: 0 \n" \
+ "*ncolors: 6 \n" \
+ "*bitmap: \n"
+#define UNIFORM_COLORS
+#define BRIGHT_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 ModeSpecOpt pacman_opts =
 {0, NULL, 0, NULL, NULL};
@@ -458,8 +462,8 @@ init_pacman(ModeInfo * mi)
 			return;
 	}
 	pp = &pacmangames[MI_SCREEN(mi)];
-	pp->width = MI_WIN_WIDTH(mi);
-	pp->height = MI_WIN_HEIGHT(mi);
+	pp->width = MI_WIDTH(mi);
+	pp->height = MI_HEIGHT(mi);
 	if (pp->stippledGC == None) {
 		gcv.foreground = MI_BLACK_PIXEL(mi);
 		gcv.background = MI_BLACK_PIXEL(mi);
@@ -470,7 +474,7 @@ init_pacman(ModeInfo * mi)
 		pp->ghostHeight = CELL_HEIGHT;
 		if (size == 0) {
 			if (pp->ghostPixmap == None) {
-				getPixmap(display, window, CELL_WIDTH, CELL_HEIGHT, CELL_BITS,
+				getPixmap(mi, window, CELL_WIDTH, CELL_HEIGHT, CELL_BITS,
 					  &(pp->ghostWidth), &(pp->ghostHeight), &(pp->ghostPixmap),
 					  &(pp->graphics_format));
 				pp->xs = pp->ghostWidth;
@@ -539,7 +543,7 @@ init_pacman(ModeInfo * mi)
 	pp->pacman.lastbox = -1;
 	pp->pacman.mouthdirection = 1;
 
-	pp->nghosts = MI_BATCHCOUNT(mi);
+	pp->nghosts = MI_COUNT(mi);
 	if (pp->nghosts < -MINGHOSTS) {
 		/* if pp->nghosts is random ... the size can change */
 		if (pp->ghosts != NULL) {
@@ -589,6 +593,8 @@ draw_pacman(ModeInfo * mi)
 {
 	pacmangamestruct *pp = &pacmangames[MI_SCREEN(mi)];
 	int         g;
+
+	MI_IS_DRAWN(mi) = True;
 
 	do {
 		if (NRAND(3) == 2)
@@ -735,5 +741,5 @@ release_pacman(ModeInfo * mi)
 void
 refresh_pacman(ModeInfo * mi)
 {
-	/* Redraw dots */
+	MI_CLEARWINDOW(mi);
 }

@@ -243,8 +243,8 @@ init_turtle(ModeInfo * mi)
 	}
 	tp = &turtles[MI_SCREEN(mi)];
 
-	tp->width = MI_WIN_WIDTH(mi);
-	tp->height = MI_WIN_HEIGHT(mi);
+	tp->width = MI_WIDTH(mi);
+	tp->height = MI_HEIGHT(mi);
 	tp->min = MIN(tp->width, tp->height);
 	tp->maxlevel = 0;
 	i = tp->min;
@@ -348,6 +348,8 @@ draw_turtle(ModeInfo * mi)
 
 	if (++tp->time > MI_CYCLES(mi))
 		init_turtle(mi);
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (MI_NPIXELS(mi) > 2)
 		XSetForeground(MI_DISPLAY(mi), MI_GC(mi),

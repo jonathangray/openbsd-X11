@@ -30,7 +30,7 @@ static const char sccsid[] = "@(#)shape.c	4.07 97/11/24 xlockmore";
  * 27-Feb-95: patch for VMS
  * 29-Sep-94: multidisplay bug fix <epstein_caleb@jpmorgan.com>
  * 15-Jul-94: xlock version David Bagley <bagleyd@bigfoot.com>
- * 1992:      xscreensaver version Jamie Zawinski <jwz@netscape.com>
+ * 1992:      xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
 /*-
@@ -53,7 +53,9 @@ static const char sccsid[] = "@(#)shape.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 10000 \n" \
  "*count: 100 \n" \
  "*cycles: 256 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*fullrandom: True \n" \
+ "*verbose: False \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -182,13 +184,13 @@ init_shape(ModeInfo * mi)
 	}
 	sp = &shapes[MI_SCREEN(mi)];
 
-	sp->width = MI_WIN_WIDTH(mi);
-	sp->height = MI_WIN_HEIGHT(mi);
+	sp->width = MI_WIDTH(mi);
+	sp->height = MI_HEIGHT(mi);
 	sp->borderx = sp->width / 20;
 	sp->bordery = sp->height / 20;
 	sp->time = 0;
 
-	if (MI_WIN_IS_FULLRANDOM(mi))
+	if (MI_IS_FULLRANDOM(mi))
 		sp->shade = (Bool) (LRAND() & 1);
 	else
 		sp->shade = shade;
@@ -199,13 +201,13 @@ init_shape(ModeInfo * mi)
 		sp->shade_offset.y = (NRAND(MAX_SHADE_OFFSET - MIN_SHADE_OFFSET) +
 				MIN_SHADE_OFFSET) * ((LRAND() & 1) ? 1 : -1);
 	}
-	if (MI_WIN_IS_FULLRANDOM(mi))
+	if (MI_IS_FULLRANDOM(mi))
 		sp->border = (Bool) (LRAND() & 1);
 	else
 		sp->border = border;
 
 #if (STIPPLING > 1)
-	if (MI_WIN_IS_FULLRANDOM(mi))
+	if (MI_IS_FULLRANDOM(mi))
 		sp->stipple = (Bool) (LRAND() & 1);
 	else
 		sp->stipple = stipple;
@@ -221,7 +223,7 @@ init_shape(ModeInfo * mi)
 		Window      window = MI_WINDOW(mi);
 
 #if defined( __linux__ ) && ( STIPPLING < 2 )
-		if ((MI_WIN_IS_VERBOSE(mi) || MI_WIN_IS_DEBUG(mi)) &&
+		if ((MI_IS_VERBOSE(mi) || MI_IS_DEBUG(mi)) &&
 		    (MI_DEPTH(mi) == 15 || MI_DEPTH(mi) == 16))
 			(void) fprintf(stderr, "This may cause a LOCKUP in seconds!!!\n");
 #endif
@@ -251,7 +253,10 @@ draw_shape(ModeInfo * mi)
 	int         shape, i;
 	XPoint      shade_offset;
 
-	shade_offset.x = shade_offset.y = 0;
+	MI_IS_DRAWN(mi) = True;
+
+	shade_offset.x = 0;
+	shade_offset.y = 0;
 	if (sp->stipple)
 		if (!sp->init_bits)
 			return;
@@ -266,8 +271,10 @@ draw_shape(ModeInfo * mi)
 	shape = NRAND(3);
 	if (sp->shade) {
 		i = MAX(ABS(sp->shade_offset.x), ABS(sp->shade_offset.y));
-		shade_offset.x = ((float) NRAND(i) + 2.0) / (1.0 + i) * sp->shade_offset.x;
-		shade_offset.y = ((float) NRAND(i) + 2.0) / (1.0 + i) * sp->shade_offset.y;
+		shade_offset.x = (short int) (((float) NRAND(i) + 2.0) /
+					      (1.0 + i) * sp->shade_offset.x);
+		shade_offset.y = (short int) (((float) NRAND(i) + 2.0) /
+					      (1.0 + i) * sp->shade_offset.y);
 		/* This is over-simplistic... it casts the same length shadow over
 		 * different depth objects.
 		 */
@@ -372,6 +379,9 @@ draw_shape(ModeInfo * mi)
 		XSetLineAttributes(display, gc, 1, LineSolid, CapNotLast, JoinRound);
 	if (sp->stipple)
 		XSetFillStyle(display, gc, FillSolid);
+	if (sp->stipple && MI_NPIXELS(mi) > 2) {
+		XSetBackground(display, gc, MI_BLACK_PIXEL(mi));
+	}
 	XFlush(display);
 	if (++sp->time > MI_CYCLES(mi))
 		init_shape(mi);
@@ -398,5 +408,5 @@ release_shape(ModeInfo * mi)
 void
 refresh_shape(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

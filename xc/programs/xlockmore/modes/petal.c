@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)petal.c	4.07 97/11/24 xlockmore";
  * Revision History:
  * 10-May-97: Compatible with xscreensaver
  * 12-Aug-95: xlock version
- * Jan-95: xscreensaver version (Jamie Zawinski <jwz@netscape.com>)
+ * Jan-95: xscreensaver version (Jamie Zawinski <jwz@jwz.org>)
  * 24-Jun-94: X11 version (Dale Moore  <Dale.Moore@cs.cmu.edu>)  
  *            Based on a program for some old PDP-11 Graphics
  *            Display Processors at CMU.
@@ -48,7 +48,9 @@ static const char sccsid[] = "@(#)petal.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 10000 \n" \
  "*count: -500 \n" \
  "*cycles: 400 \n" \
- "*ncolors: 64 \n"
+ "*ncolors: 64 \n" \
+ "*wireframe: False \n" \
+ "*fullrandom: False \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -76,19 +78,20 @@ ModStruct   petal_description =
 #define MAXLINES (16*1024)
 
 /*-
- * If the petal has only this many lines, it must be ugly and we dont
+ * If the petal has only this many lines, it must be ugly and we do not
  * want to see it.
  */
 #define MINLINES 5
 
 typedef struct {
-	int         width;
-	int         height;
+	Bool        painted;
+	int         width, height;
 	int         lines;
 	int         time;
-	int         redraw;
 	int         npoints;
+	long        color;
 	XPoint     *points;
+	Bool        wireframe;
 } petalstruct;
 
 static petalstruct *petals = NULL;
@@ -233,8 +236,24 @@ compute_petal(XPoint * points, int lines, int sizex, int sizey)
 		theta += b;
 		theta %= d;
 	}
+	*p = points[0];		/* Tack on another for XDrawLines */
 
 	return (npoints);
+}
+
+static void
+petal(ModeInfo * mi)
+{
+	petalstruct *pp = &petals[MI_SCREEN(mi)];
+
+	XSetForeground(MI_DISPLAY(mi), MI_GC(mi), pp->color);
+	if (pp->wireframe) {
+		XDrawLines(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
+			   pp->points, pp->npoints + 1, CoordModeOrigin);
+	} else {
+		XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
+			  pp->points, pp->npoints, Complex, CoordModeOrigin);
+	}
 }
 
 static void
@@ -245,11 +264,11 @@ random_petal(ModeInfo * mi)
 	pp->npoints = compute_petal(pp->points, pp->lines,
 				    pp->width / 2, pp->height / 2);
 
-	if (MI_NPIXELS(mi) > 2)
-		XSetForeground(MI_DISPLAY(mi), MI_GC(mi),
-			       MI_PIXEL(mi, NRAND(MI_NPIXELS(mi))));
-	XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
-		     pp->points, pp->npoints, Complex, CoordModeOrigin);
+	if (MI_NPIXELS(mi) <= 2)
+		pp->color = MI_WHITE_PIXEL(mi);
+	else
+		pp->color = MI_PIXEL(mi, NRAND(MI_NPIXELS(mi)));
+	petal(mi);
 }
 
 void
@@ -264,7 +283,7 @@ init_petal(ModeInfo * mi)
 	}
 	pp = &petals[MI_SCREEN(mi)];
 
-	pp->lines = MI_BATCHCOUNT(mi);
+	pp->lines = MI_COUNT(mi);
 	if (pp->lines > MAXLINES)
 		pp->lines = MAXLINES;
 	else if (pp->lines < -MINLINES) {
@@ -276,16 +295,19 @@ init_petal(ModeInfo * mi)
 	} else if (pp->lines < MINLINES)
 		pp->lines = MINLINES;
 	if (!pp->points)
-		pp->points = (XPoint *) malloc(pp->lines * sizeof (XPoint));
-	pp->width = MI_WIN_WIDTH(mi);
-	pp->height = MI_WIN_HEIGHT(mi);
+		pp->points = (XPoint *) malloc((pp->lines + 1) * sizeof (XPoint));
+	pp->width = MI_WIDTH(mi);
+	pp->height = MI_HEIGHT(mi);
 
-	pp->redraw = 0;
 	pp->time = 0;
+	if (MI_IS_FULLRANDOM(mi))
+		pp->wireframe = (Bool) (LRAND() & 1);
+	else
+		pp->wireframe = MI_IS_WIREFRAME(mi);
 
 	MI_CLEARWINDOW(mi);
+	pp->painted = False;
 
-	XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_WHITE_PIXEL(mi));
 	random_petal(mi);
 }
 
@@ -294,13 +316,12 @@ draw_petal(ModeInfo * mi)
 {
 	petalstruct *pp = &petals[MI_SCREEN(mi)];
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (++pp->time > MI_CYCLES(mi))
 		init_petal(mi);
-	if (pp->redraw) {
-		XFillPolygon(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
-			  pp->points, pp->npoints, Complex, CoordModeOrigin);
-		pp->redraw = 0;
-	}
+	else
+		pp->painted = True;
 }
 
 void
@@ -325,5 +346,9 @@ refresh_petal(ModeInfo * mi)
 {
 	petalstruct *pp = &petals[MI_SCREEN(mi)];
 
-	pp->redraw = 1;
+	if (pp->painted) {
+		MI_CLEARWINDOW(mi);
+		petal(mi);
+		pp->painted = False;
+	}
 }

@@ -63,7 +63,7 @@ init_blank(ModeInfo * mi)
 {
 	MI_CLEARWINDOW(mi);
 	/* Must set PreferBlanking, or XForceScreenSaver won't work */
-	if (!MI_WIN_IS_INWINDOW(mi) && !MI_WIN_IS_INROOT(mi) && enablesaver)
+	if (!MI_IS_INWINDOW(mi) && !MI_IS_INROOT(mi) && enablesaver)
 		XSetScreenSaver(MI_DISPLAY(mi), 0, 0, PreferBlanking, 0);
 }
 
@@ -72,8 +72,8 @@ void
 draw_blank(ModeInfo * mi)
 {
 	/* Leave the lights on while user types password */
-	if (!MI_WIN_IS_INWINDOW(mi) && !MI_WIN_IS_INROOT(mi) && enablesaver) {
-		if (MI_WIN_IS_ICONIC(mi))
+	if (!MI_IS_INWINDOW(mi) && !MI_IS_INROOT(mi) && enablesaver) {
+		if (MI_IS_ICONIC(mi))
 			XForceScreenSaver(MI_DISPLAY(mi), ScreenSaverReset);
 		else
 			XForceScreenSaver(MI_DISPLAY(mi), ScreenSaverActive);
@@ -84,7 +84,7 @@ void
 release_blank(ModeInfo * mi)
 {
 	/* clear screensaver settings, just in case */
-	if (!MI_WIN_IS_INWINDOW(mi) && !MI_WIN_IS_INROOT(mi) && enablesaver) {
+	if (!MI_IS_INWINDOW(mi) && !MI_IS_INROOT(mi) && enablesaver) {
 		XForceScreenSaver(MI_DISPLAY(mi), ScreenSaverReset);
 		XSetScreenSaver(MI_DISPLAY(mi), 0, 0, 0, 0);
 	}

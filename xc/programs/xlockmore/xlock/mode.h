@@ -2,13 +2,24 @@
 #define __XLOCK_MODE_H__
 
 /*-
- * @(#)mode.h	4.00 97/01/01 xlockmore
+ * @(#)mode.h	4.10 98/04/23 xlockmore
  *
  * mode.h - mode management for xlock, the X Window System lockscreen.
  *
  * Copyright (c) 1991 by Patrick J. Naughton.
+ * xscreensaver code, Copyright (c) 1997 Jamie Zawinski <jwz@jwz.org>
  *
- * See xlock.c for copying information.
+ * Permission to use, copy, modify, and distribute this software and its
+ * documentation for any purpose and without fee is hereby granted,
+ * provided that the above copyright notice appear in all copies and that
+ * both that copyright notice and this permission notice appear in
+ * supporting documentation.
+ *
+ * This file is provided AS IS with no warranties of any kind.  The author
+ * shall have no liability with respect to the infringement of copyrights,
+ * trade secrets or any patents by this file or any part thereof.  In no
+ * event will the author be liable for any lost revenue or profits or
+ * other special, indirect and consequential damages.
  *
  * Revision History:
  *
@@ -26,6 +37,157 @@
 
 /* -------------------------------------------------------------------- */
 
+#ifdef STANDALONE
+
+/* xscreensaver compatibility layer for xlockmore modules. */
+
+/*-
+ * xscreensaver, Copyright (c) 1997, 1998 Jamie Zawinski <jwz@jwz.org>
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation.  No representations are made about the suitability of this
+ * software for any purpose.  It is provided "as is" without express or 
+ * implied warranty.
+ *
+ * The definitions in this file make it possible to compile an xlockmore
+ * module into a standalone program, and thus use it with xscreensaver.
+ * By Jamie Zawinski <jwz@jwz.org> on 10-May-97; based on the ideas
+ * in the older xlock.h by Charles Hannum <mycroft@ai.mit.edu>.  (I had
+ * to redo it, since xlockmore has diverged so far from xlock...)
+ */
+
+/*-
+ * Accessor macros for the ModeInfo structure
+ */
+
+#define MI_DISPLAY(MI)		((MI)->dpy)
+#define MI_WINDOW(MI)		((MI)->window)
+#define MI_NUM_SCREENS(MI)	(1)	/* Only manage one screen at a time; */
+#define MI_SCREEN(MI)		(0)	/*  this might be fragile... */
+#define MI_NPIXELS(MI)		((MI)->npixels)
+#define MI_PIXEL(MI,N)		((MI)->pixels[(N)])
+#define MI_VISUAL(MI)		((MI)->xgwa.visual)
+#define MI_GC(MI)		((MI)->gc)
+#define MI_PAUSE(MI)		((MI)->pause)
+#define MI_LEFT_COLOR(MI)	((MI)->threed_left_color)
+#define MI_RIGHT_COLOR(MI)	((MI)->threed_right_color)
+#define MI_BOTH_COLOR(MI)	((MI)->threed_both_color)
+#define MI_NONE_COLOR(MI)	((MI)->threed_none_color)
+#define MI_DELTA3D(MI)		((MI)->threed_delta)
+#define MI_CYCLES(MI)		((MI)->cycles)
+#define MI_BATCHCOUNT(MI)	((MI)->count)
+#define MI_SIZE(MI)		((MI)->size)
+#define MI_BITMAP(MI)		((MI)->bitmap)
+#define MI_WHITE_PIXEL(MI)	((MI)->white)
+#define MI_BLACK_PIXEL(MI)	((MI)->black)
+#define MI_WIDTH(MI)	((MI)->xgwa.width)
+#define MI_HEIGHT(MI)	((MI)->xgwa.height)
+#define MI_DEPTH(MI)	((MI)->xgwa.depth)
+#define MI_COLORMAP(MI)	((MI)->xgwa.colormap)
+#define MI_IS_FULLRANDOM(MI)((MI)->fullrandom)
+#define MI_IS_DEBUG(MI)   ((MI)->verbose)
+#define MI_IS_VERBOSE(MI)   ((MI)->verbose)
+#define MI_IS_INSTALL(MI)   (True)
+#define MI_IS_MONO(MI)	(mono_p)
+#define MI_IS_INROOT(MI)	((MI)->root_p)
+#define MI_IS_INWINDOW(MI)	(!(MI)->root_p)
+#define MI_IS_ICONIC(MI)	(False)
+#define MI_IS_WIREFRAME(MI)	((MI)->wireframe_p)
+#define MI_IS_MOUSE(MI)	((MI)->mouse)
+#define MI_IS_USE3D(MI)	((MI)->threed)
+#define MI_COUNT(MI)	((MI)->count)
+#define MI_NCOLORS(MI)    ((MI)->ncolors)
+#define MI_IS_DRAWN(MI)((MI)->is_drawn)
+
+
+#define MI_CLEARWINDOWCOLORMAP(mi, gc, pixel) \
+{ \
+ XSetForeground(MI_DISPLAY(mi), gc, pixel); \
+ XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc, \
+   0, 0, (unsigned int) MI_WIDTH(mi), (unsigned int) MI_HEIGHT(mi)); \
+}
+#define MI_CLEARWINDOWCOLOR(mi, pixel) \
+ MI_CLEARWINDOWCOLORMAP(mi, MI_GC(mi), pixel)
+
+/* #define MI_CLEARWINDOW(mi) XClearWindow(MI_DISPLAY(mi), MI_WINDOW(mi)) */
+#define MI_CLEARWINDOW(mi) MI_CLEARWINDOWCOLOR(mi, MI_BLACK_PIXEL(mi))
+
+#include "screenhack.h"
+
+typedef struct ModeInfo {
+	Display    *dpy;
+	Window      window;
+	Bool        root_p;
+	int         npixels;
+	unsigned long *pixels;
+	XColor     *colors;
+	Bool        writable_p;
+	unsigned long white;
+	unsigned long black;
+	XWindowAttributes xgwa;
+	GC          gc;
+	long        pause;
+	Bool        fullrandom;
+	Bool        verbose;
+	int         count;
+	int         cycles;
+	int         size;
+	int         ncolors;
+	Bool        threed;
+	long        threed_left_color;
+	long        threed_right_color;
+	long        threed_both_color;
+	long        threed_none_color;
+	long        threed_delta;
+	Bool        wireframe_p;
+	Bool        mouse;
+	char       *bitmap;
+	Bool        is_drawn;
+} ModeInfo;
+
+typedef enum {
+	t_String, t_Float, t_Int, t_Bool
+} xlockmore_type;
+
+typedef struct {
+	void       *var;
+	char       *name;
+	char       *classname;
+	char       *def;
+	xlockmore_type type;
+} argtype;
+
+typedef struct {
+	char       *opt;
+	char       *desc;
+} OptionStruct;
+
+typedef struct {
+	int         numopts;
+	XrmOptionDescRec *opts;
+	int         numvarsdesc;
+	argtype    *vars;
+	OptionStruct *desc;
+} ModeSpecOpt;
+
+extern void xlockmore_screenhack(Display * dpy, Window window,
+				 Bool want_writable_colors,
+				 Bool want_uniform_colors,
+				 Bool want_smooth_colors,
+				 Bool want_bright_colors,
+				 void        (*hack_init) (ModeInfo *),
+				 void        (*hack_draw) (ModeInfo *),
+				 void        (*hack_free) (ModeInfo *));
+
+#ifdef USE_GL
+extern Visual *get_gl_visual(Screen * screen, char *name, char *class);
+
+#endif
+
+#else /* STANDALONE */
 struct LockStruct_s;
 struct ModeInfo_s;
 
@@ -42,18 +204,34 @@ typedef struct LockStruct_s {
 	ModeHook   *unused_hook;	/* for future expansion */
 	ModeSpecOpt *msopt;	/* this mode's def resources */
 	int         def_delay;	/* default delay for mode */
-	int         def_batchcount;
+	int         def_count;
 	int         def_cycles;
 	int         def_size;
 	int         def_ncolors;
 	float       def_saturation;
-	char       *def_imagefile;
+	char       *def_bitmap;
 	char       *desc;	/* text description of mode */
 	unsigned int flags;	/* state flags for this mode */
 	void       *userdata;	/* for use by the mode */
 } LockStruct;
 
 #define LS_FLAG_INITED		1
+
+typedef struct {
+	Pixmap      pixmap;
+#ifdef ORIGINAL_XPM_PATCH
+	/* Not recommended */
+	Pixmap      bitmap;
+#else
+	int         width, height, graphics_format;
+#endif
+} mailboxInfo;
+
+typedef struct {
+	mailboxInfo mail;
+	mailboxInfo nomail;
+	GC          mbgc;
+} mboxInfo;
 
 typedef struct {
 	Visual     *visual;
@@ -71,15 +249,17 @@ typedef struct {
 #endif
 	GC          gc;		/* graphics context for animation */
 	GC          textgc;	/* graphics context used for text rendering */
-	GC          msgtextgc;	/* graphics context for message rendering */
+	GC          plantextgc;	/* graphics context for plan message rendering */
 	XPoint      iconpos;	/* location of top left edge of icon */
-	XPoint      msgpos;	/* location of top left edge of message */
+	XPoint      planpos;	/* location of top left edge of message */
 	int         npixels;	/* number of valid entries in pixels */
 	unsigned long *pixels;	/* pixel values in the colormap */
 	unsigned long black_pixel, white_pixel;		/* black and white pixel values */
 	unsigned long bg_pixel, fg_pixel;	/* background and foreground pixel values */
 	unsigned long right_pixel, left_pixel;	/* 3D color pixel values */
 	unsigned long none_pixel, both_pixel;
+	XWindowChanges fullsizeconfigure;
+	mboxInfo    mb;
 } ScreenInfo;
 
 typedef struct {
@@ -94,6 +274,8 @@ typedef struct {
 	int         height;	/* height of current window */
 	unsigned int flags;	/* xlock window flags */
 	float       delta3d;
+	Bool        is_drawn;	/*Indicates that enough is drawn for special *
+				 *  erase                                    */
 } WindowInfo;
 
 #define WI_FLAG_INFO_INITTED	0x001	/* private state flag */
@@ -108,17 +290,18 @@ typedef struct {
 #define WI_FLAG_VERBOSE		0x200
 #define WI_FLAG_FULLRANDOM		0x400
 #define WI_FLAG_WIREFRAME		0x800
-#define WI_FLAG_JUST_INITTED	0x1000	/* private state flag */
+#define WI_FLAG_MOUSE		0x1000
+#define WI_FLAG_JUST_INITTED	0x2000	/* private state flag */
 
 typedef struct {
 	long        pause;	/* output, set by mode */
 	long        delay;	/* inputs, current settings */
-	long        batchcount;
-	long        cycles;
-	long        ncolors;
-	long        size;
+	int         count;
+	int         cycles;
+	int         size;
+	int         ncolors;
 	float       saturation;
-	char       *imagefile;
+	char       *bitmap;
 } RunInfo;
 
 typedef struct ModeInfo_s {
@@ -152,26 +335,28 @@ typedef struct ModeInfo_s {
 #define MI_NUM_SCREENS(mi)	((mi)->windowinfo.num_screens)
 #define MI_MAX_SCREENS(mi)	((mi)->windowinfo.max_screens)
 #define MI_WINDOW(mi)		((mi)->windowinfo.window)
-#define MI_WIN_WIDTH(mi)	((mi)->windowinfo.width)
-#define MI_WIN_HEIGHT(mi)	((mi)->windowinfo.height)
+#define MI_WIDTH(mi)	((mi)->windowinfo.width)
+#define MI_HEIGHT(mi)	((mi)->windowinfo.height)
 #define MI_DELTA3D(mi)	((mi)->windowinfo.delta3d)
-#define MI_WIN_FLAGS(mi)	((mi)->windowinfo.flags)
-#define MI_WIN_SET_FLAG_STATE(mi,f,bool) ((mi)->windowinfo.flags = \
+#define MI_FLAGS(mi)	((mi)->windowinfo.flags)
+#define MI_IS_DRAWN(mi)	((mi)->windowinfo.is_drawn)
+#define MI_SET_FLAG_STATE(mi,f,bool) ((mi)->windowinfo.flags = \
 					(bool) ? (mi)->windowinfo.flags | f \
 					: (mi)->windowinfo.flags & ~(f))
-#define MI_WIN_FLAG_IS_SET(mi,f) ((mi)->windowinfo.flags & f)
-#define MI_WIN_FLAG_NOT_SET(mi,f) ( ! MI_WIN_FLAG_IS_SET(mi,f))
-#define MI_WIN_IS_ICONIC(mi)	(MI_WIN_FLAG_IS_SET (mi, WI_FLAG_ICONIC))
-#define MI_WIN_IS_MONO(mi)	(MI_WIN_FLAG_IS_SET (mi, WI_FLAG_MONO))
-#define MI_WIN_IS_INWINDOW(mi)	(MI_WIN_FLAG_IS_SET (mi, WI_FLAG_INWINDOW))
-#define MI_WIN_IS_INROOT(mi)	(MI_WIN_FLAG_IS_SET (mi, WI_FLAG_INROOT))
-#define MI_WIN_IS_NOLOCK(mi)	(MI_WIN_FLAG_IS_SET (mi, WI_FLAG_NOLOCK))
-#define MI_WIN_IS_INSTALL(mi)	(MI_WIN_FLAG_IS_SET (mi, WI_FLAG_INSTALL))
-#define MI_WIN_IS_DEBUG(mi)	(MI_WIN_FLAG_IS_SET (mi, WI_FLAG_DEBUG))
-#define MI_WIN_IS_USE3D(mi)	(MI_WIN_FLAG_IS_SET (mi, WI_FLAG_USE3D))
-#define MI_WIN_IS_VERBOSE(mi)	(MI_WIN_FLAG_IS_SET (mi, WI_FLAG_VERBOSE))
-#define MI_WIN_IS_FULLRANDOM(mi) (MI_WIN_FLAG_IS_SET (mi, WI_FLAG_FULLRANDOM))
-#define MI_WIN_IS_WIREFRAME(mi)	(MI_WIN_FLAG_IS_SET (mi, WI_FLAG_WIREFRAME))
+#define MI_FLAG_IS_SET(mi,f) ((mi)->windowinfo.flags & f)
+#define MI_FLAG_NOT_SET(mi,f) ( ! MI_FLAG_IS_SET(mi,f))
+#define MI_IS_ICONIC(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_ICONIC))
+#define MI_IS_MONO(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_MONO))
+#define MI_IS_INWINDOW(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_INWINDOW))
+#define MI_IS_INROOT(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_INROOT))
+#define MI_IS_NOLOCK(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_NOLOCK))
+#define MI_IS_INSTALL(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_INSTALL))
+#define MI_IS_DEBUG(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_DEBUG))
+#define MI_IS_USE3D(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_USE3D))
+#define MI_IS_VERBOSE(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_VERBOSE))
+#define MI_IS_FULLRANDOM(mi) (MI_FLAG_IS_SET (mi, WI_FLAG_FULLRANDOM))
+#define MI_IS_WIREFRAME(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_WIREFRAME))
+#define MI_IS_MOUSE(mi)	(MI_FLAG_IS_SET (mi, WI_FLAG_MOUSE))
 
 #define MI_SCREENINFO(mi)	((mi)->screeninfo)
 #define MI_DEPTH(mi)	((mi)->screeninfo->depth)
@@ -195,21 +380,21 @@ typedef struct ModeInfo_s {
 #define MI_LEFT_COLOR(mi)	((mi)->screeninfo->left_pixel)
 
 #define MI_DELAY(mi)		((mi)->runinfo.delay)
-#define MI_BATCHCOUNT(mi)	((mi)->runinfo.batchcount)
+#define MI_COUNT(mi)		((mi)->runinfo.count)
 #define MI_CYCLES(mi)		((mi)->runinfo.cycles)
 #define MI_SIZE(mi)		((mi)->runinfo.size)
 #define MI_NCOLORS(mi)		((mi)->runinfo.ncolors)
 #define MI_SATURATION(mi)	((mi)->runinfo.saturation)
-#define MI_IMAGEFILE(mi)	((mi)->runinfo.imagefile)
+#define MI_BITMAP(mi)	((mi)->runinfo.bitmap)
 
 #define MI_LOCKSTRUCT(mi)	((mi)->lockstruct)
 #define MI_DEFDELAY(mi)		((mi)->lockstruct->def_delay)
-#define MI_DEFBATCHCOUNT(mi)	((mi)->lockstruct->def_batchcount)
+#define MI_DEFCOUNT(mi)	((mi)->lockstruct->def_count)
 #define MI_DEFCYCLES(mi)	((mi)->lockstruct->def_cycles)
 #define MI_DEFSIZE(mi)	((mi)->lockstruct->def_size)
 #define MI_DEFNCOLORS(mi)	((mi)->lockstruct->def_ncolors)
 #define MI_DEFSATURATION(mi)	((mi)->lockstruct->def_saturation)
-#define MI_DEFIMAGEFILE(mi)	((mi)->lockstruct->def_imagefile)
+#define MI_DEFBITMAP(mi)	((mi)->lockstruct->def_bitmap)
 
 #define MI_NAME(mi)		((mi)->lockstruct->cmdline_arg)
 #define MI_DESC(mi)		((mi)->lockstruct->desc)
@@ -223,25 +408,27 @@ typedef struct ModeInfo_s {
  * If it does happen it is probably not as noticable to worry about.
  */
 #endif
+
+extern void
+            erase_full_window(ModeInfo * mi, GC erase_gc, unsigned long pixel);
+
 #if 0
 #define MI_CLEARWINDOWCOLORMAP(mi, gc, pixel) \
 { \
  XSetForeground(MI_DISPLAY(mi), gc, pixel); \
- if ((MI_WIN_WIDTH(mi) >= 2) || (MI_WIN_HEIGHT(mi) >= 2)) { \
+ if ((MI_WIDTH(mi) >= 2) || (MI_HEIGHT(mi) >= 2)) { \
  XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc, 1, 1, \
-  (unsigned int) MI_WIN_WIDTH(mi) - 2, (unsigned int) MI_WIN_HEIGHT(mi) - 2); \
+  (unsigned int) MI_WIDTH(mi) - 2, (unsigned int) MI_HEIGHT(mi) - 2); \
  XDrawRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc, 0, 0, \
-  (unsigned int) MI_WIN_WIDTH(mi) - 1, (unsigned int) MI_WIN_HEIGHT(mi) - 1); \
+  (unsigned int) MI_WIDTH(mi) - 1, (unsigned int) MI_HEIGHT(mi) - 1); \
  } else \
  XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc, 0, 0, \
-  (unsigned int) MI_WIN_WIDTH(mi), (unsigned int) MI_WIN_HEIGHT(mi)); \
+  (unsigned int) MI_WIDTH(mi), (unsigned int) MI_HEIGHT(mi)); \
 }
 #else
 #define MI_CLEARWINDOWCOLORMAP(mi, gc, pixel) \
 { \
- XSetForeground(MI_DISPLAY(mi), gc, pixel); \
- XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc, \
-   0, 0, (unsigned int) MI_WIN_WIDTH(mi), (unsigned int) MI_WIN_HEIGHT(mi)); \
+ erase_full_window( mi , gc , pixel ); \
 }
 #endif
 #define MI_CLEARWINDOWCOLOR(mi, pixel) \
@@ -274,6 +461,16 @@ extern ModeHook draw_ant;
 extern ModeHook release_ant;
 extern ModeHook refresh_ant;
 extern ModeSpecOpt ant_opts;
+
+#ifdef USE_GL
+extern ModeHook init_atlantis;
+extern ModeHook draw_atlantis;
+extern ModeHook release_atlantis;
+extern ModeHook refresh_atlantis;
+extern ModeHook change_atlantis;
+extern ModeSpecOpt atlantis_opts;
+
+#endif
 
 extern ModeHook init_ball;
 extern ModeHook draw_ball;
@@ -311,17 +508,26 @@ extern ModeHook release_braid;
 extern ModeHook refresh_braid;
 extern ModeSpecOpt braid_opts;
 
-extern ModeHook init_bug;
-extern ModeHook draw_bug;
-extern ModeHook release_bug;
-extern ModeHook refresh_bug;
-extern ModeSpecOpt bug_opts;
-
 extern ModeHook init_bubble;
 extern ModeHook draw_bubble;
 extern ModeHook release_bubble;
 extern ModeHook refresh_bubble;
 extern ModeSpecOpt bubble_opts;
+
+#ifdef USE_GL
+extern ModeHook init_bubble3d;
+extern ModeHook draw_bubble3d;
+extern ModeHook release_bubble3d;
+extern ModeHook change_bubble3d;
+extern ModeSpecOpt bubble3d_opts;
+
+#endif
+
+extern ModeHook init_bug;
+extern ModeHook draw_bug;
+extern ModeHook release_bug;
+extern ModeHook refresh_bug;
+extern ModeSpecOpt bug_opts;
 
 #ifdef USE_GL
 extern ModeHook init_cage;
@@ -388,6 +594,13 @@ extern ModeHook release_dilemma;
 extern ModeHook refresh_dilemma;
 extern ModeSpecOpt dilemma_opts;
 
+extern ModeHook init_discrete;
+extern ModeHook draw_discrete;
+extern ModeHook release_discrete;
+extern ModeHook refresh_discrete;
+extern ModeHook change_discrete;
+extern ModeSpecOpt discrete_opts;
+
 extern ModeHook init_drift;
 extern ModeHook draw_drift;
 extern ModeHook release_drift;
@@ -418,6 +631,13 @@ extern ModeHook release_flame;
 extern ModeHook refresh_flame;
 extern ModeSpecOpt flame_opts;
 
+extern ModeHook init_flow;
+extern ModeHook draw_flow;
+extern ModeHook release_flow;
+extern ModeHook refresh_flow;
+extern ModeHook change_flow;
+extern ModeSpecOpt flow_opts;
+
 extern ModeHook init_forest;
 extern ModeHook draw_forest;
 extern ModeHook release_forest;
@@ -444,6 +664,11 @@ extern ModeSpecOpt gears_opts;
 
 #endif
 
+extern ModeHook init_goop;
+extern ModeHook draw_goop;
+extern ModeHook release_goop;
+extern ModeSpecOpt goop_opts;
+
 extern ModeHook init_grav;
 extern ModeHook draw_grav;
 extern ModeHook release_grav;
@@ -466,6 +691,7 @@ extern ModeHook init_hyper;
 extern ModeHook draw_hyper;
 extern ModeHook release_hyper;
 extern ModeHook refresh_hyper;
+extern ModeHook change_hyper;
 extern ModeSpecOpt hyper_opts;
 
 extern ModeHook init_ico;
@@ -497,6 +723,21 @@ extern ModeHook draw_kaleid;
 extern ModeHook release_kaleid;
 extern ModeHook refresh_kaleid;
 extern ModeSpecOpt kaleid_opts;
+
+extern ModeHook init_kumppa;
+extern ModeHook draw_kumppa;
+extern ModeHook release_kumppa;
+extern ModeHook refresh_kumppa;
+extern ModeSpecOpt kumppa_opts;
+
+#if defined( USE_GL ) && (defined( USE_XPM ) || defined( USE_XPMINC )) && defined( USE_UNSTABLE )
+extern ModeHook init_lament;
+extern ModeHook draw_lament;
+extern ModeHook release_lament;
+extern ModeHook change_lament;
+extern ModeSpecOpt lament_opts;
+
+#endif
 
 extern ModeHook init_laser;
 extern ModeHook draw_laser;
@@ -558,7 +799,6 @@ extern ModeSpecOpt mandelbrot_opts;
 extern ModeHook init_marquee;
 extern ModeHook draw_marquee;
 extern ModeHook release_marquee;
-extern ModeHook refresh_marquee;
 extern ModeSpecOpt marquee_opts;
 
 extern ModeHook init_maze;
@@ -736,6 +976,12 @@ extern ModeHook release_star;
 extern ModeHook refresh_star;
 extern ModeSpecOpt star_opts;
 
+extern ModeHook init_starfish;
+extern ModeHook draw_starfish;
+extern ModeHook release_starfish;
+extern ModeHook refresh_starfish;
+extern ModeSpecOpt starfish_opts;
+
 extern ModeHook init_strange;
 extern ModeHook draw_strange;
 extern ModeHook release_strange;
@@ -761,6 +1007,23 @@ extern ModeHook draw_swirl;
 extern ModeHook release_swirl;
 extern ModeHook refresh_swirl;
 extern ModeSpecOpt swirl_opts;
+
+#if defined( USE_GL ) && defined( USE_TEXT )
+extern ModeHook init_text3d;
+extern ModeHook draw_text3d;
+extern ModeHook release_text3d;
+extern ModeHook refresh_text3d;
+extern ModeHook change_text3d;
+extern ModeSpecOpt text3d_opts;
+
+#endif
+
+extern ModeHook init_thornbird;
+extern ModeHook draw_thornbird;
+extern ModeHook release_thornbird;
+extern ModeHook refresh_thornbird;
+extern ModeHook change_thornbird;
+extern ModeSpecOpt thornbird_opts;
 
 extern ModeHook init_triangle;
 extern ModeHook draw_triangle;
@@ -853,6 +1116,7 @@ extern void **LoadedModules;	/* save handles on loaded modules for closing */
 
 extern int  numprocs;
 
-/* -------------------------------------------------------------------- */
 
+#endif /* STANDALONE */
+/* -------------------------------------------------------------------- */
 #endif /* __XLOCK_MODE_H__ */

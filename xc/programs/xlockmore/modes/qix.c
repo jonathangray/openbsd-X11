@@ -43,7 +43,8 @@ static const char sccsid[] = "@(#)qix.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 30000 \n" \
  "*count: -5 \n" \
  "*cycles: 32 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*fullrandom: True \n"
 #define SMOOTH_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
@@ -51,20 +52,27 @@ static const char sccsid[] = "@(#)qix.c	4.07 97/11/24 xlockmore";
 #endif /* STANDALONE */
 
 #define DEF_COMPLETE  "False"
+#define DEF_KALEID  "False"
+
 static Bool complete;
+static Bool kaleid;
 
 static XrmOptionDescRec opts[] =
 {
 	{"-complete", ".qix.complete", XrmoptionNoArg, (caddr_t) "on"},
-	{"+complete", ".qix.complete", XrmoptionNoArg, (caddr_t) "off"}
+	{"+complete", ".qix.complete", XrmoptionNoArg, (caddr_t) "off"},
+	{"-kaleid", ".qix.kaleid", XrmoptionNoArg, (caddr_t) "on"},
+	{"+kaleid", ".qix.kaleid", XrmoptionNoArg, (caddr_t) "off"}
 };
 static argtype vars[] =
 {
-	{(caddr_t *) & complete, "complete", "Complete", DEF_COMPLETE, t_Bool}
+      {(caddr_t *) & complete, "complete", "Complete", DEF_COMPLETE, t_Bool},
+	{(caddr_t *) & kaleid, "kaleid", "Kaleid", DEF_KALEID, t_Bool}
 };
 static OptionStruct desc[] =
 {
-	{"-/+complete", "turn on/off complete morphing graph"}
+	{"-/+complete", "turn on/off complete morphing graph"},
+	{"-/+kaleid", "turn on/off complete kaleidoscope"}
 };
 
 ModeSpecOpt qix_opts =
@@ -97,11 +105,12 @@ typedef struct {
 	int         npoints;
 	int         offset;
 	int         max_delta;
-	int         width, height;
-	int         nlines;
+	int         width, height, mid, midx, midy;
+	int         nlines, linecount;
 	int         redrawing, redrawpos;
 	XPoint     *lineq;
 	Bool        complete;
+	Bool        kaleid;
 } qixstruct;
 
 static qixstruct *qixs = NULL;
@@ -128,15 +137,14 @@ init_qix(ModeInfo * mi)
 	}
 	qp = &qixs[MI_SCREEN(mi)];
 
-	qp->width = MI_WIN_WIDTH(mi);
-	qp->height = MI_WIN_HEIGHT(mi);
+	qp->width = MI_WIDTH(mi);
+	qp->height = MI_HEIGHT(mi);
+	qp->mid = MAX(qp->width, qp->height) / 2;
+	qp->midx = qp->width / 2;
+	qp->midy = qp->height / 2;
 	qp->max_delta = 16;
 	qp->redrawing = 0;
-
-	if (MI_WIN_IS_FULLRANDOM(mi))
-		qp->complete = (Bool) (LRAND() & 1);
-	else
-		qp->complete = complete;
+	qp->linecount = 0;
 
 	if (qp->width < 100) {	/* icon window */
 		qp->max_delta /= 4;
@@ -146,13 +154,26 @@ init_qix(ModeInfo * mi)
 	if (MI_NPIXELS(mi) > 2)
 		qp->pix = NRAND(MI_NPIXELS(mi));
 
-	qp->npoints = MI_BATCHCOUNT(mi);
+	qp->npoints = MI_COUNT(mi);
 	if (qp->npoints < -MINPOINTS)
 		qp->npoints = NRAND(qp->npoints - MINPOINTS + 1) + MINPOINTS;
 	/* Absolute minimum */
 	if (qp->npoints < MINPOINTS)
 		qp->npoints = MINPOINTS;
 
+	if (MI_IS_FULLRANDOM(mi))
+		qp->complete = (Bool) (LRAND() & 1);
+	else
+		qp->complete = complete;
+
+	if (qp->complete) {
+		qp->kaleid = False;
+	} else {
+		if (MI_IS_FULLRANDOM(mi))
+			qp->kaleid = (Bool) (LRAND() & 1);
+		else
+			qp->kaleid = kaleid;
+	}
 	if (qp->delta)
 		(void) free((void *) qp->delta);
 	if (qp->position)
@@ -173,11 +194,18 @@ init_qix(ModeInfo * mi)
 		qp->max_delta /= 4;
 		qp->nlines = qp->npoints;
 	}
-	if (qp->lineq)
+	if (qp->kaleid) {
+		qp->nlines = MI_CYCLES(mi) * 16;	/* Fudge it so its compatible */
+	}
+	if (qp->lineq) {
 		(void) free((void *) qp->lineq);
-	qp->lineq = (XPoint *) malloc(qp->nlines * sizeof (XPoint));
-	for (i = 0; i < qp->nlines; i++)
-		qp->lineq[i].x = qp->lineq[i].y = -1;	/* move initial point off screen */
+		qp->lineq = NULL;
+	}
+	if (!qp->kaleid) {
+		qp->lineq = (XPoint *) malloc(qp->nlines * sizeof (XPoint));
+		for (i = 0; i < qp->nlines; i++)
+			qp->lineq[i].x = qp->lineq[i].y = -1;	/* move initial point off screen */
+	}
 	MI_CLEARWINDOW(mi);
 }
 
@@ -190,6 +218,8 @@ draw_qix(ModeInfo * mi)
 	int         i, j, k, l;
 
 	qp->first = (qp->last + qp->npoints) % qp->nlines;
+
+	MI_IS_DRAWN(mi) = True;
 
 	for (i = 0; i < qp->npoints; i++) {
 		qp->position[i].x += qp->delta[i].x;
@@ -214,7 +244,7 @@ draw_qix(ModeInfo * mi)
 				XDrawLine(display, MI_WINDOW(mi), gc,
 					  qp->lineq[qp->first + i].x, qp->lineq[qp->first + i].y,
 					  qp->lineq[qp->first + j].x, qp->lineq[qp->first + j].y);
-	} else {
+	} else if (!qp->kaleid) {
 		for (i = 1; i < qp->npoints + ((qp->npoints == 2) ? -1 : 0); i++)
 			XDrawLine(display, MI_WINDOW(mi), gc,
 				  qp->lineq[qp->first + i - 1].x, qp->lineq[qp->first + i - 1].y,
@@ -237,6 +267,56 @@ draw_qix(ModeInfo * mi)
 				XDrawLine(display, MI_WINDOW(mi), gc,
 					qp->position[i].x, qp->position[i].y,
 				       qp->position[j].x, qp->position[j].y);
+	} else if (qp->kaleid) {
+		for (i = 0; i < qp->npoints; i++) {
+			XSegment    segs[8];
+			XPoint      small[2];
+
+			j = (i + 1) % qp->npoints;
+			small[0].x = ABS(qp->position[i].x - qp->mid);
+			small[0].y = ABS(qp->position[i].y - qp->mid);
+			small[1].x = ABS(qp->position[j].x - qp->mid);
+			small[1].y = ABS(qp->position[j].y - qp->mid);
+			segs[0].x1 = qp->midx + small[0].x;
+			segs[0].y1 = qp->midy + small[0].y;
+			segs[0].x2 = qp->midx + small[1].x;
+			segs[0].y2 = qp->midy + small[1].y;
+			segs[1].x1 = qp->midx - small[0].x;
+			segs[1].y1 = qp->midy + small[0].y;
+			segs[1].x2 = qp->midx - small[1].x;
+			segs[1].y2 = qp->midy + small[1].y;
+			segs[2].x1 = qp->midx - small[0].x;
+			segs[2].y1 = qp->midy - small[0].y;
+			segs[2].x2 = qp->midx - small[1].x;
+			segs[2].y2 = qp->midy - small[1].y;
+			segs[3].x1 = qp->midx + small[0].x;
+			segs[3].y1 = qp->midy - small[0].y;
+			segs[3].x2 = qp->midx + small[1].x;
+			segs[3].y2 = qp->midy - small[1].y;
+			segs[4].x1 = qp->midx + small[0].y;
+			segs[4].y1 = qp->midy + small[0].x;
+			segs[4].x2 = qp->midx + small[1].y;
+			segs[4].y2 = qp->midy + small[1].x;
+			segs[5].x1 = qp->midx + small[0].y;
+			segs[5].y1 = qp->midy - small[0].x;
+			segs[5].x2 = qp->midx + small[1].y;
+			segs[5].y2 = qp->midy - small[1].x;
+			segs[6].x1 = qp->midx - small[0].y;
+			segs[6].y1 = qp->midy - small[0].x;
+			segs[6].x2 = qp->midx - small[1].y;
+			segs[6].y2 = qp->midy - small[1].x;
+			segs[7].x1 = qp->midx - small[0].y;
+			segs[7].y1 = qp->midy + small[0].x;
+			segs[7].x2 = qp->midx - small[1].y;
+			segs[7].y2 = qp->midy + small[1].x;
+			XDrawSegments(display, MI_WINDOW(mi), gc, segs, 8);
+			if (qp->npoints == 2)	/* do not repeat drawing the same line */
+				break;
+		}
+		if (++qp->linecount >= qp->nlines) {
+			qp->linecount = 0;
+			MI_CLEARWINDOW(mi);
+		}
 	} else {
 		for (i = 1; i < qp->npoints + ((qp->npoints == 2) ? -1 : 0); i++)
 			XDrawLine(display, MI_WINDOW(mi), gc,
@@ -246,13 +326,14 @@ draw_qix(ModeInfo * mi)
 			  qp->position[qp->npoints - 1].x, qp->position[qp->npoints - 1].y);
 	}
 
-	for (i = 0; i < qp->npoints; i++) {
-		qp->lineq[qp->last].x = qp->position[i].x;
-		qp->lineq[qp->last].y = qp->position[i].y;
-		qp->last++;
-		if (qp->last >= qp->nlines)
-			qp->last = 0;
-	}
+	if (!qp->kaleid)
+		for (i = 0; i < qp->npoints; i++) {
+			qp->lineq[qp->last].x = qp->position[i].x;
+			qp->lineq[qp->last].y = qp->position[i].y;
+			qp->last++;
+			if (qp->last >= qp->nlines)
+				qp->last = 0;
+		}
 	if (qp->redrawing) {
 		for (i = 0; i < REDRAWSTEP; i++) {
 			j = (qp->first - qp->redrawpos + qp->nlines - qp->npoints) % qp->nlines;
@@ -262,7 +343,7 @@ draw_qix(ModeInfo * mi)
 						XDrawLine(display, MI_WINDOW(mi), gc,
 							  qp->lineq[j + k].x, qp->lineq[j + k].y,
 							  qp->lineq[j + l].x, qp->lineq[j + l].y);
-			} else {
+			} else if (!qp->kaleid) {
 				for (k = 1; k < qp->npoints + ((qp->npoints == 2) ? -1 : 0); k++)
 					XDrawLine(display, MI_WINDOW(mi), gc,
 						  qp->lineq[j + k - 1].x, qp->lineq[j + k - 1].y,
@@ -306,6 +387,7 @@ refresh_qix(ModeInfo * mi)
 {
 	qixstruct  *qp = &qixs[MI_SCREEN(mi)];
 
+	MI_CLEARWINDOW(mi);
 	qp->redrawing = 1;
 	qp->redrawpos = 0;
 }

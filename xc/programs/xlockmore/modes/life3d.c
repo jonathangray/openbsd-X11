@@ -49,12 +49,16 @@ static const char sccsid[] = "@(#)life3d.c	4.07 98/01/18 xlockmore";
 #define DEFAULTS "*delay: 1000000 \n" \
  "*count: 35 \n" \
  "*cycles: 85 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*wireframe: False \n" \
+ "*fullrandom: False \n" \
+ "*verbose: False \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 #if 1
 #define DEF_RULE3D  "G"		/* All rules with gliders */
@@ -151,10 +155,9 @@ typedef struct {
 } paramstruct;
 
 typedef struct {
+	Bool        painted;
 	paramstruct param;
 	int         pattern, patterned_rule;
-	int         initialized;
-	int         wireframe;	/* FALSE */
 	int         ox, oy, oz;	/* origin */
 	double      vx, vy, vz;	/* viewpoint */
 	int         generation;
@@ -169,6 +172,7 @@ typedef struct {
 	double      dist;
 	CellList   *ptrhead, *ptrend, eraserhead, eraserend;
 	CellList   *buckethead[NBUCKETS], *bucketend[NBUCKETS];		/* comfortable upper b */
+	Bool        wireframe;
 } life3dstruct;
 
 static life3dstruct *life3ds = NULL;
@@ -1206,7 +1210,7 @@ static paramstruct param_rules[] =
 static int
 codeToPatternedRule(paramstruct param)
 {
-	int         i;
+	unsigned int i;
 
 	for (i = 0; i < LIFE_RULES; i++)
 		if (param_rules[i].survival == param.survival &&
@@ -1262,13 +1266,13 @@ parseRule(ModeInfo * mi)
 			if (rule3d[n] == 'P') {
 				allPatterns = True;
 				found = True;
-				if (MI_WIN_IS_VERBOSE(mi))
+				if (MI_IS_VERBOSE(mi))
 					(void) fprintf(stdout, "rule3d: All rules with known patterns\n");
 				return;
 			} else if (rule3d[n] == 'G') {
 				allGliders = True;
 				found = True;
-				if (MI_WIN_IS_VERBOSE(mi))
+				if (MI_IS_VERBOSE(mi))
 					(void) fprintf(stdout, "rule3d: All rules with known gliders\n");
 				return;
 			} else if (rule3d[n] == 'S' || rule3d[n] == 'E' || rule3d[n] == 'L') {
@@ -1293,12 +1297,12 @@ parseRule(ModeInfo * mi)
 	if (!found) {		/* Default to Bays' rules if very stupid */
 		allGliders = True;
 		found = True;
-		if (MI_WIN_IS_VERBOSE(mi))
+		if (MI_IS_VERBOSE(mi))
 			(void) fprintf(stdout,
 				       "rule3d: Defaulting to all rules with known gliders\n");
 		return;
 	}
-	if (MI_WIN_IS_VERBOSE(mi))
+	if (MI_IS_VERBOSE(mi))
 		printRule(input_param);
 }
 
@@ -1666,7 +1670,7 @@ RandomSoup(ModeInfo * mi, int n, int v)
 			for (x = lp->ncolumns / 2 - v; x < lp->ncolumns / 2 + v; ++x)
 				if (NRAND(100) < n)
 					SetList3D(x, y, z);
-	if (MI_WIN_IS_VERBOSE(mi)) {
+	if (MI_IS_VERBOSE(mi)) {
 		(void) fprintf(stdout, "random pattern\n");
 	}
 }
@@ -1706,7 +1710,7 @@ GetPattern(ModeInfo * mi, int pattern_rule, int pattern)
 		    x < lp->ncolumns && y < lp->nrows && z < lp->nstacks)
 			SetList3D(x, y, z);
 	}
-	if (MI_WIN_IS_VERBOSE(mi) && !filePattern) {
+	if (MI_IS_VERBOSE(mi) && !filePattern) {
 		(void) fprintf(stdout, "table number %d\n", pattern);
 	}
 }
@@ -1879,7 +1883,9 @@ DrawFace(ModeInfo * mi, int color, XPoint * cubepts,
 		XFillPolygon(display, MI_WINDOW(mi), gc, facepts, 4,
 			     Convex, CoordModeOrigin);
 	}
-	if (color == BLACK || (MI_NPIXELS(mi) <= 2 && !lp->wireframe))
+	if (lp->wireframe) {
+		XSetForeground(display, gc, lp->color[color]);
+	} else if (color == BLACK)
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 	else
 		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
@@ -1924,6 +1930,20 @@ DrawCube(ModeInfo * mi, CellList * cell)
 	dx = lp->vx - x;
 	dy = lp->vy - y;
 	dz = lp->vz - z;
+	if (lp->wireframe) {
+		if (dz <= LEN)
+			DrawFace(mi, (int) (BLUE & mask), cubepts, 4, 5, 7, 6);
+		else if (dz >= -LEN)
+			DrawFace(mi, (int) (BLUE & mask), cubepts, 0, 1, 3, 2);
+		if (dx <= LEN)
+			DrawFace(mi, (int) (GREEN & mask), cubepts, 1, 3, 7, 5);
+		else if (dx >= -LEN)
+			DrawFace(mi, (int) (GREEN & mask), cubepts, 0, 2, 6, 4);
+		if (dy <= LEN)
+			DrawFace(mi, (int) (RED & mask), cubepts, 2, 3, 7, 6);
+		else if (dy >= -LEN)
+			DrawFace(mi, (int) (RED & mask), cubepts, 0, 1, 5, 4);
+	}
 	if (dz > LEN)
 		DrawFace(mi, (int) (BLUE & mask), cubepts, 4, 5, 7, 6);
 	else if (dz < -LEN)
@@ -2117,18 +2137,18 @@ init_life3d(ModeInfo * mi)
 	if (allPatterns) {
 		lp->patterned_rule = NRAND(LIFE_RULES);
 		copyFromPatternedRule(&lp->param, lp->patterned_rule);
-		if (MI_WIN_IS_VERBOSE(mi))
+		if (MI_IS_VERBOSE(mi))
 			printRule(lp->param);
 	} else if (allGliders) {
 		lp->patterned_rule = NRAND(LIFE_GLIDERS);
 		copyFromPatternedRule(&lp->param, lp->patterned_rule);
-		if (MI_WIN_IS_VERBOSE(mi))
+		if (MI_IS_VERBOSE(mi))
 			printRule(lp->param);
 	} else {
 		lp->param.survival = input_param.survival;
 		lp->param.birth = input_param.birth;
 	}
-	if (!lp->initialized) {
+	if (!lp->eraserhead.next) {
 		lp->dist = 50.0 /*30.0 */ ;
 		lp->alt = 20 /*30 */ ;
 		lp->azm = 10 /*30 */ ;
@@ -2138,8 +2158,7 @@ init_life3d(ModeInfo * mi)
 		lp->ox = lp->ncolumns / 2;
 		lp->oy = lp->nrows / 2;
 		lp->oz = lp->nstacks / 2;
-		lp->wireframe = 0;
-		lp->initialized = 1;
+
 		Init3D(lp);
 	} else
 		End3D(lp);
@@ -2157,12 +2176,19 @@ init_life3d(ModeInfo * mi)
 	} else
 		lp->color[1] = lp->color[2] = lp->color[3] = MI_WHITE_PIXEL(mi);
 	lp->color[4] = MI_WHITE_PIXEL(mi);
-	lp->width = MI_WIN_WIDTH(mi);
-	lp->height = MI_WIN_HEIGHT(mi);
+	lp->width = MI_WIDTH(mi);
+	lp->height = MI_HEIGHT(mi);
 	lp->memstart = 1;
 	/*lp->tablesMade = 0; */
 
+	if (MI_IS_FULLRANDOM(mi)) {
+		lp->wireframe = (Bool) (LRAND() & 1);
+	} else {
+		lp->wireframe = MI_IS_WIREFRAME(mi);
+	}
+
 	MI_CLEARWINDOW(mi);
+	lp->painted = False;
 
 	if (lp->alt > 89)
 		lp->alt = 89;
@@ -2175,7 +2201,7 @@ init_life3d(ModeInfo * mi)
 	NewViewpoint(lp, lp->vx, lp->vy, lp->vz);
 
 	lp->patterned_rule = codeToPatternedRule(lp->param);
-	if (lp->patterned_rule < LIFE_RULES)
+	if ((unsigned) lp->patterned_rule < LIFE_RULES)
 		npats = patterns_rules[lp->patterned_rule];
 	else
 		npats = 0;
@@ -2196,17 +2222,21 @@ draw_life3d(ModeInfo * mi)
 	RunLife3D(lp);
 	DrawScreen(mi);
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (++lp->generation > MI_CYCLES(mi) || !lp->visible) {
 		/*CountCells3D(lp) == 0) */
 		init_life3d(mi);
-	}
+	} else
+		lp->painted = True;
+
 	/*
 	 * generate a randomized shooter aimed roughly toward the center of the
 	 * screen after batchcount.
 	 */
 
 	if (lp->generation && lp->generation %
-	    ((MI_BATCHCOUNT(mi) < 0) ? 1 : MI_BATCHCOUNT(mi)) == 0)
+	    ((MI_COUNT(mi) < 0) ? 1 : MI_COUNT(mi)) == 0)
 		shooter(lp);
 }
 
@@ -2219,7 +2249,8 @@ release_life3d(ModeInfo * mi)
 		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
 			life3dstruct *lp = &life3ds[screen];
 
-			End3D(lp);
+			if (lp->eraserhead.next)
+				End3D(lp);
 		}
 		(void) free((void *) life3ds);
 		life3ds = NULL;
@@ -2229,7 +2260,11 @@ release_life3d(ModeInfo * mi)
 void
 refresh_life3d(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	life3dstruct *lp = &life3ds[MI_SCREEN(mi)];
+
+	if (lp->painted) {
+		MI_CLEARWINDOW(mi);
+	}
 }
 
 void
@@ -2240,14 +2275,15 @@ change_life3d(ModeInfo * mi)
 
 	lp->generation = 0;
 
-	End3D(lp);
+	if (lp->eraserhead.next)
+		End3D(lp);
 	/*lp->tablesMade = 0; */
 
 	MI_CLEARWINDOW(mi);
 
 	lp->pattern++;
 	lp->patterned_rule = codeToPatternedRule(lp->param);
-	if (lp->patterned_rule < LIFE_RULES)
+	if ((unsigned) lp->patterned_rule < LIFE_RULES)
 		npats = patterns_rules[lp->patterned_rule];
 	else
 		npats = 0;
@@ -2255,17 +2291,17 @@ change_life3d(ModeInfo * mi)
 		lp->pattern = 0;
 		if (allPatterns) {
 			lp->patterned_rule++;
-			if (lp->patterned_rule >= LIFE_RULES)
+			if ((unsigned) lp->patterned_rule >= LIFE_RULES)
 				lp->patterned_rule = 0;
 			copyFromPatternedRule(&lp->param, lp->patterned_rule);
-			if (MI_WIN_IS_VERBOSE(mi))
+			if (MI_IS_VERBOSE(mi))
 				printRule(lp->param);
 		} else if (allGliders) {
 			lp->patterned_rule++;
 			if (lp->patterned_rule >= LIFE_GLIDERS)
 				lp->patterned_rule = 0;
 			copyFromPatternedRule(&lp->param, lp->patterned_rule);
-			if (MI_WIN_IS_VERBOSE(mi))
+			if (MI_IS_VERBOSE(mi))
 				printRule(lp->param);
 		}
 	}

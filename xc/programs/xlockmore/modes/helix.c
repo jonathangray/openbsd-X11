@@ -28,7 +28,7 @@ static const char sccsid[] = "@(#)helix.c	4.07 97/11/24 xlockmore";
  * 08-Aug-95: speed up thanks to Heath A. Kehoe <hakehoe@icaen.uiowa.edu>
  * 17-Jun-95: removed sleep statements
  * 2-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
- * 1992:     xscreensaver version Jamie Zawinski <jwz@netscape.com>
+ * 1992:     xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
 /*-
@@ -50,8 +50,9 @@ static const char sccsid[] = "@(#)helix.c	4.07 97/11/24 xlockmore";
 #define helix_opts xlockmore_opts
 #define DEFAULTS "*delay: 25000 \n" \
  "*cycles: 100 \n" \
- "*ncolors: 200 \n"
-#define SPREAD_COLORS
+ "*ncolors: 200 \n" \
+ "*fullrandom: True \n"
+#define BRIGHT_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -62,7 +63,6 @@ static const char sccsid[] = "@(#)helix.c	4.07 97/11/24 xlockmore";
 
 static Bool ellipse;
 
-#ifndef STANDALONE
 static XrmOptionDescRec opts[] =
 {
 	{"-ellipse", ".helix.ellipse", XrmoptionNoArg, (caddr_t) "on"},
@@ -89,14 +89,13 @@ ModStruct   helix_description =
 
 #endif
 
-#endif /* STANDALONE */
-
 #define ANGLES 360
 
 static double cos_array[ANGLES], sin_array[ANGLES];
+
 typedef struct {
-	int         width;
-	int         height;
+	Bool        painted;
+	int         width, height;
 	int         xmid, ymid;
 	int         color;
 	int         time;
@@ -137,6 +136,12 @@ helix(ModeInfo * mi, int radius1, int radius2, int d_angle,
 	int         x_1, y_1, x_2, y_2, angle, limit;
 	int         i;
 
+	if (MI_NPIXELS(mi) > 2) {
+		XSetForeground(display, gc, MI_PIXEL(mi, hp->color));
+		if (++hp->color >= MI_NPIXELS(mi))
+			hp->color = 0;
+	} else
+		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
 	x_1 = hp->xmid;
 	y_1 = hp->ymid + radius2;
 	x_2 = hp->xmid;
@@ -210,8 +215,6 @@ trig(ModeInfo * mi)
 static void
 random_helix(ModeInfo * mi)
 {
-	Display    *display = MI_DISPLAY(mi);
-	GC          gc = MI_GC(mi);
 	helixstruct *hp = &helixes[MI_SCREEN(mi)];
 	int         radius;
 	double      divisor;
@@ -238,7 +241,7 @@ random_helix(ModeInfo * mi)
 		hp->d_angle = NRAND(ANGLES);
 
 #define random_factor()				\
-  (((NRAND(7)) ? ((LRAND() & 1) + 1) : 3)	* (((LRAND() & 1) * 2) - 1))
+  (int) (((NRAND(7)) ? ((LRAND() & 1) + 1) : 3)	* (((LRAND() & 1) * 2) - 1))
 
 	while (gcd(gcd(gcd(hp->factor1, hp->factor2), hp->factor3), hp->factor4)
 	       != 1) {
@@ -247,12 +250,6 @@ random_helix(ModeInfo * mi)
 		hp->factor3 = random_factor();
 		hp->factor4 = random_factor();
 	}
-	if (MI_NPIXELS(mi) > 2) {
-		XSetForeground(display, gc, MI_PIXEL(mi, hp->color));
-		if (++hp->color >= MI_NPIXELS(mi))
-			hp->color = 0;
-	} else
-		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
 
 	helix(mi, hp->radius1, hp->radius2, hp->d_angle,
 	      hp->factor1, hp->factor2, hp->factor3, hp->factor4);
@@ -305,16 +302,17 @@ init_helix(ModeInfo * mi)
 		}
 	}
 	hp->ellipse = ellipse;
-	if (MI_WIN_IS_FULLRANDOM(mi))
+	if (MI_IS_FULLRANDOM(mi))
 		hp->ellipse = (Bool) (!NRAND(5));	/* 1:5 chance of running ellipse stuff */
 
-	hp->width = MI_WIN_WIDTH(mi);
-	hp->height = MI_WIN_HEIGHT(mi);
+	hp->width = MI_WIDTH(mi);
+	hp->height = MI_HEIGHT(mi);
 	hp->xmid = hp->width / 2;
 	hp->ymid = hp->height / 2;
 	hp->redraw = 0;
 
 	MI_CLEARWINDOW(mi);
+	hp->painted = False;
 
 	if (MI_NPIXELS(mi) > 2)
 		hp->color = NRAND(MI_NPIXELS(mi));
@@ -331,8 +329,12 @@ draw_helix(ModeInfo * mi)
 {
 	helixstruct *hp = &helixes[MI_SCREEN(mi)];
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (++hp->time > MI_CYCLES(mi))
 		init_helix(mi);
+	else
+		hp->painted = True;
 	if (hp->redraw) {
 		if (hp->ellipse) {
 			trig(mi);
@@ -358,5 +360,10 @@ refresh_helix(ModeInfo * mi)
 {
 	helixstruct *hp = &helixes[MI_SCREEN(mi)];
 
-	hp->redraw = 1;
+	if (hp->painted) {
+		MI_CLEARWINDOW(mi);
+		helix(mi, hp->radius1, hp->radius2, hp->d_angle,
+		      hp->factor1, hp->factor2, hp->factor3, hp->factor4);
+		hp->painted = False;
+	}
 }

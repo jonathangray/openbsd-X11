@@ -28,7 +28,7 @@ static const char sccsid[] = "@(#)munch.c 4.07 97/11/24 xlockmore";
  * 
  * Some code stolen from / This is meant to work with
  * xscreensaver, Copyright (c) 1992, 1995, 1996
- * Jamie Zawinski <jwz@netscape.com>
+ * Jamie Zawinski <jwz@jwz.org>
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -124,8 +124,8 @@ munchBit(ModeInfo * mi, int width,	/* pixels */
 		   that yet.  if these trigger, please let me know.
 		 */
 #if 0
-		assert(drawX >= 0 && drawX < xgwa.width);
-		assert(drawY >= 0 && drawY < xgwa.height);
+		assert(drawX >= 0 && drawX < MI_WIDTH(mi));
+		assert(drawY >= 0 && drawY < MI_HEIGHT(mi));
 #endif
 
 		XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), mp->gc, drawX, drawY);
@@ -169,8 +169,8 @@ init_munch(ModeInfo * mi)
 			     (unsigned long) 0, (XGCValues *) NULL)) == None)
 			return;
 	}
-	mp->width = MI_WIN_WIDTH(mi);
-	mp->height = MI_WIN_HEIGHT(mi);
+	mp->width = MI_WIDTH(mi);
+	mp->height = MI_HEIGHT(mi);
 
 	/* We need a square; limit on screen size? */
 	/* we want a power of 2 for the width or the munch doesn't fill up. */
@@ -180,7 +180,7 @@ init_munch(ModeInfo * mi)
 	XSetFunction(display, mp->gc, GXxor);
 
 	mp->logminwidth = MI_CYCLES(mi);
-	if (mp->logminwidth < 2 || MI_WIN_IS_ICONIC(mi))
+	if (mp->logminwidth < 2 || MI_IS_ICONIC(mi))
 		mp->logminwidth = 2;
 
 	if (mp->logmaxwidth < mp->logminwidth)
@@ -196,14 +196,14 @@ draw_munch(ModeInfo * mi)
 {
 	munchstruct *mp = &munches[MI_SCREEN(mi)];
 
-
+	MI_IS_DRAWN(mi) = True;
 
 	if (!mp->t) {		/* New one */
-		int         randflags = LRAND();
+		int         randflags = (int) LRAND();
 
 		/* choose size -- power of two */
-		mp->thiswidth = 1 << (mp->logminwidth +
-			(LRAND() % (1 + mp->logmaxwidth - mp->logminwidth)));
+		mp->thiswidth = (int) (1 << (mp->logminwidth +
+		       (LRAND() % (1 + mp->logmaxwidth - mp->logminwidth))));
 
 		if (MI_NPIXELS(mi) > 2)
 			XSetForeground(MI_DISPLAY(mi), mp->gc,
@@ -211,16 +211,16 @@ draw_munch(ModeInfo * mi)
 		else		/* Xor'red so WHITE may not be appropriate */
 			XSetForeground(MI_DISPLAY(mi), mp->gc, 1);
 
-		mp->atX = LRAND() %
-			((mp->width <= mp->thiswidth) ? 1 : mp->width - mp->thiswidth);
-		mp->atY = LRAND() %
-			((mp->height <= mp->thiswidth) ? 1 : mp->height - mp->thiswidth);
+		mp->atX = (int) (LRAND() %
+				 ((mp->width <= mp->thiswidth) ? 1 : mp->width - mp->thiswidth));
+		mp->atY = (int) (LRAND() %
+				 ((mp->height <= mp->thiswidth) ? 1 : mp->height - mp->thiswidth));
 
 		/* wrap-around by these values; no need to %
 		   as we end up doing that later anyway */
-		mp->kX = ((randflags & SHIFT_KX) ? LRAND() % mp->thiswidth : 0);
-		mp->kT = ((randflags & SHIFT_KT) ? LRAND() % mp->thiswidth : 0);
-		mp->kY = ((randflags & SHIFT_KY) ? LRAND() % mp->thiswidth : 0);
+		mp->kX = (int) ((randflags & SHIFT_KX) ? LRAND() % mp->thiswidth : 0);
+		mp->kT = (int) ((randflags & SHIFT_KT) ? LRAND() % mp->thiswidth : 0);
+		mp->kY = (int) ((randflags & SHIFT_KY) ? LRAND() % mp->thiswidth : 0);
 
 		/* set the gravity of the munch, or rather,
 		   which direction we draw stuff in. */

@@ -92,11 +92,11 @@ ModStruct   lisa_description =
 #define  LISAMAXFUNCS 2
 #define  NUMSTDFUNCS  10
 #define  MAXCYCLES    3
-#define  MINLISAS 1
+#define  MINLISAS     1
 #define  lisasetcolor() \
 if (MI_NPIXELS(mi) > 2) { \
   XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_PIXEL(mi, loop->color)); \
-  if (++(loop->color) >= MI_NPIXELS(mi)) { loop->color=0; } \
+  if (++(loop->color) >= (unsigned) MI_NPIXELS(mi)) { loop->color=0; } \
   } else { XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_WHITE_PIXEL(mi)); }
 #define getRadius(context) \
   ((context->width > context->height)?context->height:context->width) * 3 / 8
@@ -115,16 +115,19 @@ typedef struct lisafunc_struct {
 } lisafuncs;
 
 typedef struct lisa_struct {
-	int         radius, color, dx, dy, nsteps, nfuncs, melting;
+	unsigned long color;
+	int         radius, dx, dy, nsteps, nfuncs, melting;
 	double      pistep, phi, theta;
 	XPoint      center, *lastpoint;
 	lisafuncs  *function[LISAMAXFUNCS];
+	int         linewidth;
 } lisas;
 
 typedef struct lisacontext_struct {
 	lisas      *lisajous;
 	int         width, height, nlisajous, loopcount;
 	int         maxcycles;
+	Bool        painted;
 } lisacons;
 
 static lisacons *Lisa = NULL;
@@ -214,42 +217,31 @@ drawlisa(ModeInfo * mi, lisas * loop)
 					yprod += sin(lf[fctr]->ycoeff[yctr] * loop->phi);
 				if (loop->melting) {
 					if (fctr) {
-						xsum += xprod \
-							*(double) (loop->nsteps - loop->melting) \
-							/(double) loop->nsteps;
-						ysum += yprod \
-							*(double) (loop->nsteps - loop->melting) \
-							/(double) loop->nsteps;
+						xsum += xprod * (double) (loop->nsteps - loop->melting) /
+							(double) loop->nsteps;
+						ysum += yprod * (double) (loop->nsteps - loop->melting) /
+							(double) loop->nsteps;
 					} else {
-						xsum += xprod \
-							*(double) loop->melting \
-							/(double) loop->nsteps;
-						ysum += yprod \
-							*(double) loop->melting \
-							/(double) loop->nsteps;
+						xsum += xprod * (double) loop->melting / (double) loop->nsteps;
+						ysum += yprod * (double) loop->melting / (double) loop->nsteps;
 					}
 				} else {
 					xsum = xprod;
 					ysum = yprod;
 				}
 				if (!fctr) {
-					xsum = xsum \
-						*(double) loop->radius \
-						/(double) lf[fctr]->nx;
-					ysum = ysum \
-						*(double) loop->radius \
-						/(double) lf[fctr]->ny;
+					xsum = xsum * (double) loop->radius / (double) lf[fctr]->nx;
+					ysum = ysum * (double) loop->radius / (double) lf[fctr]->ny;
 				}
 			} else {
 				if (loop->melting) {
 					if (fctr) {
-						yprod = xprod = (double) loop->radius \
-							*(double) (loop->nsteps - loop->melting) \
-							/(double) (loop->nsteps);
+						yprod = xprod = (double) loop->radius *
+							(double) (loop->nsteps - loop->melting) /
+							(double) (loop->nsteps);
 					} else {
-						yprod = xprod = (double) loop->radius \
-							*(double) (loop->melting) \
-							/(double) (loop->nsteps);
+						yprod = xprod = (double) loop->radius *
+							(double) (loop->melting) / (double) (loop->nsteps);
 					}
 				} else {
 					xprod = yprod = (double) loop->radius;
@@ -281,32 +273,36 @@ drawlisa(ModeInfo * mi, lisas * loop)
 	for (pctr = 0; pctr < loop->nsteps; pctr++) {
 
 #if defined DRAWLINES
+		XSetLineAttributes(MI_DISPLAY(mi), MI_GC(mi), loop->linewidth,
+				   LineSolid, CapProjecting, JoinMiter);
 		/* erase the last cycle's point */
 		XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_BLACK_PIXEL(mi));
-		XDrawLine(MI_DISPLAY(mi), MI_WINDOW(mi), \
-			  MI_GC(mi), lp[pctr].x, lp[pctr].y, \
-			  lp[(pctr + 1) % loop->nsteps].x, \
+		XDrawLine(MI_DISPLAY(mi), MI_WINDOW(mi),
+			  MI_GC(mi), lp[pctr].x, lp[pctr].y,
+			  lp[(pctr + 1) % loop->nsteps].x,
 			  lp[(pctr + 1) % loop->nsteps].y);
 
 		/* Set the new color */
 		lisasetcolor();
 
 		/* plot this cycle's point */
-		XDrawLine(MI_DISPLAY(mi), MI_WINDOW(mi), \
-			  MI_GC(mi), np[pctr].x, np[pctr].y, \
-			  np[(pctr + 1) % loop->nsteps].x, \
+		XDrawLine(MI_DISPLAY(mi), MI_WINDOW(mi),
+			  MI_GC(mi), np[pctr].x, np[pctr].y,
+			  np[(pctr + 1) % loop->nsteps].x,
 			  np[(pctr + 1) % loop->nsteps].y);
+		XSetLineAttributes(MI_DISPLAY(mi), MI_GC(mi), 1,
+				   LineSolid, CapProjecting, JoinMiter);
 #else
 		/* erase the last cycle's point */
 		XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_BLACK_PIXEL(mi));
-		XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), \
+		XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi),
 			   MI_GC(mi), lp[pctr].x, lp[pctr].y);
 
 		/* Set the new color */
 		lisasetcolor();
 
 		/* plot this cycle's point */
-		XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), \
+		XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi),
 			   MI_GC(mi), np[pctr].x, np[pctr].y);
 #endif
 	}
@@ -336,7 +332,7 @@ initlisa(ModeInfo * mi, lisas * loop)
 	loop->pistep = 2.0 * M_PI / (double) loop->nsteps;
 	loop->center.x = lc->width / 2;
 	loop->center.y = lc->height / 2;
-	loop->radius = MI_SIZE(mi);
+	loop->radius = (int) MI_SIZE(mi);
 	checkRadius(loop, lc);
 	loop->dx = NRAND(XVMAX);
 	loop->dy = NRAND(YVMAX);
@@ -374,23 +370,40 @@ initlisa(ModeInfo * mi, lisas * loop)
 		lp[pctr].x = (int) ceil(xsum);
 		lp[pctr].y = (int) ceil(ysum);
 	}
+#if defined DRAWLINES
+	{
+		loop->linewidth = -8;	/* #### make this a resource */
+
+		if (loop->linewidth == 0)
+			loop->linewidth = 1;
+		if (loop->linewidth < 0)
+			loop->linewidth = NRAND(-loop->linewidth) + 1;
+		XSetLineAttributes(MI_DISPLAY(mi), MI_GC(mi), loop->linewidth,
+				   LineSolid, CapProjecting, JoinMiter);
+	}
+#endif
 	for (pctr = 0; pctr < loop->nsteps; pctr++) {
 		/* Set the color */
 		lisasetcolor();
 #if defined DRAWLINES
-		XDrawLine(MI_DISPLAY(mi), MI_WINDOW(mi), \
-			  MI_GC(mi), lp[pctr].x, lp[pctr].y, \
-			  lp[(pctr + 1) % loop->nsteps].x, \
+		XDrawLine(MI_DISPLAY(mi), MI_WINDOW(mi),
+			  MI_GC(mi), lp[pctr].x, lp[pctr].y,
+			  lp[(pctr + 1) % loop->nsteps].x,
 			  lp[(pctr + 1) % loop->nsteps].y);
 #else
-		XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi), \
+		XDrawPoint(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
 			   lp[pctr].x, lp[pctr].y);
 #endif
 	}
+#if defined DRAWLINES
+	XSetLineAttributes(MI_DISPLAY(mi), MI_GC(mi), 1,
+			   LineSolid, CapProjecting, JoinMiter);
+#endif
+
 }
 
-void
-refresh_lisa(ModeInfo * mi)
+static void
+refreshlisa(ModeInfo * mi)
 {
 	lisacons   *lc = &Lisa[MI_SCREEN(mi)];
 	int         lctr;
@@ -400,6 +413,17 @@ refresh_lisa(ModeInfo * mi)
 	}
 }
 
+void
+refresh_lisa(ModeInfo * mi)
+{
+	lisacons   *lc = &Lisa[MI_SCREEN(mi)];
+
+	if (lc->painted) {
+		lc->painted = False;
+		MI_CLEARWINDOW(mi);
+		refreshlisa(mi);
+	}
+}
 
 void
 change_lisa(ModeInfo * mi)
@@ -425,20 +449,22 @@ init_lisa(ModeInfo * mi)
 	int         lctr;
 
 	if (Lisa == NULL) {
-		if ((Lisa = (lisacons *) calloc(MI_NUM_SCREENS(mi), sizeof (lisacons))) \
+		if ((Lisa = (lisacons *) calloc(MI_NUM_SCREENS(mi), sizeof (lisacons)))
 		    == NULL)
 			return;
 	}
 	lc = &Lisa[MI_SCREEN(mi)];
-	lc->width = MI_WIN_WIDTH(mi);
-	lc->height = MI_WIN_HEIGHT(mi);
+	lc->width = MI_WIDTH(mi);
+	lc->height = MI_HEIGHT(mi);
 	lc->loopcount = 0;
-	lc->nlisajous = MI_BATCHCOUNT(mi);
+	lc->nlisajous = MI_COUNT(mi);
 	if (lc->nlisajous <= 0)
 		lc->nlisajous = 1;
+	MI_CLEARWINDOW(mi);
+	lc->painted = False;
 
 	if (lc->lisajous == NULL) {
-		if ((lc->lisajous = (lisas *) calloc(lc->nlisajous, sizeof (lisas))) \
+		if ((lc->lisajous = (lisas *) calloc(lc->nlisajous, sizeof (lisas)))
 		    == NULL)
 			return;
 		for (lctr = 0; lctr < lc->nlisajous; lctr++) {
@@ -446,10 +472,8 @@ init_lisa(ModeInfo * mi)
 			lc->loopcount++;
 		}
 	} else {
-		refresh_lisa(mi);
+		refreshlisa(mi);
 	}
-
-	MI_CLEARWINDOW(mi);
 }
 
 void
@@ -457,10 +481,13 @@ draw_lisa(ModeInfo * mi)
 {
 	lisacons   *lc = &Lisa[MI_SCREEN(mi)];
 
+	MI_IS_DRAWN(mi) = True;
+
+	lc->painted = True;
 	if (++lc->loopcount > lc->maxcycles) {
 		change_lisa(mi);
 	}
-	refresh_lisa(mi);
+	refreshlisa(mi);
 }
 
 void

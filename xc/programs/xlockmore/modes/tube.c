@@ -43,6 +43,8 @@ static const char sccsid[] = "@(#)tube.c 4.07 97/11/24 xlockmore";
 #include <X11/Xutil.h>
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
+#include "vis.h"
+#include "color.h"
 #endif /* !STANDALONE */
 
 ModeSpecOpt tube_opts =
@@ -99,8 +101,8 @@ init_tube(ModeInfo * mi)
 	}
 	tp = &tubes[MI_SCREEN(mi)];
 
-	screen_width = MI_WIN_WIDTH(mi);
-	screen_height = MI_WIN_HEIGHT(mi);
+	screen_width = MI_WIDTH(mi);
+	screen_height = MI_HEIGHT(mi);
 
 	if (size < -MINSIZE) {
 		tp->width = NRAND(MIN(-size, MAX(MINSIZE, screen_width / 2)) -
@@ -135,7 +137,7 @@ init_tube(ModeInfo * mi)
 		(void) free((void *) tp->proto_pts);
 		tp->proto_pts = NULL;
 	}
-	tp->shape = MI_BATCHCOUNT(mi);
+	tp->shape = MI_COUNT(mi);
 	if (tp->shape < -MINSHAPE) {
 		tp->shape = NRAND(-tp->shape - MINSHAPE + 1) + MINSHAPE;
 	} else if (tp->shape < MINSHAPE)
@@ -168,10 +170,11 @@ init_tube(ModeInfo * mi)
 	tp->x1 = NRAND(screen_width - tp->width - 2 * lw) + lw;
 	tp->y1 = NRAND(screen_height - tp->height - 2 * lw) + lw;
 
-	MI_CLEARWINDOW(mi);
-
 	tp->counter = 0;
 
+	MI_CLEARWINDOW(mi);
+
+#ifndef STANDALONE
 	tp->fixed_colormap = !setupColormap(mi,
 		&(tp->ncolors), &truecolor, &redmask, &greenmask, &bluemask);
 	if (!tp->fixed_colormap) {
@@ -202,6 +205,7 @@ init_tube(ModeInfo * mi)
 		tp->usable_colors = tp->ncolors - preserve;
 	}
 	tp->cur_color = NRAND(tp->ncolors);
+#endif /* !STANDALONE */
 }
 
 void
@@ -214,8 +218,11 @@ draw_tube(ModeInfo * mi)
 	unsigned int i, j;
 	int         k, lw = tp->linewidth / 2;
 
+	MI_IS_DRAWN(mi) = True;
+
 	/* advance drawing color */
 	tp->cur_color = (tp->cur_color + 1) % tp->ncolors;
+#ifndef STANDALONE
 	if (!tp->fixed_colormap && tp->usable_colors > 2) {
 		while (tp->cur_color == MI_WHITE_PIXEL(mi) ||
 		       tp->cur_color == MI_BLACK_PIXEL(mi) ||
@@ -226,6 +233,7 @@ draw_tube(ModeInfo * mi)
 		XSetForeground(display, gc, tp->cur_color);
 	} else
 		XSetForeground(display, gc, MI_PIXEL(mi, tp->cur_color));
+#endif /* !STANDALONE */
 
 	/* move rectangle forward, horiz */
 	tp->x1 += tp->dx1;
@@ -233,8 +241,8 @@ draw_tube(ModeInfo * mi)
 		tp->x1 = lw;
 		tp->dx1 = -tp->dx1;
 	}
-	if (tp->x1 + tp->width + lw >= MI_WIN_WIDTH(mi)) {
-		tp->x1 = MI_WIN_WIDTH(mi) - tp->width - 1 - lw;
+	if (tp->x1 + tp->width + lw >= MI_WIDTH(mi)) {
+		tp->x1 = MI_WIDTH(mi) - tp->width - 1 - lw;
 		tp->dx1 = -tp->dx1;
 	}
 	/* move rectange forward, vert */
@@ -243,8 +251,8 @@ draw_tube(ModeInfo * mi)
 		tp->y1 = lw;
 		tp->dy1 = -tp->dy1;
 	}
-	if (tp->y1 + tp->height + lw >= MI_WIN_HEIGHT(mi)) {
-		tp->y1 = MI_WIN_HEIGHT(mi) - tp->height - 1 - lw;
+	if (tp->y1 + tp->height + lw >= MI_HEIGHT(mi)) {
+		tp->y1 = MI_HEIGHT(mi) - tp->height - 1 - lw;
 		tp->dy1 = -tp->dy1;
 	}
 	XSetLineAttributes(display, gc, tp->linewidth + (tp->shape >= 2),
@@ -265,6 +273,7 @@ draw_tube(ModeInfo * mi)
 	}
 	XSetLineAttributes(display, gc, 1, LineSolid, CapNotLast, JoinRound);
 
+#ifndef STANDALONE
 	/* advance colormap */
 	if (!tp->fixed_colormap && tp->usable_colors > 2) {
 		for (i = 0, j = tp->cur_color, k = 0;
@@ -308,8 +317,9 @@ draw_tube(ModeInfo * mi)
 		}
 		/* make the entire tube move forward */
 		XStoreColors(display, tp->cmap, tp->colors, tp->ncolors);
-		setColormap(display, window, tp->cmap, MI_WIN_IS_INWINDOW(mi));
+		setColormap(display, window, tp->cmap, MI_IS_INWINDOW(mi));
 	}
+#endif /* !STANDALONE */
 	tp->counter++;
 	if (tp->counter > MI_CYCLES(mi)) {
 		init_tube(mi);

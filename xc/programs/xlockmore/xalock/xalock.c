@@ -44,9 +44,9 @@ static const char sccsid[] = "@(#)xmlock.c      4.08 98/02/18 xlockmore";
 #define WINDOW_GEOMETRY "160x100"
 
 static int  delay;
-static int  things2b;
-static int  cycle2b;
-static int  nice2b;
+static int  count;
+static int  cycles;
+static int  nicer;
 static int  timeout;
 static int  untillock;
 static int  saturation;
@@ -124,9 +124,9 @@ static TagList timeopt[] =
 {
 	{TAG_LABEL, "Times options", NULL, TAG_NOINIT},
 	{TAG_INT, "microsecond delay updates:", &delay, TAG_INIT},
-	{TAG_INT, "number of things per batch:", &things2b, TAG_INIT},
-	{TAG_INT, "number of cycles per batch:", &cycle2b, TAG_INIT},
-	{TAG_INT, "nice level for xlock process:", &nice2b, TAG_INIT},
+	{TAG_INT, "number of things per batch:", &count, TAG_INIT},
+	{TAG_INT, "number of cycles per batch:", &cycles, TAG_INIT},
+	{TAG_INT, "nice level for xlock process:", &nicer, TAG_INIT},
 {TAG_INT, "number of seconds before password times out:", &timeout, TAG_INIT},
 	{TAG_INT, "number of seconds until lock:", &untillock, TAG_INIT},
 	{TAG_DONE, NULL, NULL, TAG_NOINIT}
@@ -245,12 +245,12 @@ launch(Widget w, void *data)
 
 	if (delay != 0)
 		strcatint2str(strcommand, "-delay ", delay);
-	if (things2b != 0)
-		strcatint2str(strcommand, "-batchcount ", things2b);
-	if (cycle2b != 0)
-		strcatint2str(strcommand, "-cycles ", cycle2b);
-	if (nice2b != 0)
-		strcatint2str(strcommand, "-nice ", nice2b);
+	if (count != 0)
+		strcatint2str(strcommand, "-batchcount ", count);
+	if (cycles != 0)
+		strcatint2str(strcommand, "-cycles ", cycles);
+	if (nicer != 0)
+		strcatint2str(strcommand, "-nice ", nicer);
 	if (timeout != 0)
 		strcatint2str(strcommand, "-timeout ", timeout);
 	if (untillock != 0)
@@ -303,7 +303,7 @@ execxlock(Widget w, char *str, int index, void *data)
 	else if (numberprocess == 0) {
 		(void) execlp(XLOCK, XLOCK, "-parent", numberwidget,
 			      "-mode", str, "-geometry", WINDOW_GEOMETRY, "-delay", "100000",
-			      "-nolock", "-inwindow", 0);
+			      "-nolock", "-inwindow", "+install", 0);
 	}
 }
 

@@ -67,11 +67,11 @@ static const char sccsid[] = "@(#)stairs.c	4.07 97/11/24 xlockmore";
 #define HACK_INIT init_stairs
 #define HACK_DRAW draw_stairs
 #define stairs_opts xlockmore_opts
-#define DEFAULTS "*delay: 1000 \n"
+#define DEFAULTS "*delay: 200000 \n"
 #include "xlockmore.h"		/* from the xscreensaver distribution */
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
-
+#include "vis.h"
 #endif /* !STANDALONE */
 
 #ifdef USE_GL
@@ -322,7 +322,7 @@ draw_stairs_internal(ModeInfo * mi)
 		mySphere(0.5);
 	glPopMatrix();
 	sp->sphere_position += 3;
-	if (sp->sphere_position >= NPOSITIONS)
+	if (sp->sphere_position >= (int) NPOSITIONS)
 		sp->sphere_position = 0;
 }
 
@@ -349,7 +349,7 @@ reshape(ModeInfo * mi, int width, int height)
 }
 
 static void
-pinit()
+pinit(void)
 {
 	glClearDepth(1.0);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -406,7 +406,7 @@ init_stairs(ModeInfo * mi)
 
 	if ((sp->glx_context = init_GL(mi)) != NULL) {
 
-		reshape(mi, MI_WIN_WIDTH(mi), MI_WIN_HEIGHT(mi));
+		reshape(mi, MI_WIDTH(mi), MI_HEIGHT(mi));
 		glDrawBuffer(GL_BACK);
 		if (!glIsList(objects))
 			objects = glGenLists(1);
@@ -424,6 +424,8 @@ draw_stairs(ModeInfo * mi)
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (!sp->glx_context)
 		return;
 
@@ -435,7 +437,7 @@ draw_stairs(ModeInfo * mi)
 
 	glTranslatef(0.0, 0.0, -10.0);
 
-	if (!MI_WIN_IS_ICONIC(mi)) {
+	if (!MI_IS_ICONIC(mi)) {
 		glScalef(Scale4Window * sp->WindH / sp->WindW, Scale4Window, Scale4Window);
 	} else {
 		glScalef(Scale4Iconic * sp->WindH / sp->WindW, Scale4Iconic, Scale4Iconic);

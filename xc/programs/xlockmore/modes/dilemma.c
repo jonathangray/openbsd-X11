@@ -70,11 +70,21 @@ static const char sccsid[] = "@(#)dilemma.c	4.07 97/11/24 xlockmore";
  "*batchcount: -2 \n" \
  "*cycles: 1000 \n" \
  "*size: 0 \n" \
- "*ncolors: 6 \n"
+ "*ncolors: 6 \n" \
+ "*neighbors: 0 \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
+#define UNIFORM_COLORS
+#define BRIGHT_COLORS
+#define SMOOTH_COLORS
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+#include "automata.h"
+
+/*-
+ * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
+ */
+extern int  neighbors;
 
 #define DEF_BONUS  "1.85"
 #define DEF_CONSCIOUS  "True"
@@ -110,8 +120,6 @@ ModStruct   dilemma_description =
  "Shows Lloyd's Prisoner's Dilemma simulation", 0, NULL};
 
 #endif
-
-extern int  neighbors;
 
 /* Better bitmaps needed :) */
 #include "bitmaps/cooperat.xbm"	/* age > 1 then blue, age = 1 then green */
@@ -222,10 +230,10 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 		}
 	} else if (dp->neighbors == 4 || dp->neighbors == 8) {
 		if (dp->pixelmode) {
-			if (bitmap == BITMAPS - 1 || (dp->xs == 1 && dp->ys == 1))
+			if (bitmap == BITMAPS - 1 || (dp->xs <= 2 || dp->ys <= 2))
 				XFillRectangle(display, window, gc,
 				dp->xb + dp->xs * col, dp->yb + dp->ys * row,
-					       dp->xs, dp->ys);
+				dp->xs - (dp->xs > 3), dp->ys - (dp->ys > 3));
 			else {
 				if (firstChange) {
 					XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -235,7 +243,8 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 					XSetForeground(display, gc, colour);
 				}
 				XFillArc(display, window, gc,
-					 dp->xb + dp->xs * col, dp->yb + dp->ys * row, dp->xs, dp->ys,
+					 dp->xb + dp->xs * col, dp->yb + dp->ys * row,
+					 dp->xs - 1, dp->ys - 1,
 					 0, 23040);
 			}
 		} else
@@ -624,8 +633,8 @@ init_dilemma(ModeInfo * mi)
 			logo[i].bytes_per_line = (icon_width + 7) / 8;
 		}
 	}
-	dp->width = MI_WIN_WIDTH(mi);
-	dp->height = MI_WIN_HEIGHT(mi);
+	dp->width = MI_WIDTH(mi);
+	dp->height = MI_HEIGHT(mi);
 
 	for (i = 0; i < NEIGHBORKINDS; i++) {
 		if (neighbors == plots[i]) {
@@ -775,7 +784,7 @@ init_dilemma(ModeInfo * mi)
 
 	MI_CLEARWINDOW(mi);
 
-	dp->defectors = MI_BATCHCOUNT(mi);
+	dp->defectors = MI_COUNT(mi);
 	if (dp->defectors < -MINDEFECT) {
 		dp->defectors = NRAND(-dp->defectors - MINDEFECT + 1) + MINDEFECT;
 	} else if (dp->defectors < MINDEFECT)
@@ -817,6 +826,8 @@ draw_dilemma(ModeInfo * mi)
 {
 	dilemmastruct *dp = &dilemmas[MI_SCREEN(mi)];
 	int         col, row, mrow, colrow, n, i;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (dp->state >= 2 * COLORS) {
 

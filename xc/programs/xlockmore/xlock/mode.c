@@ -28,7 +28,7 @@ static const char sccsid[] = "@(#)mode.c	4.07 97/11/24 xlockmore";
 /* -------------------------------------------------------------------- */
 
 /*-
- * Mode options: If batchcount, cycles, or size options are set to 1 ...
+ * Mode options: If count, cycles, or size options are set to 1 ...
  * they are probably not used by the mode.
  */
 
@@ -38,8 +38,14 @@ LockStruct  LockProcs[] =
 {
 	{"ant", init_ant, draw_ant, release_ant,
 	 refresh_ant, init_ant, NULL, &ant_opts,
-	 1000, -3, 40000, -7, 64, 1.0, "",
+	 1000, -3, 40000, -12, 64, 1.0, "",
 	 "Shows Langton's and Turk's generalized ants", 0, NULL},
+#ifdef USE_GL
+	{"atlantis", init_atlantis, draw_atlantis, release_atlantis,
+	 refresh_atlantis, change_atlantis, NULL, &atlantis_opts,
+	 1000, 4, 100, 6000, 64, 1.0, "",
+	 "Shows moving sharks/whales/dolphin", 0, NULL},
+#endif
 	{"ball", init_ball, draw_ball, release_ball,
 	 refresh_ball, init_ball, NULL, &ball_opts,
 	 10000, 10, 20, -100, 64, 1.0, "",
@@ -50,7 +56,7 @@ LockStruct  LockProcs[] =
 	 "Shows bouncing flying bats", 0, NULL},
 	{"blot", init_blot, draw_blot, release_blot,
 	 refresh_blot, init_blot, NULL, &blot_opts,
-	 200000, 6, 30, 1, 64, 0.4, "",
+	 200000, 6, 30, 1, 64, 0.3, "",
 	 "Shows Rorschach's ink blot test", 0, NULL},
 	{"bouboule", init_bouboule, draw_bouboule, release_bouboule,
 	 refresh_bouboule, init_bouboule, NULL, &bouboule_opts,
@@ -62,16 +68,22 @@ LockStruct  LockProcs[] =
 	 "Shows bouncing footballs", 0, NULL},
 	{"braid", init_braid, draw_braid, release_braid,
 	 refresh_braid, init_braid, NULL, &braid_opts,
-	 1000, 15, 100, 1, 64, 1.0, "",
+	 1000, 15, 100, -7, 64, 1.0, "",
 	 "Shows random braids and knots", 0, NULL},
-	{"bug", init_bug, draw_bug, release_bug,
-	 refresh_bug, init_bug, NULL, &bug_opts,
-	 75000, 10, 32767, -4, 64, 1.0, "",
-	 "Shows Palmiter's bug evolution and garden of Eden", 0, NULL},
 	{"bubble", init_bubble, draw_bubble, release_bubble,
 	 refresh_bubble, init_bubble, NULL, &bubble_opts,
 	 100000, 25, 1, 100, 64, 0.6, "",
 	 "Shows popping bubbles", 0, NULL},
+#ifdef USE_GL
+	{"bubble3d", init_bubble3d, draw_bubble3d, release_bubble3d,
+	 draw_bubble3d, change_bubble3d, NULL, &bubble3d_opts,
+	 1000, 1, 2, 1, 64, 1.0, "",
+	 "Richard Jones's GL bubbles", 0, NULL},
+#endif
+	{"bug", init_bug, draw_bug, release_bug,
+	 refresh_bug, init_bug, NULL, &bug_opts,
+	 75000, 10, 32767, -4, 64, 1.0, "",
+	 "Shows Palmiter's bug evolution and garden of Eden", 0, NULL},
 #ifdef USE_GL
 	{"cage", init_cage, draw_cage, release_cage,
 	 draw_cage, change_cage, NULL, &cage_opts,
@@ -90,7 +102,7 @@ LockStruct  LockProcs[] =
 	 "Shows Packard's clock", 0, NULL},
 	{"coral", init_coral, draw_coral, release_coral,
 	 init_coral, init_coral, NULL, &coral_opts,
-	 60000, -3, 1, 35, 64, 0.8, "",
+	 60000, -3, 1, 35, 64, 0.6, "",
 	 "Shows a coral reef", 0, NULL},
 	{"crystal", init_crystal, draw_crystal, release_crystal,
 	 refresh_crystal, init_crystal, NULL, &crystal_opts,
@@ -102,11 +114,11 @@ LockStruct  LockProcs[] =
 	 "Shows a meadow of daisies", 0, NULL},
 	{"dclock", init_dclock, draw_dclock, release_dclock,
 	 refresh_dclock, init_dclock, NULL, &dclock_opts,
-	 10000, 1, 10000, 1, 64, 0.2, "",
+	 10000, 1, 10000, 1, 64, 0.3, "",
 	 "Shows a floating digital clock", 0, NULL},
 	{"deco", init_deco, draw_deco, release_deco,
 	 init_deco, init_deco, NULL, &deco_opts,
-	 1000000, -30, 2, -10, 64, 0.8, "",
+	 1000000, -30, 2, -10, 64, 0.6, "",
 	 "Shows art as ugly as sin", 0, NULL},
 	{"demon", init_demon, draw_demon, release_demon,
 	 refresh_demon, init_demon, NULL, &demon_opts,
@@ -116,6 +128,10 @@ LockStruct  LockProcs[] =
 	 refresh_dilemma, init_dilemma, NULL, &dilemma_opts,
 	 200000, -2, 1000, 0, 64, 1.0, "",
 	 "Shows Lloyd's Prisoner's Dilemma simulation", 0, NULL},
+	{"discrete", init_discrete, draw_discrete, release_discrete,
+	 refresh_discrete, init_discrete, NULL, &discrete_opts,
+	 1000, 4096, 2500, 1, 64, 1.0, "",
+	 "Shows various discrete maps", 0, NULL},
 	{"drift", init_drift, draw_drift, release_drift,
 	 refresh_drift, init_drift, NULL, &drift_opts,
 	 10000, 30, 1, 1, 64, 1.0, "",
@@ -136,6 +152,10 @@ LockStruct  LockProcs[] =
 	 refresh_flame, init_flame, NULL, &flame_opts,
 	 750000, 20, 10000, 1, 64, 1.0, "",
 	 "Shows cosmic flame fractals", 0, NULL},
+	{"flow", init_flow, draw_flow, release_flow,
+	 refresh_flow, init_flow, NULL, &flow_opts,
+	 1000, 1024, 3000, 1, 64, 1.0, "",
+	 "Shows dynamic strange attractors", 0, NULL},
 	{"forest", init_forest, draw_forest, release_forest,
 	 refresh_forest, init_forest, NULL, &forest_opts,
 	 400000, 100, 200, 1, 64, 1.0, "",
@@ -150,6 +170,10 @@ LockStruct  LockProcs[] =
 	 1000, 1, 2, 1, 64, 1.0, "",
 	 "Shows GL's gears", 0, NULL},
 #endif
+	{"goop", init_goop, draw_goop, release_goop,
+	 init_goop, init_goop, NULL, &goop_opts,
+	 10000, -12, 1, 1, 64, 1.0, "",
+	 "Shows goop from a lava lamp", 0, NULL},
 	{"grav", init_grav, draw_grav, release_grav,
 	 refresh_grav, init_grav, NULL, &grav_opts,
 	 10000, -12, 1, 1, 64, 1.0, "",
@@ -163,9 +187,9 @@ LockStruct  LockProcs[] =
 	 10000, 1000, 2500, 1, 64, 1.0, "",
 	 "Shows real plane iterated fractals", 0, NULL},
 	{"hyper", init_hyper, draw_hyper, release_hyper,
-	 refresh_hyper, init_hyper, NULL, &hyper_opts,
-	 20000, 1, 5000, 1, 64, 1.0, "",
-	 "Shows a spinning tesseract in 4D space", 0, NULL},
+	 refresh_hyper, change_hyper, NULL, &hyper_opts,
+	 100000, -6, 300, 1, 64, 1.0, "",
+	 "Shows spinning n-dimensional hypercubes", 0, NULL},
 	{"ico", init_ico, draw_ico, release_ico,
 	 refresh_ico, change_ico, NULL, &ico_opts,
 	 100000, 0, 400, 0, 64, 1.0, "",
@@ -184,8 +208,18 @@ LockStruct  LockProcs[] =
 	 "Shows the Julia set", 0, NULL},
 	{"kaleid", init_kaleid, draw_kaleid, release_kaleid,
 	 refresh_kaleid, init_kaleid, NULL, &kaleid_opts,
-	 20000, 1, 700, 1, 64, 1.0, "",
+	 80000, 4, 40, -9, 64, 0.6, "",
 	 "Shows a kaleidoscope", 0, NULL},
+	{"kumppa", init_kumppa, draw_kumppa, release_kumppa,
+	 refresh_kumppa, init_kumppa, NULL, &kumppa_opts,
+	 10000, 1, 1000, 1, 64, 1.0, "",
+	 "Shows kumppa", 0, NULL},
+#if defined( USE_GL ) && (defined( USE_XPM ) || defined( USE_XPMINC )) && defined( USE_UNSTABLE )
+	{"lament", init_lament, draw_lament, release_lament,
+	 draw_lament, change_lament, NULL, &lament_opts,
+	 10000, 1, 1, 1, 64, 1.0, "",
+	 "Shows Lemarchand's Box", 0, NULL},
+#endif
 	{"laser", init_laser, draw_laser, release_laser,
 	 refresh_laser, init_laser, NULL, &laser_opts,
 	 20000, -10, 200, 1, 64, 1.0, "",
@@ -223,7 +257,7 @@ LockStruct  LockProcs[] =
 	 25000, -8, 20000, 1, 64, 1.0, "",
 	 "Shows mandelbrot sets", 0, NULL},
 	{"marquee", init_marquee, draw_marquee, release_marquee,
-	 refresh_marquee, init_marquee, NULL, &marquee_opts,
+	 init_marquee, init_marquee, NULL, &marquee_opts,
 	 100000, 1, 1, 1, 64, 1.0, "",
 	 "Shows messages", 0, NULL},
 	{"maze", init_maze, draw_maze, release_maze,
@@ -293,12 +327,12 @@ LockStruct  LockProcs[] =
 	 "Shows a rolling ball", 0, NULL},
 	{"rotor", init_rotor, draw_rotor, release_rotor,
 	 refresh_rotor, init_rotor, NULL, &rotor_opts,
-	 10000, 4, 20, 1, 64, 0.4, "",
+	 10000, 4, 20, -6, 64, 0.3, "",
 	 "Shows Tom's Roto-Rooter", 0, NULL},
 #ifdef USE_GL
 	{"rubik", init_rubik, draw_rubik, release_rubik,
 	 draw_rubik, change_rubik, NULL, &rubik_opts,
-	 1000, -30, 5, -6, 64, 1.0, "",
+	 10000, -30, 5, -6, 64, 1.0, "",
 	 "Shows an auto-solving Rubik's Cube", 0, NULL},
 #endif
 	{"shape", init_shape, draw_shape, release_shape,
@@ -323,7 +357,7 @@ LockStruct  LockProcs[] =
 	 "Shows a helical locus of points", 0, NULL},
 	{"spline", init_spline, draw_spline, release_spline,
 	 refresh_spline, init_spline, NULL, &spline_opts,
-	 30000, -6, 2048, 1, 64, 0.4, "",
+	 30000, -6, 2048, 1, 64, 0.3, "",
 	 "Shows colorful moving splines", 0, NULL},
 #ifdef USE_GL
 	{"sproingies", init_sproingies, draw_sproingies, release_sproingies,
@@ -332,13 +366,17 @@ LockStruct  LockProcs[] =
   "Shows Sproingies!  Nontoxic.  Safe for pets and small children", 0, NULL},
 	{"stairs", init_stairs, draw_stairs, release_stairs,
 	 draw_stairs, change_stairs, NULL, &stairs_opts,
-	 1000, 0, 1, 1, 64, 1.0, "",
+	 200000, 0, 1, 1, 64, 1.0, "",
 	 "Shows some Infinite Stairs, an Escher-like scene", 0, NULL},
 #endif
 	{"star", init_star, draw_star, release_star,
 	 refresh_star, init_star, NULL, &star_opts,
-	 75000, 100, 1, 100, 64, 0.2, "",
+	 75000, 100, 1, 100, 64, 0.3, "",
 	 "Shows a star field with a twist", 0, NULL},
+	{"starfish", init_starfish, draw_starfish, release_starfish,
+	 refresh_starfish, init_starfish, NULL, &starfish_opts,
+	 2000, 1, 1000, 1, 64, 1.0, "",
+	 "Shows starfish", 0, NULL},
 	{"strange", init_strange, draw_strange, release_strange,
 	 init_strange, init_strange, NULL, &strange_opts,
 	 1000, 1, 1, 1, 64, 1.0, "",
@@ -357,6 +395,16 @@ LockStruct  LockProcs[] =
 	 refresh_swirl, init_swirl, NULL, &swirl_opts,
 	 5000, 5, 1, 1, 64, 1.0, "",
 	 "Shows animated swirling patterns", 0, NULL},
+#if defined( USE_GL ) && defined( USE_TEXT )
+	{"text3d", init_text3d, draw_text3d, release_text3d,
+	 refresh_text3d, change_text3d, NULL, &text3d_opts,
+	 100000, 1, 1, 1, 64, 1.0, "",
+	 "Shows 3D texts", 0, NULL},
+#endif
+	{"thornbird", init_thornbird, draw_thornbird, release_thornbird,
+	 refresh_thornbird, NULL, NULL, &thornbird_opts,
+	 1000, 800, 16, 1, 64, 1.0, "",
+	 "Shows an animated bird in a thorn bush fractal map", 0, NULL},
 	{"triangle", init_triangle, draw_triangle, release_triangle,
 	 refresh_triangle, init_triangle, NULL, &triangle_opts,
 	 10000, 1, 1, 1, 64, 1.0, "",
@@ -640,12 +688,12 @@ LoadModules(char *path)
 				}
 				new->lock->msopt = desc->msopt;
 				new->lock->def_delay = desc->def_delay;
-				new->lock->def_batchcount = desc->def_batchcount;
+				new->lock->def_count = desc->def_count;
 				new->lock->def_cycles = desc->def_cycles;
 				new->lock->def_size = desc->def_size;
 				new->lock->def_ncolors = desc->def_ncolors;
 				new->lock->def_saturation = desc->def_saturation;
-				new->lock->def_imagefile = desc->def_imagefile;
+				new->lock->def_bitmap = desc->def_bitmap;
 				new->lock->desc = desc->desc;
 				new->lock->flags = desc->flags;
 				new->lock->userdata = desc->userdata;
@@ -738,7 +786,7 @@ set_window_title(ModeInfo * mi)
 		XSetWMName(MI_DISPLAY(mi), MI_WINDOW(mi), &prop);
 		XFree((caddr_t) prop.value);
 	}
-	if (MI_WIN_IS_ICONIC(mi)) {
+	if (MI_IS_ICONIC(mi)) {
 		extern void modeDescription(ModeInfo * mi);
 
 		modeDescription(mi);
@@ -809,7 +857,7 @@ call_init_hook(LockStruct * ls, ModeInfo * mi)
 	ls->init_hook(mi);
 
 	ls->flags |= LS_FLAG_INITED;
-	MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_JUST_INITTED, True);
+	MI_SET_FLAG_STATE(mi, WI_FLAG_JUST_INITTED, True);
 
 	last_initted_mode = ls;
 }
@@ -837,7 +885,7 @@ call_callback_hook(LockStruct * ls, ModeInfo * mi)
 
 	ls->callback_hook(mi);
 
-	MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_JUST_INITTED, False);
+	MI_SET_FLAG_STATE(mi, WI_FLAG_JUST_INITTED, False);
 }
 
 /* -------------------------------------------------------------------- */
@@ -848,7 +896,7 @@ call_callback_hook(LockStruct * ls, ModeInfo * mi)
  *      hook again.
  */
 
-#define JUST_INITTED(mi)	(MI_WIN_FLAG_IS_SET(mi, WI_FLAG_JUST_INITTED))
+#define JUST_INITTED(mi)	(MI_FLAG_IS_SET(mi, WI_FLAG_JUST_INITTED))
 
 void
 call_refresh_hook(LockStruct * ls, ModeInfo * mi)

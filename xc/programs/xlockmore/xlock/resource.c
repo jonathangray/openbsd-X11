@@ -1,5 +1,5 @@
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)resource.c	4.07 97/11/24 xlockmore";
+static const char sccsid[] = "@(#)resource.c	4.08 98/08/04 xlockmore";
 
 #endif
 
@@ -13,6 +13,10 @@ static const char sccsid[] = "@(#)resource.c	4.07 97/11/24 xlockmore";
  * Revision History:
  *
  * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * 19-Jun-98: batchcount depreciated.  Use count instead.  batchcount still
+ *            works for commandline.
+ * 01-May-97: Matthew Rench <mdrench@mtu.edu>
+ *            Added DPMS options.
  * 01-Apr-97: Tom Schmidt <tschmidt@micron.com>
  *            Fixed memory leak.  Made -visual option a hacker mode for now.
  * 20-Mar-97: Tom Schmidt <tschmidt@micron.com>
@@ -62,7 +66,8 @@ static const char sccsid[] = "@(#)resource.c	4.07 97/11/24 xlockmore";
  */
 
 #include "xlock.h"
-#include "mode.h"
+#include "vis.h"
+#include "iostuff.h"
 #include "version.h"
 #if VMS
 #if ( __VMS_VER < 70000000 )
@@ -78,13 +83,6 @@ static const char sccsid[] = "@(#)resource.c	4.07 97/11/24 xlockmore";
 #ifndef offsetof
 #define offsetof(s,m) ((char*)(&((s *)0)->m)-(char*)0)
 #endif
-
-#if defined( USE_AUTO_LOGOUT ) || defined( USE_BUTTON_LOGOUT )
-extern int  fullLock();
-
-#endif
-
-extern char *getenv(const char *);
 
 #ifdef USE_MODULES
 #ifndef DEF_MODULEPATH
@@ -125,7 +123,7 @@ typedef struct descriptor_t dsc;
 static int  descr();
 
 #else
-#define DEF_FILESEARCHPATH "/usr/lib/X11/%T/%N%S"
+#define DEF_FILESEARCHPATH "/usr/lib/X11/%T/%N%C%S:/usr/lib/X11/%T/%N%S"
 #endif
 #endif
 #ifndef DEF_MODE
@@ -136,12 +134,13 @@ static int  descr();
 #endif
 #endif
 #define DEF_DELAY	"200000"	/* microseconds between batches */
-#define DEF_BATCHCOUNT	"100"	/* vectors (or whatever) per batch */
+#define DEF_COUNT	"100"	/* vectors (or whatever) per batch */
 #define DEF_CYCLES	"1000"	/* timeout in cycles for a batch */
 #define DEF_SIZE	"0"	/* size, default if 0 */
 #define DEF_NCOLORS	"64"	/* maximum number of colors */
 #define DEF_SATURATION	"1.0"	/* color ramp saturation 0->1 */
 #define DEF_NICE	"10"	/* xlock process nicelevel */
+#define DEF_ERASEDELAY	"400"	/* Speed for screen erase modes */
 #define DEF_LOCKDELAY	"0"	/* secs until lock */
 #define DEF_TIMEOUT	"30"	/* secs until password entry times out */
 #ifndef DEF_FONT
@@ -151,22 +150,38 @@ static int  descr();
 #define DEF_FONT	"-b&h-lucida-medium-r-normal-sans-24-*-*-*-*-*-iso8859-1"
 #endif /* !AIXV3 */
 #endif
-#define DEF_MSGFONT     "-adobe-courier-medium-r-*-*-14-*-*-*-m-*-iso8859-1"
+#define DEF_PLANFONT     "-adobe-courier-medium-r-*-*-14-*-*-*-m-*-iso8859-1"
 #ifdef USE_MB
 #define DEF_FONTSET	DEF_FONT ## ",-*-24-*"
 #endif
 #define DEF_BG		"White"
 #define DEF_FG		"Black"
+#ifdef FR
+#define DEF_NAME	"Nom: "
+#define DEF_PASS	"Mot de passe: "
+#define DEF_VALID	"Validation ..."
+#define DEF_INVALID	"Mot de passe Invalide."
+#define DEF_INFO	"Entrez le mot de passe ou choisissez l'icone pour verrouiller."
+#else
+#ifdef NL
+#define DEF_NAME  "Naam: "
+#define DEF_PASS  "Wachtwoord: "
+#define DEF_VALID "Aan het checken ..."
+#define DEF_INVALID "Ongeldig wachtwoord."
+#define DEF_INFO  "Geef wachtwoord om te ontgrendelen ; selecteer het icoon om te vergendelen."
+#else
 #define DEF_NAME	"Name: "
 #define DEF_PASS	"Password: "
+#define DEF_VALID	"Validating login..."
+#define DEF_INVALID	"Invalid login."
+#define DEF_INFO	"Enter password to unlock; select icon to lock."
+#endif
+#endif
 #ifdef SAFEWORD
 #define DEF_DPASS "Dynamic password: "
 #define DEF_FPASS "Fixed Password: "
 #define DEF_CHALL "Challenge: "
 #endif
-#define DEF_INFO	"Enter password to unlock; select icon to lock."
-#define DEF_VALID	"Validating login..."
-#define DEF_INVALID	"Invalid login."
 #define DEF_GEOMETRY	""
 #define DEF_ICONGEOMETRY	""
 #ifdef FX
@@ -183,8 +198,11 @@ static int  descr();
 /* #define DEF_MESSAGE "I am out running around." */
 #define DEF_MESSAGE ""
 #endif
-#ifndef DEF_IMAGEFILE
-#define DEF_IMAGEFILE ""
+#ifndef DEF_BITMAP
+#define DEF_BITMAP ""
+#endif
+#ifndef DEF_MAILAPP
+#define DEF_MAILAPP ""
 #endif
 #define DEF_CLASSNAME	"XLock"
 /*-
@@ -226,6 +244,12 @@ static int  descr();
 #endif
 #endif
 
+#ifdef USE_DPMS
+#define DEF_DPMSSTANDBY "-1"
+#define DEF_DPMSSUSPEND "-1"
+#define DEF_DPMSOFF     "-1"
+#endif
+
 #if defined( USE_BUTTON_LOGOUT )
 #if !defined( DEF_BUTTON_LOGOUT )
 #if ( USE_BUTTON_LOGOUT <= 0 )
@@ -235,6 +259,16 @@ static int  descr();
 #endif
 #endif
 
+#ifdef FR
+#define DEF_BTN_LABEL	"Logout"
+#define DEF_BTN_HELP	"Cliquer ici pour etre deloger"
+#define DEF_FAIL	"Auto-logout a echoue"
+#else
+#ifdef NL
+#define DEF_BTN_LABEL "Loguit"
+#define DEF_BTN_HELP  "klik hier om uit te loggen"
+#define DEF_FAIL  "Auto-loguit mislukt"
+#else
 #define DEF_BTN_LABEL	"Logout"	/* string that appears in logout button */
 
 /* this string appears immediately below logout button */
@@ -245,22 +279,20 @@ static int  descr();
 #define DEF_FAIL	"Auto-logout failed"
 
 #endif
+#endif
+#endif
 
 extern char *ProgramName;
-extern Display *dsp;
 
 /* For modes with text, marquee & nose */
 extern char *program;
 extern char *messagesfile;
 extern char *messagefile;
-extern char *message;
-extern char *mfont;
-
-/* For modes with images: xbm, xpm, and ras */
-char       *imagefile;
+extern char *message;		/* flag as well here */
+extern char *messagefontname;
 
 /* For automata modes */
-int         neighbors;
+extern int  neighbors;
 
 /* For eyes, julia, & swarm modes */
 Bool        mouse;
@@ -276,9 +308,9 @@ static char *parentname;
 extern Bool parentSet;
 
 #if HAVE_DIRENT_H
-static struct dirent ***images_list;
-int         num_list;
-struct dirent **image_list;
+static struct dirent ***images_list = NULL;
+int         num_list = 0;
+struct dirent **image_list = NULL;
 char        filename_r[MAXNAMLEN];
 char        directory_r[DIRBUF];
 
@@ -287,8 +319,14 @@ char        directory_r[DIRBUF];
 static XrmOptionDescRec genTable[] =
 {
 	{"-mode", ".mode", XrmoptionSepArg, (caddr_t) NULL},
+	{"-erasemode", ".erasemode", XrmoptionSepArg, (caddr_t) NULL},
+	{"-erasedelay", ".erasedelay", XrmoptionSepArg, (caddr_t) NULL},
 	{"-nolock", ".nolock", XrmoptionNoArg, (caddr_t) "on"},
 	{"+nolock", ".nolock", XrmoptionNoArg, (caddr_t) "off"},
+#ifdef USE_VTLOCK
+	{"-vtlock", ".vtlock", XrmoptionNoArg, (caddr_t) "on"},
+	{"+vtlock", ".vtlock", XrmoptionNoArg, (caddr_t) "off"},
+#endif
 	{"-inwindow", ".inwindow", XrmoptionNoArg, (caddr_t) "on"},
 	{"+inwindow", ".inwindow", XrmoptionNoArg, (caddr_t) "off"},
 	{"-inroot", ".inroot", XrmoptionNoArg, (caddr_t) "on"},
@@ -309,8 +347,6 @@ static XrmOptionDescRec genTable[] =
 	{"+enablesaver", ".enablesaver", XrmoptionNoArg, (caddr_t) "off"},
 	{"-resetsaver", ".resetsaver", XrmoptionNoArg, (caddr_t) "on"},
 	{"+resetsaver", ".resetsaver", XrmoptionNoArg, (caddr_t) "off"},
-	{"-fullrandom", ".fullrandom", XrmoptionNoArg, (caddr_t) "on"},
-	{"+fullrandom", ".fullrandom", XrmoptionNoArg, (caddr_t) "off"},
 	{"-grabmouse", ".grabmouse", XrmoptionNoArg, (caddr_t) "on"},
 	{"+grabmouse", ".grabmouse", XrmoptionNoArg, (caddr_t) "off"},
 	{"-grabserver", ".grabserver", XrmoptionNoArg, (caddr_t) "on"},
@@ -331,7 +367,7 @@ static XrmOptionDescRec genTable[] =
 	{"-lockdelay", ".lockdelay", XrmoptionSepArg, (caddr_t) NULL},
 	{"-timeout", ".timeout", XrmoptionSepArg, (caddr_t) NULL},
 	{"-font", ".font", XrmoptionSepArg, (caddr_t) NULL},
-	{"-msgfont", ".msgfont", XrmoptionSepArg, (caddr_t) NULL},
+	{"-planfont", ".planfont", XrmoptionSepArg, (caddr_t) NULL},
 #ifdef USE_MB
 	{"-fontset", ".fontset", XrmoptionSepArg, (caddr_t) NULL},
 #endif
@@ -366,7 +402,7 @@ static XrmOptionDescRec genTable[] =
 	{"-messagesfile", ".messagesfile", XrmoptionSepArg, (caddr_t) NULL},
 	{"-messagefile", ".messagefile", XrmoptionSepArg, (caddr_t) NULL},
 	{"-message", ".message", XrmoptionSepArg, (caddr_t) NULL},
-	{"-mfont", ".mfont", XrmoptionSepArg, (caddr_t) NULL},
+	{"-messagefont", ".messagefont", XrmoptionSepArg, (caddr_t) NULL},
     /* For automata modes */
 	{"-neighbors", ".neighbors", XrmoptionSepArg, (caddr_t) NULL},
     /* For eyes and julia modes */
@@ -398,6 +434,15 @@ static XrmOptionDescRec genTable[] =
 	{"-startCmd", ".startCmd", XrmoptionSepArg, (caddr_t) NULL},
 	{"-endCmd", ".endCmd", XrmoptionSepArg, (caddr_t) NULL},
 	{"-logoutCmd", ".logoutCmd", XrmoptionSepArg, (caddr_t) NULL},
+
+	{"-mailCmd", ".mailCmd", XrmoptionSepArg, (caddr_t) ""},
+	{"-mailIcon", ".mailIcon", XrmoptionSepArg, (caddr_t) ""},
+	{"-nomailIcon", ".nomailIcon", XrmoptionSepArg, (caddr_t) ""},
+#ifdef USE_DPMS
+	{"-dpmsstandby", ".dpmsstandby", XrmoptionSepArg, (caddr_t) NULL},
+	{"-dpmssuspend", ".dpmssuspend", XrmoptionSepArg, (caddr_t) NULL},
+	{"-dpmsoff", ".dpmsoff", XrmoptionSepArg, (caddr_t) NULL},
+#endif
 };
 
 #define genEntries (sizeof genTable / sizeof genTable[0])
@@ -405,20 +450,31 @@ static XrmOptionDescRec genTable[] =
 static XrmOptionDescRec modeTable[] =
 {
 	{"-delay", "*delay", XrmoptionSepArg, (caddr_t) NULL},
-	{"-batchcount", "*batchcount", XrmoptionSepArg, (caddr_t) NULL},
+	{"-batchcount", "*count", XrmoptionSepArg, (caddr_t) NULL},
+	{"-count", "*count", XrmoptionSepArg, (caddr_t) NULL},
 	{"-cycles", "*cycles", XrmoptionSepArg, (caddr_t) NULL},
 	{"-size", "*size", XrmoptionSepArg, (caddr_t) NULL},
 	{"-ncolors", "*ncolors", XrmoptionSepArg, (caddr_t) NULL},
 	{"-saturation", "*saturation", XrmoptionSepArg, (caddr_t) NULL},
     /* For modes with images, xbm, xpm, & ras */
-	{"-imagefile", "*imagefile", XrmoptionSepArg, (caddr_t) NULL},
+	{"-bitmap", "*bitmap", XrmoptionSepArg, (caddr_t) NULL},
 };
 
 #define modeEntries (sizeof modeTable / sizeof modeTable[0])
 
+/*-
+   Chicken/egg problem here.
+   Customization strings will only work with
+#define CUSTOMIZATION
+   I prefer not to use it because "xlock -display whatever:0" does not work.
+   If I get any complaints about this I will change it the default.
+ */
+
 static XrmOptionDescRec cmdlineTable[] =
 {
+#ifndef CUSTOMIZATION
 	{"-display", ".display", XrmoptionSepArg, (caddr_t) NULL},
+#endif
 	{"-visual", ".visual", XrmoptionSepArg, (caddr_t) NULL},
 	{"-parent", ".parent", XrmoptionSepArg, (caddr_t) NULL},
 	{"-nolock", ".nolock", XrmoptionNoArg, (caddr_t) "on"},
@@ -438,10 +494,15 @@ static XrmOptionDescRec cmdlineTable[] =
 
 #define cmdlineEntries (sizeof cmdlineTable / sizeof cmdlineTable[0])
 
-static XrmOptionDescRec nameTable[] =
+static XrmOptionDescRec earlyCmdlineTable[] =
 {
 	{"-name", ".name", XrmoptionSepArg, (caddr_t) NULL},
+#ifdef CUSTOMIZATION
+	{"-display", ".display", XrmoptionSepArg, (caddr_t) NULL},
+#endif
 };
+
+#define earlyCmdlineEntries (sizeof earlyCmdlineTable / sizeof earlyCmdlineTable[0])
 
 #ifdef USE_MODULES
 static XrmOptionDescRec modulepathTable[] =
@@ -464,19 +525,29 @@ static OptionStruct opDesc[] =
 	{"-parent", "parent window id (for inwindow)"},
 {"-name resourcename", "class name to use for resources (default is XLock)"},
 	{"-delay usecs", "microsecond delay between screen updates"},
-	{"-batchcount num", "number of things per batch"},
+	{"-batchcount num", "number of things per batch (depreciated)"},
+	{"-count num", "number of things per batch"},
 	{"-cycles num", "number of cycles per batch"},
 	{"-size num", "size of a unit in a mode, default is 0"},
 	{"-ncolors num", "maximum number of colors, default is 64"},
 	{"-saturation value", "saturation of color ramp"},
   /* For modes with images, xbm, xpm, & ras */
-	{"-imagefile filename", "image file"},
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+	{"-bitmap filename", "bitmap file (sometimes xpm and ras too)"},
+#else
+	{"-bitmap filename", "bitmap file (sometimes ras too)"},
+#endif
+	{"-erasemode erase-modename", "Erase mode to use"},
+	{"-erasedelay num", "Erase delay for clear screen modes"},
 	{"-/+nolock", "turn on/off no password required"},
 	{"-/+inwindow", "turn on/off making xlock run in a window"},
 	{"-/+inroot", "turn on/off making xlock run in the root window"},
 	{"-/+remote", "turn on/off remote host access"},
 	{"-/+mono", "turn on/off monochrome override"},
 	{"-/+allowaccess", "turn on/off allow new clients to connect"},
+#ifdef USE_VTLOCK
+	{"-/+vtlock", "turn on/off vt switching"},
+#endif
 #ifndef ALWAYS_ALLOW_ROOT
 	{"-/+allowroot", "turn on/off allow root password to unlock"},
 #else
@@ -489,7 +560,6 @@ static OptionStruct opDesc[] =
 	{"-/+grabmouse", "turn on/off grabbing of mouse and keyboard"},
 	{"-/+grabserver", "turn on/off grabbing of server"},
 	{"-/+install", "whether to use private colormap if needed (yes/no)"},
-	{"-/+fullrandom", "turn on/off full random choice of mode-options"},
 	{"-/+mousemotion", "turn on/off sensitivity to mouse"},
 	{"-/+sound", "whether to use sound if configured for it (yes/no)"},
 	{"-/+timeelapsed", "turn on/off clock"},
@@ -499,7 +569,7 @@ static OptionStruct opDesc[] =
 	{"-lockdelay seconds", "number of seconds until lock"},
 	{"-timeout seconds", "number of seconds before password times out"},
 	{"-font fontname", "font to use for password prompt"},
-	{"-msgfont fontname", "font to use for message"},
+	{"-planfont fontname", "font to use for plan message"},
 #ifdef USE_MB
 	{"-fontset fontsetname", "fontset to use for Xmb..."},
 #endif
@@ -528,10 +598,10 @@ static OptionStruct opDesc[] =
 
     /* For modes with text, marquee & nose */
    {"-program programname", "program to get messages from, usually fortune"},
-	{"-messagesfile formatted-filename", "formatted file message to say"},
-	{"-messagefile filename", "file message to say"},
-	{"-message string", "message to say"},
-	{"-mfont mode-fontname", "font for a specific mode"},
+	{"-messagesfile formatted-filename", "formatted file of fortunes"},
+	{"-messagefile filename", "text file for mode"},
+	{"-message string", "text for mode"},
+	{"-messagefont fontname", "font for a specific mode"},
     /* For automata modes */
       {"-neighbors num", "squares 4 or 8, hexagons 6, triangles 3, 9 or 12"},
     /* For eyes and julia modes */
@@ -561,22 +631,36 @@ static OptionStruct opDesc[] =
 	{"-startCmd string", "command to run at locktime"},
 	{"-endCmd string", "command to run when unlocking"},
       {"-logoutCmd string", "command to run when automatically logging out"},
+	{"-mailCmd string", "command to run to check for mail"},
+	{"-mailIcon string", "Icon to display when there is mail"},
+	{"-nomailIcon string", "Icon to display when there is no mail"},
+#ifdef USE_DPMS
+    {"-dpmsstandby seconds", "seconds to wait before engaging DPMS standby"},
+    {"-dpmssuspend seconds", "seconds to wait before engaging DPMS suspend"},
+	{"-dpmsoff seconds", "seconds to wait before engaging DPMS off"},
+#endif
 };
 
 #define opDescEntries (sizeof opDesc / sizeof opDesc[0])
 
 int         delay;
-int         batchcount;
+int         count;
 int         cycles;
 int         size;
 int         ncolors;
 float       saturation;
+
+/* For modes with images, xbm, xpm, & ras */
+char       *bitmap;
 
 #ifdef USE_MODULES
 char       *modulepath;
 
 #endif
 
+static char *erasemodename;
+int         erasemode;
+int         erasedelay;
 Bool        nolock;
 Bool        inwindow;
 Bool        inroot;
@@ -595,7 +679,7 @@ Bool        debug;
 Bool        echokeys;
 Bool        enablesaver;
 Bool        resetsaver;
-Bool        fullrandom;
+Bool        fullrandom = False;
 Bool        grabmouse;
 Bool        grabserver;
 Bool        install;
@@ -614,7 +698,14 @@ int         lockdelay;
 int         timeout;
 
 char       *fontname;
-char       *messagefont;
+char       *planfontname;
+
+#ifdef USE_DPMS
+int         dpmsstandby;
+int         dpmssuspend;
+int         dpmsoff;
+
+#endif
 
 #ifdef USE_MB
 char       *fontsetname;
@@ -684,8 +775,19 @@ char       *startCmd;
 char       *endCmd;
 char       *logoutCmd;
 
+char       *mailCmd;
+char       *mailIcon;
+char       *nomailIcon;
+
+#ifdef USE_VTLOCK
+Bool        vtlock;
+
+#endif
+
 static argtype genvars[] =
 {
+	{(caddr_t *) & erasemodename, "erasemode", "EraseMode", "", t_String},
+	{(caddr_t *) & erasedelay, "erasedelay", "EraseDelay", DEF_ERASEDELAY, t_Int},
     {(caddr_t *) & allowaccess, "allowaccess", "AllowAccess", "off", t_Bool},
 #ifndef ALWAYS_ALLOW_ROOT
 	{(caddr_t *) & allowroot, "allowroot", "AllowRoot", "off", t_Bool},
@@ -694,7 +796,6 @@ static argtype genvars[] =
 	{(caddr_t *) & echokeys, "echokeys", "EchoKeys", "off", t_Bool},
     {(caddr_t *) & enablesaver, "enablesaver", "EnableSaver", "off", t_Bool},
 	{(caddr_t *) & resetsaver, "resetsaver", "ResetSaver", "on", t_Bool},
-	{(caddr_t *) & fullrandom, "fullrandom", "FullRandom", "off", t_Bool},
 	{(caddr_t *) & grabmouse, "grabmouse", "GrabMouse", "on", t_Bool},
 	{(caddr_t *) & grabserver, "grabserver", "GrabServer", "off", t_Bool},
 	{(caddr_t *) & install, "install", "Install", "on", t_Bool},
@@ -705,12 +806,11 @@ static argtype genvars[] =
 	{(caddr_t *) & usefirst, "usefirst", "UseFirst", "on", t_Bool},
 	{(caddr_t *) & verbose, "verbose", "Verbose", "off", t_Bool},
 	{(caddr_t *) & visualname, "visual", "Visual", "", t_String},
-
 	{(caddr_t *) & nicelevel, "nice", "Nice", DEF_NICE, t_Int},
    {(caddr_t *) & lockdelay, "lockdelay", "LockDelay", DEF_LOCKDELAY, t_Int},
 	{(caddr_t *) & timeout, "timeout", "Timeout", DEF_TIMEOUT, t_Int},
 	{(caddr_t *) & fontname, "font", "Font", DEF_FONT, t_String},
-    {(caddr_t *) & messagefont, "msgfont", "MsgFont", DEF_MSGFONT, t_String},
+{(caddr_t *) & planfontname, "planfont", "PlanFont", DEF_PLANFONT, t_String},
 #ifdef USE_MB
     {(caddr_t *) & fontsetname, "fontset", "FontSet", DEF_FONTSET, t_String},
 #endif
@@ -744,7 +844,7 @@ static argtype genvars[] =
 	{(caddr_t *) & messagesfile, "messagesfile", "Messagesfile", DEF_MESSAGESFILE, t_String},
 	{(caddr_t *) & messagefile, "messagefile", "Messagefile", DEF_MESSAGEFILE, t_String},
 	{(caddr_t *) & message, "message", "Message", DEF_MESSAGE, t_String},
-	{(caddr_t *) & mfont, "mfont", "MFont", DEF_MFONT, t_String},
+	{(caddr_t *) & messagefontname, "messagefont", "MessageFont", DEF_MESSAGEFONT, t_String},
    {(caddr_t *) & neighbors, "neighbors", "Neighbors", DEF_NEIGHBORS, t_Int},
 	{(caddr_t *) & mouse, "mouse", "Mouse", DEF_MOUSE, t_Bool},
 
@@ -772,8 +872,18 @@ static argtype genvars[] =
 	{(caddr_t *) & startCmd, "startCmd", "StartCmd", "", t_String},
 	{(caddr_t *) & endCmd, "endCmd", "EndCmd", "", t_String},
 	{(caddr_t *) & logoutCmd, "logoutCmd", "LogoutCmd", "", t_String},
+#ifdef USE_DPMS
+	{(caddr_t *) & dpmsstandby, "dpmsstandby", "DPMSStandby", DEF_DPMSSTANDBY, t_Int},
+	{(caddr_t *) & dpmssuspend, "dpmssuspend", "DPMSSuspend", DEF_DPMSSUSPEND, t_Int},
+	{(caddr_t *) & dpmsoff, "dpmsoff", "DPMSOff", DEF_DPMSOFF, t_Int},
+#endif
 
-
+	{(caddr_t *) & mailCmd, "mailCmd", "MailCmd", DEF_MAILAPP, t_String},
+     {(caddr_t *) & mailIcon, "mailIcon", "MailIcon", DEF_MAILAPP, t_String},
+{(caddr_t *) & nomailIcon, "nomailIcon", "NomailIcon", DEF_MAILAPP, t_String},
+#ifdef USE_VTLOCK
+	{(caddr_t *) & vtlock, "vtlock", "VTLock", "on", t_Bool},
+#endif
 #if 0
     /* These resources require special handling.  They must be examined
      * before the display is opened.  They are evaluated by individual
@@ -792,12 +902,12 @@ static argtype genvars[] =
 static argtype modevars[] =
 {
 	{(caddr_t *) & delay, "delay", "Delay", DEF_DELAY, t_Int},
-{(caddr_t *) & batchcount, "batchcount", "BatchCount", DEF_BATCHCOUNT, t_Int},
+	{(caddr_t *) & count, "count", "Count", DEF_COUNT, t_Int},
 	{(caddr_t *) & cycles, "cycles", "Cycles", DEF_CYCLES, t_Int},
 	{(caddr_t *) & size, "size", "Size", DEF_SIZE, t_Int},
 	{(caddr_t *) & ncolors, "ncolors", "NColors", DEF_NCOLORS, t_Int},
 	{(caddr_t *) & saturation, "saturation", "Saturation", DEF_SATURATION, t_Float},
- {(caddr_t *) & imagefile, "imagefile", "Imagefile", DEF_IMAGEFILE, t_String}
+	{(caddr_t *) & bitmap, "bitmap", "Bitmap", DEF_BITMAP, t_String}
 };
 
 #define NMODEARGS (sizeof modevars / sizeof modevars[0])
@@ -805,12 +915,12 @@ static argtype modevars[] =
 static int  modevaroffs[NMODEARGS] =
 {
 	offsetof(LockStruct, def_delay),
-	offsetof(LockStruct, def_batchcount),
+	offsetof(LockStruct, def_count),
 	offsetof(LockStruct, def_cycles),
 	offsetof(LockStruct, def_size),
 	offsetof(LockStruct, def_ncolors),
 	offsetof(LockStruct, def_saturation),
-	offsetof(LockStruct, def_imagefile)
+	offsetof(LockStruct, def_bitmap)
 };
 
 #ifdef VMS
@@ -909,6 +1019,35 @@ Version(void)
 }
 
 static void
+checkSpecialArgs(int argc, char **argv)
+{
+	int         i;
+
+	for (i = 0; i < argc; i++) {
+		if (!strncmp(argv[i], "-help", strlen(argv[i])))
+			Help();
+		if (!strncmp(argv[i], "-version", strlen(argv[i])))
+			Version();
+#ifdef CHECK_OLD_ARGS
+		{
+			static char *depreciated_args[] =
+			{"-v", "-imagefile", "-mfont"};
+			static char *current_args[] =
+			{"-verbose", "-bitmap", "-messagefont"};
+			int         j;
+
+			for (j = 0; j < (int) ((sizeof current_args) / sizeof (*current_args)); j++)
+				if (!strncmp(argv[i], depreciated_args[j], strlen(argv[i]))) {
+					(void) printf("%s depreciated, use %s\n",
+					depreciated_args[j], current_args[j]);
+					exit(0);
+				}
+		}
+#endif
+	}
+}
+
+static void
 DumpResources(void)
 {
 	int         i, j;
@@ -923,7 +1062,7 @@ DumpResources(void)
 		(void) printf("%s.%s.%s: %d\n", classname, LockProcs[i].cmdline_arg,
 			      "delay", LockProcs[i].def_delay);
 		(void) printf("%s.%s.%s: %d\n", classname, LockProcs[i].cmdline_arg,
-			      "batchcount", LockProcs[i].def_batchcount);
+			      "count", LockProcs[i].def_count);
 		(void) printf("%s.%s.%s: %d\n", classname, LockProcs[i].cmdline_arg,
 			      "cycles", LockProcs[i].def_cycles);
 		(void) printf("%s.%s.%s: %d\n", classname, LockProcs[i].cmdline_arg,
@@ -933,8 +1072,8 @@ DumpResources(void)
 		(void) printf("%s.%s.%s: %g\n", classname, LockProcs[i].cmdline_arg,
 			      "saturation", LockProcs[i].def_saturation);
 		(void) printf("%s.%s.%s: %s\n", classname, LockProcs[i].cmdline_arg,
-			      "imagefile",
-			      (LockProcs[i].def_imagefile) ? LockProcs[i].def_imagefile : "");
+			      "bitmap",
+		   (LockProcs[i].def_bitmap) ? LockProcs[i].def_bitmap : "");
 		for (j = 0; j < LockProcs[i].msopt->numvarsdesc; j++)
 			(void) printf("%s.%s.%s: %s\n", classname, LockProcs[i].cmdline_arg,
 				      LockProcs[i].msopt->vars[j].name,
@@ -942,7 +1081,6 @@ DumpResources(void)
 	}
 	exit(0);
 }
-
 
 static void
 LowerString(char *s)
@@ -996,8 +1134,8 @@ GetResource(XrmDatabase database, char *parentname, char *parentclassname,
 		case t_String:
 			{
 /*-
- * PURIFY 4.0.1 on Solaris 2 and on SunOS4 reports a 1 byte memory leak on
- * the following line. */
+ * PURIFY 4.2 on Solaris 2 and on SunOS4 reports a memory leak on the following
+ * line. It leaks as many bytes as there are characters in the string + 1. */
 				char       *s = (char *) malloc(len + 1);
 
 				if (s == (char *) NULL) {
@@ -1029,9 +1167,9 @@ GetResource(XrmDatabase database, char *parentname, char *parentclassname,
 	}
 }
 
-
 static      XrmDatabase
-parsefilepath(char *xfilesearchpath, char *TypeName, char *ClassName)
+parsefilepath(char *xfilesearchpath, char *TypeName, char *ClassName,
+	      char *CustomName)
 {
 	XrmDatabase database = NULL;
 	char       *appdefaults;
@@ -1053,6 +1191,9 @@ parsefilepath(char *xfilesearchpath, char *TypeName, char *ClassName)
 					break;
 				case 'N':
 					i += strlen(ClassName);
+					break;
+				case 'C':
+					i += strlen(CustomName);
 					break;
 				default:
 					break;
@@ -1095,6 +1236,11 @@ parsefilepath(char *xfilesearchpath, char *TypeName, char *ClassName)
 					(void) strcat(dst, ClassName);
 					src++;
 					dst += strlen(ClassName);
+					break;
+				case 'C':
+					(void) strcat(dst, CustomName);
+					src++;
+					dst += strlen(CustomName);
 					break;
 				case 'S':
 					src++;
@@ -1211,23 +1357,13 @@ descr(char *name)
 #endif
 
 static void
-open_display(void)
+openDisplay(Display ** displayp)
 {
 	char       *buf;
-	struct hostent *host;
 
-#if defined(__cplusplus) || defined(c_plusplus)		/* !__bsdi__ */
-#if HAVE_GETHOSTNAME
-	extern int  gethostname(char *, size_t);
-	extern struct hostent *gethostbyname(const char *);
-
-#else
-#define gethostname(name,namelen) sysinfo(SI_HOSTNAME,name,namelen)
-#endif
-#endif
-
-
-	if (!(dsp = XOpenDisplay((displayname) ? displayname : ""))) {
+/* PURIFY 4.0.1 on Solaris 2 reports an uninitialized memory read on the next
+ * the following line. */
+	if (!(*displayp = XOpenDisplay((displayname) ? displayname : ""))) {
 		buf = (char *) malloc(strlen(ProgramName) +
 			     ((displayname) ? strlen(displayname) : 0) + 80);
 		(void) sprintf(buf,
@@ -1236,7 +1372,32 @@ open_display(void)
 		error(buf);
 		(void) free((void *) buf);	/* Should never get here */
 	}
-	displayname = DisplayString(dsp);
+	displayname = DisplayString(*displayp);
+}
+
+static void
+checkDisplay(void)
+{
+	char       *buf;
+	struct hostent *host;
+
+#if defined(__cplusplus) || defined(c_plusplus)		/* !__bsdi__ */
+/* #include <netdb.h> */
+#if HAVE_GETHOSTNAME
+#ifdef SunCplusplus
+	extern struct hostent *gethostbyname(const char *);
+
+#else
+#if 0
+	extern int  gethostname(char *, size_t);
+	extern struct hostent *gethostbyname(const char *);
+
+#endif
+#endif
+#else
+#define gethostname(name,namelen) sysinfo(SI_HOSTNAME,name,namelen)
+#endif
+#endif
 
 	/*
 	 * only restrict access to other displays if we are locking and if the
@@ -1362,70 +1523,60 @@ printvar(char *classname, argtype var)
 }
 
 void
-getResources(int argc, char **argv)
+getServerResources(Display * display, char *homeenv, char **custom,
+		   XrmDatabase * RDB, XrmDatabase * serverDB)
 {
-	XrmDatabase RDB = NULL;
-
-#ifdef USE_MODULES
-	XrmDatabase modulepathDB = NULL;
-
-#endif
-	XrmDatabase nameDB = NULL;
-	XrmDatabase modeDB = NULL;
-	XrmDatabase cmdlineDB = NULL;
-	XrmDatabase generalDB = NULL;
-	XrmDatabase homeDB = NULL;
-	XrmDatabase applicationDB = NULL;
-	XrmDatabase serverDB = NULL;
-	XrmDatabase userDB = NULL;
-	char       *userfile = NULL;
-	char       *homeenv;
-	char       *userpath;
-	char       *env;
 	char       *serverString;
-	int         i, j;
-	int         max_length;
-	extern Display *dsp;
 
-	XrmInitialize();
+	serverString = XResourceManagerString(display);
+	if (serverString) {
+/* PURIFY 4.0.1 on Solaris 2 reports an uninitialized memory read on the next
+   * line.  PURIFY 4.0.1 on SunOS4 reports this also when using X11R5, but not
+   * with OpenWindow 3.0 (X11R4 based). */
+		*serverDB = XrmGetStringDatabase(serverString);
+#ifndef CUSTOMIZATION
+/* PURIFY 4.0.1 on Solaris 2 reports an uninitialized memory read on the next
+   * line.  PURIFY 4.0.1 on SunOS4 does not report this error. */
+		(void) XrmMergeDatabases(*serverDB, RDB);
+#endif
+	} else {
+		char       *buf = (char *) malloc(strlen(homeenv) + 12);
 
-#ifndef USE_MODULES
-	/*
-	 * Moved back because its annoying if you need -remote and
-	 * you do not know it.
-	 */
-	for (i = 0; i < argc; i++) {
-		if (!strncmp(argv[i], "-help", strlen(argv[i])))
-			Help();
-		if (!strncmp(argv[i], "-version", strlen(argv[i])))
-			Version();
+		(void) sprintf(buf, "%s/.Xdefaults", homeenv);
+#ifdef CUSTOMIZATION
+		*serverDB = XrmGetFileDatabase(buf);
+#else
+		(void) XrmMergeDatabases(XrmGetFileDatabase(buf), RDB);
+#endif
+		(void) free((void *) buf);
 	}
+#ifdef CUSTOMIZATION
+	if (*serverDB)
+		GetResource(*serverDB, ProgramName, classname, "customization",
+			    "Customization", t_String, "", custom);
+	else
+		*custom = "";
 #endif
+}
 
-	/*
-	 * get -name arg from command line so you can have different resource
-	 * files for different configurations/machines etc...
-	 */
-#ifdef VMS
-	/*Strip off directory and .exe; parts */
-	ProgramName = stripname(ProgramName);
-#endif
-	XrmParseCommand(&nameDB, nameTable, 1, ProgramName,
-			&argc, argv);
-	GetResource(nameDB, ProgramName, "*", "name", "Name", t_String,
-		    DEF_CLASSNAME, &classname);
-
-
-	homeenv = getenv("HOME");
-	if (!homeenv)
-		homeenv = "";
+void
+getAppResources(char *homeenv, char **custom,
+	   XrmDatabase * RDB, XrmDatabase * serverDB, int *argc, char **argv)
+{
+	char       *env;
+	char       *userpath;
+	char       *userfile = NULL;
+	XrmDatabase cmdlineDB = NULL;
+	XrmDatabase userDB = NULL;
+	XrmDatabase applicationDB = NULL;
+	extern char *getenv(const char *);
 
 	env = getenv("XFILESEARCHPATH");
 	applicationDB = parsefilepath(env ? env : DEF_FILESEARCHPATH,
-				      "app-defaults", classname);
+				      "app-defaults", classname, *custom);
 
 	XrmParseCommand(&cmdlineDB, cmdlineTable, cmdlineEntries, ProgramName,
-			&argc, argv);
+			argc, argv);
 
 	userpath = getenv("XUSERFILESEARCHPATH");
 	if (!userpath) {
@@ -1451,35 +1602,41 @@ getResources(int argc, char **argv)
 		}
 		userpath = userfile;
 	}
-	userDB = parsefilepath(userpath, "app-defaults", classname);
+	userDB = parsefilepath(userpath, "app-defaults", classname, *custom);
 
 	if (userfile)
 		(void) free((void *) userfile);
 
-	(void) XrmMergeDatabases(applicationDB, &RDB);
-	(void) XrmMergeDatabases(userDB, &RDB);
+	(void) XrmMergeDatabases(applicationDB, RDB);
+	(void) XrmMergeDatabases(userDB, RDB);
 /* PURIFY 4.0.1 on Solaris 2 reports an uninitialized memory read on the next
    * line.  PURIFY 4.0.1 on SunOS4 does not report this error. */
-	(void) XrmMergeDatabases(cmdlineDB, &RDB);
-
-	GetResource(RDB, ProgramName, classname, "display", "Display", t_String,
+	(void) XrmMergeDatabases(cmdlineDB, RDB);
+#ifdef CUSTOMIZATION
+	if (*serverDB)
+/* PURIFY 4.0.1 on Solaris 2 reports an uninitialized memory read on the next
+   * line.  PURIFY 4.0.1 on SunOS4 does not report this error. */
+		(void) XrmMergeDatabases(*serverDB, RDB);
+#else
+	GetResource(*RDB, ProgramName, classname, "display", "Display", t_String,
 		    "", &displayname);
-	GetResource(RDB, ProgramName, classname, "parent", "Parent", t_String,
+#endif
+	GetResource(*RDB, ProgramName, classname, "parent", "Parent", t_String,
 		    "", &parentname);
 	if (parentname && *parentname) {
 		if (sscanf(parentname, "%ld", &parent))
 			parentSet = True;
 	}
-	GetResource(RDB, ProgramName, classname, "nolock", "NoLock", t_Bool,
+	GetResource(*RDB, ProgramName, classname, "nolock", "NoLock", t_Bool,
 		    "off", (caddr_t *) & nolock);
-	GetResource(RDB, ProgramName, classname, "inwindow", "InWindow", t_Bool,
+	GetResource(*RDB, ProgramName, classname, "inwindow", "InWindow", t_Bool,
 		    "off", (caddr_t *) & inwindow);
-	GetResource(RDB, ProgramName, classname, "inroot", "InRoot", t_Bool,
+	GetResource(*RDB, ProgramName, classname, "inroot", "InRoot", t_Bool,
 		    "off", (caddr_t *) & inroot);
-	GetResource(RDB, ProgramName, classname, "remote", "Remote", t_Bool,
+	GetResource(*RDB, ProgramName, classname, "remote", "Remote", t_Bool,
 		    "off", (caddr_t *) & remote);
 #ifdef USE_DTSAVER
-	GetResource(RDB, ProgramName, classname, "dtsaver", "DtSaver", t_Bool,
+	GetResource(*RDB, ProgramName, classname, "dtsaver", "DtSaver", t_Bool,
 		    "off", (caddr_t *) & dtsaver);
 	if (dtsaver) {
 		inroot = False;
@@ -1487,25 +1644,77 @@ getResources(int argc, char **argv)
 		nolock = True;
 	}
 #endif
+}
 
-	open_display();
-	serverString = XResourceManagerString(dsp);
-	if (serverString) {
-/* PURIFY 4.0.1 on Solaris 2 reports an uninitialized memory read on the next
-   * line.  PURIFY 4.0.1 on SunOS4 reports this also when using X11R5, but not
-   * with OpenWindow 3.0 (X11R4 based). */
-		serverDB = XrmGetStringDatabase(serverString);
-/* PURIFY 4.0.1 on Solaris 2 reports an uninitialized memory read on the next
-   * line.  PURIFY 4.0.1 on SunOS4 does not report this error. */
-		(void) XrmMergeDatabases(serverDB, &RDB);
-	} else {
-		char       *buf = (char *) malloc(strlen(homeenv) + 12);
+void
+getResources(Display ** displayp, int argc, char **argv)
+{
+	XrmDatabase RDB = NULL;
 
-		(void) sprintf(buf, "%s/.Xdefaults", homeenv);
-		homeDB = XrmGetFileDatabase(buf);
-		(void) XrmMergeDatabases(homeDB, &RDB);
-		(void) free((void *) buf);
-	}
+#ifdef USE_MODULES
+	XrmDatabase modulepathDB = NULL;
+
+#endif
+	XrmDatabase serverDB = NULL;
+	XrmDatabase earlyCmdlineDB = NULL;
+	XrmDatabase modeDB = NULL;
+	XrmDatabase generalDB = NULL;
+	char       *custom = NULL;
+	char       *homeenv = NULL;
+	int         i, j;
+	int         max_length;
+	extern char *getenv(const char *);
+
+#if defined( USE_AUTO_LOGOUT ) || defined( USE_BUTTON_LOGOUT )
+	extern int  fullLock();
+
+#endif
+
+	XrmInitialize();
+
+#ifndef USE_MODULES
+	/*
+	 * Moved back because its annoying if you need -remote and
+	 * you do not know it.
+	 */
+	checkSpecialArgs(argc, argv);
+#endif
+
+	/* Application Class is fixed */
+	classname = DEF_CLASSNAME;
+	/*
+	 * Application Name may be modified by -name arg from command
+	 * line so you can have different resource files for different
+	 * configurations/machines etc...
+	 */
+#ifdef VMS
+	/*Strip off directory and .exe; parts */
+	ProgramName = stripname(ProgramName);
+#endif
+	XrmParseCommand(&earlyCmdlineDB, earlyCmdlineTable,
+			earlyCmdlineEntries, "xlock", &argc, argv);
+	GetResource(earlyCmdlineDB, "xlock", classname, "name", "Name",
+		    t_String, ProgramName, &ProgramName);
+#ifdef CUSTOMIZATION
+	GetResource(earlyCmdlineDB, ProgramName, classname, "display",
+		    "Display", t_String, "", &displayname);
+#endif
+	homeenv = getenv("HOME");
+	if (!homeenv)
+		homeenv = "";
+
+#ifdef CUSTOMIZATION
+	openDisplay(displayp);
+	getServerResources(*displayp, homeenv, &custom, &RDB, &serverDB);
+	getAppResources(homeenv, &custom, &RDB, &serverDB, &argc, argv);
+	checkDisplay();
+#else
+	custom = "";
+	getAppResources(homeenv, &custom, &RDB, &serverDB, &argc, argv);
+	openDisplay(displayp);
+	checkDisplay();
+	getServerResources(*displayp, homeenv, &custom, &RDB, &serverDB);
+#endif
 
 #ifdef USE_MODULES
 	/*
@@ -1526,15 +1735,8 @@ getResources(int argc, char **argv)
 	 * Moved the search for help to here because now the modules
 	 * have been loaded so they can be listed by help.
 	 */
-
-	for (i = 0; i < argc; i++) {
-		if (!strncmp(argv[i], "-help", strlen(argv[i])))
-			Help();
-		if (!strncmp(argv[i], "-version", strlen(argv[i])))
-			Version();
-	}
+	checkSpecialArgs(argc, argv);
 #endif
-
 	XrmParseCommand(&generalDB, genTable, genEntries, ProgramName, &argc, argv);
 /* PURIFY 4.0.1 on Solaris 2 reports an uninitialized memory read on the next
    * line.  PURIFY 4.0.1 on SunOS4 does not report this error. */
@@ -1708,31 +1910,60 @@ getResources(int argc, char **argv)
 			(void) fprintf(stderr, "Using visual class %s\n",
 				       nameOfVisualClass(VisualClassWanted));
 	}
+	if (!erasemodename || !*erasemodename || !strcmp(erasemodename,
+							 "default")) {
+		erasemode = -1;
+		if (verbose)
+			(void) fprintf(stderr, "Using random erase mode\n");
+	} else {
+		extern int  erasemodefromname(char *name);
+
+		erasemode = erasemodefromname(erasemodename);
+		if (verbose)
+			(void) fprintf(stderr, "Using erase mode %s\n",
+				       erasemodename);
+	}
 #if HAVE_DIRENT_H
-	/* Evaluate imagefile */
-	if (imagefile && strcmp(imagefile, DEF_IMAGEFILE)) {
+	/* Evaluate bitmap */
+	if (bitmap && strcmp(bitmap, DEF_BITMAP)) {
 		extern void get_dir(char *fullpath, char *dir, char *filename);
 		extern int  sel_image(struct dirent *name);
 		extern int  scan_dir(const char *directoryname, struct dirent ***namelist,
 				     int         (*select) (struct dirent *),
 			int         (*compare) (const void *, const void *));
 
-		get_dir(imagefile, directory_r, filename_r);
+		get_dir(bitmap, directory_r, filename_r);
+		if (image_list != NULL) {
+			int         i;
+
+			for (i = 0; i < num_list; i++) {
+				if  (image_list[i])
+					(void) free((void *) image_list[i]);
+			}
+			(void) free((void *) image_list);
+			image_list = NULL;
+		}
 		images_list = (struct dirent ***) malloc(sizeof (struct dirent **));
 
 		num_list = scan_dir(directory_r, images_list, sel_image, NULL);
 		image_list = *images_list;
+		if (images_list) {
+			(void) free((void *) images_list);
+			images_list = NULL;
+		}
 		if (debug)
 			for (i = 0; i < num_list; i++)
 				(void) printf("File number %d: %s\n", i, image_list[i]->d_name);
-
+		if (num_list < 0) {
+			image_list = NULL;
+			num_list = 0;
+		}
 	} else {
 		num_list = 0;
 	}
 #endif
 	(void) free((void *) modename);
 	(void) free((void *) modeclassname);
-	(void) free((void *) classname);
 }
 
 
@@ -1760,8 +1991,7 @@ checkResources(void)
 		Syntax(mode);
 	} else {
 
-		/* batchcount and size we allow negative
-		   to mean randomize up to that number */
+		/* count and size we allow negative to mean randomize up to that number */
 		if (delay < 0)
 			Syntax("-delay argument must not be negative.");
 		if (cycles < 0)

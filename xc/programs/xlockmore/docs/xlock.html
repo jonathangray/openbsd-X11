@@ -3,7 +3,7 @@ Content-type: text/html
 <HTML><HEAD><TITLE>Manpage of XLOCK</TITLE>
 </HEAD><BODY>
 <H1>XLOCK</H1>
-Section: User Commands  (1)<BR>Updated: 03 Jan 1998<BR><A HREF="#index">Index</A>
+Section: User Commands  (1)<BR>Updated: 18 Jun 1998<BR><A HREF="#index">Index</A>
 <BR><A HREF="http:/cgi-bin/man2html">Return to Main Contents</A>
 <HR>
 
@@ -55,6 +55,10 @@ xlock - Locks the local X display until a password is entered.
 
 ]
 [
+<B>-count</B><I> num</I>
+
+]
+[
 <B>-cycles</B><I> num</I>
 
 ]
@@ -71,7 +75,19 @@ xlock - Locks the local X display until a password is entered.
 
 ]
 [
+<B>-erasemode</B><I> modename</I>
+
+]
+[
+<B>-erasedelay</B><I> usecs</I>
+
+]
+[
 <B>-/+allowaccess</B>
+
+]
+[
+<B>-/+vtlock</B>
 
 ]
 [
@@ -163,7 +179,7 @@ xlock - Locks the local X display until a password is entered.
 
 ]
 [
-<B>-msgfont</B><I> message-fontname</I>
+<B>-planfont</B><I> fontname</I>
 
 ]
 [
@@ -263,11 +279,11 @@ xlock - Locks the local X display until a password is entered.
 
 ]
 [
-<B>-mfont</B><I> mode-fontname</I>
+<B>-messagefont</B><I> fontname</I>
 
 ]
 [
-<B>-imagefile</B><I> filename</I>
+<B>-bitmap</B><I> filename</I>
 
 ]
 [
@@ -359,9 +375,9 @@ server is restored.  When typing the password Control-U and Control-H are
 active as kill and erase respectively.  To return to the locked screen,
 click in the small icon version of the changing pattern.
 <P>
-In the lower part of the password screen a message is displayed.  This
+In the lower part of the password screen a text is displayed.  This
 message is taken from the first file of the following that exists:
-$HOME/.xlockmessage, $HOME/.plan, or $HOME/.signature.
+$HOME/.xlocktext, $HOME/.plan, or $HOME/.signature.
 <P>
 On systems which support new BSD style authentication, the password
 may be prefixed by an authentication style followed by a colon
@@ -440,12 +456,17 @@ when looking for resources to configure
 <DT><B>-mode</B><I>&nbsp;modename</I>
 
 <DD>
-As of this writing there are over 60 display modes supported
+As of this writing there are over 90 display modes supported
 (plus one more for random selection of one of these).
 <DT><B>ant</B>
 
 <DD>
 Shows Langton's and Turk's generalized ants.
+<DT><B>atlantis</B>
+
+<DD>
+Shows moving sharks/whales/dolphin.  May not be available depending on how
+it was configured.
 <DT><B>ball</B>
 
 <DD>
@@ -474,6 +495,11 @@ Shows random braids and knots.
 
 <DD>
 Shows popping bubbles.
+<DT><B>bubble3d</B>
+
+<DD>
+Shows Richard Jones's GL bubbles.  May not be available depending on how
+it was configured.
 <DT><B>bug</B>
 
 <DD>
@@ -481,7 +507,8 @@ Shows Palmiter's bug evolution and a garden of Eden.
 <DT><B>cartoon</B>
 
 <DD>
-Shows bouncing cartoons.  Not compiled in by default.
+Shows bouncing cartoons.  May not be available depending on how it was
+configured.
 <DT><B>clock</B>
 
 <DD>
@@ -513,7 +540,11 @@ Shows Griffeath's cellular automata.
 <DT><B>dilemma</B>
 
 <DD>
-Shows Lloyd's Prisoner's Dilemma simulation
+Shows Lloyd's Prisoner's Dilemma simulation.
+<DT><B>discrete</B>
+
+<DD>
+Shows various discrete maps.
 <DT><B>drift</B>
 
 <DD>
@@ -539,6 +570,10 @@ Shows a waving flag of your operating system.
 
 <DD>
 Shows cosmic flame fractals.
+<DT><B>flow</B>
+
+<DD>
+Shows dynamic strange attractors.
 <DT><B>forest</B>
 
 <DD>
@@ -551,6 +586,10 @@ Shows crashing spiral galaxies.
 
 <DD>
 Shows GL's gears.  May not be available depending on how it was configured.
+<DT><B>goop</B>
+
+<DD>
+Shows goop from a lava lamp.
 <DT><B>grav</B>
 
 <DD>
@@ -566,7 +605,7 @@ Shows real plane iterated fractals.
 <DT><B>hyper</B>
 
 <DD>
-Shows a spinning tesseract in 4D space.
+Shows spinning n-dimensional hypercubes.
 <DT><B>ico</B>
 
 <DD>
@@ -586,7 +625,11 @@ Shows the Julia set.
 <DT><B>kaleid</B>
 
 <DD>
-Shows a kaleidoscope.
+Shows Brewster's Kaleidoscope.
+<DT><B>kummpa</B>
+
+<DD>
+Shows kumppa.
 <DT><B>laser</B>
 
 <DD>
@@ -626,7 +669,7 @@ Shows mandelbrot sets.
 <DT><B>marquee</B>
 
 <DD>
-Shows messages.
+Shows text.
 <DT><B>maze</B>
 
 <DD>
@@ -652,7 +695,7 @@ Shows munching squares.
 <DT><B>nose</B>
 
 <DD>
-Shows a man with a big nose runs around spewing out messages.
+Shows a man with a big nose runs around spewing out text.
 <DT><B>pacman</B>
 
 <DD>
@@ -733,6 +776,10 @@ May not be available depending on how it was configured.
 
 <DD>
 Shows a star field with a twist.
+<DT><B>starfish </B>
+
+<DD>
+Shows starfish.
 <DT><B>strange</B>
 
 <DD>
@@ -750,6 +797,10 @@ Shows a swarm of bees following a wasp.
 
 <DD>
 Shows animated swirling patterns.
+<DT><B>thornbird</B>
+
+<DD>
+Shows an animated Bird in a Thorn Bush fractal map.
 <DT><B>triangle</B>
 
 <DD>
@@ -813,7 +864,7 @@ because the keyboard and mouse are only checked after each delay, so you
 cannot set the delay too high, but a delay of zero would needlessly
 consume cpu checking for mouse and keyboard input in a tight loop, since
 blank mode has no work to do.
-<DT><B>-batchcount</B><I>&nbsp;num</I>
+<DT><B>-count</B><I>&nbsp;num</I>
 
 <DD>
 The
@@ -828,6 +879,8 @@ to do per batch to
 <P>
 In ant mode this refers the number of ants.
 <P>
+In atlantis mode it is the number of sharks.
+<P>
 In ball mode it is the number of balls.
 <P>
 In bat mode it is the number of bats, could be less because of conflicts.
@@ -841,6 +894,8 @@ In bounce mode it is the number of balls, could be less because of conflicts.
 In braid mode it is the upper bound number of strands.
 <P>
 In bubble mode it is the number of bubbles.
+<P>
+In bubble3d mode it is the number of bubbles.
 <P>
 In bug mode it is the number of bugs, could be less because of conflicts.
 <P>
@@ -864,13 +919,19 @@ In demon mode this refers the number of colors.
 <P>
 In dilemma mode this refers the number of initial defectors.
 <P>
+In discrete mode it is the number of points.
+<P>
 In drift mode it is the number of levels to recurse (larger = more complex).
 <P>
 In eyes mode it is the number of eyes.
 <P>
-In flame mode it is the number of steps.
+In fadeplot mode it is the number of steps.
+<P>
+In flag mode it means nothing.
 <P>
 In flame mode it is the number of levels to recurse (larger = more complex).
+<P>
+In flow mode it is the number of bees.
 <P>
 In forest mode it is the number trees that make a forest.
 <P>
@@ -878,13 +939,15 @@ In galaxy mode it means the number of galaxies.
 <P>
 In gears mode it is the number of degrees to rotate the set of gears by.
 <P>
+In goop mode it is the number of blobs per plane.
+<P>
 In grav mode it is the number of planets.
 <P>
 In helix mode it means nothing.
 <P>
 In hop mode this refers to the number of pixels rendered in the same color.
 <P>
-In hyper mode it means nothing.
+In hyper mode it the number of dimensions.
 <P>
 In ico mode it is the ith platonic solid.
 <P>
@@ -894,7 +957,9 @@ In image mode it means it is the number of logos on screen at once.
 <P>
 In julia mode it is the depth of recursion.
 <P>
-In kaleid mode it means nothing.
+In kaleid mode it is the number of pens.
+<P>
+In kumppa mode it means nothing.
 <P>
 In laser mode it is the number lasers.
 <P>
@@ -965,6 +1030,8 @@ In stairs mode it is means nothing.
 <P>
 In star mode it is the number of stars on the screen at once.
 <P>
+In starfish mode it means nothing.
+<P>
 In strange mode it means nothing.
 <P>
 In superquadrics mode its the number of horizontal and vertical lines in
@@ -973,6 +1040,8 @@ the superquadric.
 In swirl mode it means the number of &quot;knots&quot;.
 <P>
 In swarm mode it is the number of bees.
+<P>
+In thornbird mode it is the number of points.
 <P>
 In triangular mode it is the number of mountains. 
 <P>
@@ -998,19 +1067,28 @@ In blank mode it means nothing.
 In bomb mode it means the number of minutes to autologout.
 <P>
 A negative
-<I>batchcount</I>
+<I>count</I>
 
 allows for randomness.  The range from the minimum allowed nonnegative
-<I>batchcount</I>
+<I>count</I>
 
 for a particular mode to the
 ABS(
-<I>batchcount</I>
+<I>count</I>
 
 ) (or maximum allowed
-<I>batchcount</I>
+<I>count</I>
 
 , whichever is less).
+<DT><B>-batchcount</B><I>&nbsp;num</I>
+
+<DD>
+The
+<I>batchcount</I>
+
+option is depreciated but should still work as
+<I>count.</I>
+
 <DT><B>-cycles</B><I>&nbsp;num</I>
 
 <DD>
@@ -1018,13 +1096,15 @@ The
 <I>cycles</I>
 
 option sets the number of cycles until time out for ant, blot, braid,
-bug, clock, crystal, daisy, deco, demon, dilemma, eyes, flag, forest,
-galaxy, helix, hop, hyper, ico, kaleid, laser, life, life1d, life3d,
-lisa, lissie, loop, mandelbrot, mountain, petal, sierpinski, shape,
-spline +erase, triangle, tube, voters, wator, and wire.
-For worm it is the length of the lines,
+bug, clock, crystal, daisy, deco, demon, dilemma, discrete, eyes,
+flag, flow, forest, galaxy, helix, hop, hyper, ico,
+laser, life, life1d, life3d, lisa, lissie, loop, mandelbrot, mountain,
+petal, sierpinski, shape, spline +erase, thornbird, triangle, tube,
+voters, wator, and wire.  For worm it is the length of the lines,
+for atlantis it is the shark speed,
 for fadeplot, julia and spiral it is the length of the trail of dots,
 munch it is the minimum size of the squares,
+for kaleid it is the % of black,
 for qix it is the number of lines,
 for spline -erase it means the number of
 splines * 64 (for compatibility with +erase),
@@ -1044,14 +1124,16 @@ size of ball in ball and bounce, size of bat in bat,
 maximum size of bubble in bubble, size of clock in clock,
 minimum size of rectangles in deco, size of the polygon in crystal,
 size of polyhedron in ico, size of lissie in lissie, size of dots of flag,
+for kaleid it is the symmetry,
 width of maze hallway, size of side of penrose tile, radius of loop in lisa,
 radius of ball in roll, number of corners in sierpinski,
-size of tube in tube, width of worm in worm,
+size of tube in tube, width of worm in worm, line width in rotor,
 size of cells in ant, bug, dilemma, life, life1d, pacman, voters,
 wator, and wire.  In pipes it is the maximum length of a system.
+In atlantis it is the shark size.
 In sproingies it is the size of the screen.  A negative number
 allows for randomness, similar to
-<I>batchcount.</I>
+<I>count.</I>
 
 <DT><B>-ncolors</B><I>&nbsp;num</I>
 
@@ -1070,6 +1152,26 @@ option sets saturation of the color ramp used to
 <I>value .</I>
 
 0 is grayscale and 1 is very rich color.  0.4 is a nice pastel.
+<DT><B>-erasemode</B><I>&nbsp;modename</I>
+
+<DD>
+As of this writing there are over 9 erase modes supported
+(if its not chosen its assumed random).
+The erase modes are random_lines, random_squares, venetian, triple_wipe,
+quad_wipe, circle_wipe, three_circle_wipe, squaretate, no_fade.
+<DT><B>-erasedelay</B><I>&nbsp;usecs</I>
+
+<DD>
+The
+<I>erasedelay</I>
+
+option sets the number of microseconds for steps of the 
+<B>erasemode</B>
+
+(a setting of 0 and the
+<B>erasemode</B>
+
+is bypassed).
 <DT><B>+/-nolock</B>
 
 <DD>
@@ -1156,6 +1258,13 @@ this option is that if
 <B>xlock</B>
 
 is killed -KILL, the access control list is not lost.
+<DT><B>-/+vtlock</B>
+
+<DD>
+This option is used on a XFree86 system to manage VT switching...  When
+<I>vtlock</I>
+
+is true, the VT switching is disabled.
 <DT><B>-/+allowroot</B>
 
 <DD>
@@ -1313,10 +1422,10 @@ The
 <I>font</I>
 
 option sets the font to be used on the prompt screen.
-<DT><B>-msgfont</B><I>&nbsp;fontname</I>
+<DT><B>-planfont</B><I>&nbsp;fontname</I>
 
 <DD>
-option sets the font to be used for the message that is displayed in
+option sets the font to be used for the text that is displayed in
 the lower part of the password screen.
 <DT><B>-fg</B><I>&nbsp;color</I>
 
@@ -1441,9 +1550,8 @@ mode options.
 <DT><B>-/+wireframe</B>
 
 <DD>
-Turn on/off wireframe, available on gears, sproingies and superquadrics.
-Other modes should use this in the future as well (e.g. daisy, life3d,
-triangle).
+Turn on/off wireframe, available on atlantis, daisy, gears, life3d, mountain,
+sproingies, superquadrics, and triangle.
 <DT><B>-/+use3d</B>
 
 <DD>
@@ -1493,7 +1601,7 @@ fortune program.
 The
 <I>messagefile</I>
 
-option sets the file where the contents are the message.  Currently
+option sets the file whose contents are displayed.  Currently
 used only for marquee and nose modes.  If one exists, it takes
 precedence over the fortune program and messagesfile.
 <DT><B>-message</B><I>&nbsp;textstring</I>
@@ -1502,25 +1610,26 @@ precedence over the fortune program and messagesfile.
 The
 <I>message</I>
 
-option sets the message.  Currently used only for marquee and nose modes.
-If one exists, it takes precedence over the fortune program,
-messagesfile and messagefile.
-<DT><B>-mfont</B><I>&nbsp;mode-fontname</I>
+option sets the text to be displayed in a mode.  Currently used only for
+flag, marquee and nose modes.  If one exists, it takes precedence over the
+fortune program, messagesfile and message.
+<DT><B>-messagefont</B><I>&nbsp;fontname</I>
 
 <DD>
 The
-<I>mfont</I>
+<I>messagefont</I>
 
 option sets the font to be used in the mode.  Currently used only for
-marquee and nose modes.
-<DT><B>-imagefile</B><I>&nbsp;filename</I>
+flag, marquee, and nose modes.
+<DT><B>-bitmap</B><I>&nbsp;filename</I>
 
 <DD>
 The
-<I>imagefile</I>
+<I>bitmap</I>
 
-option sets the ras or xpm file to be displayed with flag, image, life,
-life1d, maze, or puzzle mode.
+option sets the xbm, xpm, or ras file to be displayed with flag, image, life,
+life1d, maze, or puzzle mode.  For eyes and pacman only a xbm file is
+accepted.  Certain modes reject the bitmap if too big.
 <DT><B>-neighbors</B><I>&nbsp;num</I>
 
 <DD>
@@ -1594,7 +1703,8 @@ Current user could not be automatically logged out.&quot;
 <DT><B>-/+dtsaver</B>
 
 <DD>
-Turn on/off CDE Saver Mode.
+Turn on/off CDE Saver Mode.  This option is only available if CDE
+support was compiled in.
 <DT><B>-modulepath</B><I>&nbsp;path</I>
 
 <DD>
@@ -1667,13 +1777,64 @@ Text
 
 command to execute when the program logs the user out (either via the autologout
 or by pressing the logout button).
-<P>
+<DT><B>-mailCmd</B><I>&nbsp;string</I>
+
+<DD>
+Text
+<I>string</I>
+
+command to execute when the program to check mail.
+<DT><B>-mailIcon</B><I>&nbsp;string</I>
+
+<DD>
+Text
+<I>string</I>
+
+of file for the &quot;mail arrived&quot; bitmap.
+<DT><B>-nomailIcon</B><I>&nbsp;string</I>
+
+<DD>
+Text
+<I>string</I>
+
+of file for the &quot;no mail&quot; bitmap.
+<DT><B>-dpmsstandby &nbsp;seconds</B>
+
+<DD>
+Allows one to set DPMS Standby for monitor (0 is defined as infinite).
+(Horizontal sync on, Vertical sync off, RGB guns off, power supply on,
+tube filaments energized, (screen saver mode).  Typical 17 inch screen...
+110 out of 120 watts with a 3 sec recovery time.)  This option is only
+available if DPMS support was compiled in.
+<DT><B>-dpmssuspend &nbsp;seconds</B>
+
+<DD>
+Allows one to set DPMS Suspend for monitor (0 is defined as infinite).
+(Horizontal sync off, Vertical sync on, RGB guns off, power supply off,
+tube filaments energized.  Typical 17 inch screen ...  15 out of 120 watts
+with a 3 sec recovery time.)  This option is only available if DPMS support
+was compiled in.
+<DT><B>-dpmsoff &nbsp;seconds</B>
+
+<DD>
+Allows one to set DPMS Power Off for monitor (0 is defined as infinite).
+(Horizontal sync off, Vertical sync off, Small auxiliary circuit stays on
+to monitor the HS/VS signals to enable power on when data needs to be
+displayed on the screen.  Typical 17 inch screen ...  5 out of 120 watts with
+a 10 sec recovery time.)  This option is only available if DPMS support was
+compiled in.
 <P>
 </DL>
 <A NAME="lbAH">&nbsp;</A>
 <H2>SPECIAL MODE DEPENDENT OPTIONS</H2>
 
 <DL COMPACT>
+<DT><B>-whalespeed</B><I>&nbsp;num</I>
+
+<DD>
+Allows one to set the speed of the whales and dolphin in
+<I>atlantis.</I>
+
 <DT><B>-/+truchet</B>
 
 <DD>
@@ -1685,6 +1846,60 @@ Turn on and off Truchet lines (trail) in
 <DD>
 Turn on and off having the bubbles bubble up in
 <I>bubble.</I>
+
+<DT><B>-nx</B><I>&nbsp;num</I>
+
+<DD>
+Allows one to set the number of unit cells in x-direction in
+<I>crystal.</I>
+
+<DT><B>-ny</B><I>&nbsp;num</I>
+
+<DD>
+Allows one to set the number of unit cells in y-direction in
+<I>crystal.</I>
+
+<DT><B>-/+centre</B>
+
+<DD>
+Turn on and off the centering on screen in
+<I>crystal.</I>
+
+<DT><B>-/+maxsize</B>
+
+<DD>
+Turn on and off the centering on screen in
+<I>crystal.</I>
+
+<DT><B>-/+cell</B>
+
+<DD>
+Turn on and off the drawing of unit cell in
+<I>crystal.</I>
+
+<DT><B>-/+grid</B>
+
+<DD>
+Turn on and off the drwing of grid of unit cells (if -cell is on) in
+<I>crystal.</I>
+
+<DT><B>-/+shift</B>
+
+<DD>
+Turn on and off colour cycling in
+<I>crystal.</I>
+
+<DT><B>-/+forest</B>
+
+<DD>
+Turn on and off the tropical deforest (hectares/acres) counter in
+<I>dclock.</I>
+
+<DT><B>-/+popex</B>
+
+<DD>
+Turn on and off the population explosion counter in
+<I>dclock.</I>
 
 <DT><B>-bonus</B><I>&nbsp;value</I>
 
@@ -1764,6 +1979,11 @@ Turn on and off ellipse format in
 Turn on and off Barry Martin's square root
 <I>hop.</I>
 
+<B>-/+popcorn</B>
+
+Turn on and off Clifford A. Pickover's popcorn
+<I>hop.</I>
+
 <DT><B>-/+ejk1...ejk6</B>
 
 <DD>
@@ -1787,6 +2007,42 @@ Turn on and off Jong's
 <DD>
 Turn on and off Barry Martin's sine
 <I>hop.</I>
+
+<DT><B>-/+disconnected</B>
+
+<DD>
+Turn on and off disconnected pen movement in
+<I>kaleid.</I>
+
+<DT><B>-/+serial</B>
+
+<DD>
+Turn on and off sequential allocation of colors in
+<I>kaleid.</I>
+
+<DT><B>-/+alternate</B>
+
+<DD>
+Turn on and off alternate rotated display mode
+<I>kaleid.</I>
+
+<DT><B>-/+quad</B>
+
+<DD>
+Turn on and off quad mirrored/rotated mode similar to size 4 in
+<I>kaleid.</I>
+
+<DT><B>-/+oct</B>
+
+<DD>
+Turn on and off oct mirrored/rotated mode similar to size 8 in
+<I>kaleid.</I>
+
+<DT><B>-/+linear</B>
+
+<DD>
+Turn on and off Cartesian/Polar coordinate mode in 
+<I>kaleid.</I>
 
 <DT><B>-rule</B><I>&nbsp;S&lt;neighborhood&gt;/B&lt;neighborhood&gt;</I>
 
@@ -1949,6 +2205,36 @@ Turn on if
 <I>star</I>
 
 gets you motion sick.
+<DT><B>-cyclepeed</B><I>&nbsp;num</I>
+
+<DD>
+Set speed of cycling in
+<I>starfish.</I>
+
+<DT><B>-rotation</B><I>&nbsp;num</I>
+
+<DD>
+Set rotation velocity in
+<I>starfish.</I>
+
+<DT><B>-thickness</B><I>&nbsp;num</I>
+
+<DD>
+Set thickness in
+<I>starfish.</I>
+
+<DT><B>-/+cycle</B>
+
+<DD>
+Turn on and off cycle for
+<I>starfish.</I>
+
+<DT><B>-/+rock</B>
+
+<DD>
+Turn on and off blob for
+<I>starfish.</I>
+
 <DT><B>-spinspeed</B><I>&nbsp;num</I>
 
 <DD>
@@ -1975,7 +2261,7 @@ get only the GL modes if compiled in, all-allgl will get all but the GL
 modes, &quot;allnice&quot; will weed out high cpu usage modes (as well as hackers and
 gl modes).  &quot;allxpm&quot; will get all modes that use xpm.  &quot;allwrite&quot; will get
 all modes that take advantage of writable colormaps (not including xpm).
-&quot;alluse3d&quot; will get all the modes that support this option.  &quot;allmouse&quot;
+&quot;all3d&quot; will get all the modes that support this option.  &quot;allmouse&quot;
 will get all the modes that support mouse interaction.  Similarly,
 &quot;allautomata&quot; for automata modes, &quot;allfractal&quot; for fractal modes,
 &quot;allgeometry&quot; for geometry modes, &quot;allspace&quot; for space modes.  The random
@@ -2143,6 +2429,6 @@ copyrights.
 This document was created by
 <A HREF="http:/cgi-bin/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 16:06:51 GMT, March 13, 1998
+Time: 03:08:55 GMT, September 29, 1998
 </BODY>
 </HTML>

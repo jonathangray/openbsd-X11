@@ -1,11 +1,13 @@
 ############################################################
 #
-# $Id : Makefile.in 4.04 1997/07/10 $
+# $Id : Makefile.in 4.12 1997/08/10 $
 #
 # xlockmore Makefile.in for autoconf (UNIX/VMS X11 support)
 ############################################################
 
-SUBDIRS = xlock modes/glx modes xmlock xalock
+SUBDIRS = xlock modes/glx modes xmlock xglock
+# Do not build by default, since it usually does not work
+# xalock
 
 MAKE_SUBDIR = for dir in $(SUBDIRS) ; do ( cd $$dir ; $(MAKE) $@ ) ; done
 # convenient not to use configure just to clean
@@ -30,7 +32,7 @@ TAR = tar
 RM = rm -f
 
 VER = xlockmore
-DISTVER = xlockmore-4.04
+DISTVER = xlockmore-4.12
 
 install :
 	@$(MAKE_SUBDIR)
@@ -56,6 +58,9 @@ uninstall-man :
 depend :
 	@$(MAKE_SUBDIR)
 
+distdepend :
+	@$(MAKE_SUBDIR)
+
 lint :
 	@$(MAKE_SUBDIR)
 
@@ -72,7 +77,7 @@ hlp :
 	@$(MAKE_SUBDIR)
 
 clean :
-	$(RM) core *~ *% *.bak *.orig make.log MakeOut
+	$(RM) core *~ *% *.bak *.orig *.rej make.log MakeOut
 	@$(MAKEIN_SUBDIR)
 
 distclean : clean

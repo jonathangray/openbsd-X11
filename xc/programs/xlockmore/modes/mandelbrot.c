@@ -21,6 +21,16 @@ static const char sccsid[] = "@(#)mandelbrot.c 4.07 97/11/24 xlockmore";
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
+ * See  A.K. Dewdney's "Computer Recreations", Scientific American 
+ * Magazine" Aug 1985 for more info.  Also A.K. Dewdney's "Computer
+ * Recreations", Scientific American Magazine" Jul 1989, has some neat
+ * extensions besides z^n + c (n small but >= 2) some of these are:
+ *   z^z + z^n + c
+ *   sin(z) + e^z + c 
+ *   sin(z) + z^n + c
+ * These were first explored by a colleague of Mandelbrot, Clifford A.
+ * Pickover.  These would make nice additions to add.
+ *
  * Revision History:
  * 20-Oct-97: Written by Dan Stromberg <strombrg@nis.acs.uci.edu>
  */
@@ -41,6 +51,8 @@ static const char sccsid[] = "@(#)mandelbrot.c 4.07 97/11/24 xlockmore";
 #include <X11/Xutil.h>
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
+#include "vis.h"
+#include "color.h"
 #endif /* !STANDALONE */
 
 #define MINPOWER 1
@@ -103,12 +115,19 @@ mult(complex * a, complex b)
 	a->imag = ti;
 }
 
+/* Plans for future additions?  a, z complex; x, y real
+   sin(z) = (e^(i * z) - e^(-i * z)) / (2 * i)
+   cos(z) = (e^(i * z) - e^(-i * z)) / 2
+   a^z = e^(z * ln(a))
+   e^z = e^x * (cos(y) + i * sin(y))
+   ln(z) = ln ((x^2 + y^2)^(1/2)) + i * invtan(y/x)
+ */
+
 /* this IS a true power function. */
 static void
 ipow(complex * a, int n)
 {
-	int         t2;
-	complex     a2;
+
 
 	switch (n) {
 		case 1:
@@ -117,14 +136,18 @@ ipow(complex * a, int n)
 			mult(a, *a);
 			return;
 		default:
-			t2 = n / 2;
-			a2 = *a;
-			ipow(&a2, t2);
-			mult(&a2, a2);
-			if (t2 * 2 != n)	/* if n is odd */
-				mult(&a2, *a);
-			*a = a2;
-			;;
+			{
+				complex     a2;
+				int         t2;
+
+				a2 = *a;	/* Not very efficient to use:  mult(a, ipow(&a2, n-1)); */
+				t2 = n / 2;
+				ipow(&a2, t2);
+				mult(&a2, a2);
+				if (t2 * 2 != n)	/* if n is odd */
+					mult(&a2, *a);
+				*a = a2;
+			}
 	}
 }
 
@@ -193,7 +216,7 @@ init_mandelbrot(ModeInfo * mi)
 	mp = &mandels[MI_SCREEN(mi)];
 
 
-	power = MI_BATCHCOUNT(mi);
+	power = MI_COUNT(mi);
 	if (power < -MINPOWER) {
 		int         temp;
 
@@ -211,6 +234,8 @@ init_mandelbrot(ModeInfo * mi)
 
 	MI_CLEARWINDOW(mi);
 
+
+#ifndef STANDALONE
 	mp->fixed_colormap = !setupColormap(mi,
 		&(mp->ncolors), &truecolor, &redmask, &greenmask, &bluemask);
 	if (!mp->fixed_colormap) {
@@ -240,6 +265,7 @@ init_mandelbrot(ModeInfo * mi)
 						   MI_VISUAL(mi), AllocAll);
 		mp->usable_colors = mp->ncolors - preserve;
 	}
+#endif /* !STANDALONE */
 }
 
 static int
@@ -253,7 +279,7 @@ reps(complex c, double p, int r)
 	for (rep = 0; rep < r; rep++) {
 		rpow(&t, p);
 		add(&t, c);
-		if (t.real * t.real + t.imag * t.imag >= 4.0) {
+		if (t.real * t.real + t.imag * t.imag >= 13.0) {
 			escaped = 1;
 			break;
 		}
@@ -285,9 +311,12 @@ draw_mandelbrot(ModeInfo * mi)
 	int         j, k;
 
 	log_top = log((float) top);
-	screen_width = MI_WIN_WIDTH(mi);
-	screen_height = ((MI_WIN_HEIGHT(mi) + 1) >> 1) << 1;	/* screen_height even */
+	screen_width = MI_WIDTH(mi);
+	screen_height = ((MI_HEIGHT(mi) + 1) >> 1) << 1;	/* screen_height even */
 
+	MI_IS_DRAWN(mi) = True;
+
+#ifndef STANDALONE
 	if (mp->counter % 5 == 0) {
 		/* advance "drawing" color */
 		mp->cur_color = (mp->cur_color + 1) % mp->ncolors;
@@ -342,13 +371,14 @@ draw_mandelbrot(ModeInfo * mi)
 			}
 			/* make the entire tube move forward */
 			XStoreColors(display, mp->cmap, mp->colors, mp->ncolors);
-			setColormap(display, window, mp->cmap, MI_WIN_IS_INWINDOW(mi));
+			setColormap(display, window, mp->cmap, MI_IS_INWINDOW(mi));
 		}
 	}
+#endif /* !STANDALONE */
 	if (mp->column >= 3 * screen_width / 2) {
 		/* reset to left edge of screen, bump power */
 		mp->column = 0;
-		if (MI_BATCHCOUNT(mi) >= -MINPOWER) {	/* Then do not randomize */
+		if (MI_COUNT(mi) >= -MINPOWER) {	/* Then do not randomize */
 			mp->power += increment;
 			/* round to third digit after decimal, in case of floating point
 			   inaccuracy.  Assumption: no one wants to increment this by
@@ -359,7 +389,7 @@ draw_mandelbrot(ModeInfo * mi)
 			int         temp;
 
 			do {
-				temp = NRAND(-MI_BATCHCOUNT(mi) - MINPOWER + 1) + MINPOWER;
+				temp = NRAND(-MI_COUNT(mi) - MINPOWER + 1) + MINPOWER;
 			} while (temp == mp->power);
 			mp->power = temp;
 		}
@@ -404,6 +434,7 @@ draw_mandelbrot(ModeInfo * mi)
 			XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 		else {
 			color = (unsigned int) (MI_NPIXELS(mi) * log((float) result) / log_top);
+#ifndef STANDALONE
 			if (!mp->fixed_colormap && mp->usable_colors > 2) {
 				while (color == MI_WHITE_PIXEL(mi) ||
 				       color == MI_BLACK_PIXEL(mi) ||
@@ -414,6 +445,7 @@ draw_mandelbrot(ModeInfo * mi)
 				XSetForeground(display, gc, color);
 			} else
 				XSetForeground(display, gc, MI_PIXEL(mi, color));
+#endif /* !STANDALONE */
 		}
 		/* take advantage of vertical symmetry */
 		XDrawPoint(display, window, gc, mp->column, h);

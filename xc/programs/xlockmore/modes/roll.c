@@ -36,7 +36,8 @@ static const char sccsid[] = "@(#)roll.c	4.07 97/11/24 xlockmore";
  "*count: 25 \n" \
  "*size: -64 \n" \
  "*ncolors: 200 \n"
-#define SPREAD_COLORS
+#define BRIGHT_COLORS
+#define SMOOTH_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -154,12 +155,12 @@ init_roll(ModeInfo * mi)
 	rp = &rolls[MI_SCREEN(mi)];
 
 	ang = (double) NRAND(75) + 7.5;
-	rp->direction.x = ((2 * (LRAND() & 1)) - 1) * (int)
+	rp->direction.x = (short) ((2 * (LRAND() & 1)) - 1) * (int)
 		(SPEED * SINF(ang * M_PI / 180.0));
-	rp->direction.y = ((2 * (LRAND() & 1)) - 1) * (int)
+	rp->direction.y = (short) ((2 * (LRAND() & 1)) - 1) * (int)
 		(SPEED * COSF(ang * M_PI / 180.0));
-	rp->width = MI_WIN_WIDTH(mi);
-	rp->height = MI_WIN_HEIGHT(mi);
+	rp->width = MI_WIDTH(mi);
+	rp->height = MI_HEIGHT(mi);
 	if (size < -MINSIZE)
 		rp->r = NRAND(MIN(-size, MAX(MINSIZE,
 		   MIN(rp->width, rp->height) / 4)) - MINSIZE + 1) + MINSIZE;
@@ -178,7 +179,7 @@ init_roll(ModeInfo * mi)
 	rp->alpha = 0;
 	rp->theta = 0;
 	rp->phi = 0;
-	rp->maxpts = MI_BATCHCOUNT(mi);
+	rp->maxpts = MI_COUNT(mi);
 	if (rp->maxpts < -MINPTS) {
 		/* if rp->maxpts is random ... the size can change */
 		if (rp->pts != NULL) {
@@ -212,6 +213,8 @@ draw_roll(ModeInfo * mi)
 	GC          gc = MI_GC(mi);
 	rollstruct *rp = &rolls[MI_SCREEN(mi)];
 	int         i;
+
+	MI_IS_DRAWN(mi) = True;
 
 	for (i = 0; i < rp->maxpts; i++) {
 		rp->pts[i].t = rp->pts[i].t1;
@@ -301,5 +304,5 @@ release_roll(ModeInfo * mi)
 void
 refresh_roll(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

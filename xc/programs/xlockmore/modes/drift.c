@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)drift.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 10-May-97: Jamie Zawinski <jwz@netscape.com> compatible with xscreensaver
+ * 10-May-97: Jamie Zawinski <jwz@jwz.org> compatible with xscreensaver
  * 01-Jan-97: Moved new flame to drift.  Compile time options now run time.
  * 01-Jun-95: Updated by Scott Draves.
  * 27-Jun-91: vary number of functions used.
@@ -37,7 +37,8 @@ static const char sccsid[] = "@(#)drift.c	4.07 97/11/24 xlockmore";
 #define drift_opts xlockmore_opts
 #define DEFAULTS "*delay: 10000 \n" \
  "*count: 30 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*fullrandom: True \n"
 #define SMOOTH_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
@@ -125,65 +126,66 @@ typedef struct {
 	double      x, y, c;
 	int         liss_time;
 	Bool        grow, liss;
+
+	short       lasthalf;
+	long        saved_random_bits;
+	int         nbits;
 } driftstruct;
 
 static driftstruct *drifts = NULL;
 
 static short
-halfrandom(int mv)
+halfrandom(driftstruct * dp, int mv)
 {
-	static short lasthalf = 0;
 	unsigned long r;
 
-	if (lasthalf) {
-		r = lasthalf;
-		lasthalf = 0;
+	if (dp->lasthalf) {
+		r = dp->lasthalf;
+		dp->lasthalf = 0;
 	} else {
 		r = LRAND();
-		lasthalf = r >> 16;
+		dp->lasthalf = (short) (r >> 16);
 	}
 	r = r % mv;
 	return r;
 }
 
 static int
-frandom(int n)
+frandom(driftstruct * dp, int n)
 {
-	static long saved_random_bits = 0;
-	static int  nbits = 0;
 	int         result;
 
-	if (3 > nbits) {
-		saved_random_bits = LRAND();
-		nbits = 31;
+	if (3 > dp->nbits) {
+		dp->saved_random_bits = LRAND();
+		dp->nbits = 31;
 	}
 	switch (n) {
 		case 2:
-			result = saved_random_bits & 1;
-			saved_random_bits >>= 1;
-			nbits -= 1;
+			result = (int) (dp->saved_random_bits & 1);
+			dp->saved_random_bits >>= 1;
+			dp->nbits -= 1;
 			return result;
 
 		case 3:
-			result = saved_random_bits & 3;
-			saved_random_bits >>= 2;
-			nbits -= 2;
+			result = (int) (dp->saved_random_bits & 3);
+			dp->saved_random_bits >>= 2;
+			dp->nbits -= 2;
 			if (3 == result)
-				return frandom(3);
+				return frandom(dp, 3);
 			return result;
 
 		case 4:
-			result = saved_random_bits & 3;
-			saved_random_bits >>= 2;
-			nbits -= 2;
+			result = (int) (dp->saved_random_bits & 3);
+			dp->saved_random_bits >>= 2;
+			dp->nbits -= 2;
 			return result;
 
 		case 5:
-			result = saved_random_bits & 7;
-			saved_random_bits >>= 3;
-			nbits -= 3;
+			result = (int) (dp->saved_random_bits & 7);
+			dp->saved_random_bits >>= 3;
+			dp->nbits -= 3;
 			if (4 < result)
-				return frandom(5);
+				return frandom(dp, 5);
 			return result;
 		default:
 			(void) fprintf(stderr, "bad arg to frandom\n");
@@ -191,8 +193,8 @@ frandom(int n)
 	return 0;
 }
 
-#define DISTRIB_A (halfrandom(7000) + 9000)
-#define DISTRIB_B ((frandom(3) + 1) * (frandom(3) + 1) * 120000)
+#define DISTRIB_A (halfrandom(dp, 7000) + 9000)
+#define DISTRIB_B ((frandom(dp, 3) + 1) * (frandom(dp, 3) + 1) * 120000)
 #define LEN(x) (sizeof(x)/sizeof((x)[0]))
 
 static void
@@ -204,7 +206,7 @@ initmode(ModeInfo * mi, int mode)
 
 	dp->mode = mode;
 
-	dp->major_variation = halfrandom(VARIATION_LEN);
+	dp->major_variation = halfrandom(dp, VARIATION_LEN);
 	/*  0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 6 */
 	dp->major_variation = ((dp->major_variation >= VARIATION_LEN >> 1) &&
 			       (dp->major_variation < VARIATION_LEN - 1)) ?
@@ -213,11 +215,11 @@ initmode(ModeInfo * mi, int mode)
 	if (dp->grow) {
 		dp->rainbow = 0;
 		if (mode) {
-			if (!dp->color || halfrandom(8)) {
-				dp->nfractals = halfrandom(30) + 5;
+			if (!dp->color || halfrandom(dp, 8)) {
+				dp->nfractals = halfrandom(dp, 30) + 5;
 				dp->fractal_len = DISTRIB_A;
 			} else {
-				dp->nfractals = halfrandom(5) + 5;
+				dp->nfractals = halfrandom(dp, 5) + 5;
 				dp->fractal_len = DISTRIB_B;
 			}
 		} else {
@@ -230,7 +232,7 @@ initmode(ModeInfo * mi, int mode)
 		dp->rainbow = dp->color;
 		dp->fractal_len = 2000000;
 	}
-	dp->fractal_len = (dp->fractal_len * MI_BATCHCOUNT(mi)) / 20;
+	dp->fractal_len = (dp->fractal_len * MI_COUNT(mi)) / 20;
 
 	MI_CLEARWINDOW(mi);
 }
@@ -247,10 +249,10 @@ pick_df_coefs(ModeInfo * mi)
 		r = 1e-6;
 		for (j = 0; j < 2; j++)
 			for (k = 0; k < 3; k++) {
-				dp->df[j][k][i] = ((double) halfrandom(1000) / 500.0 - 1.0);
+				dp->df[j][k][i] = ((double) halfrandom(dp, 1000) / 500.0 - 1.0);
 				r += dp->df[j][k][i] * dp->df[j][k][i];
 			}
-		r = (3 + halfrandom(5)) * 0.01 / sqrt(r);
+		r = (3 + halfrandom(dp, 5)) * 0.01 / sqrt(r);
 		for (j = 0; j < 2; j++)
 			for (k = 0; k < 3; k++)
 				dp->df[j][k][i] *= r;
@@ -269,28 +271,28 @@ initfractal(ModeInfo * mi)
 	dp->total_points = 0;
 
 	if (!dp->ncpoints)
-		dp->ncpoints = (int *) malloc(MI_NCOLORS(mi) * sizeof (int));
+		dp->ncpoints = (int *) malloc(sizeof (int) * MI_NCOLORS(mi));
 
 	if (!dp->cpts)
-		dp->cpts = (XPoint *) malloc(MI_NCOLORS(mi) * MAXBATCH2 * sizeof (XPoint));
+		dp->cpts = (XPoint *) malloc(MAXBATCH2 * sizeof (XPoint) * MI_NCOLORS(mi));
 	if (dp->rainbow)
 		for (i = 0; i < MI_NPIXELS(mi); i++)
 			dp->ncpoints[i] = 0;
 	else
 		dp->npoints = 0;
-	dp->nxforms = halfrandom(XFORM_LEN);
+	dp->nxforms = halfrandom(dp, XFORM_LEN);
 	/* 2, 2, 2, 3, 3, 3, 4, 4, 5 */
 	dp->nxforms = (dp->nxforms >= XFORM_LEN - 1) + dp->nxforms / 3 + 2;
 
 	dp->c = dp->x = dp->y = 0.0;
-	if (dp->liss && !halfrandom(10)) {
+	if (dp->liss && !halfrandom(dp, 10)) {
 		dp->liss_time = 0;
 	}
 	if (!dp->grow)
 		pick_df_coefs(mi);
 	for (i = 0; i < dp->nxforms; i++) {
 		if (NMAJORVARS == dp->major_variation)
-			dp->variation[i] = halfrandom(NMAJORVARS);
+			dp->variation[i] = halfrandom(dp, NMAJORVARS);
 		else
 			dp->variation[i] = dp->major_variation;
 		for (j = 0; j < 2; j++)
@@ -298,11 +300,11 @@ initfractal(ModeInfo * mi)
 				if (dp->liss)
 					dp->f[j][k][i] = sin(dp->liss_time * dp->df[j][k][i]);
 				else
-					dp->f[j][k][i] = ((double) halfrandom(1000) / 500.0 - 1.0);
+					dp->f[j][k][i] = ((double) halfrandom(dp, 1000) / 500.0 - 1.0);
 			}
 	}
 	if (dp->color)
-		dp->pixcol = MI_PIXEL(mi, halfrandom(MI_NPIXELS(mi)));
+		dp->pixcol = MI_PIXEL(mi, halfrandom(dp, MI_NPIXELS(mi)));
 	else
 		dp->pixcol = MI_WHITE_PIXEL(mi);
 
@@ -321,12 +323,12 @@ init_drift(ModeInfo * mi)
 	}
 	dp = &drifts[MI_SCREEN(mi)];
 
-	dp->width = MI_WIN_WIDTH(mi);
-	dp->height = MI_WIN_HEIGHT(mi);
+	dp->width = MI_WIDTH(mi);
+	dp->height = MI_HEIGHT(mi);
 	dp->color = MI_NPIXELS(mi) > 2;
 
-	if (MI_WIN_IS_FULLRANDOM(mi)) {
-		if (LRAND() & 1)
+	if (MI_IS_FULLRANDOM(mi)) {
+		if (NRAND(3) == 0)
 			dp->grow = True;
 		else {
 			dp->grow = False;
@@ -346,7 +348,7 @@ init_drift(ModeInfo * mi)
 static void
 iter(driftstruct * dp)
 {
-	int         i = frandom(dp->nxforms);
+	int         i = frandom(dp, dp->nxforms);
 	double      nx, ny, nc;
 
 
@@ -487,8 +489,8 @@ iter(driftstruct * dp)
 	/* how to check nan too?  some machines don't have finite().
 	   don't need to check ny, it'll propogate */
 	if (nx > 1e4 || nx < -1e4) {
-		nx = halfrandom(1000) / 500.0 - 1.0;
-		ny = halfrandom(1000) / 500.0 - 1.0;
+		nx = halfrandom(dp, 1000) / 500.0 - 1.0;
+		ny = halfrandom(dp, 1000) / 500.0 - 1.0;
 		dp->fuse = FUSE;
 	}
 	dp->x = nx;
@@ -583,13 +585,16 @@ draw_drift(ModeInfo * mi)
 
 	dp->timer = 3000;
 
+	MI_IS_DRAWN(mi) = True;
+
 	while (dp->timer) {
 		iter(dp);
 		draw(mi, dp, window);
 		if (dp->total_points++ > dp->fractal_len) {
 			draw_flush(mi, dp, window);
-			if (0 == --dp->nfractals)
-				initmode(mi, frandom(2));
+			if (0 == --dp->nfractals) {
+				initmode(mi, frandom(dp, 2));
+			}
 			initfractal(mi);
 		}
 		dp->timer--;

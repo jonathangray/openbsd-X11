@@ -30,18 +30,22 @@
 	"Fractal" MENU
 	  "Fractal" TITLE
 		"Coral"		exec xlock -mode coral
+		"Discrete"		exec xlock -mode discrete
 		"Drift"		exec xlock -mode drift -fullrandom
 		"Flame"			exec xlock -mode flame
+		"Flow"			exec xlock -mode flow
 		"Forest"		exec xlock -mode forest
 		"Hop"			exec xlock -mode hop -fullrandom
 		"IFS"			exec xlock -mode ifs
 		"Julia"			exec xlock -mode julia +mouse
 		"Juliaptr"		exec xlock -mode julia -mouse
+		"Kumppa"			exec xlock -mode kumppa
 		"Lightning"		exec xlock -mode lightning
 		"Mandelbrot"		exec xlock -mode mandelbrot -install
 		"Mountain"		exec xlock -mode mountain
 		"Sierpinski"	exec xlock -mode sierpinski
 		"Strange"		exec xlock -mode strange
+		"Thornbird"		exec xlock -mode thornbird
 		"Triangle"		exec xlock -mode triangle
 		"Turtle"		exec xlock -mode turtle
 		"Vines"		exec xlock -mode vines
@@ -97,6 +101,7 @@
 		"Deco"			exec xlock -mode deco
 		"Eyes"			exec xlock -mode eyes +mouse
 		"Eyesptr"		exec xlock -mode eyes -mouse
+		"Goop"			exec xlock -mode goop
 		"Marquee"		exec xlock -mode marquee
 		"Munch"			exec xlock -mode munch
 		"Nose"			exec xlock -mode nose
@@ -106,6 +111,7 @@
 		"Roll"			exec xlock -mode roll
 		"Rotor"			exec xlock -mode rotor
 		"Slip"			exec xlock -mode slip
+		"Starfish"			exec xlock -mode starfish -install
 		"Swarm"			exec xlock -mode swarm +mouse
 		"Swarmptr"		exec xlock -mode swarm -mouse
 		"Swirl"			exec xlock -mode swirl -install
@@ -126,6 +132,8 @@
 	"XPM" END
 	"GL" MENU
 	  "GL" TITLE
+		"Atlantis"			exec xlock -mode atlantis
+		"Bubble3d"			exec xlock -mode bubble3d
 		"Cage"			exec xlock -mode cage
 		"Gears"			exec xlock -mode gears
 		"Moebius"			exec xlock -mode moebius
@@ -185,18 +193,22 @@
 	"Fractal" MENU
 	  "Fractal" TITLE
 		"Coral"			exec xlock -nolock -mode coral
+		"Discrete"			exec xlock -nolock -mode discrete
 		"Drift"			exec xlock -nolock -mode drift -fullrandom
 		"Flame"			exec xlock -nolock -mode flame
+		"Flow"			exec xlock -nolock -mode flow
 		"Forest"		exec xlock -nolock -mode forest
-		"Julia"			exec xlock -nolock -mode julia +mouse
-		"Juliaptr"		exec xlock -nolock -mode julia -mouse
 		"Hop"			exec xlock -nolock -mode hop -fullrandom
 		"IFS"			exec xlock -nolock -mode ifs
+		"Julia"			exec xlock -nolock -mode julia +mouse
+		"Juliaptr"		exec xlock -nolock -mode julia -mouse
+		"Kumppa"			exec xlock -nolock -mode kumppa
 		"Lightning"		exec xlock -nolock -mode lightning
 		"Mandelbrot"		exec xlock -nolock -mode mandelbrot -install
 		"Mountain"		exec xlock -nolock -mode mountain
 		"Sierpinski"	exec xlock -nolock -mode sierpinski
 		"Strange"			exec xlock -nolock -mode strange
+		"Thornbird"		exec xlock -nolock -mode thornbird
 		"Triangle"		exec xlock -nolock -mode triangle
 		"Turtle"		exec xlock -nolock -mode turtle
 		"Vines"		exec xlock -nolock -mode vines
@@ -252,6 +264,7 @@
 		"Deco"			exec xlock -nolock -mode deco
 		"Eyes"			exec xlock -nolock -mode eyes +mouse
 		"Eyesptr"		exec xlock -nolock -mode eyes -mouse
+		"Goop"			exec xlock -nolock -mode goop
 		"Marquee"		exec xlock -nolock -mode marquee
 		"Munch"			exec xlock -nolock -mode munch
 		"Nose"			exec xlock -nolock -mode nose
@@ -261,6 +274,7 @@
 		"Roll"			exec xlock -nolock -mode roll
 		"Rotor"			exec xlock -nolock -mode rotor
 		"Slip"			exec xlock -nolock -mode slip
+		"Starfish"			exec xlock -nolock -mode starfish -install
 		"Swarm"			exec xlock -nolock -mode swarm +mouse
 		"Swarmptr"		exec xlock -nolock -mode swarm -mouse
 		"Swirl"			exec xlock -nolock -mode swirl -install
@@ -280,6 +294,8 @@
 		"Random XPM"	DEFAULT exec xlock -nolock -mode random -modelist allxpm -fullrandom
 	"XPM" END
 	"GL" MENU
+		"Atlantis"		exec xlock -nolock -mode atlantis
+		"Bubble3d"		exec xlock -nolock -mode bubble3d
 		"Cage"		exec xlock -nolock -mode cage
 		"Gears"			exec xlock -nolock -mode gears
 		"Moebius"		exec xlock -nolock -mode moebius

@@ -33,7 +33,8 @@ static const char sccsid[] = "@(#)fadeplot.c  4.07 97/11/24 xlockmore";
  "*count: 10 \n" \
  "*cycles: 1500 \n" \
  "*ncolors: 64 \n"
-#define SMOOTH_COLORS
+#define BRIGHT_COLORS
+#define UNIFORM_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -95,8 +96,8 @@ init_fadeplot(ModeInfo * mi)
 	}
 	fp = &fadeplots[MI_SCREEN(mi)];
 
-	fp->width = MI_WIN_WIDTH(mi);
-	fp->height = MI_WIN_HEIGHT(mi);
+	fp->width = MI_WIDTH(mi);
+	fp->height = MI_HEIGHT(mi);
 	fp->min = MAX(MIN(fp->width, fp->height) / 2, 1);
 
 	fp->speed.x = 8;
@@ -107,7 +108,7 @@ init_fadeplot(ModeInfo * mi)
 	fp->factor.x = MAX(fp->width / (2 * fp->min), 1);
 	fp->factor.y = MAX(fp->height / (2 * fp->min), 1);
 
-	fp->nbstep = MI_BATCHCOUNT(mi);
+	fp->nbstep = MI_COUNT(mi);
 	if (fp->nbstep < -MINSTEPS) {
 		fp->nbstep = NRAND(-fp->nbstep - MINSTEPS + 1) + MINSTEPS;
 	} else if (fp->nbstep < MINSTEPS)
@@ -137,6 +138,8 @@ draw_fadeplot(ModeInfo * mi)
 	Window      window = MI_WINDOW(mi);
 	GC          gc = MI_GC(mi);
 	int         i, j, temp;
+
+	MI_IS_DRAWN(mi) = True;
 
 	XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 	XDrawPoints(display, window, gc, fp->pts, fp->maxpts, CoordModeOrigin);
@@ -180,7 +183,7 @@ draw_fadeplot(ModeInfo * mi)
 void
 refresh_fadeplot(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }
 
 void

@@ -22,8 +22,8 @@ static const char sccsid[] = "@(#)sphere.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 30-May-97: <jwz@netscape.com> made it go vertically as well as horizontally.
- * 27-May-97: <jwz@netscape.com> turned into a standalone program.
+ * 30-May-97: <jwz@jwz.org> made it go vertically as well as horizontally.
+ * 27-May-97: <jwz@jwz.org> turned into a standalone program.
  * 02-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
  * 1988: Revised to use SunView canvas instead of gfxsw Sun Microsystems
  * 1982: Orignal Algorithm Tom Duff Lucasfilm Ltd.
@@ -64,7 +64,7 @@ static const char sccsid[] = "@(#)sphere.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 5000 \n" \
  "*cycles: 20 \n" \
  "*size: 0 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 64 \n"
 #define BRIGHT_COLORS
 #include "xlockmore.h"		/* from the xscreensaver distribution */
 #else /* !STANDALONE */
@@ -123,8 +123,8 @@ init_sphere(ModeInfo * mi)
 		(void) free((void *) sp->points);
 		sp->points = NULL;
 	}
-	sp->width = MI_WIN_WIDTH(mi);
-	sp->height = MI_WIN_HEIGHT(mi);
+	sp->width = MI_WIDTH(mi);
+	sp->height = MI_HEIGHT(mi);
 	sp->points = (XPoint *) malloc(sp->height * sizeof (XPoint));
 
 	MI_CLEARWINDOW(mi);
@@ -144,16 +144,18 @@ draw_sphere(ModeInfo * mi)
 	int         sqrd, nd;
 	register int minx = 0, maxx = 0, miny = 0, maxy = 0, npts = 0;
 
+	MI_IS_DRAWN(mi) = True;
+
 	if ((sp->dirx && ABS(sp->x) >= sp->radius) ||
 	    (sp->diry && ABS(sp->y) >= sp->radius)) {
 		sp->radius = NRAND(MIN(sp->width / 2, sp->height / 2) - 1) + 1;
 
 		if (LRAND() & 1) {
-			sp->dirx = (LRAND() & 1) * 2 - 1;
+			sp->dirx = (int) (LRAND() & 1) * 2 - 1;
 			sp->diry = 0;
 		} else {
 			sp->dirx = 0;
-			sp->diry = (LRAND() & 1) * 2 - 1;
+			sp->diry = (int) (LRAND() & 1) * 2 - 1;
 		}
 		sp->x0 = NRAND(sp->width);
 		sp->y0 = NRAND(sp->height);

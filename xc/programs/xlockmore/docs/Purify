@@ -1,3 +1,23 @@
+New Purify problems
+
+Solved?
+starfish line 208, 209, 517      4  (65 spline)
+  make_starfish  [starfish.c:208]     make_spline    [spline.c:69]
+  make_starfish  [starfish.c:209]
+  init_starfish  [starfish.c:517]
+kumppa solved?
+
+Unsolved
+  draw1_starfish [starfish.c:365]  compute_closed_spline [spline.c:260]
+    ...  grow_spline_points [spline.c:97]
+
+bubble3d  create_new_bubbles b_draw 167
+  glb_bubble_new [bubble3d.c:103]
+  glb_draw_init  [b_draw.c:53]
+
+------------------------------------------
+
+
 Old Purify Problems (problems are now marked in code with "PURIFY")
 
 ---

@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)spiral.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 10-May-97: jwz@netscape.com: turned into a standalone program.
+ * 10-May-97: jwz@jwz.org: turned into a standalone program.
  * 24-Jul-95: Fix to allow cycles not to have an arbitrary value by
  *            Peter Schmitzberger (schmitz@coma.sbg.ac.at).
  * 06-Mar-95: Finished cleaning up and final testing.
@@ -131,8 +131,8 @@ init_spiral(ModeInfo * mi)
 	}
 	sp = &spirals[MI_SCREEN(mi)];
 
-	sp->width = MI_WIN_WIDTH(mi);
-	sp->height = MI_WIN_HEIGHT(mi);
+	sp->width = MI_WIDTH(mi);
+	sp->height = MI_HEIGHT(mi);
 
 	MI_CLEARWINDOW(mi);
 
@@ -176,7 +176,7 @@ init_spiral(ModeInfo * mi)
 	sp->traildots[sp->inc].hr = sp->radius;
 	sp->inc++;
 
-	sp->dots = MI_BATCHCOUNT(mi);
+	sp->dots = MI_COUNT(mi);
 	if (sp->dots < -MINDOTS)
 		sp->dots = NRAND(sp->dots - MINDOTS + 1) + MINDOTS;
 	/* Absolute minimum */
@@ -191,6 +191,8 @@ draw_spiral(ModeInfo * mi)
 	GC          gc = MI_GC(mi);
 	spiralstruct *sp = &spirals[MI_SCREEN(mi)];
 	int         i, j;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (sp->erase == 1) {
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -304,6 +306,7 @@ refresh_spiral(ModeInfo * mi)
 {
 	spiralstruct *sp = &spirals[MI_SCREEN(mi)];
 
+	MI_CLEARWINDOW(mi);
 	sp->redrawing = 1;
 	sp->redrawpos = 0;
 }

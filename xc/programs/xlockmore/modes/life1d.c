@@ -53,13 +53,16 @@ static const char sccsid[] = "@(#)life1d.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 10000 \n" \
  "*cycles: 10 \n" \
  "*size: 0 \n" \
- "*ncolors: 200 \n"
-#define DEF_BITMAP ""
+ "*ncolors: 200 \n" \
+ "*bitmap: \n" \
+ "*verbose: \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
-
+#include "color.h"
 #endif /* STANDALONE */
+#include "automata.h"
+#include "iostuff.h"
 
 #define DEF_TOTALISTIC  "True"	/* FALSE is LCAU */
 
@@ -413,7 +416,7 @@ drawcell(ModeInfo * mi, int col, int row, unsigned int state)
 	}
 	if (MI_NPIXELS(mi) > 2)
 		XSetForeground(display, gc, MI_PIXEL(mi, lp->colors[state - 1]));
-	if (lp->pixelmode | (MI_NPIXELS(mi) <= 2)) {
+	if (lp->pixelmode || (MI_NPIXELS(mi) <= 2)) {
 		if (MI_NPIXELS(mi) <= 2) {
 			XGCValues   gcv;
 
@@ -472,7 +475,7 @@ GetRule(life1dstruct * lp, int i)
 		sum_size = (lp->k - 1) * (lp->r * 2 + 1) + 1;
 		code = lp->code = totalistic_rules[i][2];
 
-		pow = power(lp->k, sum_size - 1);	/* Should be less than max long */
+		pow = power(lp->k, (int) (sum_size - 1));	/* Should be less than max long */
 		for (j = 0; j < sum_size; j++) {
 			lp->nextstate[sum_size - 1 - j] = (char) (code / pow);
 			code -= ((long) lp->nextstate[sum_size - 1 - j]) * pow;
@@ -551,15 +554,18 @@ init_stuff(ModeInfo * mi)
 			 DEFAULT_XPM, CELL_NAME,
 #endif
 			 &lp->graphics_format, &lp->cmap, &lp->black);
+#ifndef STANDALONE
 	if (lp->cmap != None) {
-		setColormap(display, window, lp->cmap, MI_WIN_IS_INWINDOW(mi));
+		setColormap(display, window, lp->cmap, MI_IS_INWINDOW(mi));
 		if (lp->backGC == None) {
 			XGCValues   xgcv;
 
 			xgcv.background = lp->black;
 			lp->backGC = XCreateGC(display, window, GCBackground, &xgcv);
 		}
-	} else {
+	} else
+#endif /* STANDALONE */
+	{
 		lp->black = MI_BLACK_PIXEL(mi);
 		lp->backGC = MI_GC(mi);
 	}
@@ -608,7 +614,7 @@ init_life1d(ModeInfo * mi)
 	} else {
 		maxstates = MAXSTATES - 1;
 		maxradius = 1;
-		maxsum_size = power(maxstates, (2 * maxradius + 1));
+		maxsum_size = (int) power(maxstates, (2 * maxradius + 1));
 	}
 	if (lp->nextstate == NULL)
 		lp->nextstate = (char *) malloc(maxsum_size * sizeof (char));
@@ -630,8 +636,8 @@ init_life1d(ModeInfo * mi)
 		(void) free((void *) lp->oldcells);
 	if (lp->buffer != NULL)
 		(void) free((void *) lp->buffer);
-	lp->width = MI_WIN_WIDTH(mi);
-	lp->height = MI_WIN_HEIGHT(mi);
+	lp->width = MI_WIDTH(mi);
+	lp->height = MI_HEIGHT(mi);
 	if (lp->width < 2)
 		lp->width = 2;
 	if (lp->height < 2)
@@ -675,7 +681,7 @@ init_life1d(ModeInfo * mi)
 	lp->yb = (lp->height - lp->ys * lp->nrows) / 2;
 
 	GetRule(lp, (int) NRAND((totalistic) ? TOTALISTICRULES : LCAURULES));
-	if (MI_WIN_IS_VERBOSE(mi)) {
+	if (MI_IS_VERBOSE(mi)) {
 		(void) fprintf(stdout, "colors %d, radius %d, code %ld, ",
 			       lp->k, lp->r, lp->code);
 		if (totalistic) {
@@ -684,7 +690,7 @@ init_life1d(ModeInfo * mi)
 				(void) fprintf(stdout, "%d", (int) lp->nextstate[i]);
 		} else {
 			(void) fprintf(stdout, "LCAU rule ");
-			for (i = power(lp->k, (lp->r * 2 + 1)); i >= 0; i--)
+			for (i = (int) power(lp->k, (lp->r * 2 + 1)); i >= 0; i--)
 				(void) fprintf(stdout, "%d", (int) lp->nextstate[i]);
 		}
 		(void) fprintf(stdout, "\n");
@@ -707,6 +713,8 @@ draw_life1d(ModeInfo * mi)
 	life1dstruct *lp = &life1ds[MI_SCREEN(mi)];
 	Display    *display = MI_DISPLAY(mi);
 	int         col;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (lp->busyLoop) {
 		if (lp->busyLoop >= 250)

@@ -38,7 +38,9 @@ static const char sccsid[] = "@(#)bomb.c	4.07 97/11/24 xlockmore";
  * as a way of forcing users in a lab to logout after locking the screen.
  */
 
+
 #ifdef STANDALONE
+#define USE_BOMB
 #define PROGCLASS "Bomb"
 #define HACK_INIT init_bomb
 #define HACK_DRAW draw_bomb
@@ -46,11 +48,15 @@ static const char sccsid[] = "@(#)bomb.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 1000000 \n" \
  "*count: 10 \n" \
  "*cycles: 20 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*verbose: False \n"
+#define UNIFORM_COLORS
+#define BRIGHT_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 #ifdef USE_BOMB
 ModeSpecOpt bomb_opts =
@@ -87,6 +93,7 @@ ModStruct   bomb_description =
 extern XFontStruct *getFont(Display * display);
 
 typedef struct {
+	Bool        painted;
 	int         width, height;
 	int         x, y;
 	XPoint      loc;
@@ -133,6 +140,15 @@ detonator(ModeInfo * mi, int draw)
 	b_width = bp->width / 2;
 	b_height = bp->height / 3;
 	if (draw) {
+#ifdef SOLARIS2
+		/*
+		 * if this is not done the rectangle is sometimes messed up on
+		 * Solaris2 with 24 bit TrueColor (Ultra2)
+		 */
+		XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_BLACK_PIXEL(mi));
+		XFillRectangle(display, MI_WINDOW(mi), gc,
+			       bp->loc.x, bp->loc.y, b_width, b_height);
+#endif
 		if (MI_NPIXELS(mi) > 2)
 			XSetForeground(MI_DISPLAY(mi), MI_GC(mi),
 				       MI_PIXEL(mi, bp->color));
@@ -178,8 +194,8 @@ init_bomb(ModeInfo * mi)
 	}
 	bp = &bombs[MI_SCREEN(mi)];
 
-	bp->width = MI_WIN_WIDTH(mi);
-	bp->height = MI_WIN_HEIGHT(mi);
+	bp->width = MI_WIDTH(mi);
+	bp->height = MI_HEIGHT(mi);
 
 	if (mode_font != None) {
 		XFreeFont(MI_DISPLAY(mi), mode_font);
@@ -210,21 +226,24 @@ init_bomb(ModeInfo * mi)
 	bp->text_ascent = mode_font->max_bounds.ascent;
 	bp->text_descent = mode_font->max_bounds.descent;
 
+#ifndef STANDALONE
 	if (MI_DELAY(mi) > MAX_DELAY)
 		MI_DELAY(mi) = MAX_DELAY;	/* Time cannot move slowly */
-	if (MI_BATCHCOUNT(mi) < 1)
+#endif /* STANDALONE */
+	if (MI_COUNT(mi) < 1)
 		bp->startcountdown = 1;		/* Do not want an instantaneous logout */
-	bp->startcountdown = MI_BATCHCOUNT(mi);
+	bp->startcountdown = MI_COUNT(mi);
 	bp->startcountdown *= 60;
 #if 0				/* Stricter if uncommented but people do not have to run bomb */
 	if (bp->startcountdown > COUNTDOWN)
 		bp->startcountdown = COUNTDOWN;
 #endif
 	if (bp->countdown == 0)	/* <--Stricter if uncommented */
-		bp->countdown = (time((time_t *) NULL) + bp->startcountdown);
+		bp->countdown = (int) (time((time_t *) NULL) + bp->startcountdown);
 	/* Detonator Primed */
 
 	MI_CLEARWINDOW(mi);
+	bp->painted = False;
 
 	/*
 	 *  Draw the graphics
@@ -253,9 +272,15 @@ explode(ModeInfo * mi)
 	char        buff[NDIGITS + 2];
 	extern void logoutUser(Display * display);
 
-#if defined(__cplusplus) || defined(c_plusplus)
+#ifdef SunCplusplus
+/* #include <signal.h> */
+	extern int  kill(pid_t, int);
+
+#else
+#if 0
 	extern int  kill(int, int);
 
+#endif
 #endif
 
 	/*
@@ -274,10 +299,10 @@ explode(ModeInfo * mi)
 
 	(void) fprintf(stderr, "BOOM!!!!\n");
 #ifndef DEBUG
-	if (MI_WIN_IS_INWINDOW(mi) || MI_WIN_IS_INROOT(mi) ||
-	    MI_WIN_IS_NOLOCK(mi) || MI_WIN_IS_DEBUG(mi))
-		(void) kill(getpid(), SIGTERM);
-	else if (getuid() == 0) {	/* Do not try to logout root! */
+	if (MI_IS_INWINDOW(mi) || MI_IS_INROOT(mi) ||
+	    MI_IS_NOLOCK(mi) || MI_IS_DEBUG(mi))
+		(void) kill((int) getpid(), SIGTERM);
+	else if ((int) getuid() == 0) {		/* Do not try to logout root! */
 		bp->countdown = 0;
 		init_bomb(mi);
 	} else
@@ -301,6 +326,7 @@ draw_bomb(ModeInfo * mi)
 	if (countleft <= 0)
 		explode(mi);	/* Bye, bye.... */
 	else {
+		bp->painted = True;
 #ifdef SIMPLE_COUNTDOWN
 		(void) sprintf(number, "%0*d", NDIGITS, (int) countleft);
 #else
@@ -362,7 +388,12 @@ release_bomb(ModeInfo * mi)
 void
 refresh_bomb(ModeInfo * mi)
 {
-	detonator(mi, 1);
+	bombstruct *bp = &bombs[MI_SCREEN(mi)];
+
+	if (bp->painted) {
+		MI_CLEARWINDOW(mi);
+		detonator(mi, 1);
+	}
 }
 
 void
@@ -371,6 +402,7 @@ change_bomb(ModeInfo * mi)
 	bombstruct *bp = &bombs[MI_SCREEN(mi)];
 
 	detonator(mi, 0);
+	bp->painted = False;
 	bp->loc.x = NRAND(bp->width / 2);
 	bp->loc.y = NRAND(bp->height * 3 / 5);
 	bp->x = bp->loc.x + bp->width / 4 - (bp->text_width / 2);

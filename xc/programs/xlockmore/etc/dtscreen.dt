@@ -150,6 +150,15 @@ ACTION StartDtscreenAnt
 	DESCRIPTION	ant: Langton's and Turk's generalized ants
 }
 
+ACTION StartDtscreenAtlantis
+{
+	LABEL		StartDtscreenAtlantis
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode atlantis
+	DESCRIPTION	atlantis: Moving sharks/whales/dolphin
+}
+
 ACTION StartDtscreenBall
 {
 	LABEL		StartDtscreenBall
@@ -213,6 +222,14 @@ ACTION StartDtscreenBubble
 	DESCRIPTION	bubble: Popping bubbles
 }
 
+ACTION StartDtscreenBubble3d
+{
+	LABEL		StartDtscreenBubble3d
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode bubble3d
+	DESCRIPTION	bubble3d: Richard Jones's GL bubbles
+}
 ACTION StartDtscreenBug
 {
 	LABEL		StartDtscreenBug
@@ -263,7 +280,7 @@ ACTION StartDtscreenCrystal
 	LABEL		StartDtscreenCrystal
 	TYPE		COMMAND
 	WINDOW_TYPE	NO_STDIO
-	EXEC_STRING	$DTSCREEN -mode crystal
+	EXEC_STRING	$DTSCREEN -mode crystal +install
 	DESCRIPTION	crystal: Polygons in 2D plane groups
 }
 
@@ -312,6 +329,15 @@ ACTION StartDtscreenDilemma
 	DESCRIPTION	dilemma: Lloyd's Prisoner's Dilemma simulation
 }
 
+ACTION StartDtscreenDiscrete
+{
+	LABEL		StartDtscreenDiscrete
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode discrete
+	DESCRIPTION	discrete: Various discrete maps
+}
+
 ACTION StartDtscreenDrift
 {
 	LABEL		StartDtscreenDrift
@@ -348,6 +374,15 @@ ACTION StartDtscreenFlag
 	DESCRIPTION	flag: A waving flag of your operating system
 }
 
+ACTION StartDtscreenFlow
+{
+	LABEL		StartDtscreenFlow
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode flow
+	DESCRIPTION	flow: Dynamic strange attractors
+}
+
 ACTION StartDtscreenForest
 {
 	LABEL		StartDtscreenForest
@@ -375,6 +410,15 @@ ACTION StartDtscreenGears
 	DESCRIPTION	gears: GL's gears
 }
 
+ACTION StartDtscreenGoop
+{
+	LABEL		StartDtscreenGoop
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode goop
+	DESCRIPTION	goop: Goop from a lava lamp
+}
+
 ACTION StartDtscreenGrav
 {
 	LABEL		StartDtscreenGrav
@@ -399,7 +443,7 @@ ACTION StartDtscreenHyper
 	TYPE		COMMAND
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode hyper
-	DESCRIPTION	hyper: A spinning tesseract in 4D space
+	DESCRIPTION	hyper: Spinning n-dimensional hypercubes
 }
 
 ACTION StartDtscreenIco
@@ -435,7 +479,16 @@ ACTION StartDtscreenKaleid
 	TYPE		COMMAND
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode kaleid
-	DESCRIPTION	kaleid: A kaleidoscope
+	DESCRIPTION	kaleid: Brewster's Kaleidoscope
+}
+
+ACTION StartDtscreenKumppa
+{
+	LABEL		StartDtscreenKumppa
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode kumppa +install
+	DESCRIPTION	kumppa: Kumppa
 }
 
 ACTION StartDtscreenLaser
@@ -717,6 +770,15 @@ ACTION StartDtscreenStar
 	DESCRIPTION	star: A star field with a twist
 }
 
+ACTION StartDtscreenStarfish
+{
+	LABEL		StartDtscreenStarfish
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode starfish +install
+	DESCRIPTION	starfish: Starfish
+}
+
 ACTION StartDtscreenStrange
 {
 	LABEL		StartDtscreenStrange
@@ -742,6 +804,15 @@ ACTION StartDtscreenSwirl
 	WINDOW_TYPE	NO_STDIO
 	EXEC_STRING	$DTSCREEN -mode swirl
 	DESCRIPTION	swirl: Animated swirling patterns
+}
+
+ACTION StartDtscreenThornbird
+{
+	LABEL		StartDtscreenThornbird
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	$DTSCREEN -mode thornbird
+	DESCRIPTION	thornbird: An animated Bird in a Thorn Bush fractal map
 }
 
 ACTION StartDtscreenTriangle

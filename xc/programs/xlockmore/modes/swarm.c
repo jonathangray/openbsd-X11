@@ -32,8 +32,10 @@ static const char sccsid[] = "@(#)swarm.c	4.07 97/11/24 xlockmore";
 #define HACK_DRAW draw_swarm
 #define swarm_opts xlockmore_opts
 #define DEFAULTS "*delay: 15000 \n" \
- "*count: 100 \n"
+ "*count: 100 \n" \
+ "*mouse: False \n"
 #define BRIGHT_COLORS
+#define SMOOTH_COLORS
 #include "xlockmore.h"		/* from the xscreensaver distribution */
 #include <X11/Xutil.h>
 #else /* !STANDALONE */
@@ -84,8 +86,6 @@ typedef struct {
 
 static swarmstruct *swarms = NULL;
 
-extern Bool mouse;
-
 void
 init_swarm(ModeInfo * mi)
 {
@@ -101,11 +101,7 @@ init_swarm(ModeInfo * mi)
 	}
 	sp = &swarms[MI_SCREEN(mi)];
 
-#ifdef STANDALONE
-	mouse = get_boolean_resource("mouse", "Boolean");
-#endif /* !STANDALONE */
-
-	sp->beecount = MI_BATCHCOUNT(mi);
+	sp->beecount = MI_COUNT(mi);
 	if (sp->beecount < 0) {
 		/* if sp->beecount is random ... the size can change */
 		if (sp->segs != NULL) {
@@ -134,15 +130,17 @@ init_swarm(ModeInfo * mi)
 		}
 		sp->beecount = NRAND(-sp->beecount) + 1;	/* Add 1 so its not too boring */
 	}
-	sp->width = MI_WIN_WIDTH(mi);
-	sp->height = MI_WIN_HEIGHT(mi);
+	sp->width = MI_WIDTH(mi);
+	sp->height = MI_HEIGHT(mi);
 	sp->border = (sp->width + sp->height) / 50;
 
-	if (mouse && !sp->cursor) {	/* Create an invisible cursor */
+	if (MI_IS_MOUSE(mi) && !sp->cursor) {	/* Create an invisible cursor */
 		Pixmap      bit;
 		XColor      black;
 
-		black.red = black.green = black.blue = 0;
+		black.red = 0;
+		black.green = 0;
+		black.blue = 0;
 		black.flags = DoRed | DoGreen | DoBlue;
 		bit = XCreatePixmapFromBitmapData(display, window, "\000", 1, 1,
 						  MI_BLACK_PIXEL(mi),
@@ -196,8 +194,10 @@ draw_swarm(ModeInfo * mi)
 	GC          gc = MI_GC(mi);
 	swarmstruct *sp = &swarms[MI_SCREEN(mi)];
 	int         b;
-	Bool        track_p = mouse;
+	Bool        track_p = MI_IS_MOUSE(mi);
 	int         cx, cy;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (track_p) {
 		Window      r, c;
@@ -207,8 +207,8 @@ draw_swarm(ModeInfo * mi)
 		(void) XQueryPointer(display, window,
 				     &r, &c, &rx, &ry, &cx, &cy, &m);
 		if (cx <= sp->border || cy <= sp->border ||
-		    cx >= MI_WIN_WIDTH(mi) - 1 - sp->border ||
-		    cy >= MI_WIN_HEIGHT(mi) - 1 - sp->border)
+		    cx >= MI_WIDTH(mi) - 1 - sp->border ||
+		    cy >= MI_HEIGHT(mi) - 1 - sp->border)
 			track_p = False;
 	}
 	/* <=- Wasp -=> */
@@ -345,5 +345,5 @@ release_swarm(ModeInfo * mi)
 void
 refresh_swarm(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

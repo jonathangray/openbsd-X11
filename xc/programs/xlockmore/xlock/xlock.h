@@ -7,12 +7,24 @@
  * xlock.h - external interfaces for new modes and SYSV OS defines.
  *
  * Copyright (c) 1991 by Patrick J. Naughton.
+ * xscreensaver code, Copyright (c) 1997 Jamie Zawinski <jwz@jwz.org>
  *
- * See xlock.c for copying information.
+ * Permission to use, copy, modify, and distribute this software and its
+ * documentation for any purpose and without fee is hereby granted,
+ * provided that the above copyright notice appear in all copies and that
+ * both that copyright notice and this permission notice appear in
+ * supporting documentation.
+ *
+ * This file is provided AS IS with no warranties of any kind.  The author
+ * shall have no liability with respect to the infringement of copyrights,
+ * trade secrets or any patents by this file or any part thereof.  In no
+ * event will the author be liable for any lost revenue or profits or
+ * other special, indirect and consequential damages.
  *
  * Revision History:
  *
  * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * 23-Apr-98: Merged in xlockmore.h from xscreensaver, not much in common yet.
  * 12-May-95: Added defines for SunOS's Adjunct password file
  *            Dale A. Harris <rodmur@ecst.csuchico.edu>
  * 18-Nov-94: Modified for QNX 4.2 w/ Metrolink X server from Brian Campbell
@@ -32,6 +44,81 @@
  *            <tmcconne@sedona.intel.com> also added a patch for HP-UX 8.0.
  *
  */
+
+#ifdef STANDALONE
+/* xscreensaver compatibility layer for xlockmore modules. */
+
+/*-
+ * xscreensaver, Copyright (c) 1997, 1998 Jamie Zawinski <jwz@jwz.org>
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation.  No representations are made about the suitability of this
+ * software for any purpose.  It is provided "as is" without express or 
+ * implied warranty.
+ *
+ * The definitions in this file make it possible to compile an xlockmore
+ * module into a standalone program, and thus use it with xscreensaver.
+ * By Jamie Zawinski <jwz@jwz.org> on 10-May-97; based on the ideas
+ * in the older xlock.h by Charles Hannum <mycroft@ai.mit.edu>.  (I had
+ * to redo it, since xlockmore has diverged so far from xlock...)
+ */
+
+#if !defined(PROGCLASS) || !defined(HACK_INIT) || !defined(HACK_DRAW)
+ERROR ! Define PROGCLASS, HACK_INIT, and HACK_DRAW before including xlockmore.h
+#endif
+
+#include "config.h"
+
+#include <stdio.h>
+#include <math.h>
+#include "mode.h"
+
+#ifdef USE_GL
+#include <GL/glx.h>
+extern GLXContext *init_GL(ModeInfo *);
+
+#define FreeAllGL(dpy)		/* */
+#endif
+
+/*-
+ * Sun version of OpenGL needs to have the constant
+ * SUN_OGL_NO_VERTEX_MACROS defined in order to compile modes that
+ * use glNormal3f (the number of arguments to the macro changes...)
+ */
+#ifndef HAVE_MESA_GL
+#if defined(__sun) && defined(__SVR4)	/* Solaris */
+#define SUN_OGL_NO_VERTEX_MACROS 1
+#endif /* Solaris */
+#endif /* !HAVE_MESA_GL */
+
+
+/* Some other utility macros.
+ */
+#define SINF(n)			((float)sin((double)(n)))
+#define COSF(n)			((float)cos((double)(n)))
+#define FABSF(n)		((float)fabs((double)(n)))
+
+#undef MAX
+#undef MIN
+#undef ABS
+#define MAX(a,b)((a)>(b)?(a):(b))
+#define MIN(a,b)((a)<(b)?(a):(b))
+#define ABS(a)((a)<0 ? -(a) : (a))
+
+/* Maximum possible number of colors (*not* default number of colors.) */
+#define NUMCOLORS 256
+
+/* The globals that screenhack.c expects (initialized by xlockmore.c).
+ */
+char       *defaults[100];
+XrmOptionDescRec options[100];
+
+#define XSCREENSAVER_PREF 1	/* Disagreements handled with this  :) */
+
+#else /* STANDALONE */
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
@@ -47,7 +134,20 @@
 #endif
 #else /* HAVE_CONFIG_H */
 
+/* I use this for testing SunCplusplus
+   I still get this in the link:
+   Undefined                       first referenced
+   symbol                             in file
+   gethostbyname(const char*)               ../xlock/resource.o
+   kill(long, int)                         ../xlock/logout.o
+   signal(int, void (*)(int))                   ../xlock/logout.o
+
+   #define SUN_OGL_NO_VERTEX_MACROS 1
+   #define SunCplusplus
+ */
+
 /* THIS MAY SOON BE DEFUNCT, SHOULD WORK NOW THOUGH FOR IMAKE */
+#define HAVE_GLBINDTEXTURE 1
 #define inline
 #ifdef AIXV3
 #define HAVE_SYS_SELECT_H 1
@@ -95,17 +195,10 @@
 #endif /* !VMS */
 #endif /* !HAVE_CONF_H */
 
-#ifndef MESSAGELINES
-#define MESSAGELINES      40
+#ifndef TEXTLINES
+#define TEXTLINES      40
 #endif
 #define PASSLENGTH        120
-#define FALLBACK_FONTNAME "fixed"
-#ifndef DEF_MFONT
-#define DEF_MFONT "-*-times-*-*-*-*-18-*-*-*-*-*-*-*"
-#endif
-#ifndef DEF_PROGRAM		/* Try the -o option ;) */
-#define DEF_PROGRAM "fortune -s"
-#endif
 
 #ifndef DEF_NONE3D
 #define DEF_NONE3D "Black"
@@ -166,6 +259,16 @@
 #ifndef M_PI_2
 #define M_PI_2 1.57079632679489661923
 #endif
+#ifdef MATHF
+#define SINF(n) sinf(n)
+#define COSF(n) cosf(n)
+#define FABSF(n) fabsf(n)
+#else
+#define SINF(n) ((float)sin((double)(n)))
+#define COSF(n) ((float)cos((double)(n)))
+#define FABSF(n) ((float)fabs((double)(n)))
+#endif
+
 #if VMS
 #include <unixlib.h>
 #endif
@@ -231,13 +334,6 @@ struct hostent {
 #include <ndir.h>
 #endif
 #endif
-#if HAVE_GETTIMEOFDAY
-#ifdef GETTIMEOFDAY_TWO_ARGS
-#define GETTIMEOFDAY(t) (void)gettimeofday(t,NULL);
-#else
-#define GETTIMEOFDAY(t) (void)gettimeofday(t);
-#endif
-#endif
 #if defined(_SYSTYPE_SVR4) && !defined(SVR4)	/* For SGI */
 #define SVR4
 #endif
@@ -300,12 +396,12 @@ typedef struct {
 	char       *unused_name;	/* name for future expansion */
 	ModeSpecOpt *msopt;	/* this mode's def resources */
 	int         def_delay;	/* default delay for mode */
-	int         def_batchcount;
+	int         def_count;
 	int         def_cycles;
 	int         def_size;
 	int         def_ncolors;
 	float       def_saturation;
-	char       *def_imagefile;
+	char       *def_bitmap;
 	char       *desc;	/* text description of mode */
 	unsigned int flags;	/* state flags for this mode */
 	void       *userdata;	/* for use by the mode */
@@ -316,97 +412,16 @@ typedef struct {
 /* this must follow definition of ModeSpecOpt */
 #include "mode.h"
 
-#define IS_NONE 0
-#define IS_XBMDONE 1		/* Only need one mono image */
-#define IS_XBM 2
-#define IS_XBMFILE 3
-#define IS_XPM 4
-#define IS_XPMFILE 5
-#define IS_RASTERFILE 6
-
-/* There is some overlap so it can be made more efficient */
-#define ERASE_IMAGE(d,w,g,x,y,xl,yl,xs,ys) \
-if (yl<y) \
-(y<(yl+ys))?XFillRectangle(d,w,g,xl,yl,xs,y-(yl)): \
-XFillRectangle(d,w,g,xl,yl,xs,ys); \
-else if (yl>y) \
-(y>(yl-(ys)))?XFillRectangle(d,w,g,xl,y+ys,xs,yl-(y)): \
-XFillRectangle(d,w,g,xl,yl,xs,ys); \
-if (xl<x) \
-(x<(xl+xs))?XFillRectangle(d,w,g,xl,yl,x-(xl),ys): \
-XFillRectangle(d,w,g,xl,yl,xs,ys); \
-else if (xl>x) \
-(x>(xl-(xs)))?XFillRectangle(d,w,g,x+xs,yl,xl-(x),ys): \
-XFillRectangle(d,w,g,xl,yl,xs,ys)
-
-extern void getResources(int argc, char **argv);
-extern unsigned long allocPixel(Display * display, Colormap cmap,
-				char *name, char *def);
-
-extern void setColormap(Display * display, Window window, Colormap map,
-			Bool inwindow);
-extern void fixColormap(Display * display, Window window,
-			int screen, int ncolors, float saturation,
-	  Bool mono, Bool install, Bool inroot, Bool inwindow, Bool verbose);
-extern int  preserveColors(unsigned long black, unsigned long white,
-			   unsigned long bg, unsigned long fg);
-extern Bool setupColormap(ModeInfo * mi, int *colors, Bool * truecolor,
-  unsigned long *redmask, unsigned long *bluemask, unsigned long *greenmask);
-extern int  visualClassFromName(char *name);
-extern char *nameOfVisualClass(int visualclass);
-
-extern Bool fixedColors(ModeInfo * mi);
-
-extern void getImage(ModeInfo * mi, XImage ** logo,
-	  int default_width, int default_height, unsigned char *default_bits,
-#if defined( USE_XPM ) || defined( USE_XPMINC )
-		     int default_xpm, char **name,
-#endif
-		     int *graphics_format, Colormap * newcolormap,
-		     unsigned long *black);
-extern void destroyImage(XImage ** logo, int *graphics_format);
-extern void getPixmap(Display * display, Drawable drawable,
-	  int default_width, int default_height, unsigned char *default_bits,
-		      int *width, int *height, Pixmap * pixmap,
-		      int *graphics_format);
-
-#if defined( USE_XPM ) || defined( USE_XPMINC )
-extern void reserveColors(ModeInfo * mi, Colormap cmap,
-			  unsigned long *black);
-
-#endif
-
-#ifdef USE_GL
-#include <GL/gl.h>
-#include <GL/glx.h>
-
-extern GLXContext *init_GL(ModeInfo * mi);
-extern void FreeAllGL(ModeInfo * mi);
-
-#endif
+#define CHECK_OLD_ARGS		/* check depreciated args */
 
 #ifdef OPENGL_MESA_INCLUDES
 /* Allow OPEN GL using MESA includes */
 #undef MESA
 #endif
 
-extern XPoint hexagonUnit[6];
-extern XPoint triangleUnit[2][3];
-
-#define NUMSTIPPLES 11
-#define STIPPLESIZE 8
-extern unsigned char stipples[NUMSTIPPLES][STIPPLESIZE];
-
-extern unsigned long seconds(void);
+extern void getResources(Display ** displayp, int argc, char **argv);
 extern void finish(Display * display, Bool closeDisplay);
 extern void error(char *buf);
-
-extern FILE *my_fopen(char *, char *);
-
-#if (! HAVE_STRDUP )
-extern char *strdup(char *);
-
-#endif
 
 #ifdef VMS
 #define FORK vfork
@@ -429,56 +444,6 @@ extern char *strdup(char *);
 #define SYSLOG_INFO LOG_INFO
 #endif
 
-#ifdef MATHF
-#define SINF(n) sinf(n)
-#define COSF(n) cosf(n)
-#define FABSF(n) fabsf(n)
-#else
-#define SINF(n) ((float)sin((double)(n)))
-#define COSF(n) ((float)cos((double)(n)))
-#define FABSF(n) ((float)fabs((double)(n)))
-#endif
-
-/*** random number generator ***/
-/* defaults */
-#if HAVE_RAND48
-#define SRAND srand48
-#define LRAND lrand48
-#define MAXRAND (2147483648.0)
-#else /* HAVE_RAND48 */
-#if HAVE_RANDOM
-#define SRAND srand48
-#define LRAND lrand48
-#define MAXRAND (2147483648.0)
-#else /* HAVE_RANDOM */
-#if HAVE_RAND
-#define SRAND srand48
-#define LRAND lrand48
-#ifdef AIXV3
-#define MAXRAND (2147483648.0)
-#else
-#define MAXRAND (32768.0)
-#endif
-#endif /* HAVE_RAND */
-#endif /* HAVE_RANDOM */
-#endif /* HAVE_RAND48 */
-
-#ifndef SRAND
-extern void SetRNG(long int s);
-
-#define SRAND(X) SetRNG((long) X)
-#endif
-#ifndef LRAND
-extern long LongRNG(void);
-
-#define LRAND() LongRNG()
-#endif
-#ifndef MAXRAND
-#define MAXRAND (2147483648.0)
-#endif
-
-#define NRAND(X) ((int)(LRAND()%(X)))
-
 #if (defined( USE_RPLAY ) || defined( USE_NAS ) || defined( USE_VMSPLAY ) || defined( DEF_PLAY ))
 #define USE_SOUND
 #endif
@@ -493,4 +458,32 @@ extern XFontSet fontset;
 #define XDrawImageString(display,window,gc,x,y,string,length) \
 		XmbDrawImageString(display,window,fontset,gc,x,y,string,length)
 #endif
+
+#endif /* STANDALONE */
+
+/* COMMON STUFF */
+#if HAVE_GETTIMEOFDAY
+#ifdef GETTIMEOFDAY_TWO_ARGS
+#define GETTIMEOFDAY(t) (void)gettimeofday(t,NULL);
+#else
+#define GETTIMEOFDAY(t) (void)gettimeofday(t);
+#endif
+#endif
+
+/* There is some overlap so it can be made more efficient */
+#define ERASE_IMAGE(d,w,g,x,y,xl,yl,xs,ys) \
+if (yl<y) \
+(y<(yl+ys))?XFillRectangle(d,w,g,xl,yl,xs,y-(yl)): \
+XFillRectangle(d,w,g,xl,yl,xs,ys); \
+else if (yl>y) \
+(y>(yl-(ys)))?XFillRectangle(d,w,g,xl,y+ys,xs,yl-(y)): \
+XFillRectangle(d,w,g,xl,yl,xs,ys); \
+if (xl<x) \
+(x<(xl+xs))?XFillRectangle(d,w,g,xl,yl,x-(xl),ys): \
+XFillRectangle(d,w,g,xl,yl,xs,ys); \
+else if (xl>x) \
+(x>(xl-(xs)))?XFillRectangle(d,w,g,x+xs,yl,xl-(x),ys): \
+XFillRectangle(d,w,g,xl,yl,xs,ys)
+
+#include "random.h"
 #endif /* __XLOCK_XLOCK_H__ */

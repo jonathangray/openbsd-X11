@@ -1,7 +1,7 @@
-.\" @(#)xlock.man	4.07 98/01/03
+.\" @(#)xlock.man	4.11 98/06/18
 .\" Copyright (c) 1991 - Patrick J. Naughton
 .\" xlockmore updates from David A. Bagley
-.TH XLOCK 1 "03 Jan 1998" "X11R6 Contrib"
+.TH XLOCK 1 "18 Jun 1998" "X11R6 Contrib"
 .SH NAME
 xlock \- Locks the local X display until a password is entered.
 .sp
@@ -36,6 +36,9 @@ xlock \- Locks the local X display until a password is entered.
 .BI \-batchcount " num"
 ]
 [
+.BI \-count " num"
+]
+[
 .BI \-cycles " num"
 ]
 [
@@ -48,7 +51,16 @@ xlock \- Locks the local X display until a password is entered.
 .BI \-saturation " value"
 ]
 [
+.BI \-erasemode " modename"
+]
+[
+.BI \-erasedelay " usecs"
+]
+[
 .BI -/+allowaccess
+]
+[
+.BI -/+vtlock
 ]
 [
 .BI -/+nolock
@@ -117,7 +129,7 @@ xlock \- Locks the local X display until a password is entered.
 .BI \-font " fontname"
 ]
 [
-.BI \-msgfont " message-fontname"
+.BI \-planfont " fontname"
 ]
 [
 .BI \-bg " color"
@@ -192,10 +204,10 @@ xlock \- Locks the local X display until a password is entered.
 .BI \-message " string"
 ]
 [
-.BI \-mfont " mode-fontname"
+.BI \-messagefont " fontname"
 ]
 [
-.BI \-imagefile " filename"
+.BI \-bitmap " filename"
 ]
 [
 .BI \-neighbors " num"
@@ -265,9 +277,9 @@ server is restored.  When typing the password Control-U and Control-H are
 active as kill and erase respectively.  To return to the locked screen,
 click in the small icon version of the changing pattern.
 
-In the lower part of the password screen a message is displayed.  This
+In the lower part of the password screen a text is displayed.  This
 message is taken from the first file of the following that exists:
-$HOME/.xlockmessage, $HOME/.plan, or $HOME/.signature.
+$HOME/.xlocktext, $HOME/.plan, or $HOME/.signature.
 
 On systems which support new BSD style authentication, the password
 may be prefixed by an authentication style followed by a colon
@@ -323,11 +335,15 @@ when looking for resources to configure
 .BR xlock .
 .TP 5
 .BI \-mode \ modename
-As of this writing there are over 60 display modes supported
+As of this writing there are over 90 display modes supported
 (plus one more for random selection of one of these).
 .TP 8
 .B ant
 Shows Langton's and Turk's generalized ants.
+.TP 8
+.B atlantis
+Shows moving sharks/whales/dolphin.  May not be available depending on how
+it was configured.
 .TP 8
 .B ball
 Shows bouncing balls.
@@ -350,11 +366,16 @@ Shows random braids and knots.
 .B bubble
 Shows popping bubbles.
 .TP 8
+.B bubble3d
+Shows Richard Jones's GL bubbles.  May not be available depending on how
+it was configured.
+.TP 8
 .B bug
 Shows Palmiter's bug evolution and a garden of Eden.
 .TP 8
 .B cartoon
-Shows bouncing cartoons.  Not compiled in by default.
+Shows bouncing cartoons.  May not be available depending on how it was
+configured.
 .TP 8
 .B clock
 Shows Packard's oclock.
@@ -378,7 +399,10 @@ Shows art as ugly as sin.
 Shows Griffeath's cellular automata.
 .TP 8
 .B dilemma
-Shows Lloyd's Prisoner's Dilemma simulation
+Shows Lloyd's Prisoner's Dilemma simulation.
+.TP 8
+.B discrete
+Shows various discrete maps.
 .TP 8
 .B drift
 Shows cosmic drifting flame fractals.
@@ -399,6 +423,9 @@ Shows a waving flag of your operating system.
 .B flame
 Shows cosmic flame fractals.
 .TP 8
+.B flow
+Shows dynamic strange attractors.
+.TP 8
 .B forest
 Shows binary trees of a fractal forest.
 .TP 8
@@ -407,6 +434,9 @@ Shows crashing spiral galaxies.
 .TP 8
 .B gears
 Shows GL's gears.  May not be available depending on how it was configured.
+.TP 8
+.B goop
+Shows goop from a lava lamp.
 .TP 8
 .B grav
 Shows orbiting planets.
@@ -418,7 +448,7 @@ Shows string art.
 Shows real plane iterated fractals.
 .TP 8
 .B hyper
-Shows a spinning tesseract in 4D space.
+Shows spinning n-dimensional hypercubes.
 .TP 8
 .B ico
 Shows a bouncing polyhedron. 
@@ -433,7 +463,10 @@ Shows randomly appearing logos.
 Shows the Julia set. 
 .TP 8
 .B kaleid
-Shows a kaleidoscope.
+Shows Brewster's Kaleidoscope.
+.TP 8
+.B kummpa
+Shows kumppa.
 .TP 8
 .B laser
 Shows spinning lasers.
@@ -463,7 +496,7 @@ Shows Langton's self-producing loops.
 Shows mandelbrot sets.
 .TP 8
 .B marquee
-Shows messages.
+Shows text.
 .TP 8
 .B maze
 Shows a random maze and a depth first search solution.
@@ -483,7 +516,7 @@ Shows Papo's mountain range.
 Shows munching squares. 
 .TP 8
 .B nose
-Shows a man with a big nose runs around spewing out messages.
+Shows a man with a big nose runs around spewing out text.
 .TP 8
 .B pacman
 Shows Pacman(tm).
@@ -546,6 +579,9 @@ May not be available depending on how it was configured.
 .B star 
 Shows a star field with a twist.
 .TP 8
+.B starfish 
+Shows starfish.
+.TP 8
 .B strange
 Shows strange attractors.
 .TP 8
@@ -558,6 +594,9 @@ Shows a swarm of bees following a wasp.
 .TP 8
 .B swirl
 Shows animated swirling patterns.
+.TP 8
+.B thornbird
+Shows an animated Bird in a Thorn Bush fractal map.
 .TP 8
 .B triangle
 Shows a triangular mountain range.
@@ -608,7 +647,7 @@ cannot set the delay too high, but a delay of zero would needlessly
 consume cpu checking for mouse and keyboard input in a tight loop, since
 blank mode has no work to do.
 .TP 5
-.BI \-batchcount \ num
+.BI \-count \ num
 The
 .I batchcount
 option sets number of
@@ -617,6 +656,8 @@ to do per batch to
 .I num .
 
 In ant mode this refers the number of ants.
+
+In atlantis mode it is the number of sharks.
 
 In ball mode it is the number of balls.
 
@@ -631,6 +672,8 @@ In bounce mode it is the number of balls, could be less because of conflicts.
 In braid mode it is the upper bound number of strands.
 
 In bubble mode it is the number of bubbles.
+
+In bubble3d mode it is the number of bubbles.
 
 In bug mode it is the number of bugs, could be less because of conflicts.
 
@@ -654,13 +697,19 @@ In demon mode this refers the number of colors.
 
 In dilemma mode this refers the number of initial defectors.
 
+In discrete mode it is the number of points.
+
 In drift mode it is the number of levels to recurse (larger = more complex).
 
 In eyes mode it is the number of eyes.
 
-In flame mode it is the number of steps.
+In fadeplot mode it is the number of steps.
+
+In flag mode it means nothing.
 
 In flame mode it is the number of levels to recurse (larger = more complex).
+
+In flow mode it is the number of bees.
 
 In forest mode it is the number trees that make a forest.
 
@@ -668,13 +717,15 @@ In galaxy mode it means the number of galaxies.
 
 In gears mode it is the number of degrees to rotate the set of gears by.
 
+In goop mode it is the number of blobs per plane.
+
 In grav mode it is the number of planets.
 
 In helix mode it means nothing.
 
 In hop mode this refers to the number of pixels rendered in the same color.
 
-In hyper mode it means nothing.
+In hyper mode it the number of dimensions.
 
 In ico mode it is the ith platonic solid.
 
@@ -684,7 +735,9 @@ In image mode it means it is the number of logos on screen at once.
 
 In julia mode it is the depth of recursion.
 
-In kaleid mode it means nothing.
+In kaleid mode it is the number of pens.
+
+In kumppa mode it means nothing.
 
 In laser mode it is the number lasers.
 
@@ -755,6 +808,8 @@ In stairs mode it is means nothing.
 
 In star mode it is the number of stars on the screen at once.
 
+In starfish mode it means nothing.
+
 In strange mode it means nothing.
 
 In superquadrics mode its the number of horizontal and vertical lines in
@@ -763,6 +818,8 @@ the superquadric.
 In swirl mode it means the number of "knots".
 
 In swarm mode it is the number of bees.
+
+In thornbird mode it is the number of points.
 
 In triangular mode it is the number of mountains. 
 
@@ -788,27 +845,35 @@ In blank mode it means nothing.
 In bomb mode it means the number of minutes to autologout.
 
 A negative
-.I batchcount
+.I count
 allows for randomness.  The range from the minimum allowed nonnegative
-.I batchcount
+.I count
 for a particular mode to the
 ABS(
-.I batchcount
+.I count
 ) (or maximum allowed
-.I batchcount
+.I count
 , whichever is less).
+.TP 5
+.BI \-batchcount \ num
+The
+.I batchcount
+option is depreciated but should still work as
+.I count.
 .TP 5
 .BI \-cycles \ num
 The
 .I cycles
 option sets the number of cycles until time out for ant, blot, braid,
-bug, clock, crystal, daisy, deco, demon, dilemma, eyes, flag, forest,
-galaxy, helix, hop, hyper, ico, kaleid, laser, life, life1d, life3d,
-lisa, lissie, loop, mandelbrot, mountain, petal, sierpinski, shape,
-spline +erase, triangle, tube, voters, wator, and wire.
-For worm it is the length of the lines,
+bug, clock, crystal, daisy, deco, demon, dilemma, discrete, eyes,
+flag, flow, forest, galaxy, helix, hop, hyper, ico,
+laser, life, life1d, life3d, lisa, lissie, loop, mandelbrot, mountain,
+petal, sierpinski, shape, spline +erase, thornbird, triangle, tube,
+voters, wator, and wire.  For worm it is the length of the lines,
+for atlantis it is the shark speed,
 for fadeplot, julia and spiral it is the length of the trail of dots,
 munch it is the minimum size of the squares,
+for kaleid it is the % of black,
 for qix it is the number of lines,
 for spline -erase it means the number of
 splines * 64 (for compatibility with +erase),
@@ -826,14 +891,16 @@ size of ball in ball and bounce, size of bat in bat,
 maximum size of bubble in bubble, size of clock in clock,
 minimum size of rectangles in deco, size of the polygon in crystal,
 size of polyhedron in ico, size of lissie in lissie, size of dots of flag,
+for kaleid it is the symmetry,
 width of maze hallway, size of side of penrose tile, radius of loop in lisa,
 radius of ball in roll, number of corners in sierpinski,
-size of tube in tube, width of worm in worm,
+size of tube in tube, width of worm in worm, line width in rotor,
 size of cells in ant, bug, dilemma, life, life1d, pacman, voters,
 wator, and wire.  In pipes it is the maximum length of a system.
+In atlantis it is the shark size.
 In sproingies it is the size of the screen.  A negative number
 allows for randomness, similar to
-.I batchcount.
+.I count.
 .TP 5
 .BI \-ncolors \ num
 The
@@ -846,6 +913,21 @@ The
 option sets saturation of the color ramp used to
 .I value .
 0 is grayscale and 1 is very rich color.  0.4 is a nice pastel.
+.TP 5
+.BI \-erasemode \ modename
+As of this writing there are over 9 erase modes supported
+(if its not chosen its assumed random).
+The erase modes are random_lines, random_squares, venetian, triple_wipe,
+quad_wipe, circle_wipe, three_circle_wipe, squaretate, no_fade.
+.TP 5
+.BI \-erasedelay \ usecs
+The
+.I erasedelay
+option sets the number of microseconds for steps of the 
+.B erasemode
+(a setting of 0 and the
+.B erasemode
+is bypassed).
 .TP 5
 .B +/-nolock
 The
@@ -909,6 +991,11 @@ lowers the inherent security of this lock screen.  A side effect of using
 this option is that if
 .B xlock
 is killed -KILL, the access control list is not lost.
+.TP 5
+.B -/+vtlock
+This option is used on a XFree86 system to manage VT switching...  When
+.I vtlock
+is true, the VT switching is disabled.
 .TP 5
 .B -/+allowroot
 The
@@ -1025,8 +1112,8 @@ The
 .I font
 option sets the font to be used on the prompt screen.
 .TP 5
-.BI \-msgfont \ fontname
-option sets the font to be used for the message that is displayed in
+.BI \-planfont \ fontname
+option sets the font to be used for the text that is displayed in
 the lower part of the password screen.
 .TP 5
 .BI \-fg \ color
@@ -1118,9 +1205,8 @@ Turn on/off randomness options within modes.  Not implemented on all
 mode options.
 .TP 5
 .B -/+wireframe
-Turn on/off wireframe, available on gears, sproingies and superquadrics.
-Other modes should use this in the future as well (e.g. daisy, life3d,
-triangle).
+Turn on/off wireframe, available on atlantis, daisy, gears, life3d, mountain,
+sproingies, superquadrics, and triangle.
 .TP 5
 .B -/+use3d
 Turn on/off 3d view, available on bouboule, pyro, star, and worm.
@@ -1158,28 +1244,29 @@ fortune program.
 .BI \-messagefile \ filename
 The
 .I messagefile
-option sets the file where the contents are the message.  Currently
+option sets the file whose contents are displayed.  Currently
 used only for marquee and nose modes.  If one exists, it takes
 precedence over the fortune program and messagesfile.
 .TP 5
 .BI \-message \ textstring
 The
 .I message
-option sets the message.  Currently used only for marquee and nose modes.
-If one exists, it takes precedence over the fortune program,
-messagesfile and messagefile.
+option sets the text to be displayed in a mode.  Currently used only for
+flag, marquee and nose modes.  If one exists, it takes precedence over the
+fortune program, messagesfile and message.
 .TP 5
-.BI \-mfont \ mode-fontname
+.BI \-messagefont \ fontname
 The
-.I mfont
+.I messagefont
 option sets the font to be used in the mode.  Currently used only for
-marquee and nose modes.
+flag, marquee, and nose modes.
 .TP 5
-.BI \-imagefile \ filename
+.BI \-bitmap \ filename
 The
-.I imagefile
-option sets the ras or xpm file to be displayed with flag, image, life,
-life1d, maze, or puzzle mode.
+.I bitmap
+option sets the xbm, xpm, or ras file to be displayed with flag, image, life,
+life1d, maze, or puzzle mode.  For eyes and pacman only a xbm file is
+accepted.  Certain modes reject the bitmap if too big.
 .TP 5
 .BI \-neighbors \ num
 The
@@ -1232,7 +1319,8 @@ Defaults to
 Current user could not be automatically logged out."
 .TP 5
 .B -/+dtsaver
-Turn on/off CDE Saver Mode.
+Turn on/off CDE Saver Mode.  This option is only available if CDE
+support was compiled in.
 .TP 5
 .BI \-modulepath \ path
 The
@@ -1287,9 +1375,49 @@ Text
 .I string
 command to execute when the program logs the user out (either via the autologout
 or by pressing the logout button).
-
+.TP 5
+.BI \-mailCmd \ string
+Text
+.I string
+command to execute when the program to check mail.
+.TP 5
+.BI \-mailIcon \ string
+Text
+.I string
+of file for the "mail arrived" bitmap.
+.TP 5
+.BI \-nomailIcon \ string
+Text
+.I string
+of file for the "no mail" bitmap.
+.TP 5
+.B -dpmsstandby \ seconds
+Allows one to set DPMS Standby for monitor (0 is defined as infinite).
+(Horizontal sync on, Vertical sync off, RGB guns off, power supply on,
+tube filaments energized, (screen saver mode).  Typical 17 inch screen...
+110 out of 120 watts with a 3 sec recovery time.)  This option is only
+available if DPMS support was compiled in.
+.TP 5
+.B -dpmssuspend \ seconds
+Allows one to set DPMS Suspend for monitor (0 is defined as infinite).
+(Horizontal sync off, Vertical sync on, RGB guns off, power supply off,
+tube filaments energized.  Typical 17 inch screen ...  15 out of 120 watts
+with a 3 sec recovery time.)  This option is only available if DPMS support
+was compiled in.
+.TP 5
+.B -dpmsoff \ seconds
+Allows one to set DPMS Power Off for monitor (0 is defined as infinite).
+(Horizontal sync off, Vertical sync off, Small auxiliary circuit stays on
+to monitor the HS/VS signals to enable power on when data needs to be
+displayed on the screen.  Typical 17 inch screen ...  5 out of 120 watts with
+a 10 sec recovery time.)  This option is only available if DPMS support was
+compiled in.
 .sp
 .SH "SPECIAL MODE DEPENDENT OPTIONS"
+.TP 5
+.BI \-whalespeed \ num
+Allows one to set the speed of the whales and dolphin in
+.I atlantis.
 .TP 5
 .BI -/+truchet
 Turn on and off Truchet lines (trail) in
@@ -1298,6 +1426,42 @@ Turn on and off Truchet lines (trail) in
 .BI -/+boil
 Turn on and off having the bubbles bubble up in
 .I bubble.
+.TP 5
+.BI \-nx \ num
+Allows one to set the number of unit cells in x-direction in
+.I crystal.
+.TP 5
+.BI \-ny \ num
+Allows one to set the number of unit cells in y-direction in
+.I crystal.
+.TP 5
+.BI -/+centre
+Turn on and off the centering on screen in
+.I crystal.
+.TP 5
+.BI -/+maxsize
+Turn on and off the centering on screen in
+.I crystal.
+.TP 5
+.BI -/+cell
+Turn on and off the drawing of unit cell in
+.I crystal.
+.TP 5
+.BI -/+grid
+Turn on and off the drwing of grid of unit cells (if -cell is on) in
+.I crystal.
+.TP 5
+.BI -/+shift
+Turn on and off colour cycling in
+.I crystal.
+.TP 5
+.BI -/+forest
+Turn on and off the tropical deforest (hectares/acres) counter in
+.I dclock.
+.TP 5
+.BI -/+popex
+Turn on and off the population explosion counter in
+.I dclock.
 .TP 5
 .BI \-bonus \ value
 Allows one to set the bonus for cheating... between 1.0 and 4.0 in
@@ -1350,6 +1514,9 @@ Turn on and off ellipse format in
 .BI -/+martin
 Turn on and off Barry Martin's square root
 .I hop.
+.BI -/+popcorn
+Turn on and off Clifford A. Pickover's popcorn
+.I hop.
 .TP 5
 .BI -/+ejk1...ejk6
 Turn on and off Ed J. Kubaitis'
@@ -1366,6 +1533,30 @@ Turn on and off Jong's
 .BI -/+sine
 Turn on and off Barry Martin's sine
 .I hop.
+.TP 5
+.BI -/+disconnected
+Turn on and off disconnected pen movement in
+.I kaleid.
+.TP 5
+.BI -/+serial
+Turn on and off sequential allocation of colors in
+.I kaleid.
+.TP 5
+.BI -/+alternate
+Turn on and off alternate rotated display mode
+.I kaleid.
+.TP 5
+.BI -/+quad
+Turn on and off quad mirrored/rotated mode similar to size 4 in
+.I kaleid.
+.TP 5
+.BI -/+oct
+Turn on and off oct mirrored/rotated mode similar to size 8 in
+.I kaleid.
+.TP 5
+.BI -/+linear
+Turn on and off Cartesian/Polar coordinate mode in 
+.I kaleid.
 .TP 5
 .BI \-rule \ S<neighborhood>/B<neighborhood>
 Allows one to set
@@ -1481,6 +1672,26 @@ Turn on if
 .I star
 gets you motion sick.
 .TP 5
+.BI \-cyclepeed \ num
+Set speed of cycling in
+.I starfish.
+.TP 5
+.BI \-rotation \ num
+Set rotation velocity in
+.I starfish.
+.TP 5
+.BI \-thickness \ num
+Set thickness in
+.I starfish.
+.TP 5
+.BI -/+cycle
+Turn on and off cycle for
+.I starfish.
+.TP 5
+.BI -/+rock
+Turn on and off blob for
+.I starfish.
+.TP 5
 .BI \-spinspeed \ num
 Set speed of rotation, in degrees per frame for
 .I superquadrics.
@@ -1500,7 +1711,7 @@ get only the GL modes if compiled in, all-allgl will get all but the GL
 modes, "allnice" will weed out high cpu usage modes (as well as hackers and
 gl modes).  "allxpm" will get all modes that use xpm.  "allwrite" will get
 all modes that take advantage of writable colormaps (not including xpm).
-"alluse3d" will get all the modes that support this option.  "allmouse"
+"all3d" will get all the modes that support this option.  "allmouse"
 will get all the modes that support mouse interaction.  Similarly,
 "allautomata" for automata modes, "allfractal" for fractal modes,
 "allgeometry" for geometry modes, "allspace" for space modes.  The random

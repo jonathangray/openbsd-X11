@@ -1,1 +1,1 @@
-#define VERSION "xlockmore-4.09"
+#define VERSION "xlockmore-4.12"

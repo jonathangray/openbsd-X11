@@ -38,11 +38,18 @@ static const char sccsid[] = "@(#)wator.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 750000 \n" \
  "*cycles: 32767 \n" \
  "*size: 0 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*neighbors: 0 \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+#include "automata.h"
+
+/*-
+ * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
+ */
+extern int  neighbors;
 
 ModeSpecOpt wator_opts =
 {0, NULL, 0, NULL, NULL};
@@ -55,8 +62,6 @@ ModStruct   wator_description =
  "Shows Dewdney's Water-Torus planet of fish and sharks", 0, NULL};
 
 #endif
-
-extern int  neighbors;
 
 #include "bitmaps/fish-0.xbm"
 #include "bitmaps/fish-1.xbm"
@@ -120,7 +125,7 @@ typedef struct _CellList {
 } CellList;
 
 typedef struct {
-	int         initialized;
+	Bool        painted;
 	int         nkind[KINDS];	/* Number of fish and sharks */
 	int         breed[KINDS];	/* Breeding time of fish and sharks */
 	int         sstarve;	/* Time the sharks starve if they dont find a fish */
@@ -165,7 +170,8 @@ drawshape(ModeInfo * mi, int x, int y, int sizex, int sizey,
 		x - icon_width, y - icon_height / 2, icon_width, icon_height);
 	} else if (sizex < 3 || sizey < 3 || (sides == 4 && shape == 1)) {
 		XFillRectangle(display, window, gc,
-			       x - sizex / 2, y - sizey / 2, sizex, sizey);
+			x - sizex / 2, y - sizey / 2,
+			sizex - (sizey > 3), sizey - (sizey > 3));
 	} else if (sides == 4 && shape == 0) {
 	} else if (sides == 6 && shape == 1) {
 	} else if (sides == 6 && shape == 0) {
@@ -213,7 +219,7 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 			if (wp->xs <= 6 || wp->ys <= 2)
 				XFillRectangle(display, window, gc,
 				     wp->shape.hexagon[0].x - 3 * wp->xs / 4,
-					       wp->shape.hexagon[0].y + wp->ys / 4, wp->xs, wp->ys);
+				     wp->shape.hexagon[0].y + wp->ys / 4, wp->xs, wp->ys);
 			else
 				XFillArc(display, window, gc,
 				     wp->xb + wp->xs * ccol - 3 * wp->xs / 4,
@@ -223,10 +229,10 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 		}
 	} else if (wp->neighbors == 4 || wp->neighbors == 8) {
 		if (wp->pixelmode) {
-			if (bitmap >= KINDBITMAPS || (wp->xs == 1 && wp->ys == 1) || !alive)
+			if (bitmap >= KINDBITMAPS || (wp->xs <= 2 || wp->ys <= 2) || !alive)
 				XFillRectangle(display, window, gc,
 				wp->xb + wp->xs * col, wp->yb + wp->ys * row,
-					       wp->xs, wp->ys);
+				wp->xs - (wp->xs > 3), wp->ys - (wp->ys > 3));
 			else {
 				XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 				XFillRectangle(display, window, gc,
@@ -234,7 +240,8 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 					       wp->xs, wp->ys);
 				XSetForeground(display, gc, colour);
 				XFillArc(display, window, gc,
-					 wp->xb + wp->xs * col, wp->yb + wp->ys * row, wp->xs, wp->ys,
+					 wp->xb + wp->xs * col, wp->yb + wp->ys * row,
+					 wp->xs - 1, wp->ys - 1,
 					 0, 23040);
 			}
 		} else
@@ -598,10 +605,9 @@ init_wator(ModeInfo * mi)
 	wp = &wators[MI_SCREEN(mi)];
 
 	wp->generation = 0;
-	if (!wp->initialized) {	/* Genesis */
+	if (!wp->firstkind[0]) {	/* Genesis */
 		icon_width = fish0_width;
 		icon_height = fish0_height;
-		wp->initialized = 1;
 		/* Set up what will be a 'triply' linked list.
 		   doubly linked list, doubly linked to an array */
 		for (kind = FISH; kind <= KINDS; kind++)
@@ -615,8 +621,8 @@ init_wator(ModeInfo * mi)
 		for (i = FISH; i <= KINDS; i++)
 			flush_kindlist(wp, i);
 
-	wp->width = MI_WIN_WIDTH(mi);
-	wp->height = MI_WIN_HEIGHT(mi);
+	wp->width = MI_WIDTH(mi);
+	wp->height = MI_HEIGHT(mi);
 	if (wp->width < 2)
 		wp->width = 2;
 	if (wp->height < 2)
@@ -747,7 +753,7 @@ init_wator(ModeInfo * mi)
 	wp->kind = FISH;
 	if (!wp->nkind[SHARK])
 		wp->nkind[SHARK] = 1;
-	wp->breed[FISH] = MI_BATCHCOUNT(mi);
+	wp->breed[FISH] = MI_COUNT(mi);
 	wp->breed[SHARK] = 10;
 	if (wp->breed[FISH] < 1)
 		wp->breed[FISH] = 1;
@@ -756,6 +762,7 @@ init_wator(ModeInfo * mi)
 	wp->sstarve = 3;
 
 	MI_CLEARWINDOW(mi);
+	wp->painted = False;
 
 	for (kind = FISH; kind <= SHARK; kind++) {
 		i = 0;
@@ -797,6 +804,9 @@ draw_wator(ModeInfo * mi)
 	} acell[12];
 
 
+	MI_IS_DRAWN(mi) = True;
+
+	wp->painted = True;
 	/* Alternate updates, fish and sharks live out of phase with each other */
 	wp->kind = (wp->kind + 1) % KINDS;
 	{
@@ -825,8 +835,8 @@ draw_wator(ModeInfo * mi)
 						wp->currkind->info.direction = (5 - acell[i].dir) % ORIENTS +
 							((NRAND(REFLECTS)) ? 0 : ORIENTS) + wp->kind * KINDBITMAPS;
 					} else if (wp->neighbors == 8) {
-						wp->currkind->info.direction = (5 - (acell[i].dir / 2 +
-										     ((acell[i].dir % 2) ? LRAND() & 1 : 0))) % ORIENTS +
+						wp->currkind->info.direction = (char) (5 - (acell[i].dir / 2 +
+											    ((acell[i].dir % 2) ? LRAND() & 1 : 0))) % ORIENTS +
 							((NRAND(REFLECTS)) ? 0 : ORIENTS) + wp->kind * KINDBITMAPS;
 					} else
 						wp->currkind->info.direction = wp->kind * KINDBITMAPS;
@@ -881,8 +891,8 @@ draw_wator(ModeInfo * mi)
 						wp->currkind->info.direction = (5 - acell[i].dir) % ORIENTS +
 							((NRAND(REFLECTS)) ? 0 : ORIENTS) + wp->kind * KINDBITMAPS;
 					} else if (wp->neighbors == 8) {
-						wp->currkind->info.direction = (5 - (acell[i].dir / 2 +
-										     ((acell[i].dir % 2) ? LRAND() & 1 : 0))) % ORIENTS +
+						wp->currkind->info.direction = (char) (5 - (acell[i].dir / 2 +
+											    ((acell[i].dir % 2) ? LRAND() & 1 : 0))) % ORIENTS +
 							((NRAND(REFLECTS)) ? 0 : ORIENTS) + wp->kind * KINDBITMAPS;
 					} else
 						wp->currkind->info.direction = wp->kind * KINDBITMAPS;
@@ -937,9 +947,12 @@ release_wator(ModeInfo * mi)
 			watorstruct *wp = &wators[screen];
 
 			for (kind = 0; kind <= KINDS; kind++) {
-				flush_kindlist(wp, kind);
-				(void) free((void *) wp->lastkind[kind]);
-				(void) free((void *) wp->firstkind[kind]);
+				if (wp->firstkind[0])
+					flush_kindlist(wp, kind);
+				if (wp->lastkind[kind])
+					(void) free((void *) wp->lastkind[kind]);
+				if (wp->firstkind[kind])
+					(void) free((void *) wp->firstkind[kind]);
 			}
 			if (wp->arr != NULL)
 				(void) free((void *) wp->arr);
@@ -952,5 +965,10 @@ release_wator(ModeInfo * mi)
 void
 refresh_wator(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	watorstruct *wp = &wators[MI_SCREEN(mi)];
+
+	if (wp->painted) {
+		MI_CLEARWINDOW(mi);
+		wp->painted = False;
+	}
 }

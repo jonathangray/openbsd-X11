@@ -26,7 +26,7 @@ static const char sccsid[] = "@(#)flag.c	4.07 97/11/24 xlockmore";
  *
  * Revision History: 
  * 24-Oct-97: xpm and ras capability added.
- * 13-May-97: jwz@netscape.com: turned into a standalone program.
+ * 13-May-97: jwz@jwz.org: turned into a standalone program.
  *            Made it able to animate arbitrary (runtime) text or bitmaps
  * 15-May-96: written.
  */
@@ -39,18 +39,51 @@ static const char sccsid[] = "@(#)flag.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 50000 \n" \
  "*cycles: 1000 \n" \
  "*size: -7 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*bitmap: \n" \
+ "*font: \n" \
+ "*text: \n" \
+ "*fullrandom: True \n"
 #define BRIGHT_COLORS
 #define UNIFORM_COLORS
 #define DEF_FONT "-*-helvetica-bold-r-*-240-*"
-#define DEF_BITMAP ""
 #define DEF_TEXT ""
 #include "xlockmore.h"		/* in xscreensaver distribution */
 
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
-
+#include "color.h"
 #endif /* STANDALONE */
+
+/* This makes me laugh :) */
+#ifdef JWZ
+/*-
+ * 22-Jan-98: jwz: made the flag wigglier; added xpm support.
+ *            (I tried to do this by re-porting from xlockmore, but the
+ *            current xlockmore version is completely inscrutable.)
+ */
+
+#ifdef HAVE_XPM
+#include <X11/xpm.h>
+#ifndef PIXEL_ALREADY_TYPEDEFED
+#define PIXEL_ALREADY_TYPEDEFED	/* Sigh, Xmu/Drawing.h needs this... */
+#endif
+#endif
+
+#ifdef HAVE_XMU
+#ifndef VMS
+#include <X11/Xmu/Drawing.h>
+#else /* VMS */
+#include <Xmu/Drawing.h>
+#endif /* VMS */
+#endif /* HAVE_XMU */
+
+#include "images/bob.xbm"
+#include <string.h>
+#include <X11/Xutil.h>
+#else
+#include "iostuff.h"
+#endif
 
 #define DEF_INVERT  "False"
 
@@ -144,7 +177,7 @@ typedef struct {
 	GC          backGC;
 } flagstruct;
 
-static XFontStruct *mode_font = None;
+static XFontStruct *messagefont = None;
 
 static flagstruct *flags = NULL;
 
@@ -219,7 +252,7 @@ affiche(ModeInfo * mi)
 		}
 }
 
-extern char *message, *imagefile;
+extern char *message;
 
 static void
 getText(ModeInfo * mi, XImage ** image)
@@ -270,8 +303,8 @@ getText(ModeInfo * mi, XImage ** image)
 	text2 = (char *) strdup(text1);
 
 
-	if (mode_font == None)
-		mode_font = getFont(display);
+	if (messagefont == None)
+		messagefont = getFont(display);
 
 	(void) memset(&overall, 0, sizeof (overall));
 	token = text1;
@@ -281,7 +314,7 @@ getText(ModeInfo * mi, XImage ** image)
 		int         ascent, descent, direction;
 
 		token = 0;
-		(void) XTextExtents(mode_font, line, strlen(line),
+		(void) XTextExtents(messagefont, line, strlen(line),
 				    &direction, &ascent, &descent, &o2);
 		overall.lbearing = MAX(overall.lbearing, o2.lbearing);
 		overall.rbearing = MAX(overall.rbearing, o2.rbearing);
@@ -289,12 +322,12 @@ getText(ModeInfo * mi, XImage ** image)
 	}
 
 	width = overall.lbearing + overall.rbearing + margin + margin + 1;
-	height = ((mode_font->ascent + mode_font->descent) * lines) +
+	height = ((messagefont->ascent + messagefont->descent) * lines) +
 		margin + margin;
 
 	text_pixmap = XCreatePixmap(display, MI_WINDOW(mi), width, height, 1);
 
-	gcv.font = mode_font->fid;
+	gcv.font = messagefont->fid;
 	gcv.foreground = 0;
 	gcv.background = 0;
 	gc = XCreateGC(display, text_pixmap,
@@ -310,21 +343,21 @@ getText(ModeInfo * mi, XImage ** image)
 
 		token = 0;
 
-		(void) XTextExtents(mode_font, line, strlen(line),
+		(void) XTextExtents(messagefont, line, strlen(line),
 				    &direction, &ascent, &descent, &o2);
 		xoff = ((overall.lbearing + overall.rbearing) -
 			(o2.lbearing + o2.rbearing)) / 2;
 
 		(void) XDrawString(display, text_pixmap, gc,
 				   overall.lbearing + margin + xoff,
-				   ((mode_font->ascent * (lines + 1)) +
-				    (mode_font->descent * lines) + margin),
+				   ((messagefont->ascent * (lines + 1)) +
+				    (messagefont->descent * lines) + margin),
 				   line, strlen(line));
 		lines++;
 	}
 	(void) free((void *) text1);
 	(void) free((void *) text2);
-	/*XUnloadFont(display, mode_font->fid); */
+	/*XUnloadFont(display, messagefont->fid); */
 	XFreeGC(display, gc);
 
 	*image = XGetImage(display, text_pixmap, 0, 0, width, height,
@@ -345,15 +378,18 @@ init_stuff(ModeInfo * mi)
 			 DEFAULT_XPM, FLAG_NAME,
 #endif
 			 &fp->graphics_format, &fp->cmap, &fp->black);
+#ifndef STANDALONE
 	if (fp->cmap != None) {
-		setColormap(display, window, fp->cmap, MI_WIN_IS_INWINDOW(mi));
+		setColormap(display, window, fp->cmap, MI_IS_INWINDOW(mi));
 		if (fp->backGC == None) {
 			XGCValues   xgcv;
 
 			xgcv.background = fp->black;
 			fp->backGC = XCreateGC(display, window, GCBackground, &xgcv);
 		}
-	} else {
+	} else
+#endif /* STANDALONE */
+	{
 		fp->black = MI_BLACK_PIXEL(mi);
 		fp->backGC = MI_GC(mi);
 	}
@@ -390,8 +426,8 @@ init_flag(ModeInfo * mi)
 
 	init_stuff(mi);
 
-	fp->width = MI_WIN_WIDTH(mi);
-	fp->height = MI_WIN_HEIGHT(mi);
+	fp->width = MI_WIDTH(mi);
+	fp->height = MI_HEIGHT(mi);
 
 	if (fp->image) {
 		if (fp->graphics_format == IS_XBM)
@@ -400,11 +436,11 @@ init_flag(ModeInfo * mi)
 			(void) XDestroyImage(fp->image);
 		fp->image = NULL;
 	}
-	if (MI_WIN_IS_FULLRANDOM(mi) ||
-	    (imagefile && *imagefile && message && *message) ||
-	    ((!imagefile || !*imagefile) && (!message || !*message)))
-		fp->choice = LRAND() & 1;
-	else if (imagefile && *imagefile)
+	if (MI_IS_FULLRANDOM(mi) ||
+	    (MI_BITMAP(mi) && *(MI_BITMAP(mi)) && message && *message) ||
+	((!(MI_BITMAP(mi)) || !*(MI_BITMAP(mi))) && (!message || !*message)))
+		fp->choice = (int) (LRAND() & 1);
+	else if (MI_BITMAP(mi) && *(MI_BITMAP(mi)))
 		fp->choice = IMAGE_FLAG;
 	else
 		fp->choice = MESSAGE_FLAG;
@@ -477,6 +513,8 @@ draw_flag(ModeInfo * mi)
 	Window      window = MI_WINDOW(mi);
 	flagstruct *fp = &flags[MI_SCREEN(mi)];
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (fp->width <= MAXW(fp) || fp->height <= MAXH(fp)) {
 		fp->size = MININITSIZE;
 		/* fp->pointsize = MINPOINTSIZE; */
@@ -528,14 +566,16 @@ release_flag(ModeInfo * mi)
 		(void) free((void *) flags);
 		flags = NULL;
 	}
-	if (mode_font != None) {
-		XFreeFont(MI_DISPLAY(mi), mode_font);
-		mode_font = None;
+	if (messagefont != None) {
+		XFreeFont(MI_DISPLAY(mi), messagefont);
+		messagefont = None;
 	}
 }
 
 void
 refresh_flag(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	flagstruct *fp = &flags[MI_SCREEN(mi)];
+
+	MI_CLEARWINDOWCOLORMAP(mi, fp->backGC, fp->black);
 }

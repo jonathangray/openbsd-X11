@@ -19,7 +19,7 @@ static const char sccsid[] = "@(#)forest.c	4.07 97/11/24 xlockmore";
  *
  * This file is provided AS IS with no warranties of any kind.  The author
  * shall have no liability with respect to the infringement of copyrights,
-  trade secrets or any patents by this file or any part thereof.  In no
+ * trade secrets or any patents by this file or any part thereof.  In no
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
@@ -149,11 +149,11 @@ init_forest(ModeInfo * mi)
 	}
 	fp = &forests[MI_SCREEN(mi)];
 
-	fp->width = MI_WIN_WIDTH(mi);
-	fp->height = MI_WIN_HEIGHT(mi);
+	fp->width = MI_WIDTH(mi);
+	fp->height = MI_HEIGHT(mi);
 	fp->time = 0;
 
-	fp->ntrees = MI_BATCHCOUNT(mi);
+	fp->ntrees = MI_COUNT(mi);
 	if (fp->ntrees < -MINTREES)
 		fp->ntrees = NRAND(-fp->ntrees - MINTREES + 1) + MINTREES;
 	else if (fp->ntrees < MINTREES)
@@ -170,6 +170,8 @@ draw_forest(ModeInfo * mi)
 	foreststruct *fp = &forests[MI_SCREEN(mi)];
 	short       x, y, x_2, y_2, len, c = 0;
 	float       a, as;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (fp->time < fp->ntrees) {
 
@@ -194,8 +196,9 @@ draw_forest(ModeInfo * mi)
 
 		draw_tree(mi, x_2, y_2, (len * REDUCE) / 100, a, as, c, 1);
 	}
-	if (++fp->time > MI_CYCLES(mi))
+	if (++fp->time > MI_CYCLES(mi)) {
 		init_forest(mi);
+	}
 }
 
 void
@@ -210,11 +213,5 @@ release_forest(ModeInfo * mi)
 void
 refresh_forest(ModeInfo * mi)
 {
-	foreststruct *fp = &forests[MI_SCREEN(mi)];
-
-	if (fp->time < fp->ntrees) {
-		MI_CLEARWINDOW(mi);
-	} else {
-		init_forest(mi);
-	}
+	MI_CLEARWINDOW(mi);
 }

@@ -13,7 +13,15 @@ static const char sccsid[] = "@(#)xbm.c	4.00 97/01/01 xlockmore";
  *            John Bradley <bradley@central.cis.upenn.edu>
  *            code used here by permission
  */
+#ifdef STANDALONE
+#include "utils.h"
+#else
 #include "xlock.h"
+#endif
+
+#include <X11/Xutil.h>
+
+extern FILE *my_fopen(char *, char *);
 
 int
 XbmReadFileToImage(char *filename,

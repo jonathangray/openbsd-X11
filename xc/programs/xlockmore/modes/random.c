@@ -38,40 +38,50 @@ static const char sccsid[] = "@(#)random.c	4.07 97/11/24 xlockmore";
 #define HACK_INIT init_random
 #define HACK_DRAW draw_random
 #define random_opts xlockmore_opts
-#define DEFAULTS ""
+#define DEFAULTS "*verbose: False \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
+#include "color.h"
+#include "util.h"
 #endif /* STANDALONE */
 
 #define DEF_DURATION	"60"	/* 0 == infinite duration */
 #define DEF_MODELIST	""
 #define DEF_SEQUENTIAL "False"
+#define DEF_FULLRANDOM "True"
 
 static int  duration;
 static char *modelist;
 static Bool sequential;
+extern Bool fullrandom;
 
 static XrmOptionDescRec opts[] =
 {
 	{"-duration", ".random.duration", XrmoptionSepArg, (caddr_t) NULL},
 	{"-modelist", ".random.modelist", XrmoptionSepArg, (caddr_t) NULL},
 	{"-sequential", ".random.sequential", XrmoptionNoArg, (caddr_t) "on"},
-	{"+sequential", ".random.sequential", XrmoptionNoArg, (caddr_t) "off"}
+      {"+sequential", ".random.sequential", XrmoptionNoArg, (caddr_t) "off"},
+	{"-sequential", ".random.sequential", XrmoptionNoArg, (caddr_t) "on"},
+      {"+sequential", ".random.sequential", XrmoptionNoArg, (caddr_t) "off"},
+	{"-fullrandom", ".random.fullrandom", XrmoptionNoArg, (caddr_t) "on"},
+	{"+fullrandom", ".random.fullrandom", XrmoptionNoArg, (caddr_t) "off"}
 };
 
 static argtype vars[] =
 {
 	{(caddr_t *) & duration, "duration", "Duration", DEF_DURATION, t_Int},
     {(caddr_t *) & modelist, "modelist", "Modelist", DEF_MODELIST, t_String},
-{(caddr_t *) & sequential, "sequential", "Sequential", DEF_SEQUENTIAL, t_Bool}
+	{(caddr_t *) & sequential, "sequential", "Sequential", DEF_SEQUENTIAL, t_Bool},
+{(caddr_t *) & fullrandom, "fullrandom", "FullRandom", DEF_FULLRANDOM, t_Bool}
 };
 
 static OptionStruct desc[] =
 {
 	{"-duration num", "how long a mode runs before changing to another"},
 	{"-modelist string", "list of modes to randomly choose from"},
-	{"-/+sequential", "turn on/off picking of modes sequentially"}
+	{"-/+sequential", "turn on/off picking of modes sequentially"},
+	{"-/+fullrandom", "turn on/off full random choice of mode-options"}
 };
 
 ModeSpecOpt random_opts =
@@ -100,24 +110,32 @@ ModStruct   random_description =
 
 #define GC_SAVE_VALUES (GCFunction|GCLineWidth|GCLineStyle|GCCapStyle|GCJoinStyle|GCGraphicsExposures|GCFont|GCSubwindowMode)
 
+extern int  startscreen;
 extern int  delay;
-extern int  batchcount;
+extern int  count;
 extern int  cycles;
 extern int  size;
 extern int  ncolors;
 extern float saturation;
-extern char *imagefile;
+extern char *bitmap;
 
 #define MAXMODECHARS 14
 
 #ifdef USE_GL
 static char gl_modes[][MAXMODECHARS] =
 {
-	"cage", "gears", "moebius", "morph3d", "pipes", "rubik",
+	"atlantis", "bubble3d", "cage", "gears",
+	"moebius", "morph3d", "pipes", "rubik",
 	"sproingies", "stairs", "superquadrics"
+#if defined(USE_TEXT)
+	,"text3d"
+#endif
+#if defined( USE_UNSTABLE ) && (defined( USE_XPM ) || defined( USE_XPMINC ))
+	,"lament"
+#endif
 };
 
-#define NUMGL (sizeof (gl_modes) / sizeof (gl_modes[0]))
+#define NUMGL (int) (sizeof (gl_modes) / sizeof (gl_modes[0]))
 #else
 static char gl_modes[][MAXMODECHARS] =
 {""};
@@ -131,7 +149,7 @@ static char xpm_modes[][MAXMODECHARS] =
 	"bat", "cartoon", "image", "flag", "life", "life1d", "maze", "puzzle"
 };
 
-#define NUMXPM (sizeof (xpm_modes) / sizeof (xpm_modes[0]))
+#define NUMXPM (int) (sizeof (xpm_modes) / sizeof (xpm_modes[0]))
 #else
 /* They will not really be xpm_modes anymore... */
 static char xpm_modes[][MAXMODECHARS] =
@@ -139,16 +157,17 @@ static char xpm_modes[][MAXMODECHARS] =
 	"bat", "image", "flag", "life", "life1d", "maze", "puzzle"
 };
 
-#define NUMXPM (sizeof (xpm_modes) / sizeof (xpm_modes[0]))
+#define NUMXPM (int) (sizeof (xpm_modes) / sizeof (xpm_modes[0]))
 
 #endif
 
 static char write_modes[][MAXMODECHARS] =
 {
-	"mandelbrot", "swirl", "tube"	/* XPM modes are usually writable too ... */
+	"crystal", "mandelbrot", "starfish", "swirl", "tube"
+	/* XPM modes are usually writable too ... */
 };
 
-#define NUMWRITE (sizeof (write_modes) / sizeof (write_modes[0]))
+#define NUMWRITE (int) (sizeof (write_modes) / sizeof (write_modes[0]))
 
 static char nice_modes[][MAXMODECHARS] =
 {
@@ -174,21 +193,21 @@ static char nice_modes[][MAXMODECHARS] =
 	"world", "worm"
 };
 
-#define NUMNICE (sizeof (nice_modes) / sizeof (nice_modes[0]))
+#define NUMNICE (int) (sizeof (nice_modes) / sizeof (nice_modes[0]))
 
 static char use3d_modes[][MAXMODECHARS] =
 {
-	"bouboule", "pyro", "star", "worm"
+	"bouboule", "hyper", "pyro", "star", "worm"
 };
 
-#define NUMUSE3D (sizeof (use3d_modes) / sizeof (use3d_modes[0]))
+#define NUMUSE3D (int) (sizeof (use3d_modes) / sizeof (use3d_modes[0]))
 
 static char mouse_modes[][MAXMODECHARS] =
 {
 	"eyes", "julia", "swarm"
 };
 
-#define NUMMOUSE (sizeof (mouse_modes) / sizeof (mouse_modes[0]))
+#define NUMMOUSE (int) (sizeof (mouse_modes) / sizeof (mouse_modes[0]))
 
 static char automata_modes[][MAXMODECHARS] =
 {
@@ -196,16 +215,16 @@ static char automata_modes[][MAXMODECHARS] =
 	"voters", "wator", "wire"
 };
 
-#define NUMAUTOMATA (sizeof (automata_modes) / sizeof (automata_modes[0]))
+#define NUMAUTOMATA (int) (sizeof (automata_modes) / sizeof (automata_modes[0]))
 
 static char fractal_modes[][MAXMODECHARS] =
 {
-	"coral", "drift", "flame", "forest", "julia", "hop",
-	"ifs", "lightning", "mandelbrot", "mountain",
-	"sierpinski", "strange", "triangle", "turtle", "vines"
+	"coral", "discrete", "drift", "flame", "flow", "forest",
+	"julia", "hop", "ifs", "lightning", "mandelbrot", "mountain",
+	"sierpinski", "strange", "thornbird", "triangle", "turtle", "vines"
 };
 
-#define NUMFRACTAL (sizeof (fractal_modes) / sizeof (fractal_modes[0]))
+#define NUMFRACTAL (int) (sizeof (fractal_modes) / sizeof (fractal_modes[0]))
 
 
 static char geometry_modes[][MAXMODECHARS] =
@@ -215,14 +234,14 @@ static char geometry_modes[][MAXMODECHARS] =
 	"shape", "sphere", "spiral", "spline"
 };
 
-#define NUMGEOMETRY (sizeof (geometry_modes) / sizeof (geometry_modes[0]))
+#define NUMGEOMETRY (int) (sizeof (geometry_modes) / sizeof (geometry_modes[0]))
 
 static char space_modes[][MAXMODECHARS] =
 {
 	"bouboule", "galaxy", "grav", "star", "world"
 };
 
-#define NUMSPACE (sizeof (space_modes) / sizeof (space_modes[0]))
+#define NUMSPACE (int) (sizeof (space_modes) / sizeof (space_modes[0]))
 
 typedef struct {
 	XGCValues   gcvs;
@@ -428,7 +447,7 @@ parsemodelist(ModeInfo * mi)
 			modes[i] = i;
 		nmodes = i;
 	}
-	if (MI_WIN_IS_DEBUG(mi)) {
+	if (MI_IS_DEBUG(mi)) {
 		(void) fprintf(stderr, "%d mode%s: ", nmodes, ((nmodes == 1) ? "" : "s"));
 		for (i = 0; i < nmodes; i++)
 			(void) fprintf(stderr, "%d ", modes[i]);
@@ -448,20 +467,20 @@ setMode(ModeInfo * mi, int newmode)
 
 /* FIX THIS GLOBAL ACCESS */
 	delay = MI_DELAY(mi) = LockProcs[currentmode].def_delay;
-	batchcount = MI_BATCHCOUNT(mi) = LockProcs[currentmode].def_batchcount;
+	count = MI_COUNT(mi) = LockProcs[currentmode].def_count;
 	cycles = MI_CYCLES(mi) = LockProcs[currentmode].def_cycles;
 	size = MI_SIZE(mi) = LockProcs[currentmode].def_size;
 	ncolors = MI_NCOLORS(mi) = LockProcs[currentmode].def_ncolors;
 	saturation = MI_SATURATION(mi) = LockProcs[currentmode].def_saturation;
-	imagefile = MI_IMAGEFILE(mi) = LockProcs[currentmode].def_imagefile;
+	bitmap = MI_BITMAP(mi) = LockProcs[currentmode].def_bitmap;
 
-	for (i = 0; i < MI_NUM_SCREENS(mi); i++) {
+	for (i = startscreen; i < MI_NUM_SCREENS(mi); i++) {
 
 		XChangeGC(MI_DISPLAY(mi), MI_GC(mi), GC_SAVE_VALUES,
 			  &(rp->gcvs));		/* Not sure if this is right for multiscreens */
 		randoms[i].fix = True;
 	}
-	if (MI_WIN_IS_VERBOSE(mi))
+	if (MI_IS_VERBOSE(mi))
 		(void) fprintf(stderr, "mode: %s\n", LockProcs[currentmode].cmdline_arg);
 }
 
@@ -480,8 +499,9 @@ init_random(ModeInfo * mi)
 
 	if (currentmode < 0) {
 		parsemodelist(mi);
+		MI_SET_FLAG_STATE(mi, WI_FLAG_FULLRANDOM, fullrandom);
 
-		for (i = 0; i < MI_NUM_SCREENS(mi); i++) {
+		for (i = startscreen; i < MI_NUM_SCREENS(mi); i++) {
 			(void) XGetGCValues(MI_DISPLAY(mi), MI_GC(mi),
 					    GC_SAVE_VALUES, &(rp->gcvs));
 		}
@@ -492,8 +512,8 @@ init_random(ModeInfo * mi)
 	}
 	if (rp->fix) {
 		fixColormap(MI_DISPLAY(mi), MI_WINDOW(mi), MI_SCREEN(mi), MI_NCOLORS(mi),
-		MI_SATURATION(mi), MI_WIN_IS_MONO(mi), MI_WIN_IS_INSTALL(mi),
-			    MI_WIN_IS_INROOT(mi), MI_WIN_IS_INWINDOW(mi), MI_WIN_IS_VERBOSE(mi));
+			MI_SATURATION(mi), MI_IS_MONO(mi), MI_IS_INSTALL(mi),
+		    MI_IS_INROOT(mi), MI_IS_INWINDOW(mi), MI_IS_VERBOSE(mi));
 		rp->fix = False;
 	}
 	call_init_hook(&LockProcs[currentmode], mi);
@@ -509,10 +529,10 @@ draw_random(ModeInfo * mi)
 	int         has_run = (duration == 0) ? 0 : (int) (now - starttime);
 	static int  do_init = 0;
 
-	if ((scrn == 0) && do_init) {
+	if ((scrn == startscreen) && do_init) {
 		do_init = 0;
 	}
-	if ((scrn == 0) && (change_now || (has_run > duration))) {
+	if ((scrn == startscreen) && (change_now || (has_run > duration))) {
 		newmode = pickMode();
 
 		MI_CLEARWINDOW(mi);
@@ -524,8 +544,8 @@ draw_random(ModeInfo * mi)
 	}
 	if (rp->fix) {
 		fixColormap(MI_DISPLAY(mi), MI_WINDOW(mi), MI_SCREEN(mi), MI_NCOLORS(mi),
-		MI_SATURATION(mi), MI_WIN_IS_MONO(mi), MI_WIN_IS_INSTALL(mi),
-			    MI_WIN_IS_INROOT(mi), MI_WIN_IS_INWINDOW(mi), MI_WIN_IS_VERBOSE(mi));
+			MI_SATURATION(mi), MI_IS_MONO(mi), MI_IS_INSTALL(mi),
+		    MI_IS_INROOT(mi), MI_IS_INWINDOW(mi), MI_IS_VERBOSE(mi));
 		rp->fix = False;
 	}
 	if (do_init) {
@@ -543,7 +563,7 @@ refresh_random(ModeInfo * mi)
 void
 change_random(ModeInfo * mi)
 {
-	if (MI_SCREEN(mi) == 0)
+	if (MI_SCREEN(mi) == startscreen)
 		change_now = True;	/* force a change on next draw callback */
 
 	draw_random(mi);

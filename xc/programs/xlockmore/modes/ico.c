@@ -98,7 +98,8 @@ SOFTWARE.
  "*count: 0 \n" \
  "*cycles: 300 \n" \
  "*ncolors: 200 \n"
-#define SPREAD_COLORS
+#define UNIFORM_COLORS
+#define BRIGHT_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -816,8 +817,8 @@ init_ico(ModeInfo * mi)
 	}
 	ip = &icos[MI_SCREEN(mi)];
 
-	ip->width = MI_WIN_WIDTH(mi);
-	ip->height = MI_WIN_HEIGHT(mi);
+	ip->width = MI_WIDTH(mi);
+	ip->height = MI_HEIGHT(mi);
 
 	ip->edges = edges;
 #ifdef DEBUG
@@ -853,7 +854,7 @@ init_ico(ModeInfo * mi)
 
 	ip->loopcount = 0;
 
-	ip->object = MI_BATCHCOUNT(mi) - 1;
+	ip->object = MI_COUNT(mi) - 1;
 	if (ip->object < 0 || ip->object >= polysize)
 		ip->object = NRAND(polysize);
 	ip->poly = polygons + ip->object;
@@ -869,6 +870,8 @@ void
 draw_ico(ModeInfo * mi)
 {
 	icostruct  *ip = &icos[MI_SCREEN(mi)];
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (++ip->loopcount > MI_CYCLES(mi))
 		init_ico(mi);
@@ -895,7 +898,7 @@ draw_ico(ModeInfo * mi)
 void
 refresh_ico(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }
 
 void

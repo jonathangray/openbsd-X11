@@ -6,7 +6,7 @@ static const char sccsid[] = "@(#)deco.c 4.07 97/11/24 xlockmore";
 
 #endif
 /* 
- * Copyright (c) 1997 by Jamie Zawinski <jwz@netscape.com>
+ * Copyright (c) 1997 by Jamie Zawinski <jwz@jwz.org>
  *
  * Permission to use, copy, modify, and distribute this software and its
  * documentation for any purpose and without fee is hereby granted,
@@ -22,12 +22,12 @@ static const char sccsid[] = "@(#)deco.c 4.07 97/11/24 xlockmore";
  *
  * Revision History:
  * 29-Oct-97: xlock version (David Bagley <bagleyd@bigfoot.com>)
- * 1997: xscreensaver version Jamie Zawinski <jwz@netscape.com>
+ * 1997: xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
 /*-
  * original copyright
- * xscreensaver, Copyright (c) 1997 Jamie Zawinski <jwz@netscape.com>
+ * xscreensaver, Copyright (c) 1997 Jamie Zawinski <jwz@jwz.org>
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -63,7 +63,7 @@ ModeSpecOpt deco_opts =
 ModStruct   deco_description =
 {"deco", "init_deco", "draw_deco", "release_deco",
  "init_deco", "init_deco", NULL, &deco_opts,
- 1000000, -30, 2, -10, 64, 0.8, "",
+ 1000000, -30, 2, -10, 64, 0.6, "",
  "Shows art as ugly as sin", 0, NULL};
 
 #endif
@@ -116,7 +116,7 @@ void
 init_deco(ModeInfo * mi)
 {
 	decostruct *dp;
-	int         depth = MI_BATCHCOUNT(mi);
+	int         depth = MI_COUNT(mi);
 	int         size = MI_SIZE(mi);
 
 	if (decos == NULL) {
@@ -157,16 +157,19 @@ draw_deco(ModeInfo * mi)
 		MI_CLEARWINDOWCOLOR(mi, dp->bordercolor);
 #ifdef SOLARIS2
 		/*
-		   * if this is not done the first rectangle is sometimes messed up on
-		   * Solaris2 with 24 bit TrueColor (Ultra2)
+		 * if this is not done the first rectangle is sometimes messed up on
+		 * Solaris2 with 24 bit TrueColor (Ultra2)
 		 */
 		XDrawRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
-			  0, 0, MI_WIN_WIDTH(mi) / 2 + 1, MI_WIN_HEIGHT(mi) / 2 + 1);
+			  0, 0, MI_WIDTH(mi) / 2 + 1, MI_HEIGHT(mi) / 2 + 1);
 #endif
-		deco(mi, 0, 0, MI_WIN_WIDTH(mi), MI_WIN_HEIGHT(mi), 0);
+		deco(mi, 0, 0, MI_WIDTH(mi), MI_HEIGHT(mi), 0);
 	}
 	if (++dp->time > MI_CYCLES(mi))
 		init_deco(mi);
+
+	MI_IS_DRAWN(mi) = True;
+
 }
 
 void

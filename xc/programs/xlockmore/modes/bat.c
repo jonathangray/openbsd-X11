@@ -65,11 +65,15 @@ static const char sccsid[] = "@(#)bat.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 100000 \n" \
  "*count: -8 \n" \
  "*size: 0 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*verbose: False \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
+#include "vis.h"
+#include "color.h"
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 ModeSpecOpt bat_opts =
 {0, NULL, 0, NULL, NULL};
@@ -332,11 +336,13 @@ init_stuff(ModeInfo * mi)
 		int         total = 0;
 		XpmAttributes attrib;
 
+#ifndef STANDALONE
 		if (!fixedColors(mi)) {
 			bp->cmap = XCreateColormap(display, window, MI_VISUAL(mi), AllocNone);
 			attrib.colormap = bp->cmap;
 			reserveColors(mi, bp->cmap, &bp->black);
 		} else
+#endif /* STANDALONE */
 			attrib.colormap = MI_COLORMAP(mi);
 
 		attrib.visual = MI_VISUAL(mi);
@@ -356,7 +362,7 @@ init_stuff(ModeInfo * mi)
 			total = i;
 			if (total <= ORIENTS / 2) {	/* All or nothing */
 				bp->graphics_format = IS_XBM;
-				if (MI_WIN_IS_VERBOSE(mi))
+				if (MI_IS_VERBOSE(mi))
 					(void) fprintf(stderr, "Full color images could not be loaded.\n");
 				for (i = 0; i < total; i++) {
 					(void) XDestroyImage(bp->images[i]);
@@ -386,7 +392,9 @@ init_stuff(ModeInfo * mi)
 	}
 	if (bp->cmap != None) {
 
-		setColormap(display, window, bp->cmap, MI_WIN_IS_INWINDOW(mi));
+#ifndef STANDALONE
+		setColormap(display, window, bp->cmap, MI_IS_INWINDOW(mi));
+#endif
 		if (bp->backGC == None) {
 			XGCValues   xgcv;
 
@@ -445,15 +453,15 @@ init_bat(ModeInfo * mi)
 	free_stuff(MI_DISPLAY(mi), bp);
 #endif
 
-	bp->width = MI_WIN_WIDTH(mi);
-	bp->height = MI_WIN_HEIGHT(mi);
+	bp->width = MI_WIDTH(mi);
+	bp->height = MI_HEIGHT(mi);
 	if (bp->width < 2)
 		bp->width = 2;
 	if (bp->height < 2)
 		bp->height = 2;
 	bp->restartnum = TIME;
 
-	bp->nbats = MI_BATCHCOUNT(mi);
+	bp->nbats = MI_COUNT(mi);
 	if (bp->nbats < -MINBATS) {
 		/* if bp->nbats is random ... the size can change */
 		if (bp->bats != NULL) {
@@ -524,6 +532,8 @@ draw_bat(ModeInfo * mi)
 	bouncestruct *bp = &bounces[MI_SCREEN(mi)];
 	int         i;
 
+	MI_IS_DRAWN(mi) = True;
+
 	for (i = 0; i < bp->nbats; i++) {
 		drawabat(mi, &bp->bats[i]);
 		movebat(bp, &bp->bats[i]);
@@ -560,5 +570,7 @@ release_bat(ModeInfo * mi)
 void
 refresh_bat(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	bouncestruct *bp = &bounces[MI_SCREEN(mi)];
+
+	MI_CLEARWINDOWCOLORMAP(mi, bp->backGC, bp->black);
 }

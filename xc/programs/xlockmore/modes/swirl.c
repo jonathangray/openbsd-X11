@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)swirl.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 13-May-97: jwz@netscape.com: turned into a standalone program.
+ * 13-May-97: jwz@jwz.org: turned into a standalone program.
  * 21-Apr-95: improved startup time for TrueColour displays
  *            (limited to 16bpp to save memory) S.Early <sde1000@cam.ac.uk>
  * 09-Jan-95: fixed colour maps (more colourful) and the image now spirals
@@ -46,6 +46,8 @@ static const char sccsid[] = "@(#)swirl.c	4.07 97/11/24 xlockmore";
 #include <X11/Xutil.h>
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
+#include "vis.h"
+#include "color.h"
 #endif /* !STANDALONE */
 
 ModeSpecOpt swirl_opts =
@@ -940,7 +942,8 @@ create_knots(SWIRL_P swirl)
 static unsigned long
 do_point(SWIRL_P swirl, int i, int j)
 {
-	int         tT, k, value, add;
+	int         tT, k, add, value;
+	unsigned long colour_value;
 	double      dx, dy, theta, dist;
 	int         dcolours, qcolours;
 	double      rads;
@@ -1031,32 +1034,32 @@ do_point(SWIRL_P swirl, int i, int j)
 
 	/* make sure we handle -ve values properly */
 	if (value >= 0)
-		value = (value % dcolours) + 2;
+		colour_value = (value % dcolours) + 2;
 	else
-		value = dcolours - (abs(value) % (dcolours - 1));
+		colour_value = dcolours - (abs((int) value) % (dcolours - 1));
 
 #ifndef STANDALONE
 	/* if bg and fg are 0 and 1 we should be OK, but just in case */
 	while ((dcolours > 2) &&
-	       (((value % swirl->colours) == (int) swirl->black) ||
-		((value % swirl->colours) == (int) swirl->white) ||
-		((value % swirl->colours) == (int) swirl->bg) ||
-		((value % swirl->colours) == (int) swirl->fg))) {
-		value++;
+	       (((colour_value % swirl->colours) == swirl->black) ||
+		((colour_value % swirl->colours) == swirl->white) ||
+		((colour_value % swirl->colours) == swirl->bg) ||
+		((colour_value % swirl->colours) == swirl->fg))) {
+		colour_value++;
 	}
 #endif /* !STANDALONE */
 
 	/* definitely make sure it is in range */
-	value = value % swirl->colours;
+	colour_value = colour_value % swirl->colours;
 
 	/* lookup the pixel value if necessary */
 #ifndef STANDALONE
 	if (swirl->fixed_colourmap && swirl->dcolours > 2)
 #endif
-		value = swirl->rgb_values[value].pixel;
+		colour_value = swirl->rgb_values[colour_value].pixel;
 
 	/* return it */
-	return ((unsigned long) value);
+	return colour_value;
 }
 
 /****************************************************************/
@@ -1259,8 +1262,8 @@ init_swirl(ModeInfo * mi)
 
 	/* get window parameters */
 	swirl->win = window;
-	swirl->width = MI_WIN_WIDTH(mi);
-	swirl->height = MI_WIN_HEIGHT(mi);
+	swirl->width = MI_WIDTH(mi);
+	swirl->height = MI_HEIGHT(mi);
 	swirl->depth = MI_DEPTH(mi);
 	swirl->rdepth = swirl->depth;
 	swirl->visual = MI_VISUAL(mi);
@@ -1290,7 +1293,7 @@ init_swirl(ModeInfo * mi)
 	/* attach the colour map to the window (if we have one) */
 	if (!swirl->fixed_colourmap) {
 #if 1
-		setColormap(display, window, swirl->cmap, MI_WIN_IS_INWINDOW(mi));
+		setColormap(display, window, swirl->cmap, MI_IS_INWINDOW(mi));
 #else
 		XSetWindowColormap(display, window, swirl->cmap);
 		XSetWMColormapWindows(display, window, &window, 1);
@@ -1306,8 +1309,8 @@ init_swirl(ModeInfo * mi)
 	swirl->r = (1 << (swirl->resolution - 1));
 
 	/* how many knots? */
-	swirl->n_knots = random_no((unsigned int) MI_BATCHCOUNT(mi) / 2) +
-		MI_BATCHCOUNT(mi) + 1;
+	swirl->n_knots = random_no((unsigned int) MI_COUNT(mi) / 2) +
+		MI_COUNT(mi) + 1;
 
 	/* what type of knots? */
 	swirl->knot_type = ALL;	/* for now */
@@ -1340,6 +1343,8 @@ void
 draw_swirl(ModeInfo * mi)
 {
 	SWIRL_P     swirl = &(swirls[MI_SCREEN(mi)]);
+
+	MI_IS_DRAWN(mi) = True;
 
 	/* are we going? */
 	if (swirl->started) {
@@ -1413,7 +1418,7 @@ draw_swirl(ModeInfo * mi)
 							     MI_VISUAL(mi),
 							     MI_COLORMAP(mi),
 					      mi->colors, &mi->npixels, True,
-						      &mi->writable_p, True);
+							     &mi->writable_p);
 					swirl->colours = mi->npixels;
 #endif /* STANDALONE */
 
@@ -1463,6 +1468,7 @@ refresh_swirl(ModeInfo * mi)
 	SWIRL_P     swirl = &(swirls[MI_SCREEN(mi)]);
 
 	if (swirl->started) {
+		MI_CLEARWINDOW(mi);
 		if (swirl->drawing)
 			swirl->resolution = swirl->resolution + 1;
 		swirl->drawing = False;

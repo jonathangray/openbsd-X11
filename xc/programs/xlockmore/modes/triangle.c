@@ -53,7 +53,11 @@ static const char sccsid[] = "@(#)triangle.c	4.07 97/11/24 xlockmore";
 #define HACK_DRAW draw_triangle
 #define triangle_opts xlockmore_opts
 #define DEFAULTS "*delay: 10000 \n" \
- "*ncolors: 64 \n"
+ "*ncolors: 128 \n " \
+ "*wireframe: False \n" \
+ "*fullrandom: False \n"
+#define SMOOTH_COLORS
+							  /* #define UNIFORM_COLORS *//* To get blue water uncomment, but ... */
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -103,6 +107,8 @@ typedef struct {
 	short       H[(MAX_SIZE + 1) * (MAX_SIZE + 2) / 2];
 	short      *h[MAX_SIZE + 1];
 	short       delta[MAX_STEPS];
+	Bool        wireframe;
+	Bool        joke;
 } trianglestruct;
 
 static trianglestruct *triangles = NULL;
@@ -114,6 +120,7 @@ draw_atriangle(ModeInfo * mi, XPoint * p, int y_0, int y_1, int y_2, double dinv
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
 	GC          gc = MI_GC(mi);
+	trianglestruct *tp = &triangles[MI_SCREEN(mi)];
 
 	if (MI_NPIXELS(mi) > 2) {	/* color */
 		int         dmax, dmin;
@@ -132,7 +139,16 @@ draw_atriangle(ModeInfo * mi, XPoint * p, int y_0, int y_1, int y_2, double dinv
 		}
 
 		XSetForeground(display, gc, MI_PIXEL(mi, color % MI_NPIXELS(mi)));
-		XFillPolygon(display, window, gc, p, 3, Convex, CoordModeOrigin);
+		if (tp->joke) {
+			if ((Bool) (LRAND() & 1))
+				XDrawLines(display, window, gc, p, 4, CoordModeOrigin);
+			else
+				XFillPolygon(display, window, gc, p, 3, Convex, CoordModeOrigin);
+		} else if (tp->wireframe) {
+			XDrawLines(display, window, gc, p, 4, CoordModeOrigin);
+		} else {
+			XFillPolygon(display, window, gc, p, 3, Convex, CoordModeOrigin);
+		}
 	} else {
 		/* mono */
 #ifdef BACKFACE_REMOVAL
@@ -140,9 +156,7 @@ draw_atriangle(ModeInfo * mi, XPoint * p, int y_0, int y_1, int y_2, double dinv
 		XFillPolygon(display, window, gc, p, 3, Convex, CoordModeOrigin);
 #endif
 		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
-		XDrawLine(display, window, gc, p[0].x, p[0].y, p[1].x, p[1].y);
-		XDrawLine(display, window, gc, p[1].x, p[1].y, p[2].x, p[2].y);
-		XDrawLine(display, window, gc, p[2].x, p[2].y, p[0].x, p[0].y);
+		XDrawLines(display, window, gc, p, 4, CoordModeOrigin);
 	}
 }
 
@@ -161,6 +175,8 @@ calc_points1(trianglestruct * tp, int d, int *y0_p, int *y1_p, int *y2_p, XPoint
 	p[0].y = tp->ypos[tp->j] - *y0_p;
 	p[1].y = tp->ypos[tp->j] - *y1_p;
 	p[2].y = tp->ypos[tp->j + d] - *y2_p;
+
+	p[3] = p[0];
 }
 
 static
@@ -178,6 +194,8 @@ calc_points2(trianglestruct * tp, int d, int *y0_p, int *y1_p, int *y2_p, XPoint
 	p[0].y = tp->ypos[tp->j] - *y0_p;
 	p[1].y = tp->ypos[tp->j + d] - *y1_p;
 	p[2].y = tp->ypos[tp->j + d] - *y2_p;
+
+	p[3] = p[0];
 }
 
 
@@ -185,7 +203,7 @@ static
 void
 draw_mesh(ModeInfo * mi, trianglestruct * tp, int d, int count)
 {
-	XPoint      p[3];
+	XPoint      p[4];
 	int         first = 1;
 	int         y_0, y_1, y_2;
 	double      dinv = 0.2 / d;
@@ -227,10 +245,15 @@ init_triangle(ModeInfo * mi)
 	}
 	tp = &triangles[MI_SCREEN(mi)];
 
-	tp->width = MI_WIN_WIDTH(mi);
-	tp->height = MI_WIN_HEIGHT(mi);
+	tp->width = MI_WIDTH(mi);
+	tp->height = MI_HEIGHT(mi);
 	tp->busyLoop = -1;
 	tp->fast = 2;
+	if (MI_IS_FULLRANDOM(mi)) {
+		tp->joke = (Bool) (NRAND(10) == 0);
+		tp->wireframe = (Bool) (LRAND() & 1);
+	} else
+		tp->wireframe = MI_IS_WIREFRAME(mi);
 
 	MI_CLEARWINDOW(mi);
 
@@ -277,6 +300,8 @@ draw_triangle(ModeInfo * mi)
 	trianglestruct *tp = &triangles[MI_SCREEN(mi)];
 	int         d, d2, i, j, delta;
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (tp->busyLoop > 0) {
 		if (tp->busyLoop >= 100)
 			tp->busyLoop = -1;
@@ -316,7 +341,10 @@ draw_triangle(ModeInfo * mi)
 		}
 	}
 	if (tp->stage == tp->steps) {
-		tp->stage = -1;
+#ifdef STANDALONE
+		erase_full_window(MI_DISPLAY(mi), MI_WINDOW(mi));
+#endif
+		init_triangle(mi);
 	}
 }
 
@@ -332,5 +360,5 @@ release_triangle(ModeInfo * mi)
 void
 refresh_triangle(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

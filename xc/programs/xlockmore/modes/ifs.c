@@ -25,7 +25,7 @@ static const char sccsid[] = "@(#)ifs.c	4.07 97/11/24 xlockmore";
  * There is a free SuSE-enhanced MetroX X server that is fine.
  *
  * Revision History:
- * 10-May-97: jwz@netscape.com: turned into a standalone program.
+ * 10-May-97: jwz@jwz.org: turned into a standalone program.
  *            Made it render into an offscreen bitmap and then copy
  *            that onto the screen, to reduce flicker.
  */
@@ -107,7 +107,6 @@ static XPoint *Buf;
 static int  Cur_Pt;
 
 
-/*****************************************************/
 /*****************************************************/
 
 static      DBL
@@ -225,8 +224,8 @@ init_ifs(ModeInfo * mi)
 		return;
 	}
 	Fractal->Speed = 6;
-	Fractal->Width = MI_WIN_WIDTH(mi);
-	Fractal->Height = MI_WIN_HEIGHT(mi);
+	Fractal->Width = MI_WIDTH(mi);
+	Fractal->Height = MI_HEIGHT(mi);
 	Fractal->Cur_Pt = 0;
 	Fractal->Count = 0;
 	Fractal->Lx = (Fractal->Width - 1) / 2;
@@ -267,6 +266,11 @@ init_ifs(ModeInfo * mi)
 
 /***************************************************************/
 
+/* Should be taken care of already... but just in case */
+#if !defined( __GNUC__ ) && !defined(__cplusplus) && !defined(c_plusplus)
+#undef inline
+#define inline			/* */
+#endif
 static inline void
 Transform(SIMI * Simi, F_PT xo, F_PT yo, F_PT * x, F_PT * y)
 {
@@ -415,6 +419,8 @@ draw_ifs(ModeInfo * mi)
 		S->A = u0 * S1->A + u1 * S2->A + u2 * S3->A + u3 * S4->A;
 		S->A2 = u0 * S1->A2 + u1 * S2->A2 + u2 * S3->A2 + u3 * S4->A2;
 	}
+
+	MI_IS_DRAWN(mi) = True;
 
 	Draw_Fractal(mi);
 

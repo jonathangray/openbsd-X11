@@ -21,7 +21,7 @@ static const char sccsid[] = "@(#)slip.c	4.07 97/11/24 xlockmore";
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
- * 10-May-97: Jamie Zawinski <jwz@netscape.com> compatible with xscreensaver
+ * 10-May-97: Jamie Zawinski <jwz@jwz.org> compatible with xscreensaver
  * 01-Dec-95: Patched for VMS <joukj@crys.chem.uva.nl>
  */
 
@@ -72,7 +72,7 @@ halfrandom(int mv)
 		lasthalf = 0;
 	} else {
 		r = LRAND();
-		lasthalf = r >> 16;
+		lasthalf = (short) (r >> 16);
 	}
 	return r % mv;
 }
@@ -88,7 +88,7 @@ erandom(int mv)
 		r = LRAND();
 		stage = 7;
 	}
-	res = r & 0xf;
+	res = (int) (r & 0xf);
 	r = r >> 4;
 	stage--;
 	if (res & 8)
@@ -107,17 +107,24 @@ prepare_screen(ModeInfo * mi, slipstruct * s)
 	int         not_solid = halfrandom(10);
 
 #ifdef STANDALONE		/* jwz -- sometimes hack the desktop image! */
-	if (halfrandom(5) == 0) {
-		Pixmap      p = grab_screen_image(display, MI_WINDOW(mi));
+	if (halfrandom(2) == 0) {
+#if 0
+		Pixmap      p =
+#endif
+		grab_screen_image(DefaultScreenOfDisplay(display),
+				  MI_WINDOW(mi));
 
+#if 0
 		if (p)
 			XFreePixmap(display, p);
 		return;
+#endif
 	}
 #endif
-	s->backwards = LRAND() & 1;	/* jwz: go the other way sometimes */
 
-	if (s->first_time || !halfrandom(5)) {
+	s->backwards = (int) (LRAND() & 1);	/* jwz: go the other way sometimes */
+
+	if (s->first_time || !halfrandom(10)) {
 		MI_CLEARWINDOW(mi);
 		n = 300;
 	} else {
@@ -137,6 +144,8 @@ prepare_screen(ModeInfo * mi, slipstruct * s)
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 
 	for (i = 0; i < n; i++) {
+		int         ww = ((w / 2) + halfrandom(w));
+
 		if (not_solid) {
 			if (MI_NPIXELS(mi) > 2)
 				XSetForeground(display, gc, MI_PIXEL(mi, halfrandom(MI_NPIXELS(mi))));
@@ -146,9 +155,9 @@ prepare_screen(ModeInfo * mi, slipstruct * s)
 				XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 		}
 		XFillRectangle(display, MI_WINDOW(mi), gc,
-			       halfrandom(s->width - w),
-			       halfrandom(s->height - w),
-			       w, w);
+			       halfrandom(s->width - ww),
+			       halfrandom(s->height - ww),
+			       ww, ww);
 	}
 	s->first_time = 0;
 }
@@ -176,8 +185,8 @@ init_slip(ModeInfo * mi)
 	}
 	sp = &slips[MI_SCREEN(mi)];
 
-	sp->width = MI_WIN_WIDTH(mi);
-	sp->height = MI_WIN_HEIGHT(mi);
+	sp->width = MI_WIDTH(mi);
+	sp->height = MI_HEIGHT(mi);
 
 	sp->blit_width = sp->width / 25;
 	sp->blit_height = sp->height / 25;
@@ -198,7 +207,9 @@ draw_slip(ModeInfo * mi)
 	slipstruct *s = &slips[MI_SCREEN(mi)];
 	int         timer;
 
-	timer = MI_BATCHCOUNT(mi) * MI_CYCLES(mi);
+	timer = MI_COUNT(mi) * MI_CYCLES(mi);
+
+	MI_IS_DRAWN(mi) = True;
 
 	while (timer--) {
 		int         xi = halfrandom(s->width - s->blit_width);
@@ -210,7 +221,7 @@ draw_slip(ModeInfo * mi)
 			{0, 0, 0, 1, 1, 1, 2};
 
 			prepare_screen(mi, s);
-			s->nblits_remaining = MI_BATCHCOUNT(mi) *
+			s->nblits_remaining = MI_COUNT(mi) *
 				(2000 + halfrandom(1000) + halfrandom(1000));
 			if (s->mode == 2)
 				s->mode = halfrandom(2);
@@ -222,7 +233,7 @@ draw_slip(ModeInfo * mi)
 
 		/* (x,y) is in biunit square */
 		switch (s->mode) {
-			case 0:
+			case 0:	/* rotor */
 				dx = x;
 				dy = y;
 
@@ -247,11 +258,11 @@ draw_slip(ModeInfo * mi)
 					dy = -dy;
 				}
 				break;
-			case 1:
+			case 1:	/* shuffle */
 				dx = erandom(3);
 				dy = erandom(3);
 				break;
-			case 2:
+			case 2:	/* explode */
 				dx = x * 3;
 				dy = y * 3;
 				break;

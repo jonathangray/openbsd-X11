@@ -75,7 +75,7 @@ static const char sccsid[] = "@(#)morph3d.c	4.07 97/11/24 xlockmore";
 #include "xlockmore.h"		/* from the xscreensaver distribution */
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
-
+#include "vis.h"
 #endif /* !STANDALONE */
 
 #ifdef USE_GL
@@ -769,7 +769,7 @@ pinit(ModeInfo * mi)
 			mp->Magnitude = 2.5;
 			break;
 	}
-	if (MI_WIN_IS_MONO(mi)) {
+	if (MI_IS_MONO(mi)) {
 		int         loop;
 
 		for (loop = 0; loop < 20; loop++)
@@ -794,8 +794,8 @@ init_morph3d(ModeInfo * mi)
 
 	if ((mp->glx_context = init_GL(mi)) != NULL) {
 
-		reshape(mi, MI_WIN_WIDTH(mi), MI_WIN_HEIGHT(mi));
-		mp->object = MI_BATCHCOUNT(mi);
+		reshape(mi, MI_WIDTH(mi), MI_HEIGHT(mi));
+		mp->object = MI_COUNT(mi);
 		if (mp->object <= 0 || mp->object > 5)
 			mp->object = NRAND(5) + 1;
 		pinit(mi);
@@ -812,6 +812,8 @@ draw_morph3d(ModeInfo * mi)
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (!mp->glx_context)
 		return;
 
@@ -824,7 +826,7 @@ draw_morph3d(ModeInfo * mi)
 
 	glTranslatef(0.0, 0.0, -10.0);
 
-	if (!MI_WIN_IS_ICONIC(mi)) {
+	if (!MI_IS_ICONIC(mi)) {
 		glScalef(Scale4Window * mp->WindH / mp->WindW, Scale4Window, Scale4Window);
 		glTranslatef(2.5 * mp->WindW / mp->WindH * sin(mp->step * 1.11), 2.5 * cos(mp->step * 1.25 * 1.11), 0);
 	} else {

@@ -41,7 +41,8 @@ static const char sccsid[] = "@(#)flame.c	4.07 97/11/24 xlockmore";
  "*count: 20 \n" \
  "*cycles: 10000 \n" \
  "*ncolors: 200 \n"
-#define SPREAD_COLORS
+#define UNIFORM_COLORS
+#define BRIGHT_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -78,22 +79,22 @@ typedef struct {
 	int         cycles;
 	int         alt;
 	XPoint      pts[MAXBATCH];
+	short       lasthalf;
 } flamestruct;
 
 static flamestruct *flames = NULL;
 
 static short
-halfrandom(int mv)
+halfrandom(flamestruct * fp, int mv)
 {
-	static short lasthalf = 0;
 	unsigned long r;
 
-	if (lasthalf) {
-		r = lasthalf;
-		lasthalf = 0;
+	if (fp->lasthalf) {
+		r = fp->lasthalf;
+		fp->lasthalf = 0;
 	} else {
 		r = LRAND();
-		lasthalf = r >> 16;
+		fp->lasthalf = (short) (r >> 16);
 	}
 	return r % mv;
 }
@@ -266,16 +267,16 @@ init_flame(ModeInfo * mi)
 	}
 	fp = &flames[MI_SCREEN(mi)];
 
-	fp->width = MI_WIN_WIDTH(mi);
-	fp->height = MI_WIN_HEIGHT(mi);
+	fp->width = MI_WIDTH(mi);
+	fp->height = MI_HEIGHT(mi);
 
-	fp->max_levels = MI_BATCHCOUNT(mi);
+	fp->max_levels = MI_COUNT(mi);
 	fp->cycles = MI_CYCLES(mi);
 
 	MI_CLEARWINDOW(mi);
 
 	if (MI_NPIXELS(mi) > 2) {
-		fp->pixcol = halfrandom(MI_NPIXELS(mi));
+		fp->pixcol = halfrandom(fp, MI_NPIXELS(mi));
 		XSetForeground(display, gc, MI_PIXEL(mi, fp->pixcol));
 	} else {
 		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
@@ -303,6 +304,8 @@ draw_flame(ModeInfo * mi)
 		}
 	}
 
+	MI_IS_DRAWN(mi) = True;
+
 	/* number of functions */
 	fp->snum = 2 + (fp->cur_level % (MAXLEV - 1));
 
@@ -310,7 +313,7 @@ draw_flame(ModeInfo * mi)
 	if (fp->alt)
 		fp->anum = 0;
 	else
-		fp->anum = halfrandom(fp->snum) + 2;
+		fp->anum = halfrandom(fp, fp->snum) + 2;
 
 	/* 6 coefs per function */
 	for (k = 0; k < fp->snum; k++) {

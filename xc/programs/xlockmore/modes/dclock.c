@@ -5,7 +5,6 @@
 static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
 
 #endif
-
 /*-
  * Copyright (C) 1995 by Michael Stembera <mrbig@fc.net>.
  *
@@ -22,8 +21,42 @@ static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
+ * 10-Aug-98: Population Explosion and Tropical Forest Countdown stuff
+ *            I tried to get precise numbers but they may be off a few percent.
+ *            Whether or not, its still pretty scary IMHO. 
+ *            Although I am a US citizen... I have the default for area in
+ *            metric.  David Bagley <bagleyd@bigfoot.com>
  * 10-May-97: Compatible with xscreensaver
  * 29-Aug-95: Written.
+ */
+
+/*-
+ *  Some of my calcualations laid bare...  (I have a little problem with
+ *  the consistency of the numbers I got at the Bronx Zoo but proportions
+ *  were figured to be 160.70344 people a minute increase not 180 and
+ *  35.303144 hectares (87.198766 acres) a minute decrease not 247 (100 acres).
+ *  So I am going *  with these more conservative numbers.)
+ *
+ *  Time 0 is 0:00:00 1 Jan 1970 at least according to hard core UNIX fans
+ *  Minutes from 1  Jan 1970 to 21 Jun 1985:  8137440
+ *  Minutes from 21 Jun 1985 to 12 Jul 1988:  6867360
+ *                                    Total: 15004800
+ *
+ *  Population Explosion Saver
+ *  3,535,369,000 people (figured by extrapolation) 1 Jan 1970
+ *  4,843,083,596 people 21 Jun 1985 (Opening of Wild Asia in the Bronx Zoo)
+ *  5,946,692,000 people 12 Jul 1998 (David Bagley visits zoo ;) )
+ *  180 people a minute increase in global population (I heard 170 also)
+ *  260,000 people a day increase in global population
+ *
+ *  Tropical Forest Countdown Saver
+ *  1,184,193,000 hectares (figured by extrapolation) 1 Jan 1970
+ *    (2,924,959,000 acres)
+ *  896,916,700 hectares 21 Jun 1985 (Opening of Wild Asia in the Bronx Zoo)
+ *    (2,215,384,320 acres)
+ *  654,477,300 hectares 12 Jul 1998 (David Bagley visits zoo ;) )
+ *    (1,616,559,000 acres)
+ *  247 hectares a minute lost forever (1 hectare = 2.47 acres)
  */
 
 #ifdef STANDALONE
@@ -34,26 +67,87 @@ static const char sccsid[] = "@(#)dclock.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 10000 \n" \
  "*cycles: 10000 \n" \
  "*ncolors: 64 \n"
+#define BRIGHT_COLORS
 #define UNIFORM_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
+#include "mode.h"
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
-
+#include "util.h"
 #endif /* STANDALONE */
+#include "iostuff.h"
+
+#ifndef METRIC
+#define METRIC 1
+#endif
+#if METRIC
+#define AREA_STRING "Hectares"
+#define AREA_MIN 35.303144
+#define AREA_TIME_START 1184193000.0
+#else
+#define AREA_STRING "Acres"
+#define AREA_MIN 87.198766
+#define AREA_TIME_START 2924959000.0
+#endif
+#define PEOPLE_MIN 160.70344
+#define PEOPLE_TIME_START 3535369000.0
+
+#define DEF_POPEX  "False"
+#define DEF_FOREST  "False"
+
+static Bool popex;
+static Bool forest;
+
+static XrmOptionDescRec opts[] =
+{
+	{"-popex", ".dclock.popex", XrmoptionNoArg, (caddr_t) "on"},
+	{"+popex", ".dclock.popex", XrmoptionNoArg, (caddr_t) "off"},
+	{"-forest", ".dclock.forest", XrmoptionNoArg, (caddr_t) "on"},
+	{"+forest", ".dclock.forest", XrmoptionNoArg, (caddr_t) "off"}
+};
+static argtype vars[] =
+{
+	{(caddr_t *) & popex, "popex", "PopEx", DEF_POPEX, t_Bool},
+	{(caddr_t *) & forest, "forest", "Forest", DEF_FOREST, t_Bool}
+};
+static OptionStruct desc[] =
+{
+	{"-/+popex", "turn on/off population explosion"},
+	{"-/+forest", "turn on/off tropical forest descruction"}
+};
 
 ModeSpecOpt dclock_opts =
-{0, NULL, 0, NULL, NULL};
+{sizeof opts / sizeof opts[0], opts, sizeof vars / sizeof vars[0], vars, desc};
 
 #ifdef USE_MODULES
 ModStruct   dclock_description =
 {"dclock", "init_dclock", "draw_dclock", "release_dclock",
  "refresh_dclock", "init_dclock", NULL, &dclock_opts,
- 10000, 1, 10000, 1, 0.2, 64, "",
+ 10000, 1, 10000, 1, 0.3, 64, "",
  "Shows a floating digital clock", 0, NULL};
 
 #endif
 
 #include <time.h>
+
+#ifdef FR
+#define POPEX_STRING "Population Mondiale"
+#define PEOPLE_STRING " Personnes"
+#define FOREST_STRING "Nombre des Forets Tropicales"
+#define TROPICAL_STRING " Zones Tropicales en "
+#else
+#ifdef NL
+#define POPEX_STRING "Wereld populatie"
+#define PEOPLE_STRING " Mensen"
+#define FOREST_STRING "Aantal tropische wouden"
+#define TROPICAL_STRING " Tropisch gebied in "
+#else
+#define POPEX_STRING "World Population"
+#define PEOPLE_STRING " People"
+#define FOREST_STRING "Tropical Forest Countdown"
+#define TROPICAL_STRING " Tropical Forest in "
+#endif
+#endif
 
 #define font_height(f) (f->ascent + f->descent)
 
@@ -62,22 +156,50 @@ extern XFontStruct *getFont(Display * display);
 typedef struct {
 	int         color;
 	short       height, width;
-	char       *str, str1[20], str2[20], str1old[40], str2old[40];
+	char       *str, str1[40], str2[40], str1old[80], str2old[80];
 	char       *str1pta, *str2pta, *str1ptb, *str2ptb;
 	time_t      timenew, timeold;
 	short       maxx, maxy, clockx, clocky;
-	short       text_height, text_width, cent_offset;
+	short       text_height, text_width, text_width1, text_width2;
+	short       text_start1, text_start2;
 	short       hour;
 	short       dx, dy;
 	int         done;
 	int         pixw, pixh;
 	Pixmap      pixmap;
 	GC          fgGC, bgGC;
+	Bool        popex, forest;
 } dclockstruct;
 
 static dclockstruct *dclocks = NULL;
 
 static XFontStruct *mode_font = None;
+
+#define BASE 10.0
+#define GROUP 3
+static double logbase;
+
+static void
+convert(double x, char *string)
+{
+	int         i, j, k = 0;
+	int         place = (int) (log(x) / logbase);
+	double      divisor = 1.0;
+
+	for (i = 0; i < place; i++)
+		divisor *= BASE;
+
+	for (i = place; i >= 0; i--) {
+		j = (int) (x / divisor);
+		string[k++] = (char) j + '0';
+		x -= j * divisor;
+		divisor /= BASE;
+		if ((i > 0) && (i % GROUP == 0)) {
+			string[k++] = ',';
+		}
+	}
+	string[k++] = '\0';
+}
 
 static void
 drawDclock(ModeInfo * mi)
@@ -94,15 +216,15 @@ drawDclock(ModeInfo * mi)
 	dp->clockx += dp->dx;
 	dp->clocky += dp->dy;
 
-	if (dp->maxx < dp->cent_offset) {
-		if (dp->clockx < dp->maxx + dp->cent_offset ||
-		    dp->clockx > dp->cent_offset) {
+	if (dp->maxx < dp->text_start1) {
+		if (dp->clockx < dp->maxx + dp->text_start1 ||
+		    dp->clockx > dp->text_start1) {
 			dp->dx = -dp->dx;
 			dp->clockx += dp->dx;
 		}
-	} else if (dp->maxx > dp->cent_offset) {
-		if (dp->clockx > dp->maxx + dp->cent_offset ||
-		    dp->clockx < dp->cent_offset) {
+	} else if (dp->maxx > dp->text_start1) {
+		if (dp->clockx > dp->maxx + dp->text_start1 ||
+		    dp->clockx < dp->text_start1) {
 			dp->dx = -dp->dx;
 			dp->clockx += dp->dx;
 		}
@@ -118,40 +240,59 @@ drawDclock(ModeInfo * mi)
 			dp->clocky += dp->dy;
 		}
 	}
-	if (dp->timeold != (dp->timenew = time((time_t *) NULL))) {
-		/* only parse if time has changed */
-		dp->timeold = dp->timenew;
-		dp->str = ctime(&dp->timeold);
+	if (!dp->popex && !dp->forest) {
+		if (dp->timeold != (dp->timenew = time((time_t *) NULL))) {
+			/* only parse if time has changed */
+			dp->timeold = dp->timenew;
+			dp->str = ctime(&dp->timeold);
 
-		/* keep last disp time so it can be cleared even if it changed */
-		tmppt = dp->str1ptb;
-		dp->str1ptb = dp->str1pta;
-		dp->str1pta = tmppt;
-		tmppt = dp->str2ptb;
-		dp->str2ptb = dp->str2pta;
-		dp->str2pta = tmppt;
+			if (!dp->popex && !dp->forest) {
 
-		/* copy the hours portion for 24 to 12 hr conversion */
-		(void) strncpy(dp->str1pta, (dp->str + 11), 8);
-		dp->hour = (short) (dp->str1pta[0] - 48) * 10 +
-			(short) (dp->str1pta[1] - 48);
-		if (dp->hour > 12) {
-			dp->hour -= 12;
-			(void) strcpy(dp->str1pta + 8, " PM");
-		} else {
-			if (dp->hour == 0)
-				dp->hour += 12;
-			(void) strcpy(dp->str1pta + 8, " AM");
+				/* keep last disp time so it can be cleared even if it changed */
+				tmppt = dp->str1ptb;
+				dp->str1ptb = dp->str1pta;
+				dp->str1pta = tmppt;
+
+				/* copy the hours portion for 24 to 12 hr conversion */
+				(void) strncpy(dp->str1pta, (dp->str + 11), 8);
+				dp->hour = (short) (dp->str1pta[0] - 48) * 10 +
+					(short) (dp->str1pta[1] - 48);
+				if (dp->hour > 12) {
+					dp->hour -= 12;
+					(void) strcpy(dp->str1pta + 8, " PM");
+				} else {
+					if (dp->hour == 0)
+						dp->hour += 12;
+					(void) strcpy(dp->str1pta + 8, " AM");
+				}
+				dp->str1pta[0] = (dp->hour / 10) + 48;
+				dp->str1pta[1] = (dp->hour % 10) + 48;
+				if (dp->str1pta[0] == '0')
+					dp->str1pta[0] = ' ';
+				/* keep last disp time so it can be cleared even if it changed */
+			}
+			tmppt = dp->str2ptb;
+			dp->str2ptb = dp->str2pta;
+			dp->str2pta = tmppt;
+
+			/* copy day month */
+			(void) strncpy(dp->str2pta, dp->str, 11);
+			/* copy year */
+			(void) strncpy(dp->str2pta + 11, (dp->str + 20), 4);
 		}
-		dp->str1pta[0] = (dp->hour / 10) + 48;
-		dp->str1pta[1] = (dp->hour % 10) + 48;
-		if (dp->str1pta[0] == '0')
-			dp->str1pta[0] = ' ';
-
-		/* copy day month */
-		(void) strncpy(dp->str2pta, dp->str, 11);
-		/* copy year */
-		(void) strncpy(dp->str2pta + 11, (dp->str + 20), 4);
+	} else {
+		if (dp->popex) {
+			convert(PEOPLE_TIME_START + (PEOPLE_MIN / 60.0) * seconds(), dp->str2);
+			(void) strcat(dp->str2, PEOPLE_STRING);
+			dp->str2pta = dp->str2;
+			dp->str2ptb = dp->str2pta;
+		} else if (dp->forest) {
+			convert(AREA_TIME_START - (AREA_MIN / 60.0) * seconds(), dp->str2);
+			(void) strcat(dp->str2, TROPICAL_STRING);
+			(void) strcat(dp->str2, AREA_STRING);
+			dp->str2pta = dp->str2;
+			dp->str2ptb = dp->str2pta;
+		}
 	}
 	if (dp->pixw != dp->text_width || dp->pixh != 2 * dp->text_height) {
 		XGCValues   gcv;
@@ -180,10 +321,10 @@ drawDclock(ModeInfo * mi)
 	XFillRectangle(display, dp->pixmap, dp->bgGC, 0, 0, dp->pixw, dp->pixh);
 
 	(void) XDrawString(display, dp->pixmap, dp->fgGC,
-			   dp->cent_offset, mode_font->ascent,
+			   dp->text_start1, mode_font->ascent,
 			   dp->str1pta, strlen(dp->str1pta));
 	(void) XDrawString(display, dp->pixmap, dp->fgGC,
-			   0, mode_font->ascent + dp->text_height,
+			dp->text_start2, mode_font->ascent + dp->text_height,
 			   dp->str2pta, strlen(dp->str2pta));
 	XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 	/* This could leave screen dust on the screen if the width changes
@@ -191,8 +332,8 @@ drawDclock(ModeInfo * mi)
 	   ... this is solved by the ClearWindow above
 	 */
 	ERASE_IMAGE(display, window, gc,
-	    (dp->clockx - dp->cent_offset), (dp->clocky - mode_font->ascent),
-		    (xold - dp->cent_offset), (yold - mode_font->ascent),
+	    (dp->clockx - dp->text_start1), (dp->clocky - mode_font->ascent),
+		    (xold - dp->text_start1), (yold - mode_font->ascent),
 		    dp->pixw, dp->pixh);
 	if (MI_NPIXELS(mi) > 2)
 		XSetForeground(display, gc, MI_PIXEL(mi, dp->color));
@@ -200,7 +341,7 @@ drawDclock(ModeInfo * mi)
 		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
 	XCopyPlane(display, dp->pixmap, window, gc,
 		   0, 0, dp->text_width, 2 * dp->text_height,
-		dp->clockx - dp->cent_offset, dp->clocky - mode_font->ascent,
+		dp->clockx - dp->text_start1, dp->clocky - mode_font->ascent,
 		   1L);
 }
 
@@ -211,16 +352,27 @@ init_dclock(ModeInfo * mi)
 	dclockstruct *dp;
 
 	if (dclocks == NULL) {
+		logbase = log(BASE);
 		if ((dclocks = (dclockstruct *) calloc(MI_NUM_SCREENS(mi),
 					     sizeof (dclockstruct))) == NULL)
 			return;
 	}
 	dp = &dclocks[MI_SCREEN(mi)];
 
-	dp->width = MI_WIN_WIDTH(mi);
-	dp->height = MI_WIN_HEIGHT(mi);
+	dp->width = MI_WIDTH(mi);
+	dp->height = MI_HEIGHT(mi);
 
 	MI_CLEARWINDOW(mi);
+
+	if (MI_IS_FULLRANDOM(mi))
+		dp->popex = (Bool) (LRAND() & 1);
+	else
+		dp->popex = popex;
+
+	if (MI_IS_FULLRANDOM(mi))
+		dp->forest = (Bool) (LRAND() & 1);
+	else
+		dp->forest = forest;
 
 	if (mode_font == None)
 		mode_font = getFont(display);
@@ -235,51 +387,80 @@ init_dclock(ModeInfo * mi)
 	dp->dx = (LRAND() & 1) ? 1 : -1;
 	dp->dy = (LRAND() & 1) ? 1 : -1;
 
-	(void) strncpy(dp->str1, (dp->str + 11), 8);
-	dp->hour = (short) (dp->str1[0] - 48) * 10 + (short) (dp->str1[1] - 48);
-	if (dp->hour > 12) {
-		dp->hour -= 12;
-		(void) strcpy(dp->str1 + 8, " PM");
+	if (dp->popex) {
+		dp->str1pta = POPEX_STRING;
+		dp->str1ptb = dp->str1pta;
+	} else if (dp->forest) {
+		dp->str1pta = FOREST_STRING;
+		dp->str1ptb = dp->str1pta;
 	} else {
-		if (dp->hour == 0)
-			dp->hour += 12;
-		(void) strcpy(dp->str1 + 8, " AM");
-	}
-	dp->str1[0] = (dp->hour / 10) + 48;
-	dp->str1[1] = (dp->hour % 10) + 48;
-	if (dp->str1[0] == '0')
-		dp->str1[0] = ' ';
-	dp->str1[11] = 0;	/* terminate dp->str1 */
-	dp->str1old[11] = 0;	/* terminate dp->str1old */
+		(void) strncpy(dp->str1, (dp->str + 11), 8);
+		dp->hour = (short) (dp->str1[0] - 48) * 10 + (short) (dp->str1[1] - 48);
+		if (dp->hour > 12) {
+			dp->hour -= 12;
+			(void) strcpy(dp->str1 + 8, " PM");
+		} else {
+			if (dp->hour == 0)
+				dp->hour += 12;
+			(void) strcpy(dp->str1 + 8, " AM");
+		}
+		dp->str1[0] = (dp->hour / 10) + 48;
+		dp->str1[1] = (dp->hour % 10) + 48;
+		if (dp->str1[0] == '0')
+			dp->str1[0] = ' ';
+		dp->str1[11] = 0;	/* terminate dp->str1 */
+		dp->str1old[11] = 0;	/* terminate dp->str1old */
 
-	(void) strncpy(dp->str2, dp->str, 11);
-	(void) strncpy(dp->str2 + 11, (dp->str + 20), 4);
-	dp->str2[15] = 0;	/* terminate dp->str2 */
-	dp->str2old[15] = 0;	/* terminate dp->str2old */
+		(void) strncpy(dp->str2, dp->str, 11);
+		(void) strncpy(dp->str2 + 11, (dp->str + 20), 4);
+		dp->str2[15] = 0;	/* terminate dp->str2 */
+		dp->str2old[15] = 0;	/* terminate dp->str2old */
+
+		dp->str1pta = dp->str1;
+		dp->str1ptb = dp->str1old;
+	}
+	if (dp->popex) {
+		convert(PEOPLE_TIME_START + (PEOPLE_MIN / 60.0) * seconds(), dp->str2);
+		(void) strcat(dp->str2, PEOPLE_STRING);
+		dp->str2pta = dp->str2;
+		dp->str2ptb = dp->str2pta;
+	} else if (dp->forest) {
+		convert(AREA_TIME_START - (AREA_MIN / 60.0) * seconds(), dp->str2);
+		(void) strcat(dp->str2, TROPICAL_STRING);
+		(void) strcat(dp->str2, AREA_STRING);
+		dp->str2pta = dp->str2;
+		dp->str2ptb = dp->str2pta;
+	} else {
+		dp->str2pta = dp->str2;
+		dp->str2ptb = dp->str2old;
+	}
 
 	dp->text_height = font_height(mode_font);
-	dp->text_width = XTextWidth(mode_font, dp->str2, strlen(dp->str2));
-	dp->cent_offset = (dp->text_width -
-		      XTextWidth(mode_font, dp->str1, strlen(dp->str1))) / 2;
+	dp->text_width1 = XTextWidth(mode_font, dp->str1pta, strlen(dp->str1pta));
+	dp->text_width2 = XTextWidth(mode_font, dp->str2pta, strlen(dp->str2pta));
+	if (dp->text_width1 > dp->text_width2) {
+		dp->text_width = dp->text_width1;
+		dp->text_start1 = 0;
+		dp->text_start2 = (dp->text_width - dp->text_width2) / 2;
+	} else {
+		dp->text_width = dp->text_width2;
+		dp->text_start1 = (dp->text_width - dp->text_width1) / 2;
+		dp->text_start2 = 0;
+	}
 	dp->maxx = dp->width - dp->text_width;
 	dp->maxy = dp->height - dp->text_height - mode_font->descent;
 	if (dp->maxx == 0)
-		dp->clockx = dp->cent_offset;
+		dp->clockx = dp->text_start1;
 	else if (dp->maxx < 0)
-		dp->clockx = -NRAND(-dp->maxx) + dp->cent_offset;
+		dp->clockx = -NRAND(-dp->maxx) + dp->text_start1;
 	else
-		dp->clockx = NRAND(dp->maxx) + dp->cent_offset;
+		dp->clockx = NRAND(dp->maxx) + dp->text_start1;
 	if (dp->maxy - mode_font->ascent == 0)
 		dp->clocky = mode_font->ascent;
 	else if (dp->maxy - mode_font->ascent < 0)
 		dp->clocky = -NRAND(mode_font->ascent - dp->maxy) + mode_font->ascent;
 	else
 		dp->clocky = NRAND(dp->maxy - mode_font->ascent) + mode_font->ascent;
-
-	dp->str1pta = dp->str1;
-	dp->str2pta = dp->str2;
-	dp->str1ptb = dp->str1old;
-	dp->str2ptb = dp->str2old;
 
 	if (MI_NPIXELS(mi) > 2)
 		dp->color = NRAND(MI_NPIXELS(mi));
@@ -292,6 +473,8 @@ void
 draw_dclock(ModeInfo * mi)
 {
 	dclockstruct *dp = &dclocks[MI_SCREEN(mi)];
+
+	MI_IS_DRAWN(mi) = True;
 
 	drawDclock(mi);
 	if (MI_NPIXELS(mi) > 2) {
@@ -330,5 +513,5 @@ release_dclock(ModeInfo * mi)
 void
 refresh_dclock(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

@@ -131,9 +131,9 @@ worm_doit(ModeInfo * mi, int which, unsigned long color)
 	x = ws->circ[ws->tail].x;
 	y = ws->circ[ws->tail].y;
 
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		diff = ws->diffcirc[ws->tail];
-		if (MI_WIN_IS_INSTALL(mi)) {
+		if (MI_IS_INSTALL(mi)) {
 			XSetForeground(display, gc, MI_NONE_COLOR(mi));
 		} else {
 			XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -162,12 +162,14 @@ worm_doit(ModeInfo * mi, int which, unsigned long color)
 	ws->x = x;
 	ws->y = y;
 
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		if (LRAND() & 1)
 			ws->dir2 = (ws->dir2 + 1) % SEGMENTS;
 		else
 			ws->dir2 = (ws->dir2 + SEGMENTS - 1) % SEGMENTS;
-		/* for the z-axis the wrap-around looks bad, so worms should just turn around. */
+		/* for the z-axis the wrap-around looks bad,
+		   * so worms should just turn around.
+		 */
 		z = (int) (ws->z + wp->circsize * sintab[ws->dir2]);
 		if (z < 0 || z >= wp->zsize)
 			z = (int) (ws->z - wp->circsize * sintab[ws->dir2]);
@@ -286,13 +288,13 @@ init_worm(ModeInfo * mi)
 			return;
 	}
 	wp = &worms[MI_SCREEN(mi)];
-	if (MI_NPIXELS(mi) <= 2 || MI_WIN_IS_USE3D(mi))
+	if (MI_NPIXELS(mi) <= 2 || MI_IS_USE3D(mi))
 		wp->nc = 2;
 	else
 		wp->nc = MI_NPIXELS(mi);
 
 	free_worms(wp);
-	wp->nw = MI_BATCHCOUNT(mi);
+	wp->nw = MI_COUNT(mi);
 	if (wp->nw < -MINWORMS)
 		wp->nw = NRAND(-wp->nw - MINWORMS + 1) + MINWORMS;
 	else if (wp->nw < MINWORMS)
@@ -316,8 +318,8 @@ init_worm(ModeInfo * mi)
 			costab[i] = COSF(i * 2.0 * M_PI / SEGMENTS);
 		}
 	}
-	wp->xsize = MI_WIN_WIDTH(mi);
-	wp->ysize = MI_WIN_HEIGHT(mi);
+	wp->xsize = MI_WIDTH(mi);
+	wp->ysize = MI_HEIGHT(mi);
 	wp->zsize = MAXZ - MINZ + 1;
 	if (MI_NPIXELS(mi) > 2)
 		wp->chromo = NRAND(MI_NPIXELS(mi));
@@ -347,7 +349,7 @@ init_worm(ModeInfo * mi)
 		for (j = 0; j < wp->wormlength; j++) {
 			wp->worm[i].circ[j].x = wp->xsize / 2;
 			wp->worm[i].circ[j].y = wp->ysize / 2;
-			if (MI_WIN_IS_USE3D(mi))
+			if (MI_IS_USE3D(mi))
 				wp->worm[i].diffcirc[j] = 0;
 		}
 		wp->worm[i].dir = NRAND(SEGMENTS);
@@ -359,7 +361,7 @@ init_worm(ModeInfo * mi)
 		wp->worm[i].redrawing = 0;
 	}
 
-	if (MI_WIN_IS_INSTALL(mi) && MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi)) {
 		MI_CLEARWINDOWCOLOR(mi, MI_NONE_COLOR(mi));
 	} else {
 		MI_CLEARWINDOW(mi);
@@ -378,6 +380,8 @@ draw_worm(ModeInfo * mi)
 
 	(void) memset((char *) wp->size, 0, wp->nc * sizeof (int));
 
+	MI_IS_DRAWN(mi) = True;
+
 	for (i = 0; i < wp->nw; i++) {
 		if (MI_NPIXELS(mi) > 2) {
 			wcolor = (i + wp->chromo) % wp->nc;
@@ -387,15 +391,15 @@ draw_worm(ModeInfo * mi)
 			worm_doit(mi, i, (unsigned long) 0);
 	}
 
-	if (MI_WIN_IS_USE3D(mi)) {
-		if (MI_WIN_IS_INSTALL(mi))
+	if (MI_IS_USE3D(mi)) {
+		if (MI_IS_INSTALL(mi))
 			XSetFunction(display, gc, GXor);
 		XSetForeground(display, gc, MI_RIGHT_COLOR(mi));
 		XFillRectangles(display, window, gc, &(wp->rects[0]), wp->size[0]);
 
 		XSetForeground(display, gc, MI_LEFT_COLOR(mi));
 		XFillRectangles(display, window, gc, &(wp->rects[wp->maxsize]), wp->size[1]);
-		if (MI_WIN_IS_INSTALL(mi))
+		if (MI_IS_INSTALL(mi))
 			XSetFunction(display, gc, GXcopy);
 	} else if (MI_NPIXELS(mi) > 2) {
 		for (i = 0; i < wp->nc; i++) {
@@ -428,12 +432,15 @@ release_worm(ModeInfo * mi)
 void
 refresh_worm(ModeInfo * mi)
 {
-	if (MI_WIN_IS_USE3D(mi)) {
-		/* The 3D code does drawing&clearing by XORing.  We do not
-		   want to go to too much trouble here to make it redraw
-		   correctly. */
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi)) {
+		MI_CLEARWINDOWCOLOR(mi, MI_NONE_COLOR(mi));
+	} else {
 		MI_CLEARWINDOW(mi);
-	} else if (worms != NULL) {
+	}
+	/* The 3D code does drawing&clearing by XORing.  We do not
+	   want to go to too much trouble here to make it redraw
+	   correctly. */
+	if (!MI_IS_USE3D(mi) && worms != NULL) {
 		wormstruct *wp = &worms[MI_SCREEN(mi)];
 		int         i;
 

@@ -21,13 +21,16 @@ static const char sccsid[] = "@(#)julia.c	4.07 97/11/24 xlockmore";
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
+ * Check out  A.K. Dewdney's "Computer Recreations", Scientific
+ * American Magazine" Nov 1987.
+ *
  * Revision History:
- * 28-May-97: jwz@netscape.com: added interactive frobbing with the mouse.
- * 10-May-97: jwz@netscape.com: turned into a standalone program.
+ * 28-May-97: jwz@jwz.org: added interactive frobbing with the mouse.
+ * 10-May-97: jwz@jwz.org: turned into a standalone program.
  * 02-Dec-95: snagged boilerplate from hop.c
  *           used ifs {w0 = sqrt(x-c), w1 = -sqrt(x-c)} with random iteration 
  *           to plot the julia set, and sinusoidially varied parameter for set 
- *	     and plotted parameter with a circle.
+ *           and plotted parameter with a circle.
  */
 
 /*-
@@ -46,9 +49,11 @@ static const char sccsid[] = "@(#)julia.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 10000 \n" \
  "*count: 1000 \n" \
  "*cycles: 20 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*mouse: False \n"
 #define UNIFORM_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
+
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 
@@ -65,8 +70,6 @@ ModStruct   julia_description =
  "Shows the Julia set", 0, NULL};
 
 #endif
-
-extern Bool mouse;
 
 #define numpoints ((0x2<<jp->depth)-1)
 
@@ -110,7 +113,7 @@ apply(juliastruct * jp, register double xr, register double xi, int d)
 		xi -= jp->ci;
 		xr -= jp->cr;
 
-/* Avoid atan2: DOMAIN error message */
+		/* Avoid atan2: DOMAIN error message */
 		theta = (xi == 0.0 && xr == 0.0) ? 0.0 : atan2(xi, xr) / 2.0;
 
 		/*r = pow(xi * xi + xr * xr, 0.25); */
@@ -128,7 +131,7 @@ apply(juliastruct * jp, register double xr, register double xi, int d)
 static void
 incr(ModeInfo * mi, juliastruct * jp)
 {
-	Bool        track_p = mouse;
+	Bool        track_p = MI_IS_MOUSE(mi);
 	int         cx, cy;
 
 	if (track_p) {
@@ -139,8 +142,8 @@ incr(ModeInfo * mi, juliastruct * jp)
 		(void) XQueryPointer(MI_DISPLAY(mi), MI_WINDOW(mi),
 				     &r, &c, &rx, &ry, &cx, &cy, &m);
 		if (cx <= 0 || cy <= 0 ||
-		    cx >= MI_WIN_WIDTH(mi) - jp->circsize - 1 ||
-		    cy >= MI_WIN_HEIGHT(mi) - jp->circsize - 1)
+		    cx >= MI_WIDTH(mi) - jp->circsize - 1 ||
+		    cy >= MI_HEIGHT(mi) - jp->circsize - 1)
 			track_p = False;
 	}
 	if (track_p) {
@@ -164,7 +167,7 @@ init_julia(ModeInfo * mi)
 	Window      window = MI_WINDOW(mi);
 	juliastruct *jp;
 	XGCValues   gcv;
-	int         i;
+	int         i, j;
 
 	if (julias == NULL) {
 		if ((julias = (juliastruct *) calloc(MI_NUM_SCREENS(mi),
@@ -173,22 +176,20 @@ init_julia(ModeInfo * mi)
 	}
 	jp = &julias[MI_SCREEN(mi)];
 
-#ifdef STANDALONE
-	mouse = get_boolean_resource("mouse", "Boolean");
-#endif /* !STANDALONE */
+	jp->centerx = MI_WIDTH(mi) / 2;
+	jp->centery = MI_HEIGHT(mi) / 2;
 
-	jp->centerx = MI_WIN_WIDTH(mi) / 2;
-	jp->centery = MI_WIN_HEIGHT(mi) / 2;
-
-	jp->depth = MI_BATCHCOUNT(mi);
+	jp->depth = MI_COUNT(mi);
 	if (jp->depth > 10)
 		jp->depth = 10;
 
-	if (mouse && !jp->cursor) {	/* Create an invisible cursor */
+	if (MI_IS_MOUSE(mi) && !jp->cursor) {	/* Create an invisible cursor */
 		Pixmap      bit;
 		XColor      black;
 
-		black.red = black.green = black.blue = 0;
+		black.red = 0;
+		black.green = 0;
+		black.blue = 0;
 		black.flags = DoRed | DoGreen | DoBlue;
 		bit = XCreatePixmapFromBitmapData(display, window, "\000", 1, 1,
 						  MI_BLACK_PIXEL(mi),
@@ -234,15 +235,15 @@ init_julia(ModeInfo * mi)
 	if (MI_NPIXELS(mi) > 2)
 		jp->pix = NRAND(MI_NPIXELS(mi));
 	jp->inc = NRAND(400) - 200;
-	jp->nbuffers = (MI_CYCLES(mi) + 1);
+	jp->nbuffers = MI_CYCLES(mi) + 1;
 	if (!jp->pointBuffer)
 		jp->pointBuffer = (XPoint **) calloc(jp->nbuffers, sizeof (XPoint *));
-	for (i = 0; i < jp->nbuffers; ++i)
-		if (jp->pointBuffer[i])
-			(void) memset((char *) jp->pointBuffer[i], 0,
-				      numpoints * sizeof (XPoint));
-		else
-			jp->pointBuffer[i] = (XPoint *) calloc(numpoints, sizeof (XPoint));
+	for (i = 0; i < jp->nbuffers; ++i) {
+		if (!jp->pointBuffer[i])
+			jp->pointBuffer[i] = (XPoint *) malloc(numpoints * sizeof (XPoint));
+		for (j = 0; j < numpoints; j++)
+			jp->pointBuffer[i][j].x = jp->pointBuffer[i][j].y = -1;		/* move initial point off screen */
+	}
 	jp->buffer = 0;
 	jp->redrawing = 0;
 	jp->erase = 0;
@@ -261,6 +262,8 @@ draw_julia(ModeInfo * mi)
 	register double xr = 0.0, xi = 0.0;
 	int         k = 64, rnd = 0, i, j;
 	XPoint     *xp = jp->pointBuffer[jp->buffer], old_circle, new_circle;
+
+	MI_IS_DRAWN(mi) = True;
 
 	old_circle.x = (int) (jp->centerx * jp->cr / 2) + jp->centerx - 2;
 	old_circle.y = (int) (jp->centery * jp->ci / 2) + jp->centery - 2;
@@ -295,7 +298,7 @@ draw_julia(ModeInfo * mi)
 		/* save calls to LRAND by using bit shifts over and over on the same
 		   int for 32 iterations, then get a new random int */
 		if (!(k % 32))
-			rnd = LRAND();
+			rnd = (int) LRAND();
 
 		/* complex sqrt: x^0.5 = radius^0.5*(cos(theta/2) + i*sin(theta/2)) */
 
@@ -382,6 +385,7 @@ refresh_julia(ModeInfo * mi)
 {
 	juliastruct *jp = &julias[MI_SCREEN(mi)];
 
+	MI_CLEARWINDOW(mi);
 	jp->redrawing = 1;
 	jp->redrawpos = 0;
 }

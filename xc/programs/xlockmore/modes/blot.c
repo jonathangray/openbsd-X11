@@ -26,7 +26,7 @@ static const char sccsid[] = "@(#)blot.c	4.07 97/11/24 xlockmore";
  *            <Greg.Onufer@Eng.Sun.COM>
  * 07-Dec-94: now randomly has xsym, ysym, or both.
  * 02-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
- * 1992:      xscreensaver version Jamie Zawinski <jwz@netscape.com>
+ * 1992:      xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
 /*-
@@ -62,7 +62,7 @@ ModeSpecOpt blot_opts =
 ModStruct   blot_description =
 {"blot", "init_blot", "draw_blot", "release_blot",
  "refresh_blot", "init_blot", NULL, &blot_opts,
- 200000, 6, 30, 1, 64, 0.4, "",
+ 200000, 6, 30, 1, 64, 0.3, "",
  "Shows Rorschach's ink blot test", 0, NULL};
 
 #endif
@@ -73,11 +73,11 @@ typedef struct {
 	int         xmid, ymid;
 	int         offset;
 	int         xsym, ysym;
-	unsigned long size;
+	int         size;
 	int         pix;
 	int         count;
 	XPoint     *pointBuffer;
-	unsigned long pointBufferSize;
+	unsigned int pointBufferSize;
 } blotstruct;
 
 static blotstruct *blots = NULL;
@@ -95,25 +95,25 @@ init_blot(ModeInfo * mi)
 	}
 	bp = &blots[MI_SCREEN(mi)];
 
-	bp->width = MI_WIN_WIDTH(mi);
-	bp->height = MI_WIN_HEIGHT(mi);
+	bp->width = MI_WIDTH(mi);
+	bp->height = MI_HEIGHT(mi);
 	bp->xmid = bp->width / 2;
 	bp->ymid = bp->height / 2;
 
 	bp->offset = 4;
-	bp->ysym = LRAND() & 1;
-	bp->xsym = (bp->ysym) ? LRAND() & 1 : 1;
+	bp->ysym = (int) LRAND() & 1;
+	bp->xsym = (bp->ysym) ? (int) LRAND() & 1 : 1;
 	if (MI_NPIXELS(mi) > 2)
 		bp->pix = NRAND(MI_NPIXELS(mi));
 	if (bp->offset <= 0)
 		bp->offset = 3;
-	if (MI_BATCHCOUNT(mi) < 0)
-		bp->size = NRAND(-MI_BATCHCOUNT(mi) + 1);
+	if (MI_COUNT(mi) < 0)
+		bp->size = NRAND(-MI_COUNT(mi) + 1);
 	else
-		bp->size = MI_BATCHCOUNT(mi);
+		bp->size = MI_COUNT(mi);
 
 	/* Fudge the size so it takes up the whole screen */
-	bp->size *= (unsigned long) (bp->width / 32 + 1) * (bp->height / 32 + 1);
+	bp->size *= (bp->width / 32 + 1) * (bp->height / 32 + 1);
 	if (!bp->pointBuffer || bp->pointBufferSize < bp->size * sizeof (XPoint)) {
 		if (bp->pointBuffer != NULL)
 			(void) free((void *) bp->pointBuffer);
@@ -130,8 +130,9 @@ draw_blot(ModeInfo * mi)
 {
 	blotstruct *bp = &blots[MI_SCREEN(mi)];
 	XPoint     *xp = bp->pointBuffer;
-	int         x, y;
-	unsigned long k;
+	int         x, y, k;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (MI_NPIXELS(mi) > 2) {
 		XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_PIXEL(mi, bp->pix));

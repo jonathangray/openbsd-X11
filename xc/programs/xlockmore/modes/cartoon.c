@@ -78,12 +78,15 @@ puzzle.c has the same disease.
 #define HACK_INIT init_cartoon
 #define HACK_DRAW draw_cartoon
 #define cartoon_opts xlockmore_opts
-#define DEFAULTS "*delay: 10000 \n"
+#define DEFAULTS "*delay: 10000 \n" \
+ "*verbose: False \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
-
+#include "vis.h"
+#include "color.h"
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 #if defined( USE_XPM ) || defined( USE_XPMINC )
 
@@ -190,11 +193,13 @@ initimage(ModeInfo * mi, int cartoon)
 
 	free_stuff(display, cp);
 
+#ifndef STANDALONE
 	if (!fixedColors(mi)) {
 		cp->cmap = XCreateColormap(display, window, MI_VISUAL(mi), AllocNone);
 		attrib.colormap = cp->cmap;
 		reserveColors(mi, cp->cmap, &cp->black);
 	} else
+#endif /* !STANDALONE */
 		attrib.colormap = MI_COLORMAP(mi);
 
 	attrib.visual = MI_VISUAL(mi);
@@ -205,18 +210,21 @@ initimage(ModeInfo * mi, int cartoon)
 	cp->success = (XpmSuccess == XpmCreateImageFromData(
 								   display, cartoonlist[cartoon], &cp->image, (XImage **) NULL, &attrib));
 #endif
-	if (MI_WIN_IS_VERBOSE(mi))
+	if (MI_IS_VERBOSE(mi))
 		(void) fprintf(stderr, "Color image %d%s loaded.\n",
 			       cartoon, (cp->success) ? "" : " could not be");
+#ifndef STANDALONE
 	if (cp->cmap != None) {
-		setColormap(display, window, cp->cmap, MI_WIN_IS_INWINDOW(mi));
+		setColormap(display, window, cp->cmap, MI_IS_INWINDOW(mi));
 		if (cp->backGC == None) {
 			XGCValues   xgcv;
 
 			xgcv.background = cp->black;
 			cp->backGC = XCreateGC(display, window, GCBackground, &xgcv);
 		}
-	} else {
+	} else
+#endif /* !STANDALONE */
+	{
 		cp->black = MI_BLACK_PIXEL(mi);
 		cp->backGC = MI_GC(mi);
 	}
@@ -255,12 +263,12 @@ select_cartoon(ModeInfo * mi)
 	old = cp->choice;
 	while (old == cp->choice)
 		cp->choice = NRAND(NUM_CARTOONS);
-	if (MI_WIN_IS_DEBUG(mi))
+	if (MI_IS_DEBUG(mi))
 		(void) fprintf(stderr, "cartoon %d.\n", cp->choice);
 	initimage(mi, cp->choice);
 #else /* Probably will never be used but ... */
 	cp->choice = 0;
-	if (MI_WIN_IS_DEBUG(mi))
+	if (MI_IS_DEBUG(mi))
 		(void) fprintf(stderr, "cartoon %d.\n", cp->choice);
 	if (!cp->success)
 		initimage(mi, cp->choice);
@@ -309,8 +317,8 @@ init_cartoon(ModeInfo * mi)
 		cp->choice = -1;
 
 	}
-	cp->width = MI_WIN_WIDTH(mi);
-	cp->height = MI_WIN_HEIGHT(mi);
+	cp->width = MI_WIDTH(mi);
+	cp->height = MI_HEIGHT(mi);
 
 	select_cartoon(mi);
 
@@ -369,6 +377,8 @@ void
 draw_cartoon(ModeInfo * mi)
 {
 	cartoonstruct *cp = &cartoons[MI_SCREEN(mi)];
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (cp->success) {
 		put_cartoon(mi);

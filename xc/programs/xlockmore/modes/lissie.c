@@ -40,7 +40,7 @@ static const char sccsid[] = "@(#)lissie.c	4.07 97/11/24 xlockmore";
  "*cycles: 20000 \n" \
  "*size: -200 \n" \
  "*ncolors: 200 \n"
-#define BRIGHT_COLORS
+#define SMOOTH_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -91,10 +91,11 @@ typedef struct {
 	int         xi, yi, ri, rx, ry, len, pos;
 	int         redrawing, redrawpos;
 	XPoint      loc[MAXLISSIELEN];
-	int         color;
+	unsigned long color;
 } lissiestruct;
 
 typedef struct {
+	Bool        painted;
 	int         width, height;
 	int         nlissies;
 	lissiestruct *lissie;
@@ -143,7 +144,7 @@ drawlissie(ModeInfo * mi, lissiestruct * lissie)
 	/* Redraw */
 	if (MI_NPIXELS(mi) > 2) {
 		XSetForeground(display, gc, MI_PIXEL(mi, lissie->color));
-		if (++lissie->color >= MI_NPIXELS(mi))
+		if (++lissie->color >= (unsigned) MI_NPIXELS(mi))
 			lissie->color = 0;
 	} else
 		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
@@ -224,10 +225,10 @@ init_lissie(ModeInfo * mi)
 	}
 	lp = &lisses[MI_SCREEN(mi)];
 
-	lp->width = MI_WIN_WIDTH(mi);
-	lp->height = MI_WIN_HEIGHT(mi);
+	lp->width = MI_WIDTH(mi);
+	lp->height = MI_HEIGHT(mi);
 
-	lp->nlissies = MI_BATCHCOUNT(mi);
+	lp->nlissies = MI_COUNT(mi);
 	if (lp->nlissies < -MINLISSIES) {
 		if (lp->lissie) {
 			(void) free((void *) lp->lissie);
@@ -243,6 +244,7 @@ init_lissie(ModeInfo * mi)
 		lp->lissie = (lissiestruct *) calloc(lp->nlissies, sizeof (lissiestruct));
 
 	MI_CLEARWINDOW(mi);
+	lp->painted = False;
 
 	for (ball = 0; ball < (unsigned char) lp->nlissies; ball++)
 		initlissie(mi, &lp->lissie[ball]);
@@ -255,11 +257,15 @@ draw_lissie(ModeInfo * mi)
 	lissstruct *lp = &lisses[MI_SCREEN(mi)];
 	register unsigned char ball;
 
-	if (++lp->loopcount > MI_CYCLES(mi))
+	MI_IS_DRAWN(mi) = True;
+
+	if (++lp->loopcount > MI_CYCLES(mi)) {
 		init_lissie(mi);
-	else
+	} else {
+		lp->painted = True;
 		for (ball = 0; ball < (unsigned char) lp->nlissies; ball++)
 			drawlissie(mi, &lp->lissie[ball]);
+	}
 }
 
 void
@@ -288,9 +294,12 @@ refresh_lissie(ModeInfo * mi)
 		lissstruct *lp = &lisses[MI_SCREEN(mi)];
 		int         i;
 
-		for (i = 0; i < lp->nlissies; i++) {
-			lp->lissie[i].redrawing = 1;
-			lp->lissie[i].redrawpos = 0;
+		if (lp->painted) {
+			MI_CLEARWINDOW(mi);
+			for (i = 0; i < lp->nlissies; i++) {
+				lp->lissie[i].redrawing = 1;
+				lp->lissie[i].redrawpos = 0;
+			}
 		}
 	}
 }

@@ -56,11 +56,12 @@ static const char sccsid[] = "@(#)loop.c	4.07 97/11/24 xlockmore";
  "*cycles: 1600 \n" \
  "*size: -12 \n" \
  "*ncolors: 15 \n"
-#define SPREAD_COLORS
+#define UNIFORM_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+#include "automata.h"
 
 ModeSpecOpt loop_opts =
 {0, NULL, 0, NULL, NULL};
@@ -104,7 +105,7 @@ typedef struct {
 	int         width, height;
 	int         redrawing, redrawpos;
 	unsigned char *newcells, *oldcells;
-	unsigned int colors[COLORS];
+	unsigned long colors[COLORS];
 	int         nrects[COLORS];
 	RectList   *rectlist[COLORS];
 	GC          stippledGC;
@@ -472,8 +473,8 @@ init_loop(ModeInfo * mi)
 	free_list(lp);
 	lp->generation = 0;
 
-	lp->width = MI_WIN_WIDTH(mi);
-	lp->height = MI_WIN_HEIGHT(mi);
+	lp->width = MI_WIDTH(mi);
+	lp->height = MI_HEIGHT(mi);
 
 	if (size < -MINSIZE)
 		lp->ys = NRAND(MIN(-size, MAX(MINSIZE, MIN(lp->width, lp->height) /
@@ -517,6 +518,8 @@ draw_loop(ModeInfo * mi)
 	loopstruct *lp = &loops[MI_SCREEN(mi)];
 	int         offset, i, j, life = 0;
 	unsigned char *z, *znew;
+
+	MI_IS_DRAWN(mi) = True;
 
 	for (j = lp->minrow; j <= lp->maxrow; j++) {
 		for (i = lp->mincol; i <= lp->maxcol; i++) {
@@ -592,6 +595,7 @@ refresh_loop(ModeInfo * mi)
 {
 	loopstruct *lp = &loops[MI_SCREEN(mi)];
 
+	MI_CLEARWINDOW(mi);
 	lp->redrawing = 1;
 	lp->redrawpos = lp->bncols + 1;
 }

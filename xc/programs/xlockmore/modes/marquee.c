@@ -33,12 +33,18 @@ static const char sccsid[] = "@(#)marquee.c	4.07 97/11/24 xlockmore";
 #define HACK_DRAW draw_marquee
 #define marquee_opts xlockmore_opts
 #define DEFAULTS "*delay: 100000 \n" \
- "*ncolors: 64 \n"
+ "*ncolors: 64 \n" \
+ "*font: \n" \
+ "*text: \n" \
+ "*filename: \n" \
+ "*fortunefile: \n" \
+ "*program: \n"
 #define SMOOTH_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 ModeSpecOpt marquee_opts =
 {0, NULL, 0, NULL, NULL};
@@ -299,8 +305,8 @@ init_marquee(ModeInfo * mi)
 	}
 	mp = &marquees[MI_SCREEN(mi)];
 
-	mp->win_width = MI_WIN_WIDTH(mi);
-	mp->win_height = MI_WIN_HEIGHT(mi);
+	mp->win_width = MI_WIDTH(mi);
+	mp->win_height = MI_HEIGHT(mi);
 	if (MI_NPIXELS(mi) > 2)
 		mp->color = NRAND(MI_NPIXELS(mi));
 	mp->time = 0;
@@ -366,6 +372,8 @@ draw_marquee(ModeInfo * mi)
 	marqueestruct *mp = &marquees[MI_SCREEN(mi)];
 	char       *space = "        ";
 	char       *ch;
+
+	MI_IS_DRAWN(mi) = True;
 
 	ch = mp->words;
 	if (isRibbon()) {
@@ -501,10 +509,4 @@ release_marquee(ModeInfo * mi)
 		XFreeFont(MI_DISPLAY(mi), mode_font);
 		mode_font = None;
 	}
-}
-
-void
-refresh_marquee(ModeInfo * mi)
-{
-	/* Do nothing, it will refresh by itself */
 }

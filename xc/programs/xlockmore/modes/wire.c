@@ -66,11 +66,18 @@ static const char sccsid[] = "@(#)wire.c	4.07 97/11/24 xlockmore";
  "*count: 1000 \n" \
  "*cycles: 150 \n" \
  "*size: -8 \n" \
- "*ncolors: 64 \n"
+ "*ncolors: 64 \n" \
+ "*neighbors: 0 \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+#include "automata.h"
+
+/*-
+ * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
+ */
+extern int  neighbors;
 
 ModeSpecOpt wire_opts =
 {0, NULL, 0, NULL, NULL};
@@ -83,8 +90,6 @@ ModStruct   wire_description =
  "Shows a random circuit with 2 electrons", 0, NULL};
 
 #endif
-
-extern int  neighbors;
 
 #define WIREBITS(n,w,h)\
   wp->pixmaps[wp->init_bits++]=\
@@ -348,7 +353,8 @@ fillcell(ModeInfo * mi, GC gc, int col, int row)
 			    wp->shape.hexagon, 6, Convex, CoordModePrevious);
 	} else if (wp->neighbors == 4 || wp->neighbors == 8) {
 		XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
-		wp->xb + wp->xs * col, wp->yb + wp->ys * row, wp->xs, wp->ys);
+		wp->xb + wp->xs * col, wp->yb + wp->ys * row,
+		wp->xs - (wp->xs > 3), wp->ys - (wp->ys > 3));
 	} else {		/* TRI */
 		int         orient = (col + row) % 2;	/* O left 1 right */
 
@@ -412,7 +418,8 @@ drawcell_notused(ModeInfo * mi, int col, int row, unsigned char state)
 		gc = wp->stippledGC;
 	}
 	XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
-	       wp->xb + wp->xs * col, wp->yb + wp->ys * row, wp->xs, wp->ys);
+	       wp->xb + wp->xs * col, wp->yb + wp->ys * row,
+		wp->xs - (wp->xs > 3), wp->ys - (wp->ys > 3));
 }
 #endif
 
@@ -513,8 +520,8 @@ draw_state(ModeInfo * mi, int state)
 		while (current) {
 			rects[ncells].x = wp->xb + current->pt.x * wp->xs;
 			rects[ncells].y = wp->yb + current->pt.y * wp->ys;
-			rects[ncells].width = wp->xs;
-			rects[ncells].height = wp->ys;
+			rects[ncells].width = wp->xs - (wp->xs > 3);
+			rects[ncells].height = wp->ys - (wp->ys > 3);
 			current = current->next;
 			ncells++;
 		}
@@ -717,8 +724,8 @@ init_wire(ModeInfo * mi)
 	}
 	free_list(wp);
 	wp->generation = 0;
-	wp->width = MI_WIN_WIDTH(mi);
-	wp->height = MI_WIN_HEIGHT(mi);
+	wp->width = MI_WIDTH(mi);
+	wp->height = MI_HEIGHT(mi);
 
 	for (n = 0; n < NEIGHBORKINDS; n++) {
 		if (neighbors == plots[n]) {
@@ -847,7 +854,7 @@ init_wire(ModeInfo * mi)
 	wp->newcells = (unsigned char *)
 		calloc(wp->bncols * wp->bnrows, sizeof (unsigned char));
 
-	n = MI_BATCHCOUNT(mi);
+	n = MI_COUNT(mi);
 	i = (1 + (wp->neighbors == 6)) * wp->ncols * wp->nrows / 4;
 	if (n < -MINWIRES && i > MINWIRES) {
 		n = NRAND(MIN(-n, i) - MINWIRES + 1) + MINWIRES;
@@ -865,6 +872,8 @@ draw_wire(ModeInfo * mi)
 	circuitstruct *wp = &circuits[MI_SCREEN(mi)];
 	int         offset, i, j;
 	unsigned char *z, *znew;
+
+	MI_IS_DRAWN(mi) = True;
 
 	/* wires do not grow so min max stuff does not change */
 	for (j = wp->minrow; j <= wp->maxrow; j++) {
@@ -928,6 +937,7 @@ refresh_wire(ModeInfo * mi)
 {
 	circuitstruct *wp = &circuits[MI_SCREEN(mi)];
 
+	MI_CLEARWINDOW(mi);
 	wp->redrawing = 1;
 	wp->redrawpos = 2 * wp->ncols + 2;
 }

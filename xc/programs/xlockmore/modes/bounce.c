@@ -157,14 +157,6 @@ typedef struct {
 
 static bouncestruct *bounces = NULL;
 
-static void checkCollision(bouncestruct * bp, int aball);
-static void drawball(ModeInfo * mi, ballstruct * ball);
-static void moveball(ModeInfo * mi, ballstruct * ball);
-static void spinball(ballstruct * ball, int dir, int *vel, int avgsize);
-static int  collide(bouncestruct * bp, int aball);
-static void bounce_windows(ModeInfo * mi, bouncestruct * bs);
-
-
 static void
 checkCollision(bouncestruct * bp, int aball)
 {
@@ -257,6 +249,19 @@ drawball(ModeInfo * mi, ballstruct * ball)
 			       ball->x, ball->y, bp->xs, bp->ys);
 		XFlush(display);
 	}
+}
+
+static void
+spinball(ballstruct * ball, int dir, int *vel, int avgsize)
+{
+	*vel -= (int) ((*vel + SIGN(*vel * dir) *
+		ball->spindelay * ORIENTCYCLE / (M_PI * avgsize)) / SLIPAGE);
+	if (*vel) {
+		ball->spindir = DIR(*vel * dir);
+		ball->vang = *vel * ORIENTCYCLE;
+		ball->spindelay = (int) ((double) M_PI * avgsize / (ABS(ball->vang))) + 1;
+	} else
+		ball->spindir = 0;
 }
 
 #define BETWEEN(x, xmin, xmax) (((x) >= (xmin)) && ((x) <= (xmax)))
@@ -366,19 +371,6 @@ moveball(ModeInfo * mi, ballstruct * ball)
 	}
 }
 
-static void
-spinball(ballstruct * ball, int dir, int *vel, int avgsize)
-{
-	*vel -= (int) ((*vel + SIGN(*vel * dir) *
-		ball->spindelay * ORIENTCYCLE / (M_PI * avgsize)) / SLIPAGE);
-	if (*vel) {
-		ball->spindir = DIR(*vel * dir);
-		ball->vang = *vel * ORIENTCYCLE;
-		ball->spindelay = (int) ((double) M_PI * avgsize / (ABS(ball->vang))) + 1;
-	} else
-		ball->spindir = 0;
-}
-
 static int
 collide(bouncestruct * bp, int aball)
 {
@@ -392,6 +384,61 @@ collide(bouncestruct * bp, int aball)
 			return i;
 	}
 	return i;
+}
+
+static void
+bounce_windows(ModeInfo * mi, bouncestruct * bs)
+{
+	Window      root, parent, *children;
+	unsigned int nchildren;
+	int         i;
+	int         n;
+
+	if (!MI_IS_INROOT(mi)) {
+		bs->nwindow = 0;
+		return;
+	}
+	if (XQueryTree(MI_DISPLAY(mi), MI_WINDOW(mi),
+		       &root, &parent, &children, &nchildren) == 0) {	/* failure */
+		bs->nwindow = 0;
+		return;
+	}
+	bs->nwindow = nchildren;
+	if (bs->windows != NULL) {
+		(void) free((void *) bs->windows);
+	}
+	bs->windows = (ballwindow *) malloc(bs->nwindow * sizeof (ballwindow));
+	for (n = 0, i = 0; i < bs->nwindow; i++) {
+		XWindowAttributes att;
+
+/*-
+   May give
+   X Error of failed request: BadWindow (invalid Window parameter)
+   Major opcode of failed request:  3 (X_GetWindowAttributes)
+ */
+		if (XGetWindowAttributes(MI_DISPLAY(mi), children[i], &att) == 0) {	/* failure */
+			bs->nwindow = 0;
+			return;
+		}
+		if ((att.x < 0) || (att.x > bs->width) ||
+		    (att.y < 0) || (att.y > bs->height) ||
+#if defined(__cplusplus) || defined(c_plusplus)
+		    (att.c_class != InputOutput) ||
+#else
+		    (att.class != InputOutput) ||
+#endif
+		    (att.map_state != IsViewable)) {
+			continue;
+		}
+		bs->windows[n].x = att.x;
+		bs->windows[n].y = att.y;
+		bs->windows[n].width = att.width;
+		bs->windows[n].height = att.height;
+		n++;
+	}
+	bs->nwindow = n;
+	XFree((caddr_t) children);
+	return;
 }
 
 void
@@ -425,15 +472,15 @@ init_bounce(ModeInfo * mi)
 		BALLBITS(bounce3_bits, bounce3_width, bounce3_height);
 		BALLBITS(bouncemask_bits, bouncemask_width, bouncemask_height);
 	}
-	bp->width = MI_WIN_WIDTH(mi);
-	bp->height = MI_WIN_HEIGHT(mi);
+	bp->width = MI_WIDTH(mi);
+	bp->height = MI_HEIGHT(mi);
 	if (bp->width < 2)
 		bp->width = 2;
 	if (bp->height < 2)
 		bp->height = 2;
 	bp->restartnum = TIME;
 	bounce_windows(mi, bp);
-	bp->nballs = MI_BATCHCOUNT(mi);
+	bp->nballs = MI_COUNT(mi);
 	if (bp->nballs < -MINBALLS) {
 		/* if bp->nballs is random ... the size can change */
 		if (bp->balls != NULL) {
@@ -503,6 +550,8 @@ draw_bounce(ModeInfo * mi)
 	bouncestruct *bp = &bounces[MI_SCREEN(mi)];
 	int         i;
 
+	MI_IS_DRAWN(mi) = True;
+
 	for (i = 0; i < bp->nballs; i++) {
 		drawball(mi, &bp->balls[i]);
 		moveball(mi, &bp->balls[i]);
@@ -540,63 +589,8 @@ release_bounce(ModeInfo * mi)
 void
 refresh_bounce(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
 	bouncestruct *bp = &bounces[MI_SCREEN(mi)];
 
+	MI_CLEARWINDOW(mi);
 	bounce_windows(mi, bp);
-}
-
-static void
-bounce_windows(ModeInfo * mi, bouncestruct * bs)
-{
-	Window      root, parent, *children;
-	unsigned int nchildren;
-	int         i;
-	int         n;
-
-	if (!MI_WIN_IS_INROOT(mi)) {
-		bs->nwindow = 0;
-		return;
-	}
-	if (XQueryTree(MI_DISPLAY(mi), MI_WINDOW(mi),
-		       &root, &parent, &children, &nchildren) == 0) {	/* failure */
-		bs->nwindow = 0;
-		return;
-	}
-	bs->nwindow = nchildren;
-	if (bs->windows != NULL) {
-		(void) free((void *) bs->windows);
-	}
-	bs->windows = (ballwindow *) malloc(bs->nwindow * sizeof (ballwindow));
-	for (n = 0, i = 0; i < bs->nwindow; i++) {
-		XWindowAttributes att;
-
-/*-
-   May give
-   X Error of failed request: BadWindow (invalid Window parameter)
-   Major opcode of failed request:  3 (X_GetWindowAttributes)
- */
-		if (XGetWindowAttributes(MI_DISPLAY(mi), children[i], &att) == 0) {	/* failure */
-			bs->nwindow = 0;
-			return;
-		}
-		if ((att.x < 0) || (att.x > bs->width) ||
-		    (att.y < 0) || (att.y > bs->height) ||
-#if defined(__cplusplus) || defined(c_plusplus)
-		    (att.c_class != InputOutput) ||
-#else
-		    (att.class != InputOutput) ||
-#endif
-		    (att.map_state != IsViewable)) {
-			continue;
-		}
-		bs->windows[n].x = att.x;
-		bs->windows[n].y = att.y;
-		bs->windows[n].width = att.width;
-		bs->windows[n].height = att.height;
-		n++;
-	}
-	bs->nwindow = n;
-	XFree((caddr_t) children);
-	return;
 }

@@ -3,9 +3,7 @@ other tools which I use.  They are not normally required.
 
 descrip.mms is no longer maintained since I can no longer check it on my
   VMS system.  make.com should work fine.
-fortune.dat is for those who do not have fortune.  On VMS it is very costly
-  to spawn a process.
-indent.pro is just my indenting style for xlock.
+fortune.dat is for those who do not have fortune.
 play.sh is a hack to get sound.
 rplay* are ideas for setting up a more sophisticated sound package.
 system.*wm*rc.xlock files are for fvwm2, fvwm, openwin (olwm & olvwm) and
@@ -26,7 +24,8 @@ glider.3dlife is a simple example of a files that can be read into the
      "-life3dfile glider.3dlife" (which works with "-rule3d S45/B5")
   There is a limit of 84 initial live cells set by NUMFILEPTS in life3d.c.
 xlockrandimage.pl picks a random image.  Does not have to be used since
-  it is built in, one can just give a directory name.
+  it is built in, one can just give a directory name.  Some really old UNIX
+  systems might not have dirent.h.
 
 Contributed by Charles Vidal <vidalc@club-internet.fr>
 xlock.tcl is another xlock launcher similar to xmlock and xalock but using

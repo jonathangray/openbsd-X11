@@ -55,8 +55,9 @@ static const char sccsid[] = "@(#)spline.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 30000 \n" \
  "*count: -6 \n" \
  "*cycles: 2048 \n" \
- "*ncolors: 200 \n"
-#define SPREAD_COLORS
+ "*ncolors: 200 \n" \
+ "*fullrandom: True \n"
+#define UNIFORM_COLORS
 #define BRIGHT_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
@@ -92,7 +93,7 @@ ModeSpecOpt spline_opts =
 ModStruct   spline_description =
 {"spline", "init_spline", "draw_spline", "release_spline",
  "refresh_spline", "init_spline", NULL, &spline_opts,
- 30000, -6, 2048, 1, 64, 0.4, "",
+ 30000, -6, 2048, 1, 64, 0.3, "",
  "Shows colorful moving splines", 0, NULL};
 
 #endif
@@ -143,15 +144,15 @@ init_spline(ModeInfo * mi)
 	}
 	sp = &splines[MI_SCREEN(mi)];
 
-	if (MI_WIN_IS_FULLRANDOM(mi))
+	if (MI_IS_FULLRANDOM(mi))
 		sp->erase = (Bool) (LRAND() & 1);
 	else
 		sp->erase = erase;
 
-	sp->width = MI_WIN_WIDTH(mi);
-	sp->height = MI_WIN_HEIGHT(mi);
+	sp->width = MI_WIDTH(mi);
+	sp->height = MI_HEIGHT(mi);
 	/* batchcount is the upper bound on the number of points */
-	sp->points = MI_BATCHCOUNT(mi);
+	sp->points = MI_COUNT(mi);
 	if (sp->points < -MINPOINTS) {
 		if (sp->pt) {
 			(void) free((void *) sp->pt);
@@ -212,6 +213,8 @@ draw_spline(ModeInfo * mi)
 	GC          gc = MI_GC(mi);
 	splinestruct *sp = &splines[MI_SCREEN(mi)];
 	int         i, t, px, py, zx, zy, nx, ny;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (sp->erase)
 		sp->first = (sp->last + 2) % sp->nsplines;

@@ -12,7 +12,7 @@
 ###   (c) Copyright 1993, 1994 Novell, Inc.
 ###
 ### 
-###   $Revision: 1.1.1.1 $
+###   $Revision: 1.1.1.2 $
 ###
 #############################################################################
 
@@ -155,6 +155,7 @@ export DTSCREEN
 
 DTSCREENSAVERLIST="\
 StartDtscreenAnt \
+StartDtscreenAtlantis \
 StartDtscreenBall \
 StartDtscreenBat \
 StartDtscreenBlot \
@@ -162,6 +163,7 @@ StartDtscreenBouboule \
 StartDtscreenBounce \
 StartDtscreenBraid \
 StartDtscreenBubble \
+StartDtscreenBubble3d \
 StartDtscreenBug \
 StartDtscreenCage \
 StartDtscreenCartoon \
@@ -173,15 +175,18 @@ StartDtscreenDclock \
 StartDtscreenDeco \
 StartDtscreenDemon \
 StartDtscreenDilemma \
+StartDtscreenDiscrete \
 StartDtscreenDrift \
 StartDtscreenEyes \
 StartDtscreenFadeplot \
 StartDtscreenFlag \
 StartDtscreenFlame \
+StartDtscreenFlow \
 StartDtscreenForest \
 StartDtscreenGalaxy \
 StartDtscreenGears \
 StartDtscreenGeometry \
+StartDtscreenGoop \
 StartDtscreenGrav \
 StartDtscreenHelix \
 StartDtscreenHop \
@@ -191,6 +196,7 @@ StartDtscreenIfs \
 StartDtscreenImage \
 StartDtscreenJulia \
 StartDtscreenKaleid \
+StartDtscreenKumppa \
 StartDtscreenLaser \
 StartDtscreenLife \
 StartDtscreenLife1d \
@@ -226,10 +232,12 @@ StartDtscreenSpline \
 StartDtscreenSproingies \
 StartDtscreenStairs \
 StartDtscreenStar \
+StartDtscreenStarfish \
 StartDtscreenStrange \
 StartDtscreenSuperquadrics \
 StartDtscreenSwarm \
 StartDtscreenSwirl \
+StartDtscreenThornbird \
 StartDtscreenTriangle \
 StartDtscreenTube \
 StartDtscreenTurtle \

@@ -116,6 +116,9 @@
 /* Define if you have the shadow passwords (or elf).  */
 #undef HAVE_SHADOW
 
+/* Define if you have the sigset_t structure.  */
+#undef HAVE_STRUCT_SIGSET_T
+
 /* Various system defines.  */
 #undef SYSV
 #undef SVR4
@@ -130,6 +133,10 @@
 #undef LESS_THAN_AIX3_2
 #undef SUN_OGL_NO_VERTEX_MACROS
 
+/* Define this if your version of OpenGL has the glBindTexture() routine.
+   This is the case for OpenGL 1.1, but not for OpenGL 1.0.
+ */
+#undef HAVE_GLBINDTEXTURE
 
 /* Define if you have XPM (look for it under a X11 dir).  */
 #undef USE_XPM
@@ -145,6 +152,9 @@
 
 /* Define if you have DtSaver.  */
 #undef USE_DTSAVER
+
+/* Define if you have DPMS (Display Power Management Signaling).  */
+#undef USE_DPMS
 
 /* Define one of these for sounds.  */
 #undef USE_RPLAY
@@ -197,6 +207,9 @@
 /* Enable automatic logout mode (does not come up in random mode) */
 #undef USE_BOMB
 
+/* Enable unstable bubble3d mode */
+#undef USE_UNSTABLE
+
 /* Define one of these with USE_AUTO_LOGOUT, USE_LOGOUT_BUTTON, and/or
    USE_BOMB, if using xdm */
 #undef CLOSEDOWN_LOGOUT
@@ -232,6 +245,12 @@
 /* USE Xmb function series */
 #undef USE_MB
 
+/* XResource customization, drawback -display option may not work  */
+#undef CUSTOMIZATION
+
+/* Virtual Terminal Lock for XFree86 users  */
+#undef USE_VTLOCK
+
 /* The FOLLOWING are NOT AUTOMATICALLY DETECTED YET */
 
 /* Force NON-MESA GL using MESA includes, uncomment next line */
@@ -257,3 +276,9 @@
 
 /* #define SAFEWORD */
 /* #define FX */
+
+/* Full screen colormaps are not allowed on compliant window managers
+   like FVWM, TVWM, SCWM, and DEC WINDOWS and tricks xlock, this fix does
+   not work on TrueColor
+ */
+/* #define COMPLIANT_COLORMAP */

@@ -1,5 +1,3 @@
-############################################################
-#
 # $Id : Makefile.in 4.04 1997/07/10 $
 #
 # xlockmore Makefile.in for autoconf (UNIX/VMS X11 support)
@@ -74,6 +72,11 @@ CC = @CC@
 
 LINT = lint
 #LINT = alint
+
+#DEPEND = makedepend
+DEPEND = @DEPEND@
+DEPEND_FLAGS = @DEPEND_FLAGS@
+DEPEND_DEFINES = @DEPEND_DEFINES@
  
 LN_S = @LN_S@
 RM = rm -f
@@ -134,8 +137,6 @@ uninstall-man :
 
 uninstall-ad :
 
-depend :
-
 lint :
 	$(LINT) -ax -DLINT $(DEFINES) $(XALOCKINC) $(XALOCKSRCS)
 
@@ -148,10 +149,45 @@ html :
 hlp :
 
 clean :
-	$(RM) *.o core *~ *% *.bak *.orig make.log MakeOut xalock
+	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut xalock
 
 distclean : clean
 	$(RM) Makefile
 
 clean.all : distclean
+
+# Adds all current dependencies to Makefile
+depend :
+	$(DEPEND) -s '# DO NOT DELETE: updated by make depend'              \
+	$(DEPEND_FLAGS) --                                                  \
+	$(XALOCKINC) $(DEFS) $(DEPEND_DEFINES) $(CFLAGS) --                 \
+	$(XALOCKSRCS)
+
+# Adds some dependencies to Makefile.in -- not totally accurate, but pretty
+# close.  This excludes dependencies on files in /usr/include, etc.  It tries
+# to include only dependencies on files which are themselves a part of this
+# package. -w 0
+distdepend :
+	@echo updating dependencies in `pwd`/Makefile.in... ;                \
+	$(DEPEND) -w 0 -f -                                                 \
+	-s '# DO NOT DELETE: updated by make distdepend' $(DEPEND_FLAGS) -- \
+	$(XALOCKINC) $(DEFS) $(DEPEND_DEFINES) $(CFLAGS) --                 \
+	$(XALOCKSRCS) |                                                     \
+	(                                                                   \
+	  awk '/^#.*Id : Makefile.in/,/^# DO .*distdepend/' < Makefile.in ; \
+	  sed -e 's@ \./@ @g;s@ /[^ ]*@@g;/^.*:$$/d' ;                      \
+	  echo ''                                                           \
+	) > /tmp/distdepend.$$$$ &&                                         \
+	mv Makefile.in Makefile.in.bak &&                                   \
+	mv /tmp/distdepend.$$$$ Makefile.in
+
+##############################################################################
+#
+# DO NOT DELETE: updated by make distdepend
+
+multireq.o: multireq.h
+xalock.o: ../config.h
+xalock.o: multireq.h
+xalock.o: xalock.h
+xalock.o: modes.h
 

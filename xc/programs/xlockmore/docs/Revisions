@@ -1,5 +1,9 @@
-xlockmore-4.09 as of 23 March 1998, the maintained version of xlock
+xlockmore-4.12 as of 29 September 1998, the maintained version of xlock
 Adapted from Patrick J. Naughton's original xlock
+
+I have significantly less time to maintain this but I try.
+If someone has some free time and wants to take over... let me know.
+(Help is always appreciated too ;) ).
 
 Primary site: ftp://ftp.tux.org/pub/tux/bagleyd/xlockmore
 Secondary site: ftp://ftp.x.org/contrib/applications
@@ -23,6 +27,266 @@ Adapted from Patrick J. Naughton's original xlock, with lots of help
  from others.
 
 BUGS to fix and other stuff to do see docs/TODO.
+
+4.12
+  crypt(3) requires strings to be null-terminated.  The 3rd character
+    should be null.  Does not matter for most implementations.  Thanks to
+    Bill Fenner <fenner@parc.xerox.com>.
+  configure fix for afs thanks to Charles Hines <chuck_hines@vnet.ibm.com>.
+  configure fix for group shadow on linux.
+  Thanks to Jouk Jansen <joukj@crys.chem.uva.nl> for the port of starfish
+    and kumppa.  starfish must be enabled (using configure --enable-unstable)
+    to use... found unstable on multiscreens and possibly TrueColor.
+    Multiscreen error (seen on Xnest and real multiscreens):
+      X Error of failed request:  BadMatch (invalid parameter attributes)
+        Major opcode of failed request: 2 (X_ChangedWindowAttributes)
+    On TrueColor it sometimes says it can not get all the colors.
+    Also did the dclock Dutch translation.
+  -fullrandom in 4.11 is confusing so I made it a special option under the
+    random mode.
+  Now can use g++ on Linux.  Working on SunC++.  Many stupid warnings
+    removed.
+  Thanks to Charles Vidal <vidalc@club-internet.fr> for his genlauncher.
+    This tool (in etc) should help me maintain xlock.  Still needs some work.
+    (java, dt stuff)  also in xalock and xmlock the #ifdef stuff gets
+    stripped.  Also created a new configure.tcl .  Also did the French
+    translation for dclock (accents were not available at the time).
+  goop -count now has some effect.
+  kaleid option for qix.
+  Allow customization of .Xresources.  If using configure uncomment
+    CUSTOMIZATION  part after running configure in config.h .  Thanks to
+    Robert Bihlmeyer <robbe@orcus.priv.at> .  I personally would rather
+    "xlock -display whatever:0" to work as it does in the original.  If
+    someone else thinks this default should change ... let me know.
+  Thanks to Tom Schmidt <tschmidt@micron.com> various fixes and purify report.
+    Patch for root with no password... not allowed to unlock... could this
+    be a problem?  Added verbose fix to color.c stuff.
+    Also several fixes for bubble3d on SunOS, now considered stable.
+  kumppa leak fixes and starfish leak fixes  (one starfish leak remains?)
+    Thanks to Jouk Jansen and Tom Schmidt for finding -bitmap leaks.
+  Thanks to Remi Cohen-Scali/Eric Lassauge <lassauge@sagem.fr> for:
+    vtlock: xlock now VT lock switch when using -vtlock option. This is
+          enabled for linux with the --enable-vtlock option of configure.
+          This may or may not work on some versions of Linux, for example
+          it does not work on the maintainers machine. :(   (His latest
+          did not make it in this release but tries to take care of the
+          potential problem of "locking" a vt while another one is active
+          (if using xautolock and two X servers for example).)
+          I recently changed this option from lockvt to vtlock so I would
+          not be confused.
+    configure: add autodetection of MesaGL links (pthread/glide/vga)
+          Autodetection of pthread caused xlock not to run for the maintainer
+          so it was commented out. 
+    language: configure can select the lang used for elapsed time display.  A
+          grammar/syntax problem have been fixed in French language.
+          The option selecting the language is --with-lang in configure.
+    xglock: configure can search for GTK+. Makefiles are now generated in
+          xglock if GTK+ is found. xglock have been adapted to gtk+-1.0.4.
+          It is under development.
+    ORIGINAL_XPM_PATCH:
+          the ORIGINAL_XPM_PATCH define enabling the pixmap icon mail can
+          be activated in configure with --enable-orig-xpm-patch option.
+    bubble3d: this mode now has now randomly colored bubbles.
+    text3d: compile with -DUSE_TEXT and GL but need g++ and the gltt lib.
+          configure not set up for this so edit the generated Makefiles.
+          This version works better but the Animate function needs still
+          some work.
+  More language stuff added in resource.c .  It needs a few more German
+    translations and other languages too (besides French and Dutch).
+    To do more, each mode description would need to be translated.  I
+    currently think that would be hard to maintain, but I will not turn
+    down a patch (to mode.c) on this if someone really wants to have this.
+  atlantis should no longer flash.
+  Fix for shadow passwords if the user no longer exists.
+  popex (population explosion) and forest (tropical deforestation) options
+    for dclock... really depressing.  See dclock.c for where I get my
+    numbers.
+  Fade out converted from xscreensaver by Jouk Jansen.  Still to do:
+    -fade out the session at xlock startup
+    fixed one, squaretate to draw with more granualarity so it would
+    not be so slow on my slow machine.
+  Update to crystal by  Jouk Jansen to cycle colors like starfish.  (Name of
+    option changed from -cycle to -shift so +cycle would still work on
+    starfish.  Next version the maintainer hopes to have time to fix this...)
+  hyper -use3d.  Too bad humans only have 2 eyes...  otherwise I would add a
+    -use4d option and have it default to use green cellophane
+  -popcorn option on hop works but the output seems different then a picture
+     from my copy of Scientific American.
+  mandelbrot update by Tim AuckLand <tim.auckland@corp.sun.com>
+     changed from cut-off radius from 2 to sqrt(13) to improve resolution.
+  Fix for julia has some initialize errors... pixels in upper left corner.
+  Fix off by one error in triple_wipe.
+  Fix for -fg red -bg green ... fading does not work here.
+  starfish taken out of unstable since it is fixed for multiscreens.
+    Similar changes for kumppa and crystal.
+  Fix for the following:
+    xlock -mode random -modelist image -bitmap /nonexistant/ 
+      xlock: caught signal 11 while running image mode (uid 561).
+    xlock -mode random -modelist image -bitmap /nonexistant
+      could not read file "gublety-gook"
+  Converted Jamie Zawinski <jwz@jwz.org> lament to xlockmore.
+    This mode I just got working, so you need to configure with
+    --enable-unstable .  Needs OpenGL1.1 ... configure and Imakefile assume
+    it for now.  Beware of opening doors...
+  Also stole Jamie Zawinski's neat depend/distdepend stuff.  This gives
+    errors if setup on linux.  If setup on Sun (make distdepend after a
+    normal configure) it seems fine.
+      makedepend: warning:  ../xlock/xlock.c: 13:
+        # error architecture not supported by the Linux C library
+  Took out xalock from building by default.  configure gets tripped up
+    by a Sun include file of the same name.
+  kumppa now changes direction by -cycles 1000 .
+  Fixed up distdepend and reorganized dependencies to be the minimum necessary.
+  crystal, starfish, kumppa fixes for -mono and +install .
+  automata modes to have borders when -neighbors 4 or 8 since the others have
+    them.  ant's squares should really be square now.
+  Thanks to Marcelo F. Vianna <vianna@cat.cbpf.br> for his new version of
+    rubik.c .
+
+4.11
+  atlantis mode thanks to Eric Lassauge <lassauge@sagem.fr> ported from
+    Mark J. Kilgard of Silicon Graphics.
+  kaleid thanks to Robert Adam, II  <raii@comm.net>.  -fullrandom
+    capability added thanks to Jouk Jansen <joukj@crys.chem.uva.nl>.
+    kaleid is a totally new version.  Make sure you reinstall XLock.ad.
+    May resurrect the old kaleid in qix?
+  bubble3d mode thanks to Richard Jones <rjones@orchestream.com>.
+    Not sure about the name... bubble is taken and bubbles is taken in
+    screensaver ... original name was glbubble.  Seems to give problems
+    on SunOS so it must be enabled (using configure --enable-unstable)
+    to use.
+  hyper mode thanks to John Heidemann <johnh@isi.edu>.  This was built
+    independently from hyper.  I did not understand some of the color stuff
+    and through it away in the name of speed (quick coding and quick exec).
+    Took move_line from the xscreensaver port.
+  -fullrandom added to mountain, triangle, and petal for wireframe the first
+    2 include a joke... mixed wireframe/solid
+  Yet another try to solve the  colormap problems with fvwm and tvwm.
+    New compile-time option for this COMPLIANT_COLORMAP.  Currently this
+    is off by default since this fails on TrueColor.  (See config.h[.in]
+    for more info).
+  Fixed white background on goop with +install.  Also some day I have to add
+    back some of its xscreensaver options.
+  Thanks to Charles Vidal <vidalc@club-internet.fr> for his improved
+    xlock.tcl .  He is also starting a configure.tcl... do not expect it to
+    work yet. ;)
+  Thanks to Tom Schmidt <tschmidt@micron.com> for fixing up the mailCmd to a
+    later point in the password screen since it could take several seconds
+    to run with the mail automounted.
+  Thanks to Jamie Zawinski <jwz@jwz.org> ansi and mono fixes for flow.c.
+    Jamie also fixed global -no- options in xlock when compiled under
+    xscreensaver.
+    Fixed some compilation problems when compiling in xscreensaver.
+    glx stuff is now in sync with xscreensaver-2.17.
+  multiscreen fix for DT.  Sometimes it uses the DefaultScreen and sometimes
+    it uses all its screens.
+  Bug fix, food for bugs not updated.
+  configure fix for Linux and shadow thanks to Robert Bihlmeyer
+     <robbe@orcus.priv.at> .
+  new ant.  Size does not get too small except if the user wants it or there
+     is only a small space (iconified).  -sharpturn option mainly for
+     neighbors = 6 but also works for 12.  This new option easily degenerates
+     bees/ants to create highways.  Also worked on getting the truchet
+     lines better... still not perfect.
+  fullrandom option now defaults on... this will probably cause confusion
+    when certain options are selected but most users probably do not run it
+    with options anyway.
+  batchcount depreciated ... it still works but not as a resource.  Use
+    count.
+  xscreensaver/xautolock problem found.  If using a xlock executable with
+     xscreensaver see xlock/vroot.h .
+  lisa looks a little better.  I messed up the refreshing... oops.
+  If saturation not 1.0 it will run out of colors frequently if the colormap
+    is constant... I now retry it as 1.0.  (No COMPLIANT_COLORMAP).
+  Fix for BSD_AUTH thanks to Douglas Berry <doug@monk.cancom.net>.
+
+4.10
+  goop mode added from xscreensaver.
+  color background stuff changed around... did I get it right yet?
+    I think the biggest outstanding problem is fvwm[2] and that I may not
+    have much control over since it does not let me install the colormap for
+    the whole screen. 
+  color background reset for shape so it does not screw up other modes.
+  Solaris configure fixes by Tom Schmidt and David Bagley (Imakefile may
+    need some work)
+  xlock.c and random.c modified to allow -inwindow to pop up only once in
+    a multiscreen and work from :0.1.
+  Release code patches for bug, life, life3d, triangle, voters, and wator
+    to get it to work with the new -inwindow.
+  Thanks to Eduardo Santiago <esm@lanl.gov> for his -enablesaver fix broken
+    probably in 4.06.
+  -inroot refresh problems, clear window was added to refresh
+    ant bat bouboule bounce braid bug clock dclock deco fadeplot flag forest
+    galaxy grav helix ico image julia laser life life3d lisa lissie loop
+    marquee maze mountain nose pacman petal pyro qix roll rotor
+    shape sierpinski spiral star swarm swirl triangle
+    vines voters wator wire world worm
+    Also debounced some modes since they now need a "painted" variable.
+    ant, ball, bug, crystal, helix, life, life3d, lissie,
+    petal, voters, and wator.
+      deco, marquee, nose could be better too.
+  debounced puzzle.
+  bug more interruptable.
+  xmlock and xalock patched to display black screens.
+  "xlock -sound -lockdelay 1" fixed so there is no overlapping sounds.
+  Thanks to Michael Duane <mduane@metapath.com> for his check mail patch.
+    New options added -mailCmd,  -mailIcon, -nomailIcon.  A sample
+    check mail is supplied (by Michael) in etc .
+    Original patch used XPM.  The code is still there under
+    ORIGINAL_XPM_PATCH, uncomment in xlock/mode.h.  This has some colormap
+    problems.
+  Thanks to David Leigh <dleigh@us.ibm.com> for his AIX DCE password patch.
+    Suggestions in README for compiling.
+  Replaced MI_WIN_* with MI_* .
+  Changed many references from batchcount to count.  -batchcount is still
+    used... could not figure out how to have them both work.
+  xlockmore can now be is dropped into the main xscreensaver directory and
+    have its modes compile for xscreensaver.
+    Sync'ed up these modes from xscreensaver-2.16:
+      ant bouboule braid drift fadeplot forest galaxy grav
+      hop[along] ifs julia laser lightning lisa lissie mountain
+      penrose rotor sierpinski slip sphere spiral strange swirl
+      triangle vines worm (flag has diverged)
+    Various new line width improvements from jwz:  braid size option,
+    rotor size option, and lisa randomized linewidth.
+    Currently all xlock modes (but random) will compile in xscreensaver.
+    mandelbrot and tube will NOT run yet.  The xpm stuff and program
+    option of marquee and tube still need to be improved too.
+    Could not figure out how to get -no-fullrandom to work if
+    "*fullrandom: True \n" is set in the mode.
+    xlockmore is dropped into the main xscreensaver directory.  See README
+    in xlockmore/xscreensaver for more info.
+  Split out utils.c stuff to util.c random.c automata.c iostuff.c.
+    Also changed  visual.c to vis.c .  This is all in the name of
+    more xscreensaver compatability.
+  Name changes
+    -imagefile -> -bitmap  xscreensaver capability...
+    -messagefont -> -planfont  probably not used too much anyway
+    -mfont -> -messagefont  goes along with -message...
+    (This is not compatable with xscreensaver but true compatability required
+    too many changes...)
+  Thanks to Tim Auckland <Tim.Auckland@Sun.COM> for 3 new fractal modes
+    discrete, flow, and thornbird.  Also wrote a wrapper script that
+    may give better performance when using java or netscape... set
+    etc/xlock.sh .  Also -name fix.
+  Problem with bomb on 24 bit screen on Solaris 2, same as deco problem,
+    "fixed".
+  Multiscreen error when -geometry is used.  Password screen size would be
+    set to the last screen, fixed.
+  Thanks to Yoav Yerushalmi <yoav@mit.edu> for Kerberos fix.
+  -wireframe options added for mountain, petal, and triangle.
+  bad memory reads fixes on ant and thornbird thanks to Tom Schmidt
+    <tschmidt@micron.com> and Purify.
+  Fixed a bug with penrose where it would stop drawing if clicked a few
+    times.
+  DPMS (Display Power Management Signaling) Monitor patch thanks to
+    Matthew D. Rench <mdrench@mtu.edu>.  I guess it would make sense to
+    run xlock with +enablesaver when your using these new options.
+    Info for man pages obtained from http://www.randomc.com/~dperr/dpms.htm .
+  Fixed program default message bug for marquee and nose when compiled in
+    xscreensaver.
+  Thanks to Charles Vidal <vidalc@club-internet.fr> for his improved
+    xlock.tcl .
 
 4.09
   Fixed some white background problems.
@@ -368,7 +632,7 @@ file: glider.3dlife (-rule S45/B5)
   Thanks to Marcelo F. Vianna <vianna@cat.cbpf.br> for speed ups in all gl
     modes.  Removed conflict between pipes and superquadrics & sproingies.
     Pipes to handle -inwindow better.  Created the great new escher gl mode.
-  Thanks to Jamie Zawinski <jwz@netscape.com> for
+  Thanks to Jamie Zawinski <jwz@jwz.org> for
     VMS hlp capability make -f Makefile.in hlp
     braid spin can go the other way, flag font and image capability,
     ifs and strange less flashy, julia mouse option, sphere draws all 4 ways

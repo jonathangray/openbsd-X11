@@ -69,7 +69,7 @@ static const char sccsid[] = "@(#)pipes.c	4.07 97/11/24 xlockmore";
 #include "xlockmore.h"		/* from the xscreensaver distribution */
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
-
+#include "vis.h"
 #endif /* !STANDALONE */
 
 #ifdef USE_GL
@@ -407,7 +407,7 @@ MakeValve(ModeInfo * mi, int newdir)
 	glCallList(pp->betweenbolts);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, MaterialGray);
 	glCallList(pp->bolts);
-	if (!MI_WIN_IS_MONO(mi)) {
+	if (!MI_IS_MONO(mi)) {
 		if (pp->system_color == MaterialRed) {
 			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, NRAND(2) ? MaterialYellow : MaterialBlue);
 		} else if (pp->system_color == MaterialBlue) {
@@ -564,7 +564,7 @@ pinit(ModeInfo * mi, int zera)
 	pp->counter = 0;
 	pp->turncounter = 0;
 
-	if (!MI_WIN_IS_MONO(mi)) {
+	if (!MI_IS_MONO(mi)) {
 		int         collist[DEFINEDCOLORS];
 		int         i, j, lower = 1000;
 
@@ -640,29 +640,29 @@ init_pipes(ModeInfo * mi)
 	pp->window = MI_WINDOW(mi);
 	if ((pp->glx_context = init_GL(mi)) != NULL) {
 
-		reshape(mi, MI_WIN_WIDTH(mi), MI_WIN_HEIGHT(mi));
+		reshape(mi, MI_WIDTH(mi), MI_HEIGHT(mi));
 		pp->initial_rotation = -10.0;
 		pinit(mi, 1);
 
 		if (factory > 0) {
-			pp->valve = BuildLWO(MI_WIN_IS_WIREFRAME(mi), &LWO_BigValve);
-			pp->bolts = BuildLWO(MI_WIN_IS_WIREFRAME(mi), &LWO_Bolts3D);
-			pp->betweenbolts = BuildLWO(MI_WIN_IS_WIREFRAME(mi), &LWO_PipeBetweenBolts);
+			pp->valve = BuildLWO(MI_IS_WIREFRAME(mi), &LWO_BigValve);
+			pp->bolts = BuildLWO(MI_IS_WIREFRAME(mi), &LWO_Bolts3D);
+			pp->betweenbolts = BuildLWO(MI_IS_WIREFRAME(mi), &LWO_PipeBetweenBolts);
 
-			pp->elbowbolts = BuildLWO(MI_WIN_IS_WIREFRAME(mi), &LWO_ElbowBolts);
-			pp->elbowcoins = BuildLWO(MI_WIN_IS_WIREFRAME(mi), &LWO_ElbowCoins);
+			pp->elbowbolts = BuildLWO(MI_IS_WIREFRAME(mi), &LWO_ElbowBolts);
+			pp->elbowcoins = BuildLWO(MI_IS_WIREFRAME(mi), &LWO_ElbowCoins);
 
-			pp->guagehead = BuildLWO(MI_WIN_IS_WIREFRAME(mi), &LWO_GuageHead);
-			pp->guageface = BuildLWO(MI_WIN_IS_WIREFRAME(mi), &LWO_GuageFace);
-			pp->guagedial = BuildLWO(MI_WIN_IS_WIREFRAME(mi), &LWO_GuageDial);
-			pp->guageconnector = BuildLWO(MI_WIN_IS_WIREFRAME(mi), &LWO_GuageConnector);
+			pp->guagehead = BuildLWO(MI_IS_WIREFRAME(mi), &LWO_GuageHead);
+			pp->guageface = BuildLWO(MI_IS_WIREFRAME(mi), &LWO_GuageFace);
+			pp->guagedial = BuildLWO(MI_IS_WIREFRAME(mi), &LWO_GuageDial);
+			pp->guageconnector = BuildLWO(MI_IS_WIREFRAME(mi), &LWO_GuageConnector);
 		}
 		/* else they are all 0, thanks to calloc(). */
 
-		if (MI_BATCHCOUNT(mi) < 1 || MI_BATCHCOUNT(mi) > NofSysTypes + 1) {
+		if (MI_COUNT(mi) < 1 || MI_COUNT(mi) > NofSysTypes + 1) {
 			pp->system_type = NRAND(NofSysTypes) + 1;
 		} else {
-			pp->system_type = MI_BATCHCOUNT(mi);
+			pp->system_type = MI_COUNT(mi);
 		}
 
 		if (MI_CYCLES(mi) > 0 && MI_CYCLES(mi) < 11) {
@@ -694,6 +694,8 @@ draw_pipes(ModeInfo * mi)
 	int         newdir;
 	int         OPX, OPY, OPZ;
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (!pp->glx_context)
 		return;
 
@@ -710,7 +712,7 @@ draw_pipes(ModeInfo * mi)
 	if (rotatepipes)
 		glRotatef(pp->initial_rotation, 0.0, 1.0, 0.0);
 
-	if (!MI_WIN_IS_ICONIC(mi)) {
+	if (!MI_IS_ICONIC(mi)) {
 		/* Width/height ratio handled by gluPerspective() now. */
 		glScalef(Scale4Window, Scale4Window, Scale4Window);
 	} else {

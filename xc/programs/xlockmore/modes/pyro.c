@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)pyro.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 15-May-97: jwz@netscape.com: turned into a standalone program.
+ * 15-May-97: jwz@jwz.org: turned into a standalone program.
  * 05-Sep-96: Added 3d support Henrik Theiling <theiling@coli.uni-sb.de>
  * 16-Mar-91: Written, received from David Brooks <brooks@osf.org>
  */
@@ -51,6 +51,7 @@ static const char sccsid[] = "@(#)pyro.c	4.07 97/11/24 xlockmore";
  "*left3d: blue \n" \
  "*both3d: magenta \n" \
  "*none3d: black \n"
+#define UNIFORM_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -178,7 +179,7 @@ ignite(ModeInfo * mi, pyrostruct * pp)
 	if ((x < pp->lmargin && xvel < 0.0) || (x > pp->rmargin && xvel > 0.0))
 		xvel = -xvel;
 	yvel = FLOATRAND(pp->minvely, pp->maxvely);
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		z = FLOATRAND(MINZVALSTART, MAXZVALSTART);
 		zvel = FLOATRAND(pp->minvelz, pp->maxvelz);
 	}
@@ -220,7 +221,7 @@ ignite(ModeInfo * mi, pyrostruct * pp)
 		rp->fuse = INTRAND((fuse * 90) / 100, (fuse * 110) / 100);
 		rp->x = x + FLOATRAND(multi * 7.6, multi * 8.4);
 		rp->y = pp->height - 1;
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			rp->zvel = FLOATRAND(zvel * 0.97, zvel * 1.03);
 			rp->z = z;
 		}
@@ -241,7 +242,7 @@ animate(ModeInfo * mi, pyrostruct * pp, rocket * rp)
 		if (rp->state == BURSTINGINAIR) {
 			for (starn = 0; starn < rp->nstars; starn++) {
 				rp->stars[starn].sx = rp->stars[starn].sy = 0.0;
-				if (MI_WIN_IS_USE3D(mi)) {
+				if (MI_IS_USE3D(mi)) {
 					rp->stars[starn].sz = 0.0;
 					diff = (int) GETZDIFF(rp->z);
 					rp->Xpoints[0][starn].x = (int) rp->x + diff;
@@ -298,11 +299,11 @@ shootup(ModeInfo * mi, pyrostruct * pp, rocket * rp)
 	GC          gc = MI_GC(mi);
 	int         diff, h;
 
-	if (MI_WIN_IS_INSTALL(mi) && MI_WIN_IS_USE3D(mi))
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi))
 		XSetForeground(display, gc, MI_NONE_COLOR(mi));
 	else
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		diff = (int) GETZDIFF(rp->z);
 		XFillRectangle(display, window, gc, (int) (rp->x) + diff, (int) (rp->y),
 			       ROCKETW, ROCKETH + 3);
@@ -319,11 +320,11 @@ shootup(ModeInfo * mi, pyrostruct * pp, rocket * rp)
 	rp->x += rp->xvel;
 	rp->y += rp->yvel;
 	rp->yvel += pp->rockdecel;
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		INCZ(rp->z, rp->zvel);
 		diff = (int) GETZDIFF(rp->z);
 		h = (int) (ROCKETH + NRAND(4));
-		if (MI_WIN_IS_INSTALL(mi))
+		if (MI_IS_INSTALL(mi))
 			XSetFunction(display, gc, GXor);
 		XSetForeground(display, gc, MI_RIGHT_COLOR(mi));
 		XFillRectangle(display, window, gc, (int) (rp->x) + diff, (int) (rp->y),
@@ -331,7 +332,7 @@ shootup(ModeInfo * mi, pyrostruct * pp, rocket * rp)
 		XSetForeground(display, gc, MI_LEFT_COLOR(mi));
 		XFillRectangle(display, window, gc, (int) (rp->x) - diff, (int) (rp->y),
 			       ROCKETW, h);
-		if (MI_WIN_IS_INSTALL(mi))
+		if (MI_IS_INSTALL(mi))
 			XSetFunction(display, gc, GXcopy);
 	} else {
 		XSetForeground(display, gc, pp->rockpixel);
@@ -354,7 +355,7 @@ burst(ModeInfo * mi, pyrostruct * pp, rocket * rp)
 
 	nstars = rp->nstars;
 	stype = rp->shelltype;
-	if (MI_WIN_IS_INSTALL(mi) && MI_WIN_IS_USE3D(mi))
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi))
 		XSetForeground(display, gc, MI_NONE_COLOR(mi));
 	else
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -362,7 +363,7 @@ burst(ModeInfo * mi, pyrostruct * pp, rocket * rp)
 	XFillRectangles(display, window, gc, rp->Xpoints[0], nstars);
 	if (stype & DOUBLECLOUD)
 		XFillRectangles(display, window, gc, rp->Xpoints[1], nstars);
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		XFillRectangles(display, window, gc, rp->Xpointsleft[0], nstars);
 		if (stype & DOUBLECLOUD)
 			XFillRectangles(display, window, gc, rp->Xpointsleft[1], nstars);
@@ -379,7 +380,7 @@ burst(ModeInfo * mi, pyrostruct * pp, rocket * rp)
 	}
 	rx = rp->x;
 	ry = rp->y;
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		rz = rp->z;
 	}
 	sd = pp->stardecel;
@@ -387,7 +388,7 @@ burst(ModeInfo * mi, pyrostruct * pp, rocket * rp)
 		sx = rp->stars[starn].sx += rp->stars[starn].sxvel;
 		sy = rp->stars[starn].sy += rp->stars[starn].syvel;
 		rp->stars[starn].syvel += sd;
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			if (rz + rp->stars[starn].sz + rp->stars[starn].szvel > MINZVAL)
 				rp->stars[starn].sz += rp->stars[starn].szvel;
 			sz = rp->stars[starn].sz;
@@ -414,13 +415,13 @@ burst(ModeInfo * mi, pyrostruct * pp, rocket * rp)
 	}
 	rp->x = rx + rp->xvel;
 	rp->y = ry + rp->yvel;
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		rp->z = ADDZ(rz, rp->zvel);
 	}
 	rp->yvel += sd;
 
-	if (MI_WIN_IS_USE3D(mi)) {
-		if (MI_WIN_IS_INSTALL(mi))
+	if (MI_IS_USE3D(mi)) {
+		if (MI_IS_INSTALL(mi))
 			XSetFunction(display, gc, GXor);
 		XSetForeground(display, gc, MI_RIGHT_COLOR(mi));
 		XFillRectangles(display, window, gc, rp->Xpoints[0], nstars);
@@ -432,7 +433,7 @@ burst(ModeInfo * mi, pyrostruct * pp, rocket * rp)
 		if (stype & DOUBLECLOUD) {
 			XFillRectangles(display, window, gc, rp->Xpointsleft[1], nstars);
 		}
-		if (MI_WIN_IS_INSTALL(mi))
+		if (MI_IS_INSTALL(mi))
 			XSetFunction(display, gc, GXcopy);
 	} else {
 
@@ -469,12 +470,12 @@ init_pyro(ModeInfo * mi)
 	}
 	pp = &pyros[MI_SCREEN(mi)];
 
-	pp->width = MI_WIN_WIDTH(mi);
-	pp->height = MI_WIN_HEIGHT(mi);
+	pp->width = MI_WIDTH(mi);
+	pp->height = MI_HEIGHT(mi);
 	pp->lmargin = pp->width / 16;
 	pp->rmargin = pp->width - pp->lmargin;
 
-	pp->nrockets = MI_BATCHCOUNT(mi);
+	pp->nrockets = MI_COUNT(mi);
 	if (pp->nrockets < -MINROCKETS) {
 		if (pp->rockq) {
 			(void) free((void *) pp->rockq);
@@ -509,7 +510,7 @@ init_pyro(ModeInfo * mi)
 			rp->Xpoints[0][starn].width = rp->Xpoints[0][starn].height =
 				rp->Xpoints[1][starn].width = rp->Xpoints[1][starn].height =
 				pp->star_size;
-			if (MI_WIN_IS_USE3D(mi)) {
+			if (MI_IS_USE3D(mi)) {
 				rp->Xpointsleft[0][starn].width = rp->Xpointsleft[0][starn].height =
 					rp->Xpointsleft[1][starn].width = rp->Xpointsleft[1][starn].height =
 					pp->star_size;
@@ -527,14 +528,14 @@ init_pyro(ModeInfo * mi)
 	pp->minvelx = -pp->maxvelx;
 	pp->minvely = -(float) (pp->height) * MINYVELFACTOR;
 	pp->maxvely = -(float) (pp->height) * MAXYVELFACTOR;
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		pp->maxvelz = (float) (MAXZVALSTART - MINZVALSTART) * ZVELFACTOR;
 		pp->minvelz = -pp->maxvelz;
 	}
 	pp->maxsvel = pp->minvely * SVELFACTOR;
 	pp->rockdecel = (float) (pp->height) * GRAVFACTOR;
 	pp->stardecel = pp->rockdecel * BOUYANCY;
-	if (MI_WIN_IS_INSTALL(mi) && MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi)) {
 		MI_CLEARWINDOWCOLOR(mi, MI_NONE_COLOR(mi));
 	} else {
 		MI_CLEARWINDOW(mi);
@@ -548,6 +549,8 @@ draw_pyro(ModeInfo * mi)
 	pyrostruct *pp = &pyros[MI_SCREEN(mi)];
 	rocket     *rp;
 	int         rockn;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (just_started || (NRAND(pp->p_ignite) == 0)) {
 		just_started = False;
@@ -592,5 +595,9 @@ release_pyro(ModeInfo * mi)
 void
 refresh_pyro(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi)) {
+		MI_CLEARWINDOWCOLOR(mi, MI_NONE_COLOR(mi));
+	} else {
+		MI_CLEARWINDOW(mi);
+	}
 }

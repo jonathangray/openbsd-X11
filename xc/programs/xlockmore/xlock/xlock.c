@@ -1,5 +1,5 @@
 #if !defined( lint ) && !defined( SABER )
-static const char sccsid[] = "@(#)xlock.c	4.07 97/11/24 xlockmore";
+static const char sccsid[] = "@(#)xlock.c	4.11 98/05/24 xlockmore";
 
 #endif
 
@@ -7,6 +7,7 @@ static const char sccsid[] = "@(#)xlock.c	4.07 97/11/24 xlockmore";
  * xlock.c - X11 client to lock a display and show a screen saver.
  *
  * Copyright (c) 1988-91 by Patrick J. Naughton.
+ * xscreensaver, Copyright (c) 1997 Jamie Zawinski <jwz@jwz.org>
  *
  * Permission to use, copy, modify, and distribute this software and its
  * documentation for any purpose and without fee is hereby granted,
@@ -23,13 +24,19 @@ static const char sccsid[] = "@(#)xlock.c	4.07 97/11/24 xlockmore";
  * Revision History:
  *
  * Changes maintained by David Bagley <bagleyd@bigfoot.com>
+ * 01-Jul-98: Eric Lassauge <lassauge@sagem.fr> &
+ *              Remi Cohen-Scali <remi.cohenscali@pobox.com>
+ *            Added support for locking VT switching (-/+vtlock)
+ *            Added code is enclosed in USE_VTLOCK
+ * 01-May-97: Matthew Rench <mdrench@mtu.edu>
+ *            Added DPMS options.
  * 02-Dec-97: Strong user authentication, utilizing the SafeWord API.
  *            Author unknown.
  * 01-May-97: Scott Carter <scarter@sdsc.edu>
- *            Added code to stat .xlockmessage, .plan, and .signature files
+ *            Added code to stat .xlocktext, .plan, and .signature files
  *            before reading the message;  only regular files are read (no
  *            pipes or special files).
- *            Added code to replace tabs with 8 spaces in the message buffer.
+ *            Added code to replace tabs with 8 spaces in the plantext buffer.
  * 01-Sep-96: Ron Hitchens <ron@idiom.com>
  *            Updated xlock so it would refresh more reliably and
  *            handle window resizing.
@@ -62,12 +69,12 @@ static const char sccsid[] = "@(#)xlock.c	4.07 97/11/24 xlockmore";
  *            Took out "bounce" since it was too buggy (maybe I will put
  *            it back later).
  * 21-Mar-94: patch to to trap Shift-Ctrl-Reset courtesy of Jamie Zawinski
- *            <jwz@netscape.com>, patched the patch (my mistake) for AIXV3
+ *            <jwz@jwz.org>, patched the patch (my mistake) for AIXV3
  *            and HP from <R.K.Lloyd@csc.liv.ac.uk>.
  * 01-Dec-93: added patch for AIXV3 from Tom McConnell
  *            <tmcconne@sedona.intel.com> also added a patch for HP-UX 8.0.
  * 29-Jul-93: "hyper", "helix", "rock", and "blot" (also tips on "maze") I
- *            got courtesy of Jamie Zawinski <jwz@netscape.com>;
+ *            got courtesy of Jamie Zawinski <jwz@jwz.org>;
  *            at the time I could not get his stuff to work for the hpux 8.0,
  *            so I scrapped it but threw his stuff in xlock.
  *            "maze" and "sphere" I got courtesy of Sun Microsystems.
@@ -163,7 +170,411 @@ static const char sccsid[] = "@(#)xlock.c	4.07 97/11/24 xlockmore";
  *
  */
 
+#ifdef STANDALONE
+
+/*-
+ * xscreensaver compatibility layer for xlockmore modules.
+ * xscreensaver, Copyright (c) 1997, 1998 Jamie Zawinski <jwz@jwz.org>
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation.  No representations are made about the suitability of this
+ * software for any purpose.  It is provided "as is" without express or 
+ * implied warranty.
+ *
+ * This file, along with xlockmore.h, make it possible to compile an xlockmore
+ * module into a standalone program, and thus use it with xscreensaver.
+ * By Jamie Zawinski <jwz@jwz.org> on 10-May-97; based on the ideas
+ * in the older xlock.h by Charles Hannum <mycroft@ai.mit.edu>.  (I had
+ * to redo it, since xlockmore has diverged so far from xlock...)
+ */
+
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include "screenhack.h"
+#include "mode.h"
+
+#define countof(x) (sizeof((x))/sizeof(*(x)))
+
+extern ModeSpecOpt xlockmore_opts[];
+extern const char *app_defaults;
+char       *message, *messagefile, *messagesfile, *program;
+char       *messagefontname;
+int         neighbors;
+
+
+void
+pre_merge_options(void)
+{
+	int         i, j;
+	char       *s;
+
+	/* Translate the xlockmore `opts[]' argument to a form that
+	   screenhack.c expects.
+	 */
+	for (i = 0; i < xlockmore_opts->numopts; i++) {
+		XrmOptionDescRec *old = &xlockmore_opts->opts[i];
+		XrmOptionDescRec *new = &options[i];
+
+		if (old->option[0] == '-')
+			new->option = old->option;
+		else {
+			/* Convert "+foo" to "-no-foo". */
+			new->option = (char *) malloc(strlen(old->option) + 5);
+			(void) strcpy(new->option, "-no-");
+			(void) strcat(new->option, old->option + 1);
+		}
+
+		new->specifier = strrchr(old->specifier, '.');
+		if (!new->specifier)
+			abort();
+
+		new->argKind = old->argKind;
+		new->value = old->value;
+	}
+
+	/* Add extra args, if they're mentioned in the defaults... */
+	{
+		char       *args[] =
+		{"-delay", "-count", "-cycles", "-size", "-ncolors", "-bitmap",
+		 "-text", "-filename", "-program", "-neighbors",
+		 "-wireframe", "-use3d", "-mouse", "-fullrandom", "-verbose"};
+
+		for (j = 0; j < countof(args); j++)
+			if (strstr(app_defaults, args[j] + 1)) {
+				XrmOptionDescRec *new = &options[i++];
+
+				new->option = args[j];
+				new->specifier = strdup(args[j]);
+				new->specifier[0] = '.';
+				if (!strcmp(new->option, "-wireframe")) {
+					new->argKind = XrmoptionNoArg;
+					new->value = "True";
+					new = &options[i++];
+					new->option = "-no-wireframe";
+					new->specifier = options[i - 2].specifier;
+					new->argKind = XrmoptionNoArg;
+					new->value = "False";
+				} else if (!strcmp(new->option, "-use3d")) {
+					new->option = "-3d";
+					new->argKind = XrmoptionNoArg;
+					new->value = "True";
+					new = &options[i++];
+					new->option = "-no-3d";
+					new->specifier = options[i - 2].specifier;
+					new->argKind = XrmoptionNoArg;
+					new->value = "False";
+				} else if (!strcmp(new->option, "-mouse")) {
+					new->option = "-mouse";
+					new->argKind = XrmoptionNoArg;
+					new->value = "True";
+					new = &options[i++];
+					new->option = "-no-mouse";
+					new->specifier = options[i - 2].specifier;
+					new->argKind = XrmoptionNoArg;
+					new->value = "False";
+				} else if (!strcmp(new->option, "-fullrandom")) {
+					new->option = "-fullrandom";
+					new->argKind = XrmoptionNoArg;
+					new->value = "True";
+					new = &options[i++];
+					new->option = "-no-fullrandom";
+					new->specifier = options[i - 2].specifier;
+					new->argKind = XrmoptionNoArg;
+					new->value = "False";
+				} else if (!strcmp(new->option, "-verbose")) {
+					new->option = "-verbose";
+					new->argKind = XrmoptionNoArg;
+					new->value = "True";
+					new = &options[i++];
+					new->option = "-no-verbose";
+					new->specifier = options[i - 2].specifier;
+					new->argKind = XrmoptionNoArg;
+					new->value = "False";
+				} else {
+					new->argKind = XrmoptionSepArg;
+					new->value = 0;
+				}
+			}
+	}
+
+
+	/* Construct the kind of `defaults' that screenhack.c expects from
+	   the xlockmore `vars[]' argument.
+	 */
+	i = 0;
+
+	/* Put on the PROGCLASS.background/foreground resources. */
+	s = (char *) malloc(50);
+	(void) strcpy(s, progclass);
+	(void) strcat(s, ".background: black");
+	defaults[i++] = s;
+
+	s = (char *) malloc(50);
+	(void) strcpy(s, progclass);
+	(void) strcat(s, ".foreground: white");
+	defaults[i++] = s;
+
+	/* Copy the lines out of the `app_defaults' var and into this array. */
+	s = strdup(app_defaults);
+	while (s && *s) {
+		defaults[i++] = s;
+		s = strchr(s, '\n');
+		if (s)
+			*s++ = 0;
+	}
+
+	/* Copy the defaults out of the `xlockmore_opts->' variable. */
+	for (j = 0; j < xlockmore_opts->numvarsdesc; j++) {
+		const char *def = xlockmore_opts->vars[j].def;
+
+		if (!def)
+			def = "False";
+		if (def == ((char *) 1))
+			def = "True";
+		s = (char *) malloc(strlen(xlockmore_opts->vars[j].name) +
+				    strlen(def) + 10);
+		(void) strcpy(s, "*");
+		(void) strcat(s, xlockmore_opts->vars[j].name);
+		(void) strcat(s, ": ");
+		(void) strcat(s, def);
+		defaults[i++] = s;
+	}
+
+	defaults[i] = 0;
+}
+
+
+static void
+xlockmore_read_resources(void)
+{
+	int         i;
+
+	for (i = 0; i < xlockmore_opts->numvarsdesc; i++) {
+		void       *var = xlockmore_opts->vars[i].var;
+		Bool       *var_b = (Bool *) var;
+		char      **var_c = (char **) var;
+		int        *var_i = (int *) var;
+		float      *var_f = (float *) var;
+
+		switch (xlockmore_opts->vars[i].type) {
+			case t_String:
+				*var_c = get_string_resource(xlockmore_opts->vars[i].name,
+					  xlockmore_opts->vars[i].classname);
+				break;
+			case t_Float:
+				*var_f = get_float_resource(xlockmore_opts->vars[i].name,
+					  xlockmore_opts->vars[i].classname);
+				break;
+			case t_Int:
+				*var_i = get_integer_resource(xlockmore_opts->vars[i].name,
+					  xlockmore_opts->vars[i].classname);
+				break;
+			case t_Bool:
+				*var_b = get_boolean_resource(xlockmore_opts->vars[i].name,
+					  xlockmore_opts->vars[i].classname);
+				break;
+			default:
+				abort();
+		}
+	}
+}
+
+void
+xlockmore_screenhack(Display * dpy, Window window,
+		     Bool want_writable_colors,
+		     Bool want_uniform_colors,
+		     Bool want_smooth_colors,
+		     Bool want_bright_colors,
+		     void        (*hack_init) (ModeInfo *),
+		     void        (*hack_draw) (ModeInfo *),
+		     void        (*hack_free) (ModeInfo *))
+{
+	ModeInfo    mi;
+	XGCValues   gcv;
+	XColor      color;
+	int         i;
+	time_t      start, now;
+	int         orig_pause;
+
+	(void) memset((char *) &mi, 0, sizeof (mi));
+	mi.dpy = dpy;
+	mi.window = window;
+	XGetWindowAttributes(dpy, window, &mi.xgwa);
+
+	color.flags = DoRed | DoGreen | DoBlue;
+	color.red = color.green = color.blue = 0;
+	if (!XAllocColor(dpy, mi.xgwa.colormap, &color))
+		abort();
+	mi.black = color.pixel;
+	color.red = color.green = color.blue = 0xFFFF;
+	if (!XAllocColor(dpy, mi.xgwa.colormap, &color))
+		abort();
+	mi.white = color.pixel;
+
+	if (mono_p) {
+		static unsigned long pixels[2];
+		static XColor colors[2];
+
+	      MONO:
+		mi.npixels = 2;
+		mi.pixels = pixels;
+		mi.colors = colors;
+		pixels[0] = mi.black;
+		pixels[1] = mi.white;
+		colors[0].flags = DoRed | DoGreen | DoBlue;
+		colors[1].flags = DoRed | DoGreen | DoBlue;
+		colors[0].red = colors[0].green = colors[0].blue = 0;
+		colors[1].red = colors[1].green = colors[1].blue = 0xFFFF;
+		mi.writable_p = False;
+	} else {
+		mi.npixels = get_integer_resource("ncolors", "Integer");
+		if (mi.npixels <= 0)
+			mi.npixels = 64;
+		else if (mi.npixels > 256)
+			mi.npixels = 256;
+
+		mi.colors = (XColor *) calloc(mi.npixels, sizeof (*mi.colors));
+
+		mi.writable_p = want_writable_colors;
+
+		if (want_uniform_colors)
+			make_uniform_colormap(dpy, mi.xgwa.visual, mi.xgwa.colormap,
+					      mi.colors, &mi.npixels,
+					      True, &mi.writable_p, True);
+		else if (want_smooth_colors)
+			make_smooth_colormap(dpy, mi.xgwa.visual, mi.xgwa.colormap,
+					     mi.colors, &mi.npixels,
+					     True, &mi.writable_p, True);
+		else
+			make_random_colormap(dpy, mi.xgwa.visual, mi.xgwa.colormap,
+					     mi.colors, &mi.npixels,
+					     want_bright_colors,
+					     True, &mi.writable_p, True);
+
+		if (mi.npixels <= 2)
+			goto MONO;
+		else {
+			int         i;
+
+			mi.pixels = (unsigned long *)
+				calloc(mi.npixels, sizeof (*mi.pixels));
+			for (i = 0; i < mi.npixels; i++)
+				mi.pixels[i] = mi.colors[i].pixel;
+		}
+	}
+
+	gcv.foreground = mi.white;
+	gcv.background = mi.black;
+	mi.gc = XCreateGC(dpy, window, GCForeground | GCBackground, &gcv);
+
+	mi.pause = get_integer_resource("delay", "Usecs");
+
+	mi.count = get_integer_resource("count", "Int");
+	mi.cycles = get_integer_resource("cycles", "Int");
+	mi.size = get_integer_resource("size", "Int");
+	mi.ncolors = get_integer_resource("ncolors", "Int");
+	mi.bitmap = get_string_resource("bitmap", "String");
+	messagefontname = get_string_resource("font", "String");
+	message = get_string_resource("text", "String");
+	messagefile = get_string_resource("filename", "String");
+	messagesfile = get_string_resource("fortunefile", "String");
+	program = get_string_resource("program", "String");
+	neighbors = get_integer_resource("neighbors", "Int");
+
+
+#if 0
+	decay = get_boolean_resource("decay", "Boolean");
+	if (decay)
+		mi.fullrandom = False;
+
+	trail = get_boolean_resource("trail", "Boolean");
+	if (trail)
+		mi.fullrandom = False;
+
+	grow = get_boolean_resource("grow", "Boolean");
+	if (grow)
+		mi.fullrandom = False;
+
+	liss = get_boolean_resource("liss", "Boolean");
+	if (liss)
+		mi.fullrandom = False;
+
+	ammann = get_boolean_resource("ammann", "Boolean");
+	if (ammann)
+		mi.fullrandom = False;
+
+	jong = get_boolean_resource("jong", "Boolean");
+	if (jong)
+		mi.fullrandom = False;
+
+	sine = get_boolean_resource("sine", "Boolean");
+	if (sine)
+		mi.fullrandom = False;
+#endif
+
+	mi.threed = get_boolean_resource("use3d", "Boolean");
+	mi.threed_delta = get_float_resource("delta3d", "Boolean");
+	mi.threed_right_color = get_pixel_resource("right3d", "Color", dpy,
+						   mi.xgwa.colormap);
+	mi.threed_left_color = get_pixel_resource("left3d", "Color", dpy,
+						  mi.xgwa.colormap);
+	mi.threed_both_color = get_pixel_resource("both3d", "Color", dpy,
+						  mi.xgwa.colormap);
+	mi.threed_none_color = get_pixel_resource("none3d", "Color", dpy,
+						  mi.xgwa.colormap);
+
+	mi.mouse = get_boolean_resource("mouse", "Boolean");
+	mi.wireframe_p = get_boolean_resource("wireframe", "Boolean");
+	mi.fullrandom = get_boolean_resource("fullrandom", "Boolean");
+	mi.verbose = get_boolean_resource("verbose", "Boolean");
+
+	mi.root_p = (window == RootWindowOfScreen(mi.xgwa.screen));
+	mi.is_drawn = False;
+
+
+	if (mi.pause < 0)
+		mi.pause = 0;
+	else if (mi.pause > 100000000)
+		mi.pause = 100000000;
+	orig_pause = mi.pause;
+
+	xlockmore_read_resources();
+
+	XClearWindow(dpy, window);
+
+	i = 0;
+	start = time((time_t) 0);
+
+	hack_init(&mi);
+	do {
+		hack_draw(&mi);
+		XSync(dpy, False);
+		if (mi.pause)
+			usleep(mi.pause);
+		mi.pause = orig_pause;
+
+		if (hack_free) {
+			if (i++ > (mi.count / 4) &&
+			    (start + 5) < (now = time((time_t) 0))) {
+				i = 0;
+				start = now;
+				hack_free(&mi);
+				hack_init(&mi);
+				XSync(dpy, False);
+			}
+		}
+	} while (1);
+}
+
+#else /* STANDALONE */
 #include "xlock.h"
+#include "color.h"
+#include "util.h"
+#include "iostuff.h"
 #include <sys/stat.h>
 #include <signal.h>
 #include <errno.h>
@@ -191,6 +602,17 @@ static const char sccsid[] = "@(#)xlock.c	4.07 97/11/24 xlockmore";
 #if defined( __hpux ) || defined( __apollo )
 #include <X11/XHPlib.h>
 extern int  XHPEnableReset(Display * dsp);
+
+#endif
+#ifdef USE_DPMS
+#define MIN_DPMS 30		/* 30 second minimum */
+#include <X11/extensions/dpms.h>
+extern unsigned char DPMSQueryExtension(Display *, int *, int *);
+extern int  DPMSGetTimeouts(Display *, unsigned short *, unsigned short *, unsigned short *);
+extern int  DPMSSetTimeouts(Display *, unsigned short, unsigned short, unsigned short);
+extern int  dpmsstandby;
+extern int  dpmssuspend;
+extern int  dpmsoff;
 
 #endif
 
@@ -260,9 +682,9 @@ Display    *dsp = NULL;		/* server display connection */
 extern char user[PASSLENGTH];
 extern char hostname[MAXHOSTNAMELEN];
 extern char *displayname;
-extern char *imagefile;
+extern char *bitmap;
 extern int  delay;
-extern int  batchcount;
+extern int  count;
 extern int  cycles;
 extern int  size;
 extern int  ncolors;
@@ -292,9 +714,10 @@ extern int  lockdelay;
 extern int  timeout;
 extern Bool wireframe;
 extern Bool use3d;
+extern Bool mouse;
 
 extern char *fontname;
-extern char *messagefont;
+extern char *planfontname;
 
 #ifdef USE_MB
 XFontSet    fontset;
@@ -335,6 +758,10 @@ extern char *startCmd;
 extern char *endCmd;
 extern char *logoutCmd;
 
+extern char *mailCmd;
+extern char *mailIcon;
+extern char *nomailIcon;
+
 #ifdef USE_AUTO_LOGOUT
 extern int  logoutAuto;
 
@@ -355,7 +782,7 @@ extern Bool dtsaver;
 #endif
 
 static int  screen = 0;		/* current screen */
-
+int         startscreen = 0;
 static int  screens;		/* number of screens */
 
 static Cursor mycursor;		/* blank cursor */
@@ -365,6 +792,7 @@ static char no_bits[] =
 {0};				/* dummy array for the blank cursor */
 static int  passx, passy;	/* position of the ?'s */
 static int  iconwidth, iconheight;
+static int  lock_delay;
 
 #ifdef FX
 static int  glwidth, glheight;
@@ -372,17 +800,17 @@ static int  glwidth, glheight;
 #endif
 static int  timex, timey;	/* position for the times */
 static XFontStruct *font;
-static XFontStruct *msgfont;
+static XFontStruct *planfont;
 static int  sstimeout;		/* screen saver parameters */
 static int  ssinterval;
 static int  ssblanking;
 static int  ssexposures;
 static unsigned long start_time;
-static char *message[MESSAGELINES + 1];		/* Message is stored here */
+static char *plantext[TEXTLINES + 1];	/* Message is stored here */
 
 /* GEOMETRY STUFF */
 static int  sizeconfiguremask;
-static XWindowChanges fullsizeconfigure, minisizeconfigure;
+static XWindowChanges minisizeconfigure;
 static int  fullscreen = False;
 
 #if defined( USE_AUTO_LOGOUT ) || defined( USE_BUTTON_LOGOUT )
@@ -395,7 +823,7 @@ static int  got_invalid = 0;
 
 #endif
 
-#if (defined( SYSV ) || defined( SVR4 )) && defined( SOLARIS2 ) && !defined( LESS_THAN_SOLARIS2_5 )
+#if (defined( SYSV ) || defined( SVR4 )) && defined( SOLARIS2 ) && !defined( HAVE_STRUCT_SIGSET_T )
 #if !defined( __cplusplus ) && !defined( c_plusplus ) && !defined ( _SIGSET_T )
 #define _SIGSET_T
 typedef struct {		/* signal set type */
@@ -407,11 +835,43 @@ typedef struct {		/* signal set type */
 #endif
 #endif
 
-int         signalUSR1 = 0;
-int         signalUSR2 = 0;
+#ifdef ORIGINAL_XPM_PATCH
+#if defined( USE_XPM ) || defined( USE_XPMINC )
+#if USE_XPMINC
+#include <xpm.h>
+#else
+#include <X11/xpm.h>		/* Normal spot */
+#endif
+#endif
+
+static XpmImage *mail_xpmimg = NULL;
+static XpmImage *nomail_xpmimg = NULL;
+
+#else
+#include <bitmaps/mailempty.xbm>
+#include <bitmaps/mailfull.xbm>
+
+#define NOMAIL_WIDTH   mailempty_width
+#define NOMAIL_HEIGHT  mailempty_height
+#define NOMAIL_BITS    mailempty_bits
+#define MAIL_WIDTH   mailfull_width
+#define MAIL_HEIGHT  mailfull_height
+#define MAIL_BITS    mailfull_bits
+#endif
+
+#ifdef USE_VTLOCK
+	/* EL - RCS : for VT switching locking */
+extern int  vtlock;		/* Have to VT lock switching */
+extern int  vtlocked;		/* VT switching is locked */
+
+extern void dovtlock(void);	/* Actual do it */
+extern void dounvtlock(void);	/* & undo it functions */
+
+#endif
+
+static int  signalUSR1 = 0;
+static int  signalUSR2 = 0;
 char        old_default_mode[20] = "";
-void        SigUsr1(int sig);
-void        SigUsr2(int sig);
 
 #define AllPointerEventMask \
 	(ButtonPressMask | ButtonReleaseMask | \
@@ -528,12 +988,37 @@ XUngrabHosts(Display * display)
 		XDisableAccessControl(display);
 }
 
+/* Provides support for the DPMS options. */
+#ifdef USE_DPMS
+static void
+SetDPMS(Display * display, int nstandby, int nsuspend, int noff)
+{
+	static unsigned short standby = 0, suspend = 0, off = 0, flag = 0;
+	int         dummy;
 
-/* Simple wrapper to get an asynchronous grab on the keyboard and mouse. If
-   either grab fails, we sleep for one second and try again since some window
-   manager might have had the mouse grabbed to drive the menu choice that
-   picked "Lock Screen..".  If either one fails the second time we print an
-   error message and exit. */
+	if (DPMSQueryExtension(display, &dummy, &dummy)) {
+		if (!flag) {
+			DPMSGetTimeouts(display, &standby, &suspend, &off);
+			flag++;
+		}
+		if ((nstandby < 0) && (nsuspend < 0) && (noff < 0))
+			DPMSSetTimeouts(display, standby, suspend, off);
+		else
+			DPMSSetTimeouts(display,
+					(nstandby <= 0 ? 0 : (nstandby > MIN_DPMS ? nstandby : MIN_DPMS)),
+					(nsuspend <= 0 ? 0 : (nsuspend > MIN_DPMS ? nsuspend : MIN_DPMS)),
+					(noff <= 0 ? 0 : (noff > MIN_DPMS ? noff : MIN_DPMS)));
+	}
+}
+#endif
+
+/*-
+ * Simple wrapper to get an asynchronous grab on the keyboard and mouse. If
+ * either grab fails, we sleep for one second and try again since some window
+ * manager might have had the mouse grabbed to drive the menu choice that
+ * picked "Lock Screen..".  If either one fails the second time we print an
+ * error message and exit.
+ */
 static void
 GrabKeyboardAndMouse(Display * display, Window window)
 {
@@ -555,12 +1040,12 @@ GrabKeyboardAndMouse(Display * display, Window window)
 			(void) free((void *) buf);	/* Should never get here */
 		}
 	}
-	status = XGrabPointer(display, window, True, AllPointerEventMask,
+	status = XGrabPointer(display, window, True, (unsigned int) AllPointerEventMask,
 			      GrabModeAsync, GrabModeAsync, None, mycursor,
 			      CurrentTime);
 	if (status != GrabSuccess) {
 		(void) sleep(1);
-		status = XGrabPointer(display, window, True, AllPointerEventMask,
+		status = XGrabPointer(display, window, True, (unsigned int) AllPointerEventMask,
 				GrabModeAsync, GrabModeAsync, None, mycursor,
 				      CurrentTime);
 
@@ -580,7 +1065,7 @@ static void
 ChangeGrabbedCursor(Display * display, Window window, Cursor cursor)
 {
 	if (!debug && grabmouse && !inwindow && !inroot)
-		(void) XGrabPointer(display, window, True, AllPointerEventMask,
+		(void) XGrabPointer(display, window, True, (unsigned int) AllPointerEventMask,
 		    GrabModeAsync, GrabModeAsync, None, cursor, CurrentTime);
 }
 
@@ -606,8 +1091,8 @@ window_size_changed(int scrn, Window window)
 		return (True);
 	} else {
 		(void) XGetWindowAttributes(dsp, window, &xgwa);
-		if ((MI_WIN_WIDTH(mi) != xgwa.width) ||
-		    (MI_WIN_HEIGHT(mi) != xgwa.height)) {
+		if ((MI_WIDTH(mi) != xgwa.width) ||
+		    (MI_HEIGHT(mi) != xgwa.height)) {
 			MI_WINDOW(mi) = None;
 			return (True);
 		}
@@ -634,19 +1119,19 @@ resetSize(ModeInfo * mi, Bool setGL)
 	 * here for multiscreens as well so I am not going bother
 	 */
 	if (!width)
-		width = MI_WIN_WIDTH(mi);
+		width = MI_WIDTH(mi);
 	if (!height)
-		height = MI_WIN_HEIGHT(mi);
+		height = MI_HEIGHT(mi);
 
 	if (setGL) {
-		MI_WIN_WIDTH(mi) = glwidth;
-		MI_WIN_HEIGHT(mi) = glheight;
+		MI_WIDTH(mi) = glwidth;
+		MI_HEIGHT(mi) = glheight;
 	} else {
-		MI_WIN_WIDTH(mi) = width;
-		MI_WIN_HEIGHT(mi) = height;
+		MI_WIDTH(mi) = width;
+		MI_HEIGHT(mi) = height;
 	}
 	XResizeWindow(MI_DISPLAY(mi), MI_WINDOW(mi),
-		      MI_WIN_WIDTH(mi), MI_WIN_HEIGHT(mi));
+		      MI_WIDTH(mi), MI_HEIGHT(mi));
 }
 #endif
 
@@ -667,7 +1152,7 @@ mode_info(Display * display, int scrn, Window window, int iconic)
 
 	mi = &modeinfo[scrn];
 
-	if (MI_WIN_FLAG_NOT_SET(mi, WI_FLAG_INFO_INITTED)) {
+	if (MI_FLAG_NOT_SET(mi, WI_FLAG_INFO_INITTED)) {
 		/* This stuff only needs to be set once per screen */
 
 		(void) memset((char *) mi, 0, sizeof (ModeInfo));
@@ -682,39 +1167,45 @@ mode_info(Display * display, int scrn, Window window, int iconic)
 		MI_SCREENINFO(mi) = &Scr[scrn];
 
 		/* accessing globals here */
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_MONO,
+		MI_SET_FLAG_STATE(mi, WI_FLAG_MONO,
 			     (mono || CellsOfScreen(MI_SCREENPTR(mi)) <= 2));
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_INWINDOW, inwindow);
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_INROOT, inroot);
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_NOLOCK, nolock);
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_INSTALL, install);
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_DEBUG, debug);
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_USE3D, use3d &&
+		MI_SET_FLAG_STATE(mi, WI_FLAG_INWINDOW, inwindow);
+		MI_SET_FLAG_STATE(mi, WI_FLAG_INROOT, inroot);
+		MI_SET_FLAG_STATE(mi, WI_FLAG_NOLOCK, nolock);
+#ifdef USE_DTSAVER
+		MI_SET_FLAG_STATE(mi, WI_FLAG_INSTALL, install && !inroot && !dtsaver);
+#else
+		MI_SET_FLAG_STATE(mi, WI_FLAG_INSTALL, install && !inroot);
+#endif
+		MI_SET_FLAG_STATE(mi, WI_FLAG_DEBUG, debug);
+		MI_SET_FLAG_STATE(mi, WI_FLAG_USE3D, use3d &&
 			    !(mono || CellsOfScreen(MI_SCREENPTR(mi)) <= 2));
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_VERBOSE, verbose);
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_FULLRANDOM, fullrandom);
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_WIREFRAME, wireframe);
-		MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_INFO_INITTED, True);
+		MI_SET_FLAG_STATE(mi, WI_FLAG_VERBOSE, verbose);
+		MI_SET_FLAG_STATE(mi, WI_FLAG_FULLRANDOM, False);
+		MI_SET_FLAG_STATE(mi, WI_FLAG_WIREFRAME, wireframe);
+		MI_SET_FLAG_STATE(mi, WI_FLAG_MOUSE, mouse);
+		MI_SET_FLAG_STATE(mi, WI_FLAG_INFO_INITTED, True);
+		MI_IS_DRAWN(mi) = False;
 	}
 	if (MI_WINDOW(mi) != window) {
 		MI_WINDOW(mi) = window;
 
 		(void) XGetWindowAttributes(display, window, &xgwa);
 
-		MI_WIN_WIDTH(mi) = xgwa.width;
-		MI_WIN_HEIGHT(mi) = xgwa.height;
+		MI_WIDTH(mi) = xgwa.width;
+		MI_HEIGHT(mi) = xgwa.height;
 	}
-	MI_WIN_SET_FLAG_STATE(mi, WI_FLAG_ICONIC, iconic);
+	MI_SET_FLAG_STATE(mi, WI_FLAG_ICONIC, iconic);
 
 	MI_DELTA3D(mi) = delta3d;
 
 	MI_DELAY(mi) = delay;	/* globals */
-	MI_BATCHCOUNT(mi) = batchcount;
+	MI_COUNT(mi) = count;
 	MI_CYCLES(mi) = cycles;
 	MI_SIZE(mi) = size;
 	MI_NCOLORS(mi) = ncolors;
 	MI_SATURATION(mi) = saturation;
-	MI_IMAGEFILE(mi) = imagefile;
+	MI_BITMAP(mi) = bitmap;
 	return (mi);
 }
 
@@ -725,7 +1216,7 @@ finish(Display * display, Bool closeDisplay)
 {
 	int         screen;
 
-	for (screen = 0; screen < screens; screen++) {
+	for (screen = startscreen; screen < screens; screen++) {
 		if (Scr[screen].window != None) {
 			release_last_mode(mode_info(display, screen, Scr[screen].window, False));
 		}
@@ -733,11 +1224,17 @@ finish(Display * display, Bool closeDisplay)
 			release_last_mode(mode_info(display, screen, Scr[screen].icon, True));
 		}
 	}
+#ifdef ORIGINAL_XPM_PATCH
+	if (mail_xpmimg)
+		(void) free((void *) mail_xpmimg);
+	if (nomail_xpmimg)
+		(void) free((void *) nomail_xpmimg);
+#endif
 
 	XSync(display, False);
 #ifdef USE_VROOT
 	if (inroot)
-		XClearWindow(display, Scr[0].window);
+		XClearWindow(display, Scr[startscreen].window);
 #endif
 	if (!nolock && !allowaccess) {
 		if (grabserver)
@@ -747,8 +1244,7 @@ finish(Display * display, Bool closeDisplay)
 	XUngrabPointer(display, CurrentTime);
 	XUngrabKeyboard(display, CurrentTime);
 	if (!enablesaver && !nolock) {
-		XSetScreenSaver(display, sstimeout, ssinterval,
-				ssblanking, ssexposures);
+		XSetScreenSaver(display, sstimeout, ssinterval, ssblanking, ssexposures);
 	}
 	XFlush(display);
 #ifndef __sgi
@@ -760,6 +1256,11 @@ finish(Display * display, Bool closeDisplay)
 		(void) XCloseDisplay(display);
 #endif
 	(void) nice(0);
+#ifdef USE_VTLOCK
+	/* EL - RCS : Unlock VT switching */
+	if (vtlock && vtlocked)
+		dounvtlock();
+#endif
 }
 
 static int
@@ -863,30 +1364,44 @@ statusUpdate(int isnew, int scr)
 	if (timeelapsed) {
 		if (len < 60)
 			(void) sprintf(buf,
-#ifdef NL
-				       "%d minute%s op slot.                                        \n",
-				       len, len == 1 ? "" : "n");
-#else
 #ifdef DE
 				       "Seit %d Minute%s gesperrt.                                  \n",
-				       len, len == 1 ? "" : "n");
+				       len, len <= 1 ? "" : "n"
+#else
+#ifdef FR
+				       "%d minute%s écoulée%s depuis verrouillage.                      \n",
+				len, len <= 1 ? "" : "s", len <= 1 ? "" : "s"
+#else
+#ifdef NL
+				       "%d minute%s op slot.                                        \n",
+				       len, len <= 1 ? "" : "n"
 #else
 				       "%d minute%s elapsed since locked.                           \n",
-				       len, len == 1 ? "" : "s");
+				       len, len <= 1 ? "" : "s"
 #endif
 #endif
+#endif
+				);
 		else
 			(void) sprintf(buf,
-#ifdef NL
-				       "%d:%02d uur op slot.                                           \n",
-#else
 #ifdef DE
 				       "Seit %d:%02d Stunden gesperrt.                                 \n",
+				       len / 60, len % 60
+#else
+#ifdef FR
+				       "%d:%02d heures écoulée%s depuis verouillage.                        \n",
+			       len / 60, len % 60, (len / 60) <= 1 ? "" : "s"
+#else
+#ifdef NL
+				       "%d:%02d uur op slot.                                           \n",
+				       len / 60, len % 60
 #else
 				       "%d:%02d hours elapsed since locked.                            \n",
+				       len / 60, len % 60
 #endif
 #endif
-				       len / 60, len % 60);
+#endif
+				);
 		putText(dsp, Scr[scr].window, Scr[scr].textgc, buf, False, left, &x, &y);
 	}
 #ifdef USE_BUTTON_LOGOUT
@@ -896,40 +1411,54 @@ statusUpdate(int isnew, int scr)
 
 			if (tmp < 60)
 				(void) sprintf(buf,
-#ifdef NL
-					       "Over %d minute%s verschijnt de " logout " knop.                 \n",
-					       tmp, (tmp == 1) ? "" : "n");
-#else
 #ifdef DE
 					       "In %d Minute%s erscheint der Auslogger.                       \n",
-					       tmp, (tmp == 1) ? "" : "n");
+					       tmp, (tmp <= 1) ? "" : "n"
+#else
+#ifdef FR
+					       "%d minute%s jusqu'à apparition du bouton lougout.             \n",
+					       tmp, (tmp <= 1) ? "" : "s"
+#else
+#ifdef NL
+					       "Over %d minute%s verschijnt de logout knop.                   \n",
+					       tmp, (tmp <= 1) ? "" : "n"
 #else
 					       "%d minute%s until the public logout button appears.           \n",
-					       tmp, (tmp == 1) ? "" : "s");
+					       tmp, (tmp <= 1) ? "" : "s"
 #endif
 #endif
+#endif
+					);
 			else
 				(void) sprintf(buf,
-#ifdef NL
-					       "Over %d:%02d uur verschijnt de " logout " knop.               \n",
-#else
 #ifdef DE
 					       "In %d:%02d Stunden erscheint der Auslogger.                 \n",
 #else
+#ifdef FR
+					       "%d:%02d heures jusqu'à apparition du bouton lougout         \n",
+#else
+#ifdef NL
+					       "Over %d:%02d uur verschijnt de logout knop.                 \n",
+#else
 					       "%d:%02d hours until the public logout button appears.       \n",
+#endif
 #endif
 #endif
 					       tmp / 60, tmp % 60);
 			putText(dsp, Scr[scr].window, Scr[scr].textgc, buf, False, left, &x, &y);
 		} else {
 			putText(dsp, Scr[scr].window, Scr[scr].textgc,
-#ifdef NL
-				"Schop me eruit                                               \n",
-#else
 #ifdef DE
 				"Werft mich raus                                              \n",
 #else
+#ifdef FR
+				"Jettes moi                                                   \n",
+#else
+#ifdef NL
+				"Schop me eruit                                               \n",
+#else
 				"Kick me out                                                  \n",
+#endif
 #endif
 #endif
 				False, left, &x, &y);
@@ -972,11 +1501,23 @@ statusUpdate(int isnew, int scr)
 		int         tmp = logoutAuto - len;
 
 		if (tmp < 60)
-			(void) sprintf(buf, "%d minute%s until auto-logout.    \n",
-				       tmp, (tmp == 1) ? "" : "s");
+			(void) sprintf(buf,
+#ifdef FR
+				  "%d minute%s jusqu'à l'auto-logout.    \n",
+#else
+				       "%d minute%s until auto-logout.    \n",
+#endif
+				       tmp, (tmp <= 1) ? "" : "s");
 		else
-			(void) sprintf(buf, "%d:%02d hours until auto-logout.  \n",
-				       tmp / 60, tmp % 60);
+			(void) sprintf(buf,
+#ifdef FR
+				  "%d:%02d heure%s jusqu'à auto-logout.  \n",
+			       tmp / 60, tmp % 60, (tmp / 60) <= 1 ? "" : "s"
+#else
+				       "%d:%02d hours until auto-logout.  \n",
+				       tmp / 60, tmp % 60
+#endif
+				);
 		putText(dsp, Scr[scr].window, Scr[scr].textgc, buf, False, left, &x, &y);
 	}
 #endif /* USE_AUTO_LOGOUT */
@@ -1035,8 +1576,7 @@ runMainLoop(int maxtime, int iconscreen)
 {
 	static int  lastdelay = -1, lastmaxtime = -1;
 	int         fd = ConnectionNumber(dsp), r;
-	struct timeval sleep_time, first, repeat;
-	struct timeval elapsed, tmp;
+	struct timeval sleep_time, first, repeat, elapsed, tmp;
 	fd_set      reads;
 	unsigned long started;
 
@@ -1047,8 +1587,10 @@ runMainLoop(int maxtime, int iconscreen)
 	GETTIMEOFDAY(&loopStart);
 #endif
 
-	first.tv_sec = first.tv_usec = 0;
-	elapsed.tv_sec = elapsed.tv_usec = 0;
+	first.tv_sec = 0;
+	first.tv_usec = 0;
+	elapsed.tv_sec = 0;
+	elapsed.tv_usec = 0;
 	repeat.tv_sec = delay / 1000000;
 	repeat.tv_usec = delay % 1000000;
 
@@ -1080,7 +1622,7 @@ runMainLoop(int maxtime, int iconscreen)
 				}
 			}
 
-			for (screen = 0; screen < screens; screen++) {
+			for (screen = startscreen; screen < screens; screen++) {
 				call_change_hook((LockStruct *) NULL,
 						 mode_info(dsp, screen, Scr[screen].window, False));
 			}
@@ -1147,7 +1689,7 @@ runMainLoop(int maxtime, int iconscreen)
 			++lastIter;
 #endif
 
-			for (screen = 0; screen < screens; screen++) {
+			for (screen = startscreen; screen < screens; screen++) {
 				Window      cbwin;
 				Bool        iconic;
 				ModeInfo   *mi;
@@ -1200,7 +1742,7 @@ ReadXString(char *s, int slen)
 	char        pwbuf[PASSLENGTH];
 	int         first_key = 1;
 
-	for (screen = 0; screen < screens; screen++)
+	for (screen = startscreen; screen < screens; screen++)
 		if (thisscreen == screen) {
 			call_init_hook((LockStruct *) NULL,
 			     mode_info(dsp, screen, Scr[screen].icon, True));
@@ -1217,7 +1759,7 @@ ReadXString(char *s, int slen)
 
 		while (!XPending(dsp)) {
 #ifdef USE_OLD_EVENT_LOOP
-			for (screen = 0; screen < screens; screen++)
+			for (screen = startscreen; screen < screens; screen++)
 				if (thisscreen == screen)
 					call_callback_hook(NULL, mode_info(dsp, screen,
 						    Scr[screen].icon, True));
@@ -1388,7 +1930,7 @@ modeDescription(ModeInfo * mi)
 	x = left = Scr[screen].iconpos.x;
 	y = Scr[screen].iconpos.y - font->ascent + font->descent + 2;
 
-	/*XSetForeground(dsp, Scr[screen].gc, Scr[screen].bg_pixel); */
+	XSetForeground(dsp, Scr[screen].gc, Scr[screen].bg_pixel);
 	XFillRectangle(dsp, Scr[screen].window, Scr[screen].gc,
 		       x, y - font->ascent,
 		       xgwa.width - x, font->ascent + font->descent + 2);
@@ -1407,7 +1949,7 @@ getPassword(void)
 	XWindowAttributes xgwa;
 	int         x, y, left, done, remy;
 	char        buffer[PASSLENGTH];
-	char      **msgp;
+	char      **planp;
 	char       *hostbuf = NULL;
 	ModeInfo   *mi = &modeinfo[screen];
 
@@ -1431,7 +1973,7 @@ getPassword(void)
 	(void) nice(0);
 	if (!fullscreen)
 		XConfigureWindow(dsp, Scr[screen].window, sizeconfiguremask,
-				 &fullsizeconfigure);
+				 &(Scr[screen].fullsizeconfigure));
 
 
 	(void) XGetWindowAttributes(dsp, Scr[screen].window, &xgwa);
@@ -1439,10 +1981,7 @@ getPassword(void)
 	ChangeGrabbedCursor(dsp, Scr[screen].window,
 			    XCreateFontCursor(dsp, XC_left_ptr));
 
-	XSetForeground(dsp, Scr[screen].gc, Scr[screen].bg_pixel);
-	XFillRectangle(dsp, Scr[screen].window, Scr[screen].gc,
-		       0, 0, xgwa.width, xgwa.height);
-
+	MI_CLEARWINDOWCOLOR(mi, Scr[screen].bg_pixel);
 	XMapWindow(dsp, Scr[screen].icon);
 	XRaiseWindow(dsp, Scr[screen].icon);
 
@@ -1550,20 +2089,60 @@ getPassword(void)
 
 	putText(dsp, Scr[screen].window, Scr[screen].textgc, "\n", False, left, &x, &y);
 
-	y = Scr[screen].msgpos.y;
-	if (*message) {
-		for (msgp = message; *msgp; ++msgp) {
+	y = Scr[screen].planpos.y;
+	if (*plantext) {
+		for (planp = plantext; *planp; ++planp) {
 #ifdef USE_MB
 			y += mbRect.height + 2;
 #else
-			y += msgfont->ascent + msgfont->descent + 2;
+			y += planfont->ascent + planfont->descent + 2;
 #endif
-			(void) XDrawString(dsp, Scr[screen].window, Scr[screen].msgtextgc,
-			      Scr[screen].msgpos.x, y, *msgp, strlen(*msgp));
+			(void) XDrawString(dsp, Scr[screen].window, Scr[screen].plantextgc,
+			   Scr[screen].planpos.x, y, *planp, strlen(*planp));
 		}
 	}
 	XFlush(dsp);
 
+	if (mailCmd && mailCmd[0]) {
+#ifdef ORIGINAL_XPM_PATCH
+		XpmImage   *mbxpm;
+		mailboxInfo *mbi;
+		int         x, y;
+
+		if (system(mailCmd)) {
+			mbxpm = nomail_xpmimg;
+			mbi = &Scr[screen].mb.nomail;
+		} else {
+			mbxpm = mail_xpmimg;
+			mbi = &Scr[screen].mb.mail;
+		}
+		x = (DisplayWidth(dsp, screen) - mbxpm->width) / 2;
+		y = (Scr[screen].planpos.y - 5) - mbxpm->height;
+
+		if (mbxpm) {
+			XCopyArea(dsp, mbi->pixmap,
+				  Scr[screen].window, Scr[screen].mb.mbgc,
+				  0, 0,
+				  mbxpm->width, mbxpm->height, x, y);
+		}
+#else
+		mailboxInfo *mbi;
+		int         x, y;
+
+		if (system(mailCmd)) {
+			mbi = &Scr[screen].mb.nomail;
+		} else {
+			mbi = &Scr[screen].mb.mail;
+		}
+		x = (DisplayWidth(dsp, screen) - mbi->width) / 2;
+		y = (Scr[screen].planpos.y - 5) - mbi->height;
+		XSetTSOrigin(dsp, Scr[screen].mb.mbgc, x, y);
+		XSetStipple(dsp, Scr[screen].mb.mbgc, mbi->pixmap);
+		XSetFillStyle(dsp, Scr[screen].mb.mbgc, FillOpaqueStippled);
+		XFillRectangle(dsp, Scr[screen].window, Scr[screen].mb.mbgc,
+			       x, y, mbi->width, mbi->height);
+#endif
+	}
 	done = False;
 	while (!done) {
 #ifdef USE_SOUND
@@ -1719,7 +2298,7 @@ event_screen(Display * display, Window event_win)
 {
 	int         i;
 
-	for (i = 0; i < screens; i++) {
+	for (i = startscreen; i < screens; i++) {
 		if (event_win == RootWindow(display, i)) {
 			return (i);
 		}
@@ -1734,7 +2313,7 @@ justDisplay(Display * display)
 	int         not_done = True;
 	XEvent      event;
 
-	for (screen = 0; screen < screens; screen++) {
+	for (screen = startscreen; screen < screens; screen++) {
 		call_init_hook((LockStruct *) NULL,
 		      mode_info(display, screen, Scr[screen].window, False));
 	}
@@ -1743,7 +2322,7 @@ justDisplay(Display * display)
 		while (!XPending(display)) {
 #ifdef USE_OLD_EVENT_LOOP
 			(void) usleep(delay);
-			for (screen = 0; screen < screens; screen++)
+			for (screen = startscreen; screen < screens; screen++)
 				call_callback_hook((LockStruct *) NULL,
 						   mode_info(display, screen, Scr[screen].window, False));
 #ifdef USE_AUTO_LOGOUT
@@ -1777,7 +2356,7 @@ justDisplay(Display * display)
 				if (!debug && !inwindow) {
 					XRaiseWindow(display, event.xany.window);
 				}
-				for (screen = 0; screen < screens; screen++) {
+				for (screen = startscreen; screen < screens; screen++) {
 					call_refresh_hook((LockStruct *) NULL,
 							  mode_info(display, screen, Scr[screen].window, False));
 				}
@@ -1786,7 +2365,7 @@ justDisplay(Display * display)
 			case ConfigureNotify:
 				if (!debug && !inwindow)
 					XRaiseWindow(display, event.xconfigure.window);
-				for (screen = 0; screen < screens; screen++) {
+				for (screen = startscreen; screen < screens; screen++) {
 					if (window_size_changed(screen, Scr[screen].window)) {
 						call_init_hook((LockStruct *) NULL,
 							       mode_info(display, screen, Scr[screen].window, False));
@@ -1797,7 +2376,7 @@ justDisplay(Display * display)
 			case ButtonPress:
 				if (event.xbutton.button == Button2) {
 					/* call change hook only for clicked window? */
-					for (screen = 0; screen < screens; screen++) {
+					for (screen = startscreen; screen < screens; screen++) {
 						call_change_hook((LockStruct *) NULL,
 								 mode_info(display, screen, Scr[screen].window,
 								     False));
@@ -1821,8 +2400,8 @@ justDisplay(Display * display)
 				break;
 		}
 
-		if (!nolock && lockdelay &&
-		    (lockdelay <= (int) (seconds() - start_time))) {
+		if (!nolock && lock_delay &&
+		    (lock_delay <= (int) (seconds() - start_time))) {
 			timetodie = True;
 			not_done = False;
 		}
@@ -1830,9 +2409,9 @@ justDisplay(Display * display)
 
 	/* KLUDGE SO TVTWM AND VROOT WILL NOT MAKE XLOCK DIE */
 	if (screen >= screens)
-		screen = 0;
+		screen = startscreen;
 
-	lockdelay = False;
+	lock_delay = False;
 	if (usefirst)
 		(void) XPutBackEvent(display, &event);
 	return timetodie;
@@ -1842,7 +2421,7 @@ justDisplay(Display * display)
 static void
 sigcatch(int signum)
 {
-	ModeInfo   *mi = mode_info(dsp, 0, Scr[0].window, False);
+	ModeInfo   *mi = mode_info(dsp, startscreen, Scr[startscreen].window, False);
 	char       *name = (mi == NULL) ? "unknown" : MI_NAME(mi);
 	char       *buf;
 
@@ -1859,11 +2438,16 @@ sigcatch(int signum)
 static void
 lockDisplay(Display * display, Bool do_display)
 {
+#ifdef USE_VTLOCK
+	/* EL - RCS : lock VT switching */
+	if (vtlock && !vtlocked)
+		dovtlock();
+#endif
 #if defined( HAVE_SYSLOG_H ) && defined( USE_SYSLOG )
 	syslogStart();
 #endif
 #ifdef USE_SOUND
-	if (sound && !inwindow && !inroot)
+	if (sound && !inwindow && !inroot && !lockdelay)
 		play_sound(locksound);
 #endif
 	if (!allowaccess) {
@@ -1883,9 +2467,11 @@ lockDisplay(Display * display, Bool do_display)
 		int         oldsigmask;
 
 #ifndef VMS
+#if !defined(__cplusplus) && !defined(c_plusplus)
 		extern int  sigblock(int);
 		extern int  sigsetmask(int);
 
+#endif
 		oldsigmask = sigblock(
 #ifndef DEBUG
 					     sigmask(SIGHUP) |
@@ -1932,9 +2518,9 @@ lockDisplay(Display * display, Bool do_display)
 }
 
 static void
-read_message()
+read_plan()
 {
-	FILE       *msgf = NULL;
+	FILE       *planf = NULL;
 	char        buf[121];
 	char       *home = getenv("HOME");
 	char       *buffer;
@@ -1952,20 +2538,20 @@ read_message()
 #endif
 
 #ifdef VMS
-	(void) sprintf(buffer, "%s%s", home, ".xlockmessage");
+	(void) sprintf(buffer, "%s%s", home, ".xlocktext");
 #else
-	(void) sprintf(buffer, "%s/%s", home, ".xlockmessage");
+	(void) sprintf(buffer, "%s/%s", home, ".xlocktext");
 #endif
-	msgf = my_fopen(buffer, "r");
-	if (msgf == NULL) {
+	planf = my_fopen(buffer, "r");
+	if (planf == NULL) {
 #ifdef VMS
 		(void) sprintf(buffer, "%s%s", home, ".plan");
 #else
 		(void) sprintf(buffer, "%s/%s", home, ".plan");
 #endif
-		msgf = my_fopen(buffer, "r");
+		planf = my_fopen(buffer, "r");
 	}
-	if (msgf == NULL) {
+	if (planf == NULL) {
 #ifndef VMS
 		(void) sprintf(buffer, "%s/%s", home, ".signature");
 #else
@@ -1997,11 +2583,11 @@ read_message()
 		(void) sprintf(buffer, "%s%s", home, ".signature");
 #endif
 #endif
-		msgf = my_fopen(buffer, "r");
+		planf = my_fopen(buffer, "r");
 	}
-	if (msgf != NULL) {
-		for (i = 0; i < MESSAGELINES; i++) {
-			if (fgets(buf, 120, msgf)) {
+	if (planf != NULL) {
+		for (i = 0; i < TEXTLINES; i++) {
+			if (fgets(buf, 120, planf)) {
 				cr = strlen(buf) - 1;
 				if (buf[cr] == '\n') {
 					buf[cr] = '\0';
@@ -2024,14 +2610,14 @@ read_message()
 				}
 				buf[cr] = '\0';
 
-				message[i] = (char *) malloc(strlen(buf) + 1);
-				(void) strcpy(message[i], buf);
+				plantext[i] = (char *) malloc(strlen(buf) + 1);
+				(void) strcpy(plantext[i], buf);
 			}
 		}
-		message[i] = NULL;
-		(void) fclose(msgf);
+		plantext[i] = NULL;
+		(void) fclose(planf);
 	} else {
-		message[0] = NULL;
+		plantext[0] = NULL;
 	}
 	(void) free((void *) buffer);
 	buffer = NULL;
@@ -2056,13 +2642,41 @@ createFontSet(Display * display, char *name)
 }
 #endif
 
+static void SigUsr2(int sig);
+
+static void
+SigUsr1(int sig)
+{
+#ifdef DEBUG
+	(void) printf("Signal %d received\n", sig);
+#endif
+	signalUSR1 = 1;
+	signalUSR2 = 0;
+
+	(void) signal(SIGUSR1, SigUsr1);
+	(void) signal(SIGUSR2, SigUsr2);
+}
+
+static void
+SigUsr2(int sig)
+{
+#ifdef DEBUG
+	(void) printf("Signal %d received\n", sig);
+#endif
+	signalUSR1 = 0;
+	signalUSR2 = 1;
+
+	(void) signal(SIGUSR1, SigUsr1);
+	(void) signal(SIGUSR2, SigUsr2);
+}
+
 int
 main(int argc, char **argv)
 {
 	XSetWindowAttributes xswa;
 	XGCValues   xgcv;
 	XColor      nullcolor;
-	char      **msgp;
+	char      **planp;
 	char       *buf;
 	int         tmp;
 	uid_t       ruid;
@@ -2145,7 +2759,7 @@ main(int argc, char **argv)
 	SRAND((long) ProgramPID);
 #endif
 
-	getResources(argc, argv);
+	getResources(&dsp, argc, argv);
 
 #ifdef HAVE_SETEUID
 	/* become root to get the password */
@@ -2189,9 +2803,20 @@ main(int argc, char **argv)
 #endif
 #endif
 #else
-	(void) setgid(rgid);
+	/* In order to lock VT switch we must issue an ioctl on console */
+	/* (VT_LOCKSWITCH). This ioctl MUST be issued by root. */
+	/* We need later to be able to do another seteuid(0), so let's */
+	/* disable the overwrite of saved uid/gid */
+
+#ifdef USE_VTLOCK
+	if (!vtlock)
 #endif
-	(void) setuid(ruid);
+		(void) setgid(rgid);
+#endif
+#ifdef USE_VTLOCK
+	if (!vtlock)
+#endif
+		(void) setuid(ruid);
 
 #if 0
 	/* synchronize -- so I'm aware of errors immediately */
@@ -2267,12 +2892,12 @@ main(int argc, char **argv)
 		}
 	}
 
-	msgfont = XLoadQueryFont(dsp, messagefont);
-	if (msgfont == NULL) {
+	planfont = XLoadQueryFont(dsp, planfontname);
+	if (planfont == NULL) {
 		(void) fprintf(stderr, "%s: can't find font: %s, using %s...\n",
-			       ProgramName, messagefont, FALLBACK_FONTNAME);
-		msgfont = XLoadQueryFont(dsp, FALLBACK_FONTNAME);
-		if (msgfont == NULL) {
+			       ProgramName, planfontname, FALLBACK_FONTNAME);
+		planfont = XLoadQueryFont(dsp, FALLBACK_FONTNAME);
+		if (planfont == NULL) {
 			buf = (char *) malloc(strlen(ProgramName) +
 					      strlen(FALLBACK_FONTNAME) + 80);
 			(void) sprintf(buf,
@@ -2281,7 +2906,7 @@ main(int argc, char **argv)
 			(void) free((void *) buf);	/* Should never get here */
 		}
 	}
-	read_message();
+	read_plan();
 
 	screens = ScreenCount(dsp);
 	modeinfo = (ModeInfo *) calloc(screens, sizeof (ModeInfo));
@@ -2289,7 +2914,8 @@ main(int argc, char **argv)
 
 #ifdef FORCESINGLE
 	/* Safer to keep this after the calloc in case ScreenCount is used */
-	screens = 1;
+	startscreen = DefaultScreen(dsp);
+	screens = startscreen + 1;
 #endif
 
 #ifdef USE_DTSAVER
@@ -2323,25 +2949,124 @@ main(int argc, char **argv)
 			}
 			Scr[this_screen].window = saver_wins[this_win];
 		}
-
-		/* Reduce to the last screen requested */
-		for (this_screen = screens - 1; this_screen >= 0; this_screen--) {
-			if (Scr[this_screen].window != None)
+		/* Reduce to the screens that have windows.  Avoid problems and */
+		/* assume that if one fails there is only one good window. */
+		for (this_screen = startscreen; this_screen < screens; this_screen++) {
+			if (Scr[this_screen].window == None) {
+				startscreen = DefaultScreen(dsp);
+				screens = startscreen + 1;
 				break;
-			screens--;
+			}
 		}
-	}
+	} else
 #endif
 
-	for (screen = 0; screen < screens; screen++) {
+	if (inwindow) {
+		/* Reduce to the last screen requested */
+		startscreen = DefaultScreen(dsp);
+		screens = startscreen + 1;
+	}
+	for (screen = startscreen; screen < screens; screen++) {
 		Screen     *scr = ScreenOfDisplay(dsp, screen);
 		Colormap    cmap = (Colormap) NULL;
 
+#ifdef ORIGINAL_XPM_PATCH
+		if (mailIcon && mailIcon[0]) {
+			if ((mail_xpmimg = (XpmImage *) malloc(sizeof (XpmImage))))
+				if (XpmReadFileToXpmImage(mailIcon, mail_xpmimg,
+					   (XpmInfo *) NULL) != XpmSuccess) {
+					(void) free((void *) mail_xpmimg);
+					mail_xpmimg = NULL;
+				}
+		}
+		if (nomailIcon && nomailIcon[0]) {
+			if ((nomail_xpmimg = (XpmImage *) malloc(sizeof (XpmImage))))
+				if (XpmReadFileToXpmImage(nomailIcon, nomail_xpmimg,
+					   (XpmInfo *) NULL) != XpmSuccess) {
+					free(nomail_xpmimg);
+					nomail_xpmimg = NULL;
+				}
+		}
+#endif
+
 		Scr[screen].root = (parentSet) ? parent : RootWindowOfScreen(scr);
 		defaultVisualInfo(dsp, screen);
+
+/*-
+ * Some window managers like fvwm and tvtwm do not like it when an application
+ * thinks it can install a full screen colormap (i.e xlock).  It promptly
+ * deinstalls the colormap and this might lead to white backgrounds if
+ * CopyFromParent is not used.
+ * But if CopyFromParent is used one can not change the visual
+ * and one may get White = Black on PseudoColor (see bug mode).
+ * There is another spot in xlock.c like this one...
+ * As far as I can tell, this problem exists only if your using MesaGL.
+ */
+#if (defined( USE_GL ) && (!defined( MESA ) || defined( REALGLX ))) || !defined( COMPLIANT_COLORMAP )
 		Scr[screen].colormap = cmap = xswa.colormap =
 			XCreateColormap(dsp, Scr[screen].root, Scr[screen].visual, AllocNone);
+#else
+		cmap = DefaultColormapOfScreen(scr);
+		Scr[screen].colormap = None;
+#endif
 
+		xswa.override_redirect = True;
+		xswa.background_pixel = Scr[screen].black_pixel;
+		xswa.border_pixel = Scr[screen].white_pixel;
+		xswa.event_mask = KeyPressMask | ButtonPressMask |
+			VisibilityChangeMask | ExposureMask | StructureNotifyMask;
+		if (mousemotion)
+			xswa.event_mask |= MotionNotify;
+
+#ifdef USE_VROOT
+		if (inroot) {
+			Scr[screen].window = Scr[screen].root;
+			XChangeWindowAttributes(dsp, Scr[screen].window, CWBackPixel, &xswa);
+			/* this gives us these events from the root window */
+			XSelectInput(dsp, Scr[screen].window,
+				     VisibilityChangeMask | ExposureMask);
+		} else
+#endif
+#ifdef USE_DTSAVER
+		if (!dtsaver)
+#endif
+		{
+#define WIDTH (inwindow? WidthOfScreen(scr)/2 : (debug? WidthOfScreen(scr) - 100 : WidthOfScreen(scr)))
+#define HEIGHT (inwindow? HeightOfScreen(scr)/2 : (debug? HeightOfScreen(scr) - 100 : HeightOfScreen(scr)))
+#if (defined( USE_GL ) && (!defined( MESA ) || defined( REALGLX ))) || !defined( COMPLIANT_COLORMAP )
+#define CWMASK (((debug||inwindow||inroot)? 0 : CWOverrideRedirect) | CWBackPixel | CWBorderPixel | CWEventMask | CWColormap)
+#else
+#define CWMASK (((debug||inwindow||inroot)? 0 : CWOverrideRedirect) | CWBackPixel | CWBorderPixel | CWEventMask)
+#endif
+
+#if (defined( USE_GL ) && (!defined( MESA ) || defined( REALGLX ))) || !defined( COMPLIANT_COLORMAP )
+#define XLOCKWIN_DEPTH (Scr[screen].depth)
+#define XLOCKWIN_VISUAL (Scr[screen].visual)
+#else
+#define XLOCKWIN_DEPTH CopyFromParent
+#define XLOCKWIN_VISUAL CopyFromParent
+#endif
+
+			if (fullscreen) {
+				Scr[screen].window = XCreateWindow(dsp, Scr[screen].root, 0, 0,
+								   (unsigned int) WIDTH, (unsigned int) HEIGHT, 0,
+				XLOCKWIN_DEPTH, InputOutput, XLOCKWIN_VISUAL,
+							      CWMASK, &xswa);
+			} else {
+				sizeconfiguremask = CWX | CWY | CWWidth | CWHeight;
+				Scr[screen].fullsizeconfigure.x = 0;
+				Scr[screen].fullsizeconfigure.y = 0;
+				Scr[screen].fullsizeconfigure.width = WIDTH;
+				Scr[screen].fullsizeconfigure.height = HEIGHT;
+				Scr[screen].window = XCreateWindow(dsp, Scr[screen].root,
+						   (int) minisizeconfigure.x,
+						   (int) minisizeconfigure.y,
+				      (unsigned int) minisizeconfigure.width,
+				     (unsigned int) minisizeconfigure.height,
+								   0, XLOCKWIN_DEPTH, InputOutput, XLOCKWIN_VISUAL,
+							      CWMASK, &xswa);
+			}
+		}
 		if (use3d) {
 			XColor      C;
 
@@ -2410,53 +3135,8 @@ main(int argc, char **argv)
 			}
 
 		}
-		xswa.override_redirect = True;
-		xswa.background_pixel = Scr[screen].black_pixel;
-		xswa.border_pixel = Scr[screen].white_pixel;
-		xswa.event_mask = KeyPressMask | ButtonPressMask |
-			VisibilityChangeMask | ExposureMask | StructureNotifyMask;
-		if (mousemotion)
-			xswa.event_mask |= MotionNotify;
-
-#ifdef USE_VROOT
-		if (inroot) {
-			Scr[screen].window = Scr[screen].root;
-			XChangeWindowAttributes(dsp, Scr[screen].window, CWBackPixel, &xswa);
-			/* this gives us these events from the root window */
-			XSelectInput(dsp, Scr[screen].window,
-				     VisibilityChangeMask | ExposureMask);
-		} else
-#endif
-#ifdef USE_DTSAVER
-		if (!dtsaver)
-#endif
-		{
-#define WIDTH (inwindow? WidthOfScreen(scr)/2 : (debug? WidthOfScreen(scr) - 100 : WidthOfScreen(scr)))
-#define HEIGHT (inwindow? HeightOfScreen(scr)/2 : (debug? HeightOfScreen(scr) - 100 : HeightOfScreen(scr)))
-#define CWMASK (((debug||inwindow||inroot)? 0 : CWOverrideRedirect) | CWBackPixel | CWBorderPixel | CWEventMask | CWColormap)
-#define XLOCKWIN_DEPTH (Scr[screen].depth)
-#define XLOCKWIN_VISUAL (Scr[screen].visual)
-
-			if (fullscreen) {
-				Scr[screen].window = XCreateWindow(dsp, Scr[screen].root, 0, 0,
-								   (unsigned int) WIDTH, (unsigned int) HEIGHT, 0,
-				XLOCKWIN_DEPTH, InputOutput, XLOCKWIN_VISUAL,
-							      CWMASK, &xswa);
-			} else {
-				sizeconfiguremask = CWX | CWY | CWWidth | CWHeight;
-				fullsizeconfigure.x = 0;
-				fullsizeconfigure.y = 0;
-				fullsizeconfigure.width = WIDTH;
-				fullsizeconfigure.height = HEIGHT;
-				Scr[screen].window = XCreateWindow(dsp, Scr[screen].root,
-						   (int) minisizeconfigure.x,
-						   (int) minisizeconfigure.y,
-				      (unsigned int) minisizeconfigure.width,
-				     (unsigned int) minisizeconfigure.height,
-								   0, XLOCKWIN_DEPTH, InputOutput, XLOCKWIN_VISUAL,
-							      CWMASK, &xswa);
-			}
-		}
+		fixColormap(dsp, Scr[screen].window, screen, ncolors, saturation,
+			    mono, install, inroot, inwindow, verbose);
 		if (debug || inwindow) {
 			XWMHints    xwmh;
 
@@ -2466,9 +3146,6 @@ main(int argc, char **argv)
 			       XA_WM_HINTS, XA_WM_HINTS, 32, PropModeReplace,
 					(unsigned char *) &xwmh, sizeof (xwmh) / sizeof (int));
 		}
-		fixColormap(dsp, Scr[screen].window, screen, ncolors, saturation,
-			    mono, install, inroot, inwindow, verbose);
-
 		if (debug) {
 			Scr[screen].iconpos.x = (DisplayWidth(dsp, screen) - 100 -
 						 MAX(512, XTextWidth(font, text_info, strlen(text_info)))) / 2;
@@ -2479,43 +3156,47 @@ main(int argc, char **argv)
 			Scr[screen].iconpos.y = DisplayHeight(dsp, screen) / 6;
 		}
 
-		Scr[screen].msgpos.x = Scr[screen].msgpos.y = 0;
-		for (msgp = message; *msgp; ++msgp) {
-			tmp = XTextWidth(msgfont, *msgp, strlen(*msgp));
-			if (tmp > Scr[screen].msgpos.x)
-				Scr[screen].msgpos.x = tmp;
-			++Scr[screen].msgpos.y;
+		Scr[screen].planpos.x = Scr[screen].planpos.y = 0;
+		for (planp = plantext; *planp; ++planp) {
+			tmp = XTextWidth(planfont, *planp, strlen(*planp));
+			if (tmp > Scr[screen].planpos.x)
+				Scr[screen].planpos.x = tmp;
+			++Scr[screen].planpos.y;
 		}
 		if (debug) {
-			Scr[screen].msgpos.x = (DisplayWidth(dsp, screen) - 100 -
-						Scr[screen].msgpos.x) / 2;
-			Scr[screen].msgpos.y = DisplayHeight(dsp, screen) - 100 -
+			Scr[screen].planpos.x = (DisplayWidth(dsp, screen) - 100 -
+						 Scr[screen].planpos.x) / 2;
+			Scr[screen].planpos.y = DisplayHeight(dsp, screen) - 100 -
 #ifdef USE_MB
-				(Scr[screen].msgpos.y + 4) * (mbRect.height + 2);
+				(Scr[screen].planpos.y + 4) * (mbRect.height + 2);
 #else
-				(Scr[screen].msgpos.y + 4) * (msgfont->ascent + msgfont->descent + 2);
+				(Scr[screen].planpos.y + 4) * (planfont->ascent + planfont->descent + 2);
 #endif
 		} else {
-			Scr[screen].msgpos.x = (DisplayWidth(dsp, screen) -
-						Scr[screen].msgpos.x) / 2;
-			Scr[screen].msgpos.y = DisplayHeight(dsp, screen) -
+			Scr[screen].planpos.x = (DisplayWidth(dsp, screen) -
+						 Scr[screen].planpos.x) / 2;
+			Scr[screen].planpos.y = DisplayHeight(dsp, screen) -
 #ifdef USE_MB
-				(Scr[screen].msgpos.y + 4) * (mbRect.height + 2);
+				(Scr[screen].planpos.y + 4) * (mbRect.height + 2);
 #else
-				(Scr[screen].msgpos.y + 4) * (msgfont->ascent + msgfont->descent + 2);
+				(Scr[screen].planpos.y + 4) * (planfont->ascent + planfont->descent + 2);
 #endif
 		}
 
 		xswa.border_pixel = Scr[screen].white_pixel;
 		xswa.background_pixel = Scr[screen].black_pixel;
 		xswa.event_mask = ButtonPressMask;
+#if (defined( USE_GL ) && (!defined( MESA ) || defined( REALGLX ))) || !defined( COMPLIANT_COLORMAP )
 #define CIMASK CWBorderPixel | CWBackPixel | CWEventMask | CWColormap
+#else
+#define CIMASK CWBorderPixel | CWBackPixel | CWEventMask
+#endif
 		if (nolock)
 			Scr[screen].icon = None;
 		else {
 			Scr[screen].icon = XCreateWindow(dsp, Scr[screen].window,
 				Scr[screen].iconpos.x, Scr[screen].iconpos.y,
-				    iconwidth, iconheight, 1, CopyFromParent,
+			      iconwidth, iconheight, 1, (int) CopyFromParent,
 						 InputOutput, CopyFromParent,
 							 CIMASK, &xswa);
 #ifdef USE_BUTTON_LOGOUT
@@ -2527,7 +3208,7 @@ main(int argc, char **argv)
 				w = XTextWidth(font, buf, strlen(buf));
 				h = font->ascent + font->descent + 2;
 				Scr[screen].button = XCreateWindow(dsp, Scr[screen].window,
-					       0, 0, w, h, 1, CopyFromParent,
+					 0, 0, w, h, 1, (int) CopyFromParent,
 						 InputOutput, CopyFromParent,
 							      CIMASK, &xswa);
 			}
@@ -2551,12 +3232,59 @@ main(int argc, char **argv)
 		xgcv.background = Scr[screen].bg_pixel;
 		Scr[screen].textgc = XCreateGC(dsp, Scr[screen].window,
 				GCFont | GCForeground | GCBackground, &xgcv);
-		xgcv.font = msgfont->fid;
-		Scr[screen].msgtextgc = XCreateGC(dsp, Scr[screen].window,
+		xgcv.font = planfont->fid;
+		Scr[screen].plantextgc = XCreateGC(dsp, Scr[screen].window,
 				GCFont | GCForeground | GCBackground, &xgcv);
+
+#ifdef ORIGINAL_XPM_PATCH
+		if (mail_xpmimg) {
+			XpmAttributes xpm_attr;
+
+			xpm_attr.valuemask = 0;
+			XpmCreatePixmapFromXpmImage(dsp, Scr[screen].window, mail_xpmimg,
+						 &Scr[screen].mb.mail.pixmap,
+				     &Scr[screen].mb.mail.bitmap, &xpm_attr);
+		}
+		if (nomail_xpmimg) {
+			XpmAttributes xpm_attr;
+
+			xpm_attr.valuemask = 0;
+			XpmCreatePixmapFromXpmImage(dsp, Scr[screen].window, nomail_xpmimg,
+					       &Scr[screen].mb.nomail.pixmap,
+				   &Scr[screen].mb.nomail.bitmap, &xpm_attr);
+		}
+		if (mail_xpmimg || nomail_xpmimg) {
+			Scr[screen].mb.mbgc = XCreateGC(dsp, Scr[screen].window,
+					GCFont | GCForeground | GCBackground,
+							&xgcv);
+		}
+#else
+		if (mailCmd && mailCmd[0]) {
+			extern void pickPixmap(Display * display, Drawable drawable, char *name,
+					       int default_width, int default_height, unsigned char *default_bits,
+				    int *width, int *height, Pixmap * pixmap,
+					       int *graphics_format);
+
+			pickPixmap(dsp, Scr[screen].window, nomailIcon,
+				   NOMAIL_WIDTH, NOMAIL_HEIGHT, NOMAIL_BITS,
+				   &(Scr[screen].mb.nomail.width),
+				   &(Scr[screen].mb.nomail.height),
+				   &(Scr[screen].mb.nomail.pixmap),
+				   &(Scr[screen].mb.nomail.graphics_format));
+			pickPixmap(dsp, Scr[screen].window, mailIcon,
+				   MAIL_WIDTH, MAIL_HEIGHT, MAIL_BITS,
+				   &(Scr[screen].mb.mail.width),
+				   &(Scr[screen].mb.mail.height),
+				   &(Scr[screen].mb.mail.pixmap),
+				   &(Scr[screen].mb.mail.graphics_format));
+			Scr[screen].mb.mbgc = XCreateGC(dsp, Scr[screen].window,
+					GCFont | GCForeground | GCBackground,
+							&xgcv);
+		}
+#endif
 	}
-	lockc = XCreateBitmapFromData(dsp, Scr[0].root, no_bits, 1, 1);
-	lockm = XCreateBitmapFromData(dsp, Scr[0].root, no_bits, 1, 1);
+	lockc = XCreateBitmapFromData(dsp, Scr[startscreen].root, no_bits, 1, 1);
+	lockm = XCreateBitmapFromData(dsp, Scr[startscreen].root, no_bits, 1, 1);
 	mycursor = XCreatePixmapCursor(dsp, lockc, lockm,
 				       &nullcolor, &nullcolor, 0, 0);
 	XFreePixmap(dsp, lockc);
@@ -2566,15 +3294,20 @@ main(int argc, char **argv)
 		nolock = 1;
 		enablesaver = 1;
 	} else if (!debug) {
-		GrabKeyboardAndMouse(dsp, Scr[0].window);
+		GrabKeyboardAndMouse(dsp, Scr[startscreen].window);
 	}
 	if (!nolock) {
 		XGetScreenSaver(dsp, &sstimeout, &ssinterval,
 				&ssblanking, &ssexposures);
 		if (resetsaver)
 			XResetScreenSaver(dsp);		/* make sure not blank now */
-		XSetScreenSaver(dsp, 0, 0, 0, 0);	/* disable screen saver */
+		if (!enablesaver)
+			XSetScreenSaver(dsp, 0, 0, 0, 0);	/* disable screen saver */
 	}
+#ifdef USE_DPMS
+	if ((dpmsstandby >= 0) || (dpmssuspend >= 0) || (dpmsoff >= 0))
+		SetDPMS(dsp, dpmsstandby, dpmssuspend, dpmsoff);
+#endif
 	(void) nice(nicelevel);
 
 	(void) XSetIOErrorHandler(xio_error);
@@ -2583,7 +3316,7 @@ main(int argc, char **argv)
 	if (startCmd && *startCmd) {
 
 		if ((cmd_pid = FORK()) == -1) {
-			fprintf(stderr, "Failed to launch \"%s\"\n", startCmd);
+			(void) fprintf(stderr, "Failed to launch \"%s\"\n", startCmd);
 			perror(ProgramName);
 			cmd_pid = 0;
 		} else if (!cmd_pid) {
@@ -2602,13 +3335,14 @@ main(int argc, char **argv)
 #else
 			(void) sigsetmask(old_sigmask);
 #endif
-			system(startCmd);
+			(void) system(startCmd);
 			exit(0);
 		}
 	}
+	lock_delay = lockdelay;
 	if (nolock) {
 		(void) justDisplay(dsp);
-	} else if (lockdelay) {
+	} else if (lock_delay) {
 		if (justDisplay(dsp)) {
 			lockDisplay(dsp, False);
 		} else
@@ -2622,6 +3356,9 @@ main(int argc, char **argv)
 		closelog();
 	}
 #endif
+#ifdef USE_DPMS
+	SetDPMS(dsp, -1, -1, -1);
+#endif
 	finish(dsp, True);
 
 	if (cmd_pid)
@@ -2632,11 +3369,11 @@ main(int argc, char **argv)
 #endif
 	if (endCmd && *endCmd) {
 		if ((cmd_pid = FORK()) == -1) {
-			fprintf(stderr, "Failed to launch \"%s\"\n", endCmd);
+			(void) fprintf(stderr, "Failed to launch \"%s\"\n", endCmd);
 			perror(ProgramName);
 			cmd_pid = 0;
 		} else if (!cmd_pid) {
-			system(endCmd);
+			(void) system(endCmd);
 			exit(0);
 		}
 	}
@@ -2647,28 +3384,4 @@ main(int argc, char **argv)
 #endif
 }
 
-void
-SigUsr1(int sig)
-{
-#ifdef DEBUG
-	(void) printf("Signal %d received\n", sig);
-#endif
-	signalUSR1 = 1;
-	signalUSR2 = 0;
-
-	(void) signal(SIGUSR1, SigUsr1);
-	(void) signal(SIGUSR2, SigUsr2);
-}
-
-void
-SigUsr2(int sig)
-{
-#ifdef DEBUG
-	(void) printf("Signal %d received\n", sig);
-#endif
-	signalUSR1 = 0;
-	signalUSR2 = 1;
-
-	(void) signal(SIGUSR1, SigUsr1);
-	(void) signal(SIGUSR2, SigUsr2);
-}
+#endif /* STANDALONE */

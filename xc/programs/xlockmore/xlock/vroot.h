@@ -58,7 +58,7 @@
 #define _VROOT_H_
 
 #if !defined( lint ) && !defined( SABER )
-static const char vroot_rcsid[] = "$Id: vroot.h,v 1.1.1.1 1998/03/26 23:15:34 matthieu Exp $";
+static const char vroot_rcsid[] = "$Id: vroot.h,v 1.1.1.2 1998/09/30 13:54:15 matthieu Exp $";
 
 #endif
 
@@ -77,7 +77,14 @@ VirtualRootWindowOfScreen(Screen * screen)
 		root = RootWindowOfScreen(screen);
 
 		/* go look for a virtual root */
-		if (inroot) {
+#if 0
+/*-
+ * I forget why I put this here....
+ * With this it screws up the mouse focus with xscreensaver.
+ */
+		if (inroot)
+#endif
+		{
 			Display    *dpy = DisplayOfScreen(screen);
 			Atom        __SWM_VROOT = None;
 			int         i;

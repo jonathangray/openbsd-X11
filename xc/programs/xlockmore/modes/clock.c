@@ -356,12 +356,12 @@ init_clock(ModeInfo * mi)
 
 
 	cp->redrawing = 0;
-	cp->width = MI_WIN_WIDTH(mi);
-	cp->height = MI_WIN_HEIGHT(mi);
+	cp->width = MI_WIDTH(mi);
+	cp->height = MI_HEIGHT(mi);
 
 	MI_CLEARWINDOW(mi);
 
-	cp->nclocks = MI_BATCHCOUNT(mi);
+	cp->nclocks = MI_COUNT(mi);
 	if (cp->nclocks < -MINCLOCKS) {
 		/* if cp->nclocks is random ... the size can change */
 		if (cp->oclocks != NULL) {
@@ -406,6 +406,8 @@ draw_clock(ModeInfo * mi)
 	clockstruct *cp = &clocks[MI_SCREEN(mi)];
 	int         clck;
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (++cp->clock_count >= MI_CYCLES(mi)) {
 		cp->clock_count = 0;
 		for (clck = 0; clck < cp->currentclocks; clck++)
@@ -449,5 +451,6 @@ refresh_clock(ModeInfo * mi)
 {
 	clockstruct *cp = &clocks[MI_SCREEN(mi)];
 
+	MI_CLEARWINDOW(mi);
 	cp->redrawing = 1;
 }

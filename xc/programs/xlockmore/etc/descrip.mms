@@ -231,6 +231,21 @@ amd.h : $(CONFIGDIR)amd.h
 
 amd$(O) : amd$(C) amd.h
 
+atlantis$(C) : $(GLDIR)atlantis$(C)
+	$(BLN_S) atlantis$(C) $(GLDIR)atlantis$(C)
+
+dolphin$(C) : $(GLDIR)dolphin$(C)
+	$(BLN_S) dolphin$(C) $(GLDIR)dolphin$(C)
+
+shark$(C) : $(GLDIR)shark$(C)
+	$(BLN_S) shark$(C) $(GLDIR)shark$(C)
+
+swim$(C) : $(GLDIR)swim$(C)
+	$(BLN_S) swim$(C) $(GLDIR)swim$(C)
+
+whale$(C) : $(GLDIR)whale$(C)
+	$(BLN_S) whale$(C) $(GLDIR)whale$(C)
+
 cage$(C) : $(GLDIR)cage$(C)
 	$(BLN_S) cage$(C) $(GLDIR)cage$(C)
 

@@ -51,7 +51,9 @@ static const char sccsid[] = "@(#)vines.c	4.07 97/11/24 xlockmore";
 #define vines_opts xlockmore_opts
 #define DEFAULTS "*delay: 200000 \n" \
  "*count: 0 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 64 \n" \
+ "*eraseSpeed: 400 \n" \
+ "*eraseMode: -1 \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -89,6 +91,7 @@ static vinestruct *vines = NULL;
 void
 refresh_vines(ModeInfo * mi)
 {
+	MI_CLEARWINDOW(mi);
 }				/* refresh_vines */
 
 void
@@ -119,12 +122,14 @@ draw_vines(ModeInfo * mi)
 	GC          gc = MI_GC(mi);
 	int         count;
 
-	if (fp->i >= fp->length) {
-		if (--(fp->iterations) == 0)
-			init_vines(mi);
+	MI_IS_DRAWN(mi) = True;
 
-		fp->centerx = NRAND(MI_WIN_WIDTH(mi));
-		fp->centery = NRAND(MI_WIN_HEIGHT(mi));
+	if (fp->i >= fp->length) {
+		if (--(fp->iterations) == 0) {
+			init_vines(mi);
+		}
+		fp->centerx = NRAND(MI_WIDTH(mi));
+		fp->centery = NRAND(MI_HEIGHT(mi));
 
 		fp->ang = 60 + NRAND(720);
 		fp->length = 100 + NRAND(3000);
@@ -142,7 +147,7 @@ draw_vines(ModeInfo * mi)
 		else
 			XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
 	}
-	count = fp->i + MI_BATCHCOUNT(mi);
+	count = fp->i + MI_COUNT(mi);
 	if ((count <= fp->i) || (count > fp->length))
 		count = fp->length;
 

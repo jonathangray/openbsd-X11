@@ -45,11 +45,14 @@ static const char sccsid[] = "@(#)puzzle.c	4.09 98/03/20 xlockmore";
 #define puzzle_opts xlockmore_opts
 #define DEFAULTS "*delay: 10000 \n" \
  "*count: 250 \n" \
- "*ncolors: 64 \n"
+ "*ncolors: 64 \n" \
+ "*bitmap: \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
+#include "color.h"
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 ModeSpecOpt puzzle_opts =
 {0, NULL, 0, NULL, NULL};
@@ -79,6 +82,7 @@ ModStruct   puzzle_description =
 
   /*int storedmoves, *moves, *position, space;  To keep track of puzzle */
 typedef struct {
+	Bool        painted;	/* For debouncing */
 	int         excount;
 	int        *fixbuff;
 	XPoint      count, boxsize, windowsize;
@@ -117,7 +121,7 @@ typedef struct {
 static puzzlestruct *puzzs = NULL;
 
 #ifdef NUMBERED
-extern XFontStruct *getFont();
+extern XFontStruct *getFont(Display * display);
 
 #define font_height(f) (f->ascent + f->descent)
 static XFontStruct *mode_font = None;
@@ -267,7 +271,7 @@ static void
 setupmovedelta(ModeInfo * mi)
 {
 	Display    *display = MI_DISPLAY(mi);
-	puzzlestruct * pp = &puzzs[MI_SCREEN(mi)];
+	puzzlestruct *pp = &puzzs[MI_SCREEN(mi)];
 
 	if (pp->bufferBox != None) {
 		XFreePixmap(display, pp->bufferBox);
@@ -279,9 +283,9 @@ setupmovedelta(ModeInfo * mi)
 		return;
 	}
 	XCopyArea(MI_DISPLAY(mi), MI_WINDOW(mi), pp->bufferBox, pp->backGC,
-			 pp->nextcol * pp->boxsize.x + pp->randompos.x + 1,
-			 pp->nextrow * pp->boxsize.y + pp->randompos.y + 1,
-			 pp->boxsize.x - 2, pp->boxsize.y - 2, 0, 0);
+		  pp->nextcol * pp->boxsize.x + pp->randompos.x + 1,
+		  pp->nextrow * pp->boxsize.y + pp->randompos.y + 1,
+		  pp->boxsize.x - 2, pp->boxsize.y - 2, 0, 0);
 	XFlush(MI_DISPLAY(mi));
 
 	if (pp->nextcol > pp->col) {
@@ -342,9 +346,9 @@ wrapupmovedelta(ModeInfo * mi)
 	if (pp->bufferBox) {
 
 		XCopyArea(MI_DISPLAY(mi), pp->bufferBox, MI_WINDOW(mi), pp->backGC,
-				 0, 0, pp->boxsize.x - 2, pp->boxsize.y - 2,
-			       pp->col * pp->boxsize.x + pp->randompos.x + 1,
-			      pp->row * pp->boxsize.y + pp->randompos.y + 1);
+			  0, 0, pp->boxsize.x - 2, pp->boxsize.y - 2,
+			  pp->col * pp->boxsize.x + pp->randompos.x + 1,
+			  pp->row * pp->boxsize.y + pp->randompos.y + 1);
 
 		XFlush(MI_DISPLAY(mi));
 
@@ -368,8 +372,8 @@ moveboxdelta(ModeInfo * mi)
 	if (pp->Lp <= pp->lengthOfMove) {
 		if (pp->bufferBox) {
 			XCopyArea(MI_DISPLAY(mi), pp->bufferBox, MI_WINDOW(mi),
-					 pp->backGC, 0, 0, pp->boxsize.x - 2, pp->boxsize.y - 2,
-           cf + 1, rf + 1);
+				  pp->backGC, 0, 0, pp->boxsize.x - 2, pp->boxsize.y - 2,
+				  cf + 1, rf + 1);
 			XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), pp->backGC,
 				       cf + pp->cbs - 1, rf + pp->rbs - 1, pp->cbw + 2, pp->rbw + 2);
 		}
@@ -395,15 +399,18 @@ init_stuff(ModeInfo * mi)
 			 DEFAULT_XPM, PUZZLE_NAME,
 #endif
 			 &pp->graphics_format, &pp->cmap, &pp->black);
+#ifndef STANDALONE
 	if (pp->cmap != None) {
-		setColormap(display, window, pp->cmap, MI_WIN_IS_INWINDOW(mi));
+		setColormap(display, window, pp->cmap, MI_IS_INWINDOW(mi));
 		if (pp->backGC == None) {
 			XGCValues   xgcv;
 
 			xgcv.background = pp->black;
 			pp->backGC = XCreateGC(display, window, GCBackground, &xgcv);
 		}
-	} else {
+	} else
+#endif /* STANDALONE */
+	{
 		pp->black = MI_BLACK_PIXEL(mi);
 		pp->backGC = MI_GC(mi);
 	}
@@ -440,9 +447,12 @@ init_puzzle(ModeInfo * mi)
 	}
 	pp = &puzzs[MI_SCREEN(mi)];
 
+	if (pp->painted && pp->windowsize.x == MI_WIDTH(mi) &&
+	    pp->windowsize.y == MI_HEIGHT(mi))
+		return;		/* Debounce since refresh_puzzle is init_puzzle */
 	init_stuff(mi);
 
-	pp->excount = MI_BATCHCOUNT(mi);
+	pp->excount = MI_COUNT(mi);
 	if (pp->excount < 0) {
 		if (pp->fixbuff != NULL)
 			(void) free((void *) pp->fixbuff);
@@ -453,8 +463,8 @@ init_puzzle(ModeInfo * mi)
 	pp->moves = 0;
 	pp->movingBox = False;
 
-	pp->windowsize.x = MI_WIN_WIDTH(mi);
-	pp->windowsize.y = MI_WIN_HEIGHT(mi);
+	pp->windowsize.x = MI_WIDTH(mi);
+	pp->windowsize.y = MI_HEIGHT(mi);
 	if (pp->windowsize.x < 7)
 		pp->windowsize.x = 7;
 	if (pp->windowsize.y < 7)
@@ -555,6 +565,8 @@ init_puzzle(ModeInfo * mi)
 	if ((pp->excount) && (pp->fixbuff == NULL))
 		if ((pp->fixbuff = (int *) calloc(pp->excount, sizeof (int))) == NULL)
 			            (void) fprintf(stderr, "Could not allocate memory for puzzle buffer\n");
+
+	pp->painted = True;
 }
 
 void
@@ -562,12 +574,15 @@ draw_puzzle(ModeInfo * mi)
 {
 	puzzlestruct *pp = &puzzs[MI_SCREEN(mi)];
 
+	MI_IS_DRAWN(mi) = True;
+
+	pp->painted = False;
 	if (pp->movingBox) {
 		if (moveboxdelta(mi)) {
 			wrapupmovedelta(mi);
 			wrapupmove(mi);
 			pp->movingBox = False;
-			if (pp->moves++ > 2 * MI_BATCHCOUNT(mi))
+			if (pp->moves++ > 2 * MI_COUNT(mi))
 				init_puzzle(mi);
 		}
 	} else {

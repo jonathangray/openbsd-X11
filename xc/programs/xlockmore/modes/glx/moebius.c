@@ -89,7 +89,7 @@ static const char sccsid[] = "@(#)moebius.c	4.08 97/01/04 xlockmore";
 #include "xlockmore.h"		/* from the xscreensaver distribution */
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
-
+#include "vis.h"
 #endif /* !STANDALONE */
 
 #ifdef USE_GL
@@ -422,7 +422,7 @@ draw_moebius_strip(ModeInfo * mi)
 	GLfloat     cPhi, sPhi;
 	moebiusstruct *mp = &moebius[MI_SCREEN(mi)];
 	int         i, j;
-	int         mono = MI_WIN_IS_MONO(mi);
+	int         mono = MI_IS_MONO(mi);
 
 	float       Cx, Cy, Cz;
 
@@ -575,7 +575,7 @@ reshape(ModeInfo * mi, int width, int height)
 }
 
 static void
-pinit()
+pinit(void)
 {
 	glClearDepth(1.0);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -631,7 +631,7 @@ init_moebius(ModeInfo * mi)
 
 	if ((mp->glx_context = init_GL(mi)) != NULL) {
 
-		reshape(mi, MI_WIN_WIDTH(mi), MI_WIN_HEIGHT(mi));
+		reshape(mi, MI_WIDTH(mi), MI_HEIGHT(mi));
 		glDrawBuffer(GL_BACK);
 		if (!glIsList(objects))
 			objects = glGenLists(3);
@@ -649,6 +649,8 @@ draw_moebius(ModeInfo * mi)
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (!mp->glx_context)
 		return;
 
@@ -660,7 +662,7 @@ draw_moebius(ModeInfo * mi)
 
 	glTranslatef(0.0, 0.0, -10.0);
 
-	if (!MI_WIN_IS_ICONIC(mi)) {
+	if (!MI_IS_ICONIC(mi)) {
 		glScalef(Scale4Window * mp->WindH / mp->WindW, Scale4Window, Scale4Window);
 	} else {
 		glScalef(Scale4Iconic * mp->WindH / mp->WindW, Scale4Iconic, Scale4Iconic);

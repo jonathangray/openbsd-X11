@@ -36,7 +36,7 @@ static const char sccsid[] = "@(#)maze.c	4.07 97/11/24 xlockmore";
  * 17-Jun-94: HP ANSI C compiler needs a type cast for gray_bits
  *            Richard Lloyd <R.K.Lloyd@csc.liv.ac.uk> 
  * 2-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
- * 7-Mar-93: Good ideas from xscreensaver Jamie Zawinski <jwz@netscape.com>
+ * 7-Mar-93: Good ideas from xscreensaver Jamie Zawinski <jwz@jwz.org>
  * 6-Jun-85: Martin Weiss Sun Microsystems 
  */
 
@@ -75,12 +75,14 @@ static const char sccsid[] = "@(#)maze.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 1000 \n" \
  "*cycles: 3000 \n" \
  "*size: -40 \n" \
- "*ncolors: 64 \n"
-#define DEF_BITMAP ""
+ "*ncolors: 64 \n" \
+ "*bitmap: \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
+#include "color.h"
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 ModeSpecOpt maze_opts =
 {0, NULL, 0, NULL, NULL};
@@ -153,7 +155,7 @@ typedef struct {
 	Pixmap      graypix;
 	XImage     *logo;
 	Colormap    cmap;
-	unsigned long black;
+	unsigned long black, color;
 	int         graphics_format;
 	GC          backGC;
 	int         time;
@@ -161,9 +163,112 @@ typedef struct {
 
 static mazestruct *mazes = NULL;
 
-static void draw_wall(ModeInfo * mi, int i, int j, int dir);
-static void draw_solid_square(ModeInfo * mi, GC gc, register int i, register int j, register int dir);
-static void enter_square(ModeInfo * mi, int n);
+static void
+draw_wall(ModeInfo * mi, int i, int j, int dir)
+{				/* draw a single wall */
+	Display    *display = MI_DISPLAY(mi);
+	Window      window = MI_WINDOW(mi);
+	mazestruct *mp = &mazes[MI_SCREEN(mi)];
+	GC          gc = mp->backGC;
+
+	switch (dir) {
+		case 0:
+			XDrawLine(display, window, gc,
+				  mp->xb + mp->xs * i,
+				  mp->yb + mp->ys * j,
+				  mp->xb + mp->xs * (i + 1),
+				  mp->yb + mp->ys * j);
+			break;
+		case 1:
+			XDrawLine(display, window, gc,
+				  mp->xb + mp->xs * (i + 1),
+				  mp->yb + mp->ys * j,
+				  mp->xb + mp->xs * (i + 1),
+				  mp->yb + mp->ys * (j + 1));
+			break;
+		case 2:
+			XDrawLine(display, window, gc,
+				  mp->xb + mp->xs * i,
+				  mp->yb + mp->ys * (j + 1),
+				  mp->xb + mp->xs * (i + 1),
+				  mp->yb + mp->ys * (j + 1));
+			break;
+		case 3:
+			XDrawLine(display, window, gc,
+				  mp->xb + mp->xs * i,
+				  mp->yb + mp->ys * j,
+				  mp->xb + mp->xs * i,
+				  mp->yb + mp->ys * (j + 1));
+			break;
+	}
+}				/* end of draw_wall */
+
+static void
+draw_solid_square(ModeInfo * mi, GC gc,
+		  register int i, register int j, register int dir)
+{				/* draw a solid square in a square */
+	Display    *display = MI_DISPLAY(mi);
+	Window      window = MI_WINDOW(mi);
+	mazestruct *mp = &mazes[MI_SCREEN(mi)];
+
+	switch (dir) {
+		case 0:
+			XFillRectangle(display, window, gc,
+				       mp->xb + 3 + mp->xs * i,
+				       mp->yb - 3 + mp->ys * j,
+				       mp->xs - 6, mp->ys);
+			break;
+		case 1:
+			XFillRectangle(display, window, gc,
+				       mp->xb + 3 + mp->xs * i,
+				       mp->yb + 3 + mp->ys * j,
+				       mp->xs, mp->ys - 6);
+			break;
+		case 2:
+			XFillRectangle(display, window, gc,
+				       mp->xb + 3 + mp->xs * i,
+				       mp->yb + 3 + mp->ys * j,
+				       mp->xs - 6, mp->ys);
+			break;
+		case 3:
+			XFillRectangle(display, window, gc,
+				       mp->xb - 3 + mp->xs * i,
+				       mp->yb + 3 + mp->ys * j,
+				       mp->xs, mp->ys - 6);
+			break;
+	}
+
+}				/* end of draw_solid_square() */
+
+static void
+enter_square(ModeInfo * mi, int n)
+{				/* move into a neighboring square */
+	mazestruct *mp = &mazes[MI_SCREEN(mi)];
+
+	draw_solid_square(mi, mp->backGC, (int) mp->path[n].x, (int) mp->path[n].y,
+			  (int) mp->path[n].dir);
+
+	mp->path[n + 1].dir = -1;
+	switch (mp->path[n].dir) {
+		case 0:
+			mp->path[n + 1].x = mp->path[n].x;
+			mp->path[n + 1].y = mp->path[n].y - 1;
+			break;
+		case 1:
+			mp->path[n + 1].x = mp->path[n].x + 1;
+			mp->path[n + 1].y = mp->path[n].y;
+			break;
+		case 2:
+			mp->path[n + 1].x = mp->path[n].x;
+			mp->path[n + 1].y = mp->path[n].y + 1;
+			break;
+		case 3:
+			mp->path[n + 1].x = mp->path[n].x - 1;
+			mp->path[n + 1].y = mp->path[n].y;
+			break;
+	}
+
+}				/* end of enter_square() */
 
 static void
 free_maze(mazestruct * mp)
@@ -235,13 +340,13 @@ initialize_maze(ModeInfo * mi)
 	register int i, j, wall;
 
 	if (MI_NPIXELS(mi) <= 2) {
-		XSetForeground(display, mp->backGC, MI_WHITE_PIXEL(mi));
-		XSetForeground(display, mp->grayGC, MI_WHITE_PIXEL(mi));
+		mp->color = MI_WHITE_PIXEL(mi);
 	} else {
 		i = NRAND(MI_NPIXELS(mi));
-		XSetForeground(display, mp->backGC, MI_PIXEL(mi, i));
-		XSetForeground(display, mp->grayGC, MI_PIXEL(mi, i));
+		mp->color = MI_PIXEL(mi, i);
 	}
+	XSetForeground(display, mp->backGC, mp->color);
+	XSetForeground(display, mp->grayGC, mp->color);
 	/* initialize all squares */
 	for (i = 0; i < mp->ncols; i++) {
 		for (j = 0; j < mp->nrows; j++) {
@@ -423,6 +528,8 @@ draw_maze_walls(ModeInfo * mi)
 	mazestruct *mp = &mazes[MI_SCREEN(mi)];
 	int         i, j, isize;
 
+	MI_IS_DRAWN(mi) = True;
+
 	for (i = 0; i < mp->ncols; i++) {
 		isize = i * mp->nrows;
 		for (j = 0; j < mp->nrows; j++) {
@@ -512,6 +619,15 @@ draw_maze_border(ModeInfo * mi)
 	GC          gc = mp->backGC;
 	register int i, j;
 
+	if (mp->logo_x != -1) {
+		(void) XPutImage(display, window, gc, mp->logo,
+				 0, 0,
+				 mp->xb + mp->xs * mp->logo_x +
+			(mp->xs * mp->logo_size_x - mp->logo->width + 1) / 2,
+				 mp->yb + mp->ys * mp->logo_y +
+		       (mp->ys * mp->logo_size_y - mp->logo->height + 1) / 2,
+				 mp->logo->width, mp->logo->height);
+	}
 	for (i = 0; i < mp->ncols; i++) {
 		if (mp->maze[i * mp->nrows] & WALL_TOP) {
 			XDrawLine(display, window, gc,
@@ -541,98 +657,9 @@ draw_maze_border(ModeInfo * mi)
 		}
 	}
 
-	if (mp->logo_x != -1) {
-		(void) XPutImage(display, window, gc, mp->logo,
-				 0, 0,
-				 mp->xb + mp->xs * mp->logo_x +
-			(mp->xs * mp->logo_size_x - mp->logo->width + 1) / 2,
-				 mp->yb + mp->ys * mp->logo_y +
-		       (mp->ys * mp->logo_size_y - mp->logo->height + 1) / 2,
-				 mp->logo->width, mp->logo->height);
-	}
 	draw_solid_square(mi, gc, mp->start_x, mp->start_y, mp->start_dir);
 	draw_solid_square(mi, gc, mp->end_x, mp->end_y, mp->end_dir);
 }				/* end of draw_maze() */
-
-
-static void
-draw_wall(ModeInfo * mi, int i, int j, int dir)
-{				/* draw a single wall */
-	Display    *display = MI_DISPLAY(mi);
-	Window      window = MI_WINDOW(mi);
-	mazestruct *mp = &mazes[MI_SCREEN(mi)];
-	GC          gc = mp->backGC;
-
-	switch (dir) {
-		case 0:
-			XDrawLine(display, window, gc,
-				  mp->xb + mp->xs * i,
-				  mp->yb + mp->ys * j,
-				  mp->xb + mp->xs * (i + 1),
-				  mp->yb + mp->ys * j);
-			break;
-		case 1:
-			XDrawLine(display, window, gc,
-				  mp->xb + mp->xs * (i + 1),
-				  mp->yb + mp->ys * j,
-				  mp->xb + mp->xs * (i + 1),
-				  mp->yb + mp->ys * (j + 1));
-			break;
-		case 2:
-			XDrawLine(display, window, gc,
-				  mp->xb + mp->xs * i,
-				  mp->yb + mp->ys * (j + 1),
-				  mp->xb + mp->xs * (i + 1),
-				  mp->yb + mp->ys * (j + 1));
-			break;
-		case 3:
-			XDrawLine(display, window, gc,
-				  mp->xb + mp->xs * i,
-				  mp->yb + mp->ys * j,
-				  mp->xb + mp->xs * i,
-				  mp->yb + mp->ys * (j + 1));
-			break;
-	}
-}				/* end of draw_wall */
-
-
-static void
-draw_solid_square(ModeInfo * mi, GC gc,
-		  register int i, register int j, register int dir)
-{				/* draw a solid square in a square */
-	Display    *display = MI_DISPLAY(mi);
-	Window      window = MI_WINDOW(mi);
-	mazestruct *mp = &mazes[MI_SCREEN(mi)];
-
-	switch (dir) {
-		case 0:
-			XFillRectangle(display, window, gc,
-				       mp->xb + 3 + mp->xs * i,
-				       mp->yb - 3 + mp->ys * j,
-				       mp->xs - 6, mp->ys);
-			break;
-		case 1:
-			XFillRectangle(display, window, gc,
-				       mp->xb + 3 + mp->xs * i,
-				       mp->yb + 3 + mp->ys * j,
-				       mp->xs, mp->ys - 6);
-			break;
-		case 2:
-			XFillRectangle(display, window, gc,
-				       mp->xb + 3 + mp->xs * i,
-				       mp->yb + 3 + mp->ys * j,
-				       mp->xs - 6, mp->ys);
-			break;
-		case 3:
-			XFillRectangle(display, window, gc,
-				       mp->xb - 3 + mp->xs * i,
-				       mp->yb + 3 + mp->ys * j,
-				       mp->xs, mp->ys - 6);
-			break;
-	}
-
-}				/* end of draw_solid_square() */
-
 
 static void
 solve_maze(ModeInfo * mi)
@@ -684,38 +711,6 @@ solve_maze(ModeInfo * mi)
 	}
 }				/* end of solve_maze() */
 
-
-static void
-enter_square(ModeInfo * mi, int n)
-{				/* move into a neighboring square */
-	mazestruct *mp = &mazes[MI_SCREEN(mi)];
-
-	draw_solid_square(mi, mp->backGC, (int) mp->path[n].x, (int) mp->path[n].y,
-			  (int) mp->path[n].dir);
-
-	mp->path[n + 1].dir = -1;
-	switch (mp->path[n].dir) {
-		case 0:
-			mp->path[n + 1].x = mp->path[n].x;
-			mp->path[n + 1].y = mp->path[n].y - 1;
-			break;
-		case 1:
-			mp->path[n + 1].x = mp->path[n].x + 1;
-			mp->path[n + 1].y = mp->path[n].y;
-			break;
-		case 2:
-			mp->path[n + 1].x = mp->path[n].x;
-			mp->path[n + 1].y = mp->path[n].y + 1;
-			break;
-		case 3:
-			mp->path[n + 1].x = mp->path[n].x - 1;
-			mp->path[n + 1].y = mp->path[n].y;
-			break;
-	}
-
-
-}				/* end of enter_square() */
-
 static void
 init_stuff(ModeInfo * mi)
 {
@@ -729,15 +724,18 @@ init_stuff(ModeInfo * mi)
 			 DEFAULT_XPM, ICON_NAME,
 #endif
 			 &mp->graphics_format, &mp->cmap, &mp->black);
+#ifndef STANDALONE
 	if (mp->cmap != None) {
-		setColormap(display, window, mp->cmap, MI_WIN_IS_INWINDOW(mi));
+		setColormap(display, window, mp->cmap, MI_IS_INWINDOW(mi));
 		if (mp->backGC == None) {
 			XGCValues   xgcv;
 
 			xgcv.background = mp->black;
 			mp->backGC = XCreateGC(display, window, GCBackground, &xgcv);
 		}
-	} else {
+	} else
+#endif /* STANDALONE */
+	{
 		mp->black = MI_BLACK_PIXEL(mi);
 		mp->backGC = MI_GC(mi);
 	}
@@ -773,8 +771,8 @@ init_maze(ModeInfo * mi)
 
 	init_stuff(mi);
 
-	mp->width = MI_WIN_WIDTH(mi);
-	mp->height = MI_WIN_HEIGHT(mi);
+	mp->width = MI_WIDTH(mi);
+	mp->height = MI_HEIGHT(mi);
 	mp->width = (mp->width >= 32) ? mp->width : 32;
 	mp->height = (mp->height >= 32) ? mp->height : 32;
 
@@ -864,7 +862,9 @@ refresh_maze(ModeInfo * mi)
 {
 	mazestruct *mp = &mazes[MI_SCREEN(mi)];
 
-	if (mp->stage > 1) {
+	MI_CLEARWINDOWCOLORMAP(mi, mp->backGC, mp->black);
+	XSetForeground(MI_DISPLAY(mi), mp->backGC, mp->color);
+	if (mp->stage >= 1) {
 		mp->stage = 3;
 		mp->sqnum = 0;
 		mp->cur_sq_x = mp->start_x;

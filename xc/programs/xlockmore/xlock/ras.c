@@ -18,10 +18,9 @@ static const char sccsid[] = "@(#)ras.c	4.00 97/01/01 xlockmore";
  */
 
 #include "xlock.h"
-#include <time.h>
+#include "iostuff.h"
 #include "ras.h"
-
-extern char *imagefile;
+#include <time.h>
 
 #define COLORMAP_SIZE 0x100
 #define RGBCOLORMAP_SIZE 0x300
@@ -177,7 +176,7 @@ RasterFileToImage(ModeInfo * mi, char *filename, XImage ** image)
 		(void) fprintf(stderr, "only 8-bit Raster files are supported\n");
 		return RasterColorFailed;
 	}
-	read_width = ras.width;
+	read_width = (int) ras.width;
 	if ((ras.width & 1) != 0)
 		read_width++;
 	ras.data = (unsigned char *) malloc((int) (read_width * ras.height));
@@ -215,7 +214,7 @@ SetImageColors(Display * display, Colormap cmap)
 		xcolor[i].blue = ras.blue[i] << 8;
 		if (!XAllocColor(display, cmap, xcolor + i))
 			error("not enough colors.\n");
-		ras.entry[i] = xcolor[i].pixel;
+		ras.entry[i] = (int) xcolor[i].pixel;
 	}
 /* for (i = 0; i < ras.width * ras.height; i++) ras.data[i] =
    ras.entry[ras.data[i]]; */

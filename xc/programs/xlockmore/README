@@ -1,6 +1,10 @@
-xlockmore-4.09: the maintained version of xlock
+xlockmore-4.12: the maintained version of xlock
 see docs/Revisions for more version stuff
 see docs/TODO for stuff to do :)
+
+I have significantly less time to maintain this but I try.
+If someone has some free time and wants to take over... let me know.
+(Help is always appreciated too ;) ).
 
 Primary site: ftp://ftp.tux.org/pub/people/david-bagley/xlockmore
 Secondary site: ftp://ftp.x.org/contrib/applications
@@ -17,6 +21,11 @@ subscribe [choice] [your-email-address]
     xlock                   Xlock/Xlockmore development discussion
   If there is trailing signature junk, just put "end" as the last line to
   be read.  If you need help just put "help" in the body.
+
+SECURITY WARNING:
+-----------------
+xlock using the MesaGL Libraries (<= 2.6) setuid root has a known method for
+users to obtain root privledges!
 
 Please send all bug reports to bagleyd@bigfoot.com .
 Alpha versions may be available through web page or primary ftp site.
@@ -77,6 +86,9 @@ Note to binary redistributers:
   if your users will use xdm or not.  For example:
     configure --without-xpm --without-opengl --without-mesagl
       --without-dtsaver --without-rplay --without-nas --disable-bomb; make
+  You may want to distribute it with the xlock/XLock.ad file with "XLock."
+  instances replaced with "*".  On Sun's, I need it to override the system
+  XLock.ad  file.
   Please let me know if there are other concerns.
 
 
@@ -111,6 +123,7 @@ Likely Problems
       See iconfig.h, grep on "AFS". 
     Some machines have an alternate password shadowing method, if someone  
       figures it out mail me the patch.
+    AIX with DCE you will need "-ls" among the XLOCKLIBS.
 
   Alpha-OSF/1 (Digital Equipment Corp)
 
@@ -157,12 +170,13 @@ XCOMM #define DtSaverLibrary
       dtwm.)
     Here's how to set it up on your system.
       edit /usr/dt/bin/Xsession DTSCREENSAVERLIST to contain the
-        DTSCREENSAVERLIST stuff in .dtprofile
+        DTSCREENSAVERLIST stuff in etc/dtprofile
       cp etc/dtscreen.dt /usr/dt/appconfig/types/C/dtscreen.dt
 
     The disadvantage to the above is some features of xlock are abscent,
-      in particular, the logout lab feature.  Here is a work around on
-      Solaris in 3 patches:
+      in particular, the logout lab feature.  This version of xlock does not
+      hava a drop in replacement for the Screen Style Manager.  Here is a
+      work around on Solaris in 3 patches:
       1. Take out Screen option.
       2. Put in /usr/local/bin/xlock as the default locker.
       3. Turn off the default DT locking mechanism.
@@ -262,7 +276,7 @@ XCOMM #define DtSaverLibrary
         XHPEnableReset(dsp);
       in "xlock.c" if you do not have this library.
       May have to setuid xlock to root.
-    The optimizer may break utils.c .
+    The optimizer may break in xlock/ .
     HP's "make":
       HP's "make" can not handle "+=" so if you use the iconfig.h, you
       have to group all your DEFINES into one long line and use "="
@@ -502,8 +516,6 @@ XCOMM #define XpmLibrary
       xlock core dumps right away... gdb gives 
         Program received signal SIGSEGV, Segmentation fault.
         0x40002d2b in _dl_debug_state ()
-      One problem I forsee is sproingies ... since it is a multi source file
-        mode.
 
 
 Personal Use
@@ -553,7 +565,7 @@ Lab Environment
 
 xlock still does not work:  :-(
 -------------------------------
-  If all that does not work you may need to adjust xlock.h, utils.c,
+  If all that does not work you may need to adjust xlock.h, passwd.c
   xlock.c, and resource.c since these files are highly implementation
   dependent.  If you have to make this kind of change to get it working,
   let me know.
@@ -688,7 +700,7 @@ Other related stuff (all not maintained by me):
       except when using XVMSUTILS.
   xscreensaver
     ftp://ftp.x.org/contrib/applications
-    http://www.netscape.com/people/jwz/xscreensaver
+    http://www.jwz.org/xscreensaver
 
 
 Operation: (Blurb taken from Darren Senn's xlock)
@@ -763,7 +775,7 @@ Acknowledgments:
   did convert many of the new ones to run with xlock.  I tried to follow
   the original style of Patrick Naughton.  Updates are made at
   ftp.x.org in directory /contrib/applications.  Many of the additions
-  were "borrowed" from xscreensaver (Jamie Zawinski <jwz@netscape.com>).
+  were "borrowed" from xscreensaver (Jamie Zawinski <jwz@jwz.org>).
   Some of the others were "borrowed" from old demos from Sun.  Many more
   are contributions.
 
@@ -775,3 +787,4 @@ Acknowledgments:
   Also many thanks to the people that helped me countless times with 
   xlock mentioned in "Revisions", especially Jouk Jansen, Tom Schmidt,
   David Hansen, Ed Mackey, Marcelo Vianna, Ron Hitchens, and Heath Kehoe.
+

@@ -58,15 +58,15 @@ static const char sccsid[] = "@(#)sproingiewrap.c	4.07 97/11/24 xlockmore";
 #define HACK_INIT init_sproingies
 #define HACK_DRAW draw_sproingies
 #define sproingies_opts xlockmore_opts
-#define DEFAULTS "*delay: 1000 \n" \
+#define DEFAULTS "*delay: 100 \n" \
  "*count: 5 \n" \
  "*cycles: 0 \n" \
- "*size: 400 \n" \
+ "*size: 0 \n" \
  "*wireframe: False \n"
 #include "xlockmore.h"		/* from the xscreensaver distribution */
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
-
+#include "vis.h"
 #endif /* !STANDALONE */
 
 #ifdef USE_GL
@@ -131,7 +131,7 @@ init_sproingies(ModeInfo * mi)
 	int         screen = MI_SCREEN(mi);
 
 	int         cycles = MI_CYCLES(mi);
-	int         batchcount = MI_BATCHCOUNT(mi);
+	int         count = MI_COUNT(mi);
 	int         size = MI_SIZE(mi);
 
 	sproingiesstruct *sp;
@@ -144,17 +144,17 @@ init_sproingies(ModeInfo * mi)
 	}
 	sp = &sproingies[screen];
 
-	sp->mono = (MI_WIN_IS_MONO(mi) ? 1 : 0);
+	sp->mono = (MI_IS_MONO(mi) ? 1 : 0);
 	sp->window = window;
 	if ((sp->glx_context = init_GL(mi)) != NULL) {
 
-		if ((cycles & 1) || MI_WIN_IS_WIREFRAME(mi))
+		if ((cycles & 1) || MI_IS_WIREFRAME(mi))
 			wfmode = 1;
 		grnd = (cycles >> 1);
 		if (grnd > 2)
 			grnd = 2;
 
-		mspr = batchcount;
+		mspr = count;
 		if (mspr > 100)
 			mspr = 100;
 
@@ -163,17 +163,17 @@ init_sproingies(ModeInfo * mi)
 
 		/* Viewport is specified size if size >= MINSIZE && size < screensize */
 		if (size == 0) {
-			w = MI_WIN_WIDTH(mi);
-			h = MI_WIN_HEIGHT(mi);
+			w = MI_WIDTH(mi);
+			h = MI_HEIGHT(mi);
 		} else if (size < MINSIZE) {
 			w = MINSIZE;
 			h = MINSIZE;
 		} else {
-			w = (size > MI_WIN_WIDTH(mi)) ? MI_WIN_WIDTH(mi) : size;
-			h = (size > MI_WIN_HEIGHT(mi)) ? MI_WIN_HEIGHT(mi) : size;
+			w = (size > MI_WIDTH(mi)) ? MI_WIDTH(mi) : size;
+			h = (size > MI_HEIGHT(mi)) ? MI_HEIGHT(mi) : size;
 		}
 
-		glViewport((MI_WIN_WIDTH(mi) - w) / 2, (MI_WIN_HEIGHT(mi) - h) / 2, w, h);
+		glViewport((MI_WIDTH(mi) - w) / 2, (MI_HEIGHT(mi) - h) / 2, w, h);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluPerspective(65.0, (GLfloat) w / (GLfloat) h, 0.1, 2000.0);	/* was 200000.0 */
@@ -195,6 +195,8 @@ draw_sproingies(ModeInfo * mi)
 	sproingiesstruct *sp = &sproingies[MI_SCREEN(mi)];
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (!sp->glx_context)
 		return;

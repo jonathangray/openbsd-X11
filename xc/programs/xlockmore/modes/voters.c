@@ -33,14 +33,23 @@ static const char sccsid[] = "@(#)voters.c	4.07 97/11/24 xlockmore";
 #define HACK_INIT init_voters
 #define HACK_DRAW draw_voters
 #define voters_opts xlockmore_opts
-#define DEFAULTS "*delay: 750000 \n" \
- "*cycles: 32767 \n" \
+#define DEFAULTS "*delay: 1000 \n" \
+ "*cycles: 327670 \n" \
  "*size: 0 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 64 \n" \
+ "*neighbors: 0 \n"
+#define UNIFORM_COLORS
+#define BRIGHT_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+#include "automata.h"
+
+/*-
+ * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
+ */
+extern int  neighbors;
 
 ModeSpecOpt voters_opts =
 {0, NULL, 0, NULL, NULL};
@@ -94,7 +103,7 @@ typedef struct _CellList {
 } CellList;
 
 typedef struct {
-	int         initialized;
+	Bool        painted;
 	int         party;	/* Currently working on donkey, elephant, or sickle? */
 	int         xs, ys;	/* Size of party icon */
 	int         xb, yb;	/* Bitmap offset for party icon */
@@ -164,10 +173,10 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 		}
 	} else if (vp->neighbors == 4 || vp->neighbors == 8) {
 		if (vp->pixelmode) {
-			if (bitmap == BITMAPS - 1 || (vp->xs == 1 && vp->ys == 1))
+			if (bitmap == BITMAPS - 1 || (vp->xs <= 2 || vp->ys <= 2))
 				XFillRectangle(display, window, gc,
 				vp->xb + vp->xs * col, vp->yb + vp->ys * row,
-					       vp->xs, vp->ys);
+				vp->xs - (vp->xs > 3), vp->ys - (vp->ys > 3));
 			else {
 				if (firstChange) {
 					XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -177,7 +186,8 @@ drawcell(ModeInfo * mi, int col, int row, unsigned long color, int bitmap,
 					XSetForeground(display, gc, colour);
 				}
 				XFillArc(display, window, gc,
-					 vp->xb + vp->xs * col, vp->yb + vp->ys * row, vp->xs, vp->ys,
+					 vp->xb + vp->xs * col, vp->yb + vp->ys * row,
+					 vp->xs - 1, vp->ys - 1,
 					 0, 23040);
 			}
 		} else
@@ -522,14 +532,18 @@ refresh_voters(ModeInfo * mi)
 	voterstruct *vp = &voters[MI_SCREEN(mi)];
 	int         col, row, colrow;
 
-	for (row = 0; row < vp->nrows; row++)
-		for (col = 0; col < vp->ncols; col++) {
-			colrow = col + row * vp->ncols;
-			/* Draw all old, will get corrected soon if wrong... */
-			drawcell(mi, col, row,
-				 (unsigned long) (MI_NPIXELS(mi) * vp->arr[colrow] / BITMAPS),
-				 vp->arr[colrow], False);
-		}
+	if (vp->painted) {
+		MI_CLEARWINDOW(mi);
+		vp->painted = False;
+		for (row = 0; row < vp->nrows; row++)
+			for (col = 0; col < vp->ncols; col++) {
+				colrow = col + row * vp->ncols;
+				/* Draw all old, will get corrected soon if wrong... */
+				drawcell(mi, col, row,
+					 (unsigned long) (MI_NPIXELS(mi) * vp->arr[colrow] / BITMAPS),
+					 vp->arr[colrow], False);
+			}
+	}
 }
 
 void
@@ -547,10 +561,9 @@ init_voters(ModeInfo * mi)
 	vp = &voters[MI_SCREEN(mi)];
 
 	vp->generation = 0;
-	if (!vp->initialized) {	/* Genesis of democracy */
+	if (!vp->first) {	/* Genesis of democracy */
 		icon_width = donkey_width;
 		icon_height = donkey_height;
-		vp->initialized = 1;
 		init_list(vp);
 		for (i = 0; i < BITMAPS; i++) {
 			logo[i].width = icon_width;
@@ -560,8 +573,8 @@ init_voters(ModeInfo * mi)
 	} else			/* Exterminate all free thinking individuals */
 		flush_list(vp);
 
-	vp->width = MI_WIN_WIDTH(mi);
-	vp->height = MI_WIN_HEIGHT(mi);
+	vp->width = MI_WIDTH(mi);
+	vp->height = MI_HEIGHT(mi);
 
 	for (i = 0; i < NEIGHBORKINDS; i++) {
 		if (neighbors == plots[i]) {
@@ -682,7 +695,7 @@ init_voters(ModeInfo * mi)
 	vp->arr = (char *) calloc(vp->npositions, sizeof (char));
 
 	/* Play G-d with these numbers */
-	vp->nparties = MI_BATCHCOUNT(mi);
+	vp->nparties = MI_COUNT(mi);
 	if (vp->nparties < MINPARTIES || vp->nparties > BITMAPS)
 		vp->nparties = NRAND(BITMAPS - MINPARTIES + 1) + MINPARTIES;
 	if (vp->pixelmode)
@@ -690,6 +703,7 @@ init_voters(ModeInfo * mi)
 
 	vp->busyLoop = 0;
 	MI_CLEARWINDOW(mi);
+	vp->painted = False;
 
 	for (i = 0; i < BITMAPS; i++)
 		vp->number_in_party[i] = 0;
@@ -714,6 +728,9 @@ draw_voters(ModeInfo * mi)
 	int         new_opinion, old_opinion;
 	cellstruct  info;
 
+	MI_IS_DRAWN(mi) = True;
+
+	vp->painted = True;
 	if (vp->busyLoop) {
 		if (vp->busyLoop >= 5000)
 			vp->busyLoop = 0;
@@ -772,9 +789,12 @@ release_voters(ModeInfo * mi)
 		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
 			voterstruct *vp = &voters[screen];
 
-			flush_list(vp);
-			(void) free((void *) vp->last);
-			(void) free((void *) vp->first);
+			if (vp->first)
+				flush_list(vp);
+			if (vp->last)
+				(void) free((void *) vp->last);
+			if (vp->first)
+				(void) free((void *) vp->first);
 			if (vp->arr != NULL)
 				(void) free((void *) vp->arr);
 		}

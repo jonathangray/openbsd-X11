@@ -78,7 +78,7 @@ typedef struct {
 } balltype;
 
 typedef struct {
-	int         init;
+	Bool        painted;
 	balltype   *bt;
 	int         rad;
 	int         size;
@@ -297,10 +297,10 @@ init_ball(ModeInfo * mi)
 	bp = &balls[MI_SCREEN(mi)];
 
 	bp->bounce = 85;
-	bp->width = MI_WIN_WIDTH(mi);
-	bp->height = MI_WIN_HEIGHT(mi);
+	bp->width = MI_WIDTH(mi);
+	bp->height = MI_HEIGHT(mi);
 
-	bp->nballs = MI_BATCHCOUNT(mi);
+	bp->nballs = MI_COUNT(mi);
 	if (bp->nballs < -MINBALLS) {
 		/* if bp->nballs is random ... the size can change */
 		if (bp->bt != NULL) {
@@ -329,10 +329,11 @@ init_ball(ModeInfo * mi)
 
 	/* clearballs */
 	MI_CLEARWINDOW(mi);
+	bp->painted = False;
 	XFlush(display);
 	if (bp->nballs <= 0)
 		bp->nballs = 1;
-	if (!bp->init) {
+	if (!bp->bt[0].GcB) {
 		XGCValues   gcv;
 
 		gcv.foreground = MI_WHITE_PIXEL(mi);
@@ -343,7 +344,6 @@ init_ball(ModeInfo * mi)
 			bp->bt[GcLp].GcF = XCreateGC(display, window,
 					  GCForeground | GCBackground, &gcv);
 		}
-		bp->init = 1;
 	}
 	for (GcLp = 0; GcLp < bp->nballs; GcLp++) {
 		if (MI_NPIXELS(mi) > 2) {
@@ -355,8 +355,8 @@ init_ball(ModeInfo * mi)
 		}
 	}
 
-	bp->dispx = MI_WIN_WIDTH(mi);
-	bp->dispy = MI_WIN_HEIGHT(mi);
+	bp->dispx = MI_WIDTH(mi);
+	bp->dispy = MI_HEIGHT(mi);
 
 	XFlush(display);
 	for (i = 0; i < bp->nballs; i++) {
@@ -375,8 +375,10 @@ draw_ball(ModeInfo * mi)
 	int         dx, dy;
 	int         redo;
 
-	td = 10;
+	MI_IS_DRAWN(mi) = True;
 
+	td = 10;
+	bp->painted = True;
 	for (i = 0; i < bp->nballs; i++) {
 		if (!bp->bt[i].def)
 			randomball(mi, i);
@@ -480,11 +482,12 @@ release_ball(ModeInfo * mi)
 		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
 			ballstruct *bp = &balls[screen];
 
-			if (bp->init)
-				for (i = 0; i < bp->nballs; i++) {
+			for (i = 0; i < bp->nballs; i++) {
+				if (bp->bt[i].GcF)
 					XFreeGC(MI_DISPLAY(mi), bp->bt[i].GcF);
+				if (bp->bt[i].GcB)
 					XFreeGC(MI_DISPLAY(mi), bp->bt[i].GcB);
-				}
+			}
 			if (bp->bt != NULL)
 				(void) free((void *) bp->bt);
 
@@ -497,5 +500,8 @@ release_ball(ModeInfo * mi)
 void
 refresh_ball(ModeInfo * mi)
 {
-	MI_CLEARWINDOW(mi);
+	ballstruct *bp = &balls[MI_SCREEN(mi)];
+
+	if (bp->painted)
+		MI_CLEARWINDOW(mi);
 }

@@ -30,8 +30,8 @@ static const char sccsid[] = "@(#)galaxy.c	4.07 97/11/24 xlockmore";
  * 18-Apr-97: Memory leak fixed by Tom Schmidt <tschmidt@micron.com>
  * 07-Apr-97: Modified by Dave Mitchell <davem@magnet.com>
  * 23-Oct-94: Modified by David Bagley <bagleyd@bigfoot.com>
- *		random star sizes
- *		colors change depending on velocity
+ *            random star sizes
+ *            colors change depending on velocity
  * 10-Oct-94: Add colors by Hubert Feyer
  * 30-Sep-94: Initial port by Hubert Feyer
  * 09-Mar-94: VMS can generate a random number 0.0 which results in a
@@ -186,16 +186,16 @@ static void
 startover(ModeInfo * mi)
 {
 	unistruct  *gp = &universes[MI_SCREEN(mi)];
-	int         size = MI_SIZE(mi);
+	int         size = (int) MI_SIZE(mi);
 	int         i, j;	/* more tmp */
 	double      w1, w2;	/* more tmp */
 	double      d, v, w, h;	/* yet more tmp */
 
 	gp->step = 0;
 
-	if (MI_BATCHCOUNT(mi) < -MINGALAXIES)
+	if (MI_COUNT(mi) < -MINGALAXIES)
 		free_galaxies(gp);
-	gp->ngalaxies = MI_BATCHCOUNT(mi);
+	gp->ngalaxies = MI_COUNT(mi);
 	if (gp->ngalaxies < -MINGALAXIES)
 		gp->ngalaxies = NRAND(-gp->ngalaxies - MINGALAXIES + 1) + MINGALAXIES;
 	else if (gp->ngalaxies < MINGALAXIES)
@@ -324,8 +324,8 @@ init_galaxy(ModeInfo * mi)
 
 	gp->clip.left = 0;
 	gp->clip.top = 0;
-	gp->clip.right = MI_WIN_WIDTH(mi);
-	gp->clip.bottom = MI_WIN_HEIGHT(mi);
+	gp->clip.right = MI_WIDTH(mi);
+	gp->clip.bottom = MI_HEIGHT(mi);
 
 	gp->scale = (double) (gp->clip.right + gp->clip.bottom) / 8.0;
 	gp->midx = gp->clip.right / 2;
@@ -342,6 +342,8 @@ draw_galaxy(ModeInfo * mi)
 	unistruct  *gp = &universes[MI_SCREEN(mi)];
 	double      d;		/* tmp */
 	int         i, j, k;	/* more tmp */
+
+	MI_IS_DRAWN(mi) = True;
 
 	for (i = 0; i < gp->ngalaxies; ++i) {
 		Galaxy     *gt = &gp->galaxies[i];
@@ -481,5 +483,5 @@ release_galaxy(ModeInfo * mi)
 void
 refresh_galaxy(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

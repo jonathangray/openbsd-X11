@@ -18,6 +18,8 @@ $ xvmsutilsf="X11:XVMSUTILS.OLB"
 $ xpmf="X11:LIBXPM.OLB"
 $ glf="GL:LIBMESAGL.OLB"
 $ gluf="GL:LIBMESAGLU.OLB"
+$ ttff="SYS$LIBRARY:LIBTTF.OLB"
+$ glttf="SYS$LIBRARY:LIBGLTT.OLB"
 $!
 $! Assume C.
 $ deccxx=0
@@ -42,6 +44,10 @@ $! if bomb<>0 the use bomb mode is included (does not come up in random mode)
 $ bomb=1
 $! bomb=0
 $!
+$! if unstable<>0 some of these mode(s) included could be a little buggy 
+$! unstable=0
+$ unstable=1
+$!
 $! if sound<>0 sound capability is included (only available on Alpha)
 $! from vms_amd.c and vms_amd.h
 $ sound=1
@@ -50,6 +56,10 @@ $!
 $! Memory Check stuff.  Very experimental!
 $ check=0
 $! check=1
+$
+$! Compliant colour map if <>1
+$! complmap=0
+$ complmap=1
 $!
 $!
 $! NOTHING SHOULD BE MODIFIED BELOW
@@ -62,6 +72,9 @@ $ dtsaver=f$search("SYS$LIBRARY:CDE$LIBDTSVC.EXE") .nes. ""
 $ xpm=f$search("''xpmf'") .nes. ""
 $ gl=f$search("''glf'") .nes. ""
 $ glu=f$search("''gluf'") .nes. ""
+$ gltt=f$search("''glttf'") .nes. ""
+$ ttf=f$search("''ttff'") .nes. ""
+$ iscxx=f$search("SYS$SYSTEM:CXX$COMPILER.EXE") .nes. ""
 $ axp=f$getsyi("HW_MODEL") .ge. 1024
 $ sys_ver=f$edit(f$getsyi("version"),"compress")
 $ if f$extract(0,1,sys_ver) .nes. "V"
@@ -81,8 +94,10 @@ $! Create .opt file
 $ close/nolog optf
 $ open/write optf xlock.opt
 $!
+$ if iscxx .and. ttf .and. gltt then defs=="''defs',USE_TEXT" 
+$ if complmap then defs=="''defs',COMPLIANT_COLORMAP"
 $ if xpm then defs=="''defs',USE_XPM"
-$ if gl then defs=="''defs',USE_GL"
+$ if gl then defs=="''defs',USE_GL,HAVE_GLBINDTEXTURE"
 $ if dtsaver then defs=="''defs',USE_DTSAVER"
 $ if axp .and. sound then defs=="''defs',USE_VMSPLAY"
 $ if sys_maj .lt. 7
@@ -91,6 +106,7 @@ $   if xvmsutils then defs=="''defs',USE_XVMSUTILS"
 $ endif
 $ if vroot then defs=="''defs',USE_VROOT"
 $ if bomb then defs=="''defs',USE_BOMB"
+$ if unstable then defs=="''defs',USE_UNSTABLE"
 $ if check then defs=="''defs',DEBUG"
 $! The next must be the last one.
 $ if sys_maj .ge. 7
@@ -103,6 +119,7 @@ $!
 $! Set compiler command
 $! Put in /include=[] for local include file like a pwd.h ...
 $!   not normally required.
+$     cxx=="cxx/include=([],[.xlock])/define=(''defs')"
 $ if deccxx
 $ then
 $   cc=="cxx/include=([],[.xlock])/define=(''defs')"
@@ -174,13 +191,18 @@ $ write sys$output "Compiling XLock where cc = ''cc'"
 $ call make [.xlock]xlock.obj     "cc /object=[.xlock] [.xlock]xlock.c"     [.xlock]xlock.c [.xlock]xlock.h [.xlock]mode.h [.xlock]vroot.h
 $ call make [.xlock]passwd.obj    "cc /object=[.xlock] [.xlock]passwd.c"    [.xlock]passwd.c [.xlock]xlock.h
 $ call make [.xlock]resource.obj  "cc /object=[.xlock] [.xlock]resource.c"  [.xlock]resource.c [.xlock]xlock.h [.xlock]mode.h
-$ call make [.xlock]utils.obj     "cc /object=[.xlock] [.xlock]utils.c"     [.xlock]utils.c [.xlock]xlock.h
+$ call make [.xlock]util.obj      "cc /object=[.xlock] [.xlock]util.c"      [.xlock]util.c [.xlock]xlock.h [.xlock]util.h
 $ call make [.xlock]logout.obj    "cc /object=[.xlock] [.xlock]logout.c"    [.xlock]logout.c [.xlock]xlock.h
 $ call make [.xlock]mode.obj      "cc /object=[.xlock] [.xlock]mode.c"      [.xlock]mode.c [.xlock]xlock.h [.xlock]mode.h
-$ call make [.xlock]ras.obj       "cc /object=[.xlock] [.xlock]ras.c"       [.xlock]ras.c [.xlock]xlock.h
+$ call make [.xlock]ras.obj       "cc /object=[.xlock] [.xlock]ras.c"       [.xlock]ras.c [.xlock]xlock.h [.xlock]ras.h
 $ call make [.xlock]xbm.obj       "cc /object=[.xlock] [.xlock]xbm.c"       [.xlock]xbm.c [.xlock]xlock.h
-$ call make [.xlock]color.obj     "cc /object=[.xlock] [.xlock]color.c"     [.xlock]color.c [.xlock]xlock.h
-$ call make [.xlock]visual.obj    "cc /object=[.xlock] [.xlock]visual.c"    [.xlock]visual.c [.xlock]xlock.h
+$ call make [.xlock]vis.obj       "cc /object=[.xlock] [.xlock]vis.c"       [.xlock]vis.c [.xlock]xlock.h [.xlock]vis.h
+$ call make [.xlock]color.obj     "cc /object=[.xlock] [.xlock]color.c"     [.xlock]color.c [.xlock]xlock.h [.xlock]color.h
+$ call make [.xlock]random.obj    "cc /object=[.xlock] [.xlock]random.c"    [.xlock]random.c [.xlock]xlock.h [.xlock]random.h
+$ call make [.xlock]iostuff.obj   "cc /object=[.xlock] [.xlock]iostuff.c"   [.xlock]file.c [.xlock]xlock.h [.xlock]iostuff.h
+$ call make [.xlock]automata.obj  "cc /object=[.xlock] [.xlock]automata.c"  [.xlock]automata.c [.xlock]xlock.h [.xlock]automata.h
+$ call make [.xlock]spline.obj    "cc /object=[.xlock] [.xlock]spline.c"    [.xlock]spline.c [.xlock]xlock.h [.xlock]spline.h
+$ call make [.xlock]erase.obj    "cc /object=[.xlock] [.xlock]erase.c"    [.xlock]erase.c [.xlock]xlock.h
 $ if check
 $ then
 $   write sys$output "Compiling XLock Memory Check Caution: Experimental!"
@@ -209,23 +231,28 @@ $ call make [.modes]daisy.obj     "cc /object=[.modes] [.modes]daisy.c"     [.mo
 $ call make [.modes]dclock.obj    "cc /object=[.modes] [.modes]dclock.c"    [.modes]dclock.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]deco.obj      "cc /object=[.modes] [.modes]deco.c"      [.modes]deco.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]demon.obj     "cc /object=[.modes] [.modes]demon.c"     [.modes]demon.c [.xlock]xlock.h [.xlock]mode.h
-$ call make [.modes]dilemma.obj     "cc /object=[.modes] [.modes]dilemma.c"     [.modes]dilemma.c [.xlock]xlock.h [.xlock]mode.h
+$ call make [.modes]dilemma.obj   "cc /object=[.modes] [.modes]dilemma.c"   [.modes]dilemma.c [.xlock]xlock.h [.xlock]mode.h
+$ call make [.modes]discrete.obj  "cc /object=[.modes] [.modes]discrete.c"  [.modes]discrete.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]drift.obj     "cc /object=[.modes] [.modes]drift.c"     [.modes]drift.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]eyes.obj      "cc /object=[.modes] [.modes]eyes.c"      [.modes]eyes.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]fadeplot.obj  "cc /object=[.modes] [.modes]fadeplot.c"  [.modes]fadeplot.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]flag.obj      "cc /object=[.modes] [.modes]flag.c"      [.modes]flag.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]flame.obj     "cc /object=[.modes] [.modes]flame.c"     [.modes]flame.c [.xlock]xlock.h [.xlock]mode.h
+$ call make [.modes]flow.obj      "cc /object=[.modes] [.modes]flow.c"      [.modes]flow.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]forest.obj    "cc /object=[.modes] [.modes]forest.c"    [.modes]forest.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]galaxy.obj    "cc /object=[.modes] [.modes]galaxy.c"    [.modes]galaxy.c [.xlock]xlock.h [.xlock]mode.h
+$ call make [.modes]goop.obj      "cc /object=[.modes] [.modes]goop.c"      [.modes]goop.c [.xlock]xlock.h [.xlock]mode.h [.xlock]spline.h
 $ call make [.modes]grav.obj      "cc /object=[.modes] [.modes]grav.c"      [.modes]grav.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]helix.obj     "cc /object=[.modes] [.modes]helix.c"     [.modes]helix.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]hop.obj       "cc /object=[.modes] [.modes]hop.c"       [.modes]hop.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]hyper.obj     "cc /object=[.modes] [.modes]hyper.c"     [.modes]hyper.c [.xlock]xlock.h [.xlock]mode.h
+$! call make [.modes]hyperer.obj   "cc /object=[.modes] [.modes]hyperer.c"     [.modes]hyperer.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]ico.obj       "cc /object=[.modes] [.modes]ico.c"       [.modes]ico.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]ifs.obj       "cc /object=[.modes] [.modes]ifs.c"       [.modes]ifs.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]image.obj     "cc /object=[.modes] [.modes]image.c"     [.modes]image.c [.xlock]xlock.h [.xlock]mode.h ras.h
 $ call make [.modes]julia.obj     "cc /object=[.modes] [.modes]julia.c"     [.modes]julia.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]kaleid.obj    "cc /object=[.modes] [.modes]kaleid.c"    [.modes]kaleid.c [.xlock]xlock.h [.xlock]mode.h
+$ call make [.modes]kumppa.obj    "cc /object=[.modes] [.modes]kumppa.c"    [.modes]kumppa.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]laser.obj     "cc /object=[.modes] [.modes]laser.c"     [.modes]laser.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]life.obj      "cc /object=[.modes] [.modes]life.c"      [.modes]life.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]life1d.obj    "cc /object=[.modes] [.modes]life1d.c"    [.modes]life1d.c [.xlock]xlock.h [.xlock]mode.h
@@ -255,9 +282,11 @@ $ call make [.modes]sphere.obj    "cc /object=[.modes] [.modes]sphere.c"    [.mo
 $ call make [.modes]spiral.obj    "cc /object=[.modes] [.modes]spiral.c"    [.modes]spiral.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]spline.obj    "cc /object=[.modes] [.modes]spline.c"    [.modes]spline.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]star.obj      "cc /object=[.modes] [.modes]star.c"      [.modes]star.c [.xlock]xlock.h [.xlock]mode.h
+$ call make [.modes]starfish.obj  "cc /object=[.modes] [.modes]starfish.c"  [.modes]starfish.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]strange.obj   "cc /object=[.modes] [.modes]strange.c"   [.modes]strange.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]swarm.obj     "cc /object=[.modes] [.modes]swarm.c"     [.modes]swarm.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]swirl.obj     "cc /object=[.modes] [.modes]swirl.c"     [.modes]swirl.c [.xlock]xlock.h [.xlock]mode.h
+$ call make [.modes]thornbird.obj "cc /object=[.modes] [.modes]thornbird.c"  [.modes]thornbird.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]triangle.obj  "cc /object=[.modes] [.modes]triangle.c"  [.modes]triangle.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]tube.obj      "cc /object=[.modes] [.modes]tube.c"      [.modes]tube.c [.xlock]xlock.h [.xlock]mode.h
 $ call make [.modes]turtle.obj    "cc /object=[.modes] [.modes]turtle.c"    [.modes]turtle.c [.xlock]xlock.h [.xlock]mode.h
@@ -292,6 +321,23 @@ $   call make [.modes.glx]s1_3.obj      "cc /object=[.modes.glx] [.modes.glx]s1_
 $   call make [.modes.glx]s1_4.obj      "cc /object=[.modes.glx] [.modes.glx]s1_4.c"      [.modes.glx]s1_4.c [.xlock]xlock.h [.xlock]mode.h
 $   call make [.modes.glx]s1_5.obj      "cc /object=[.modes.glx] [.modes.glx]s1_5.c"      [.modes.glx]s1_5.c [.xlock]xlock.h [.xlock]mode.h
 $   call make [.modes.glx]s1_6.obj      "cc /object=[.modes.glx] [.modes.glx]s1_6.c"      [.modes.glx]s1_6.c [.xlock]xlock.h [.xlock]mode.h
+$   call make [.modes.glx]atlantis.obj  "cc /object=[.modes.glx] [.modes.glx]atlantis.c"  [.modes.glx]atlantis.c [.xlock]xlock.h [.xlock]mode.h
+$ if iscxx .and. ttf .and. gltt
+$ then
+$   call make [.modes.glx]text3d.obj  "cxx /object=[.modes.glx] [.modes.glx]text3d.cc"  [.modes.glx]text3d.cc [.xlock]xlock.h [.xlock]mode.h
+$ endif
+$   call make [.modes.glx]dolphin.obj   "cc /object=[.modes.glx] [.modes.glx]dolphin.c"   [.modes.glx]dolphin.c [.xlock]xlock.h [.xlock]mode.h
+$   call make [.modes.glx]shark.obj     "cc /object=[.modes.glx] [.modes.glx]shark.c"     [.modes.glx]shark.c [.xlock]xlock.h [.xlock]mode.h
+$   call make [.modes.glx]swim.obj      "cc /object=[.modes.glx] [.modes.glx]swim.c"      [.modes.glx]swim.c [.xlock]xlock.h [.xlock]mode.h
+$   call make [.modes.glx]whale.obj     "cc /object=[.modes.glx] [.modes.glx]whale.c"     [.modes.glx]whale.c [.xlock]xlock.h [.xlock]mode.h
+$   call make [.modes.glx]bubble3d.obj "cc /object=[.modes.glx] [.modes.glx]bubble3d.c"     [.modes.glx]bubble3d.c [.xlock]xlock.h [.xlock]mode.h
+$   call make [.modes.glx]b_draw.obj "cc /object=[.modes.glx] [.modes.glx]b_draw.c"     [.modes.glx]b_draw.c [.xlock]xlock.h [.xlock]mode.h
+$   call make [.modes.glx]b_lockglue.obj "cc /object=[.modes.glx] [.modes.glx]b_lockglue.c"     [.modes.glx]b_lockglue.c [.xlock]xlock.h [.xlock]mode.h
+$   call make [.modes.glx]b_sphere.obj "cc /object=[.modes.glx] [.modes.glx]b_sphere.c"     [.modes.glx]b_sphere.c [.xlock]xlock.h [.xlock]mode.h
+$   if unstable .and. xpm
+$   then
+$     call make [.modes.glx]lament.obj "cc /object=[.modes.glx] [.modes.glx]lament.c"     [.modes.glx]lament.c [.xlock]xlock.h [.xlock]mode.h
+$   endif
 $ endif
 $ if bomb
 $ then
@@ -301,6 +347,8 @@ $ call make [.modes]blank.obj     "cc /object=[.modes] [.modes]blank.c"     [.mo
 $ call make [.modes]random.obj    "cc /object=[.modes] [.modes]random.c"    [.modes]random.c [.xlock]xlock.h [.xlock]mode.h
 $!
 $! Get libraries
+$ if gltt then write optf "''glttf'/lib"
+$ if ttf then write optf "''ttff'/lib"
 $ if xpm then write optf "''xpmf'/lib"
 $ if gl then write optf "''glf'/lib"
 $ if glu then write optf "''gluf'/lib"
@@ -382,6 +430,7 @@ $!   p2       Command to make it
 $!   p3 - p8  What it depends on
 $
 $   if (f$extract(0,3,p2) .eqs. "cc ") then write optf "''p1'"
+$   if (f$extract(0,4,p2) .eqs. "cxx ") then write optf "''p1'"
 $
 $   if f$search(p1) .eqs. "" then goto MakeIt
 $   time=f$cvtime(f$file(p1,"RDT"))

@@ -244,12 +244,12 @@ init_grav(ModeInfo * mi)
 	}
 	gp = &gravs[MI_SCREEN(mi)];
 
-	gp->width = MI_WIN_WIDTH(mi);
-	gp->height = MI_WIN_HEIGHT(mi);
+	gp->width = MI_WIDTH(mi);
+	gp->height = MI_HEIGHT(mi);
 
 	gp->sr = STARRADIUS;
 
-	gp->nplanets = MI_BATCHCOUNT(mi);
+	gp->nplanets = MI_COUNT(mi);
 	if (gp->nplanets < 0) {
 		if (gp->planets) {
 			(void) free((void *) gp->planets);
@@ -283,6 +283,8 @@ draw_grav(ModeInfo * mi)
 	GC          gc = MI_GC(mi);
 	gravstruct *gp = &gravs[MI_SCREEN(mi)];
 	register unsigned char ball;
+
+	MI_IS_DRAWN(mi) = True;
 
 	/* Mask centrepoint */
 	XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -331,5 +333,5 @@ release_grav(ModeInfo * mi)
 void
 refresh_grav(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

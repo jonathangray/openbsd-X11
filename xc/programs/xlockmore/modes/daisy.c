@@ -37,8 +37,10 @@ static const char sccsid[] = "@(#)daisy.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 100000 \n" \
  "*count: 300 \n" \
  "*cycles: 350 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*fullrandom: True \n"
 #define BRIGHT_COLORS
+#define UNIFORM_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -132,7 +134,8 @@ drawpetals(ModeInfo * mi, XPoint center,
 	if (MI_NPIXELS(mi) > GREEN + NOTGREEN) {
 		do {
 			colour = NRAND(MI_NPIXELS(mi));
-		} while (colour >= GREEN - NOTGREEN && colour <= GREEN + NOTGREEN);
+		} while ((long) colour >= GREEN - NOTGREEN &&
+			 (long) colour <= GREEN + NOTGREEN);
 	}
 	start_angle = NRAND(360) * M_PI / 180;
 	inc_angle = 2 * M_PI / petals;
@@ -187,7 +190,8 @@ drawcenter(ModeInfo * mi, XPoint center, int size, unsigned long petalcolour)
 			/* Insure good contrast */
 			colour = (NRAND(2 * MI_NPIXELS(mi) / 3) + petalcolour +
 				  MI_NPIXELS(mi) / 6) % MI_NPIXELS(mi);
-		} while (colour >= GREEN - NOTGREEN && colour <= GREEN + NOTGREEN);
+		} while ((long) colour >= GREEN - NOTGREEN &&
+			 (long) colour <= GREEN + NOTGREEN);
 		XSetForeground(display, gc, MI_PIXEL(mi, colour));
 	} else
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -252,15 +256,15 @@ init_daisy(ModeInfo * mi)
 	}
 	dp = &daisies[MI_SCREEN(mi)];
 
-	dp->width = MI_WIN_WIDTH(mi);
-	dp->height = MI_WIN_HEIGHT(mi);
+	dp->width = MI_WIDTH(mi);
+	dp->height = MI_HEIGHT(mi);
 	dp->time = 0;
-	if (MI_WIN_IS_FULLRANDOM(mi))
+	if (MI_IS_FULLRANDOM(mi))
 		dp->garden = (Bool) (LRAND() & 1);
 	else
 		dp->garden = garden;
 
-	dp->ndaisies = MI_BATCHCOUNT(mi);
+	dp->ndaisies = MI_COUNT(mi);
 	if (dp->ndaisies < -MINDAISIES)
 		dp->ndaisies = NRAND(-dp->ndaisies - MINDAISIES + 1) + MINDAISIES;
 	else if (dp->ndaisies < MINDAISIES)
@@ -274,6 +278,8 @@ void
 draw_daisy(ModeInfo * mi)
 {
 	daisystruct *dp = &daisies[MI_SCREEN(mi)];
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (dp->time < dp->ndaisies)
 		drawdaisy(mi);

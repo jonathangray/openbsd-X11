@@ -162,8 +162,8 @@ init_world(ModeInfo * mi)
 	wp->frame_num = NUM_EARTHS * NUM_REV;
 	for (i = 0; i < NUM_EARTHS; i++)
 		Earths[i].bytes_per_line = 8;
-	wp->width = MI_WIN_WIDTH(mi);
-	wp->height = MI_WIN_HEIGHT(mi);
+	wp->width = MI_WIDTH(mi);
+	wp->height = MI_HEIGHT(mi);
 	wp->ncols = wp->width / SIZE_X;
 	if (!wp->ncols)
 		wp->ncols = 1;
@@ -172,7 +172,7 @@ init_world(ModeInfo * mi)
 		wp->nrows = 1;
 	wp->xb = (wp->width - SIZE_X * wp->ncols) / 2;
 	wp->yb = (wp->height - SIZE_Y * wp->nrows) / 2;
-	wp->nplanets = MI_BATCHCOUNT(mi);
+	wp->nplanets = MI_COUNT(mi);
 	if (wp->nplanets < -MINWORLDS)
 		wp->nplanets = NRAND(-wp->nplanets - MINWORLDS + 1) + MINWORLDS;
 	else if (wp->nplanets < MINWORLDS)
@@ -208,6 +208,8 @@ draw_world(ModeInfo * mi)
 		            return;
 
 #endif
+	MI_IS_DRAWN(mi) = True;
+
 	if (wp->frame_num == NUM_EARTHS * NUM_REV) {
 		wp->frame_num = 0;
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -229,7 +231,7 @@ draw_world(ModeInfo * mi)
 			} while (col[j] > 1);
 #endif
 			wp->planets[i].y = NRAND(wp->nrows);
-			wp->planets[i].direction = LRAND() & 1;
+			wp->planets[i].direction = (int) (LRAND() & 1);
 			wp->planets[i].frame = NRAND(NUM_EARTHS);
 			if (MI_NPIXELS(mi) > 2)
 				wp->planets[i].color = MI_PIXEL(mi, NRAND(MI_NPIXELS(mi)));
@@ -276,5 +278,5 @@ release_world(ModeInfo * mi)
 void
 refresh_world(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

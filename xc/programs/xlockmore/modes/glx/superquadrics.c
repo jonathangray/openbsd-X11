@@ -83,14 +83,14 @@ static const char sccsid[] = "@(#)superquadrics.c	4.07 97/11/24 xlockmore";
 #define HACK_INIT init_superquadrics
 #define HACK_DRAW draw_superquadrics
 #define superquadrics_opts xlockmore_opts
-#define DEFAULTS "*delay: 1000 \n" \
+#define DEFAULTS "*delay: 100 \n" \
  "*count: 25 \n" \
  "*cycles: 40 \n" \
  "*wireframe: False \n"
 #include "xlockmore.h"		/* from the xscreensaver distribution */
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
-
+#include "vis.h"
 #endif /* !STANDALONE */
 
 #ifdef USE_GL
@@ -723,13 +723,13 @@ init_superquadrics(ModeInfo * mi)
 			return;
 	}
 	sp = &superquadrics[screen];
-	sp->mono = (MI_WIN_IS_MONO(mi) ? 1 : 0);
+	sp->mono = (MI_IS_MONO(mi) ? 1 : 0);
 
 	if ((sp->glx_context = init_GL(mi)) != NULL) {
 
-		InitSuperquadrics(MI_WIN_IS_WIREFRAME(mi), 0,
-			    MI_BATCHCOUNT(mi), MI_CYCLES(mi), spinspeed, sp);
-		ReshapeSuperquadrics(MI_WIN_WIDTH(mi), MI_WIN_HEIGHT(mi));
+		InitSuperquadrics(MI_IS_WIREFRAME(mi), 0,
+				  MI_COUNT(mi), MI_CYCLES(mi), spinspeed, sp);
+		ReshapeSuperquadrics(MI_WIDTH(mi), MI_HEIGHT(mi));
 
 		DisplaySuperquadrics(sp);
 		glFinish();
@@ -745,6 +745,8 @@ draw_superquadrics(ModeInfo * mi)
 	superquadricsstruct *sp = &superquadrics[MI_SCREEN(mi)];
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (!sp->glx_context)
 		return;

@@ -37,11 +37,14 @@ static const char sccsid[] = "@(#)image.c	4.07 97/11/24 xlockmore";
 #define image_opts xlockmore_opts
 #define DEFAULTS "*delay: 2000000 \n" \
  "*count: -10 \n" \
- "*ncolors: 200 \n"
+ "*ncolors: 200 \n" \
+ "*bitmap: \n"
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
+#include "color.h"
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 ModeSpecOpt image_opts =
 {0, NULL, 0, NULL, NULL};
@@ -103,15 +106,18 @@ init_stuff(ModeInfo * mi)
 			 DEFAULT_XPM, IMAGE_NAME,
 #endif
 			 &ip->graphics_format, &ip->cmap, &ip->black);
+#ifndef STANDALONE
 	if (ip->cmap != None) {
-		setColormap(display, window, ip->cmap, MI_WIN_IS_INWINDOW(mi));
+		setColormap(display, window, ip->cmap, MI_IS_INWINDOW(mi));
 		if (ip->backGC == None) {
 			XGCValues   xgcv;
 
 			xgcv.background = ip->black;
 			ip->backGC = XCreateGC(display, window, GCBackground, &xgcv);
 		}
-	} else {
+	} else
+#endif /* STANDALONE */
+	{
 		ip->black = MI_BLACK_PIXEL(mi);
 		ip->backGC = MI_GC(mi);
 	}
@@ -140,6 +146,7 @@ refresh_image(ModeInfo * mi)
 	imagestruct *ip = &ims[MI_SCREEN(mi)];
 	int         i;
 
+	MI_CLEARWINDOWCOLORMAP(mi, ip->backGC, ip->black);
 	if (MI_NPIXELS(mi) <= 2)
 		XSetForeground(display, ip->backGC, MI_WHITE_PIXEL(mi));
 	for (i = 0; i < ip->iconcount; i++) {
@@ -169,8 +176,8 @@ init_image(ModeInfo * mi)
 
 	init_stuff(mi);
 
-	ip->width = MI_WIN_WIDTH(mi);
-	ip->height = MI_WIN_HEIGHT(mi);
+	ip->width = MI_WIDTH(mi);
+	ip->height = MI_HEIGHT(mi);
 	if (ip->width > ip->logo->width)
 		ip->ncols = ip->width / ip->logo->width;
 	else
@@ -181,7 +188,7 @@ init_image(ModeInfo * mi)
 		ip->nrows = 1;
 	ip->image_offset.x = (ip->width - ip->ncols * ip->logo->width) / 2;
 	ip->image_offset.y = (ip->height - ip->nrows * ip->logo->height) / 2;
-	ip->iconcount = MI_BATCHCOUNT(mi);
+	ip->iconcount = MI_COUNT(mi);
 	if (ip->iconcount < -MINICONS)
 		ip->iconcount = NRAND(-ip->iconcount - MINICONS + 1) + MINICONS;
 	else if (ip->iconcount < MINICONS)
@@ -204,6 +211,8 @@ draw_image(ModeInfo * mi)
 	Window      window = MI_WINDOW(mi);
 	imagestruct *ip = &ims[MI_SCREEN(mi)];
 	int         i;
+
+	MI_IS_DRAWN(mi) = True;
 
 	XSetForeground(display, ip->backGC, ip->black);
 	for (i = 0; i < ip->iconcount; i++) {

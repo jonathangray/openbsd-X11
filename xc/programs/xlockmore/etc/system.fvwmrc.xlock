@@ -30,18 +30,22 @@ EndPopup
 Popup "Fractal-Lock"
 	Title	"Fractal-Lock"
 	Exec	"Coral"	exec xlock -mode coral &
+	Exec	"Discrete"	exec xlock -mode discrete &
 	Exec	"Drift"	exec xlock -mode drift -fullrandom &
 	Exec	"Flame"	exec xlock -mode flame &
+	Exec	"Flow"	exec xlock -mode flow &
 	Exec	"Forest"	exec xlock -mode forest &
 	Exec	"Hop"	exec xlock -mode hop -fullrandom &
 	Exec	"IFS"	exec xlock -mode ifs &
 	Exec	"Julia"	exec xlock -mode julia +mouse &
 	Exec	"Juliaptr"	exec xlock -mode julia -mouse &
+	Exec	"Kumppa"	exec xlock -mode kumppa &
 	Exec	"Lightning"	exec xlock -mode lightning &
 	Exec	"Mandelbrot"	exec xlock -mode mandelbrot -install &
 	Exec	"Mountain"	exec xlock -mode mountain &
 	Exec	"Sierpinski"	exec xlock -mode sierpinski &
 	Exec	"Strange"	exec xlock -mode strange &
+	Exec	"Thornbird"	exec xlock -mode thornbird &
 	Exec	"Triangle"	exec xlock -mode triangle &
 	Exec	"Turtle"	exec xlock -mode turtle &
 	Exec	"Vines"	exec xlock -mode vines &
@@ -101,6 +105,7 @@ Popup "Assorted-Lock"
 	Exec	"Deco"	exec xlock -mode deco &
 	Exec	"Eyes"	exec xlock -mode eyes +mouse &
 	Exec	"Eyesptr"	exec xlock -mode eyes -mouse &
+	Exec	"Goop"	exec xlock -mode goop &
 	Exec	"Marquee"	exec xlock -mode marquee &
 	Exec	"Munch"	exec xlock -mode munch &
 	Exec	"Nose"	exec xlock -mode nose &
@@ -109,6 +114,7 @@ Popup "Assorted-Lock"
 	Exec	"Pyro3d"	exec xlock -mode pyro -use3d &
 	Exec	"Roll"	exec xlock -mode roll &
 	Exec	"Slip"	exec xlock -mode slip &
+	Exec	"Starfish"	exec xlock -mode starfish -install &
 	Exec	"Swarm"	exec xlock -mode swarm +mouse &
 	Exec	"Swarmptr"	exec xlock -mode swarm -mouse &
 	Exec	"Swirl"	exec xlock -mode swirl -install &
@@ -130,6 +136,8 @@ Popup "XPM-Lock"
 EndPopup
 
 Popup "GL-Lock"
+	Exec	"Atlantis"	exec xlock -mode atlantis &
+	Exec	"Bubble3d"	exec xlock -mode bubble3d &
 	Exec	"Cage"	exec xlock -mode cage &
 	Exec	"Gears"	exec xlock -mode gears &
 	Exec	"Moebius"	exec xlock -mode moebius &
@@ -215,18 +223,22 @@ EndPopup
 Popup "Fractal-Saver"
 	Title	"Fractal-Saver"
 	Exec	"Coral"	exec xlock -nolock -mode coral &
+	Exec	"Discrete"	exec xlock -nolock -mode discrete &
 	Exec	"Drift"	exec xlock -nolock -mode drift -fullrandom &
 	Exec	"Flame"	exec xlock -nolock -mode flame &
+	Exec	"Flow"	exec xlock -nolock -mode flow &
 	Exec	"Forest"	exec xlock -nolock -mode forest &
 	Exec	"Hop"	exec xlock -nolock -mode hop -fullrandom &
 	Exec	"IFS"	exec xlock -nolock -mode ifs &
 	Exec	"Julia"	exec xlock -nolock -mode julia +mouse &
 	Exec	"Juliaptr"	exec xlock -nolock -mode julia -mouse &
+	Exec	"Kumppa"	exec xlock -nolock -mode kumppa &
 	Exec	"Lightning"	exec xlock -nolock -mode lightning &
 	Exec	"Mandelbrot"	exec xlock -nolock -mode mandelbrot -install &
 	Exec	"Mountain"	exec xlock -nolock -mode mountain &
 	Exec	"Sierpinski"	exec xlock -nolock -mode sierpinski &
 	Exec	"Strange"	exec xlock -nolock -mode strange &
+	Exec	"Thornbird"	exec xlock -nolock -mode thornbird &
 	Exec	"Triangle"	exec xlock -nolock -mode triangle &
 	Exec	"Turtle"	exec xlock -nolock -mode turtle &
 	Exec	"Vines"	exec xlock -nolock -mode vines &
@@ -286,6 +298,7 @@ Popup "Assorted-Saver"
 	Exec	"Deco"	exec xlock -nolock -mode deco &
 	Exec	"Eyes"	exec xlock -nolock -mode eyes +mouse &
 	Exec	"Eyesptr"	exec xlock -nolock -mode eyes -mouse &
+	Exec	"Goop"	exec xlock -nolock -mode goop &
 	Exec	"Marquee"	exec xlock -nolock -mode marquee &
 	Exec	"Munch"	exec xlock -nolock -mode munch &
 	Exec	"Nose"	exec xlock -nolock -mode nose &
@@ -294,6 +307,7 @@ Popup "Assorted-Saver"
 	Exec	"Pyro3d"	exec xlock -nolock -mode pyro -use3d &
 	Exec	"Roll"	exec xlock -nolock -mode roll &
 	Exec	"Slip"	exec xlock -nolock -mode slip &
+	Exec	"Starfish"	exec xlock -nolock -mode starfish -install &
 	Exec	"Swarm"	exec xlock -nolock -mode swarm +mouse &
 	Exec	"Swarmptr"	exec xlock -nolock -mode swarm -mouse &
 	Exec	"Swirl"	exec xlock -nolock -mode swirl -install &
@@ -315,6 +329,8 @@ Popup "XPM-Saver"
 EndPopup
 
 Popup "GL-Saver"
+	Exec	"Atlantis"	exec xlock -nolock -mode atlantis &
+	Exec	"Bubble3d"	exec xlock -nolock -mode bubble3d &
 	Exec	"Cage"	exec xlock -nolock -mode cage &
 	Exec	"Gears"	exec xlock -nolock -mode gears &
 	Exec	"Moebius"	exec xlock -nolock -mode moebius &

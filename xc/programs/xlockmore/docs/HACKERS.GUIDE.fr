@@ -66,7 +66,7 @@ C'est la principale fonction, c'est la que est implement‚ le corps du mode.
  Elle est appel‚ p‚riodiquement.
  Cette fonction ne doit pas occuper beaucoup de temps a s'ex‚cuter.
 Cette fonction peut etre appele dans deux contextes diff‚rents:
- plein ‚cran ou en version icon. La fonction MI_WIN_IS_ICONIC vous dira dans 
+ plein ‚cran ou en version icon. La fonction MI_IS_ICONIC vous dira dans 
 quelle contexte on se trouve.
 
 -release: 
@@ -124,16 +124,16 @@ faire :).
 Dans ces fonctions, … partir de la structure ModeInfo, on va obtenir des 
 informations sur l'‚cran qui sont indispensables pour la suite
 
-MI_WIN_WIDTH(mi) et MI_WIN_HEIGHT(mi) 	vont nous donn‚ la taille de l'‚cran.
+MI_WIDTH(mi) et MI_HEIGHT(mi) 	vont nous donn‚ la taille de l'‚cran.
 Display    *display    = MI_DISPLAY(mi);	d‚livre le display
 Window      window = MI_WINDOW(mi);	  d‚livre l'identificateur de la fenˆtre
 GC          gc               = MI_GC(mi);    donne le graphics context courant
-XSetForeground(display, gc, MI_WIN_BLACK_PIXEL(mi)); 
+XSetForeground(display, gc, MI_BLACK_PIXEL(mi)); 
 				Mettre la couleur du trac‚ en noir
-XSetForeground(display, gc, MI_WIN_WHITE_PIXEL(mi));
+XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
 				 Mettre la couleur du trac‚ en blanc
 
-MI_WIN_IS_ICONIC(mi)		permet de savoir si on est pass‚ en phase
+MI_IS_ICONIC(mi)		permet de savoir si on est pass‚ en phase
 								password.
 NUMCOLORS			Donne le nombre de couleur
 
@@ -195,7 +195,7 @@ Cette fonction peut être appelé plusieurs fois et la fenêtre ou l’écran peuvent 
 <LI><U><B>-callback:</B></U>
 C’est la principale fonction, c’est la que est implementé le corps du mode. Elle est appelé périodiquement. Cette fonction ne doit pas occuper beaucoup de temps a s’exécuter surtout si elle a plusieur ecran s’occuper.
 Cette fonction peut etre appele dans deux contextes différents:
- plein écran ou en version icon. La fonction MI_WIN_IS_ICONIC vous dira dans quelle contexte on se trouve.
+ plein écran ou en version icon. La fonction MI_IS_ICONIC vous dira dans quelle contexte on se trouve.
 la fonction init_mode est toujours appelle avant la fonction callback.
 On peut choisir de faire quelque chose a chaque appelle, ou de compter le nombre d’appelle, et puis de modifier l’ecran periodiquement.<p>
 
@@ -242,23 +242,23 @@ Dans ces fonctions, à partir de la structure ModeInfo ( mode.h ) , on va obtenir
 
 <TABLE Border=1>
 <CAPTION><B>fonction</B></CAPTION>
-<TR><TD>MI_WIN_WIDTH(mi) et MI_WIN_HEIGHT(mi)</TD> 	<TD>vont nous donné la taille de l’écran</TD></TR>.
+<TR><TD>MI_WIDTH(mi) et MI_HEIGHT(mi)</TD> 	<TD>vont nous donné la taille de l’écran</TD></TR>.
 <TR><TD>Display    *display    = MI_DISPLAY(mi);</TD>	<TD>délivre le display</TD></TR>
 <TR>	<TD>	         MI_SCREEN	</TD>	<TD>délivre le screen</TD></TR>
 <TR><TD>Window      window = MI_WINDOW(mi)</TD>;	<TD>délivre l’identificateur de la fenêtre</TD></TR>
 <TR><TD>GC          gc               = MI_GC(mi);</TD>	<TD>donne le graphics context courant</TD></TR>
 <TR>	        <TD>MI_DELAY</TD>		<TD>    donne le delai (microsec.) entre callbacks</TD></TR>
 <TR>        <TD>MI_CMAP</TD>		<TD>donne la table des couleurs</TD></TR>
-<TR><TD>XSetForeground(display, gc, MI_WIN_BLACK_PIXEL(mi));</TD> 	<TD>Mettre la couleur du tracé en noir</TD></TR>
-<TR><TD>XSetForeground(display, gc, MI_WIN_WHITE_PIXEL(mi));</TD> <TD>Mettre la couleur du tracé en blanc</TD></TR>
-<TR><TD>MI_WIN_IS_ICONIC(mi)	</TD>	<TD>permet de savoir si on est passé en phase password. </TD></TR>
+<TR><TD>XSetForeground(display, gc, MI_BLACK_PIXEL(mi));</TD> 	<TD>Mettre la couleur du tracé en noir</TD></TR>
+<TR><TD>XSetForeground(display, gc, MI_WHITE_PIXEL(mi));</TD> <TD>Mettre la couleur du tracé en blanc</TD></TR>
+<TR><TD>MI_IS_ICONIC(mi)	</TD>	<TD>permet de savoir si on est passé en phase password. </TD></TR>
 </TABLE>
 
 <TABLE Border=1>
 <CAPTION><B>variable</B></CAPTION>
-<TR><TD>MI_WIN_IS_MONO	</TD>		<TD>l’ecran est monochrome</TD></TR>
-<TR><TD>MI_WIN_IS_INWINDOW</TD>		<TD>le mode s’affiche dans un fenetre reguliere</TD></TR>
-<TR><TD>MI_WIN_IS_INROOT	</TD>		<TD>le mode s’affiche sur la root windows</TD></TR>
+<TR><TD>MI_IS_MONO	</TD>		<TD>l’ecran est monochrome</TD></TR>
+<TR><TD>MI_IS_INWINDOW</TD>		<TD>le mode s’affiche dans un fenetre reguliere</TD></TR>
+<TR><TD>MI_IS_INROOT	</TD>		<TD>le mode s’affiche sur la root windows</TD></TR>
 <TR><TD>NUMCOLORS</TD>			<TD>Donne le nombre de couleur</TD></TR>
 </TABLE>
 

@@ -35,8 +35,9 @@ static const char sccsid[] = "@(#)bubble.c	4.07 98/01/08 xlockmore";
 #define DEFAULTS "*delay: 100000 \n" \
  "*count: 25 \n" \
  "*size: 100 \n" \
- "*ncolors: 200 \n"
-#define SPREAD_COLORS
+ "*ncolors: 200 \n" \
+ "*fullrandom: True \n"
+#define UNIFORM_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -176,10 +177,10 @@ init_bubble(ModeInfo * mi)
 	}
 	bp = &bubbles[MI_SCREEN(mi)];
 
-	bp->width = MI_WIN_WIDTH(mi);
-	bp->height = MI_WIN_HEIGHT(mi);
+	bp->width = MI_WIDTH(mi);
+	bp->height = MI_HEIGHT(mi);
 	bp->direction = NRAND(4);
-	if (MI_WIN_IS_FULLRANDOM(mi))
+	if (MI_IS_FULLRANDOM(mi))
 		bp->boil = (Bool) (LRAND() & 1);
 	else
 		bp->boil = boil;
@@ -195,7 +196,7 @@ init_bubble(ModeInfo * mi)
 	} else
 		bp->d = MIN(size, MAX(MINSIZE,
 				      MIN(bp->width, bp->height) / 2));
-	bp->nbubbles = MI_BATCHCOUNT(mi);
+	bp->nbubbles = MI_COUNT(mi);
 	if (bp->nbubbles < -MINBUBBLES) {
 		bp->nbubbles = NRAND(-bp->nbubbles - MINBUBBLES + 1) + MINBUBBLES;
 	} else if (bp->nbubbles < MINBUBBLES)
@@ -233,6 +234,8 @@ draw_bubble(ModeInfo * mi)
 	Window      window = MI_WINDOW(mi);
 	GC          gc = MI_GC(mi);
 	bubblestruct *bp = &bubbles[MI_SCREEN(mi)];
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (MI_NPIXELS(mi) <= 2)
 		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));

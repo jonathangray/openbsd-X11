@@ -27,7 +27,7 @@ static const char sccsid[] = "@(#)sierpinski.c	4.07 97/11/24 xlockmore";
  * Revision History:
  * 18-Sep-97: 3D version Antti Kuntsi <kuntsi@iki.fi>.
  * 20-May-97: Changed the name tri to sierpinski for more compatiblity
- * 10-May-97: Jamie Zawinski <jwz@netscape.com> compatible with xscreensaver
+ * 10-May-97: Jamie Zawinski <jwz@jwz.org> compatible with xscreensaver
  * 05-Sep-96: Desmond Daignault Datatimes Incorporated
  *            <tekdd@dtol.datatimes.com> .
  */
@@ -39,7 +39,9 @@ static const char sccsid[] = "@(#)sierpinski.c	4.07 97/11/24 xlockmore";
 #define sierpinski_opts xlockmore_opts
 #define DEFAULTS "*delay: 400000 \n" \
  "*count: 2000 \n" \
- "*cycles: 100 \n"
+ "*cycles: 100 \n" \
+ "*ncolors: 64 \n"
+#define BRIGHT_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -122,15 +124,15 @@ init_sierpinski(ModeInfo * mi)
 	}
 	sp = &tris[MI_SCREEN(mi)];
 
-	sp->width = MI_WIN_WIDTH(mi);
-	sp->height = MI_WIN_HEIGHT(mi);
+	sp->width = MI_WIDTH(mi);
+	sp->height = MI_HEIGHT(mi);
 
-	sp->total_npoints = MI_BATCHCOUNT(mi);
+	sp->total_npoints = MI_COUNT(mi);
 	if (sp->total_npoints < 1)
 		sp->total_npoints = 1;
 	sp->corners = MI_SIZE(mi);
 	if (sp->corners < 3 || sp->corners > 4) {
-		sp->corners = (LRAND() & 1) + 3;
+		sp->corners = (int) (LRAND() & 1) + 3;
 	}
 	for (i = 0; i < sp->corners; i++) {
 		if (!sp->pointBuffer[i])
@@ -148,6 +150,8 @@ draw_sierpinski(ModeInfo * mi)
 	sierpinskistruct *sp = &tris[MI_SCREEN(mi)];
 	XPoint     *xp[MAXCORNERS];
 	int         i = 0, v;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (MI_NPIXELS(mi) <= 2)
 		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
@@ -193,5 +197,5 @@ release_sierpinski(ModeInfo * mi)
 void
 refresh_sierpinski(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

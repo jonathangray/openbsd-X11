@@ -34,6 +34,9 @@ static const char sccsid[] = "@(#)xmlock.c	4.08 98/02/18 xlockmore";
 #include <unistd.h>
 #endif
 
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #ifdef VMS
 #include <descrip.h>
 #include <lib$routines.h>
@@ -74,7 +77,7 @@ static const char sccsid[] = "@(#)xmlock.c	4.08 98/02/18 xlockmore";
 extern char *c_Options[OPTIONS];
 extern Widget Menuoption;
 
-static pid_t  numberprocess = -1;	/* PID of xlock */
+static pid_t numberprocess = -1;	/* PID of xlock */
 
 extern void Setup_Option(Widget MenuBar);
 
@@ -214,7 +217,7 @@ f_ScrolledListModes(Widget w, XtPointer client_data, XtPointer call_data)
 	else if (numberprocess == 0) {
 		(void) execlp(XLOCK, XLOCK, "-parent", numberwidget,
 			      "-mode", str, "-geometry", WINDOW_GEOMETRY, "-delay", "100000",
-			      "-nolock", "-inwindow", 0);
+			      "-nolock", "-inwindow", "+install", 0);
 	}
 }
 

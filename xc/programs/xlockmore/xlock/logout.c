@@ -324,10 +324,17 @@ sessionLogout(void)
 static void
 uglyLogout(void)
 {
-#if defined(__cplusplus) || defined(c_plusplus)
+#ifdef SunCplusplus
+/* #include <signal.h> */
+	extern void (*signal(int, void (*)(int))) (int);
+	extern int  kill(pid_t, int);
+
+#else
+#if 0
 	extern int  signal(int, void *);
 	extern int  kill(int, int);
 
+#endif
 #endif
 
 #ifndef VMS
@@ -355,7 +362,7 @@ uglyLogout(void)
 	       ProgramName, getuid());
 #endif
 
-	(void) kill(getpid(), SIGKILL);
+	(void) kill((int) getpid(), SIGKILL);
 #endif /* !VMS */
 	exit(-1);
 }
@@ -374,7 +381,7 @@ logoutUser(Display * display)
 	if (logoutCmd && *logoutCmd) {
 		int         cmd_pid;
 
-		if ((cmd_pid = FORK()) == -1) {
+		if ((cmd_pid = (int) FORK()) == -1) {
 			(void) fprintf(stderr, "Failed to launch \"%s\"\n", logoutCmd);
 			perror(ProgramName);
 			cmd_pid = 0;

@@ -1,5 +1,3 @@
-############################################################
-#
 # $Id : Makefile.in 4.04 1997/07/10 $
 #
 # xlockmore Makefile.in for autoconf (UNIX/VMS X11 support)
@@ -10,6 +8,7 @@
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@/
+BITMAPDIR = @BITMAPDIR@/
 
 N=
 O = .o
@@ -69,6 +68,11 @@ CC = @CC@
 
 LINT = lint
 #LINT = alint
+
+#DEPEND = makedepend
+DEPEND = @DEPEND@
+DEPEND_FLAGS = @DEPEND_FLAGS@
+DEPEND_DEFINES = @DEPEND_DEFINES@
  
 LN_S = @LN_S@
 RM = rm -f
@@ -131,8 +135,6 @@ uninstall-man :
 uninstall-ad :
 	$(RM) $(xapploaddir)/XmLock
 
-depend :
-
 lint :
 	$(LINT) -ax -DLINT $(DEFS) $(XMLOCKINC) $(XMLOCKSRCS)
 
@@ -146,10 +148,44 @@ html :
 hlp :
 
 clean :
-	$(RM) *.o core *~ *% *.bak *.orig make.log MakeOut xmlock
+	$(RM) *.o core *~ *% *.bak *.orig *.rej make.log MakeOut xmlock
 
 distclean : clean
 	$(RM) Makefile
 
 clean.all : distclean
+
+# Adds all current dependencies to Makefile
+depend :
+	$(DEPEND) -s '# DO NOT DELETE: updated by make depend'              \
+	$(DEPEND_FLAGS) --                                                  \
+	$(XMLOCKINC) $(DEFS) $(DEPEND_DEFINES) $(CFLAGS) --                 \
+	$(XMLOCKSRCS)
+
+# Adds some dependencies to Makefile.in -- not totally accurate, but pretty
+# close.  This excludes dependencies on files in /usr/include, etc.  It tries
+# to include only dependencies on files which are themselves a part of this
+# package. -w 0
+distdepend :
+	@echo updating dependencies in `pwd`/Makefile.in... ;               \
+	$(DEPEND) -w 0 -f -                                                 \
+	-s '# DO NOT DELETE: updated by make distdepend' $(DEPEND_FLAGS) -- \
+	$(XMLOCKINC) $(DEFS) $(DEPEND_DEFINES) $(CFLAGS) --                 \
+	$(XMLOCKSRCS) |                                                     \
+	(                                                                   \
+	  awk '/^#.*Id : Makefile.in/,/^# DO .*distdepend/' < Makefile.in ; \
+	  sed -e 's@ \./@ @g;s@ /[^ ]*@@g;/^.*:$$/d'                        \
+	      -e 's@\.\./bitmaps@$$(BITMAPDIR)@g' ;                         \
+	  echo ''                                                           \
+	) > /tmp/distdepend.$$$$ &&                                         \
+	mv Makefile.in Makefile.in.bak &&                                   \
+	mv /tmp/distdepend.$$$$ Makefile.in
+
+##############################################################################
+#
+# DO NOT DELETE: updated by make distdepend
+
+xmlock.o: ../config.h
+xmlock.o: $(BITMAPDIR)/m-xlock.xbm
+xmlock.o: modes.h
 

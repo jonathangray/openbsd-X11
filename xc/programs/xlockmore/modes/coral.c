@@ -59,7 +59,7 @@ ModeSpecOpt coral_opts =
 ModStruct   coral_description =
 {"coral", "init_coral", "draw_coral", "release_coral",
  "init_coral", "init_coral", NULL, &coral_opts,
- 60000, -3, 1, 35, 64, 0.8, "",
+ 60000, -3, 1, 35, 64, 0.6, "",
  "Shows a coral reef", 0, NULL};
 
 #endif
@@ -104,7 +104,7 @@ rand_2(void)
 		i--;
 	} else {
 		i = 15;
-		r = LRAND();
+		r = (int) LRAND();
 	}
 
 	{
@@ -135,8 +135,8 @@ init_coral(ModeInfo * mi)
 	cp = &reefs[MI_SCREEN(mi)];
 
 
-	cp->width = MAX(MI_WIN_WIDTH(mi), 2);
-	cp->height = MAX(MI_WIN_HEIGHT(mi), 2);
+	cp->width = MAX(MI_WIDTH(mi), 2);
+	cp->height = MAX(MI_HEIGHT(mi), 2);
 
 	cp->widthb = ((cp->width + 31) >> 5);
 
@@ -166,7 +166,7 @@ init_coral(ModeInfo * mi)
 	if (!cp->walkers)
 		return;
 
-	cp->seeds = MI_BATCHCOUNT(mi);
+	cp->seeds = MI_COUNT(mi);
 	if (cp->seeds < -MINSEEDS)
 		cp->seeds = NRAND(-cp->seeds - MINSEEDS + 1) + MINSEEDS;
 	else if (cp->seeds < MINSEEDS)
@@ -226,6 +226,8 @@ draw_coral(ModeInfo * mi)
 
 
 	int         i;
+
+	MI_IS_DRAWN(mi) = True;
 
 	for (i = 0; i < cp->nwalkers; i++) {
 		int         x = cp->walkers[i].x;

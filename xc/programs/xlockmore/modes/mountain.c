@@ -33,7 +33,10 @@ static const char sccsid[] = "@(#)mountain.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 1000 \n" \
  "*count: 30 \n" \
  "*cycles: 4000 \n" \
- "*ncolors: 64 \n"
+ "*ncolors: 64 \n" \
+ "*wireframe: False \n" \
+ "*fullrandom: False \n"
+#define SMOOTH_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -66,8 +69,10 @@ typedef struct {
 	int         offset;
 	int         stage;
 	int         h[WORLDWIDTH][WORLDWIDTH];
-	int         time;	/* up time */
+	long        time;	/* up time */
 	int         first;
+	Bool        wireframe;
+	Bool        joke;
 	GC          stippled_GC;
 } mountainstruct;
 
@@ -125,11 +130,28 @@ drawamountain(ModeInfo * mi)
 		XSetForeground(display, gc, MI_PIXEL(mi, c));
 	else
 		XSetForeground(display, gc, MI_WHITE_PIXEL(mi));
-	XFillPolygon(display, window, gc, p, 4, Complex, CoordModeOrigin);
 
-	if (!mp->pixelmode) {
-		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
-		XDrawLines(display, window, gc, p, 5, CoordModeOrigin);
+	if (mp->joke) {
+		if ((Bool) (LRAND() & 1))
+			XDrawLines(display, window, gc, p, 5, CoordModeOrigin);
+		else {
+			XFillPolygon(display, window, gc, p, 4, Complex, CoordModeOrigin);
+			if (!mp->pixelmode) {
+				XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
+				XDrawLines(display, window, gc, p, 5, CoordModeOrigin);
+			}
+		}
+	} else {
+		if (mp->wireframe) {
+			XDrawLines(display, window, gc, p, 5, CoordModeOrigin);
+		} else {
+			XFillPolygon(display, window, gc, p, 4, Complex, CoordModeOrigin);
+
+			if (!mp->pixelmode) {
+				XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
+				XDrawLines(display, window, gc, p, 5, CoordModeOrigin);
+			}
+		}
 	}
 	mp->x++;
 	if (mp->x == WORLDWIDTH - 1) {
@@ -153,12 +175,20 @@ init_mountain(ModeInfo * mi)
 			return;
 	}
 	mp = &mountains[MI_SCREEN(mi)];
-	mp->width = MI_WIN_WIDTH(mi);
-	mp->height = MI_WIN_HEIGHT(mi);
+	mp->width = MI_WIDTH(mi);
+	mp->height = MI_HEIGHT(mi);
 	mp->pixelmode = (mp->width + mp->height < 200);
 	mp->stage = 0;
 	mp->time = 0;
 	mp->x = mp->y = 0;
+	if (MI_IS_FULLRANDOM(mi)) {
+		mp->joke = (Bool) (NRAND(10) == 0);
+		mp->wireframe = (Bool) (LRAND() & 1);
+	} else {
+		mp->joke = False;
+		mp->wireframe = MI_IS_WIREFRAME(mi);
+	}
+
 	if (!mp->first) {
 		mp->first = 1;
 		gcv.foreground = MI_WHITE_PIXEL(mi);
@@ -169,11 +199,11 @@ init_mountain(ModeInfo * mi)
 	}
 	MI_CLEARWINDOW(mi);
 
-	for (y = 0; y < WORLDWIDTH; y++)
-		for (x = 0; x < WORLDWIDTH; x++)
+	for (y = 0; y < (int) WORLDWIDTH; y++)
+		for (x = 0; x < (int) WORLDWIDTH; x++)
 			mp->h[x][y] = 0;
 
-	j = MI_BATCHCOUNT(mi);
+	j = MI_COUNT(mi);
 	if (j < 0)
 		j = NRAND(-j) + 1;
 	for (i = 0; i < j; i++)
@@ -202,6 +232,8 @@ draw_mountain(ModeInfo * mi)
 {
 	mountainstruct *mp = &mountains[MI_SCREEN(mi)];
 
+	MI_IS_DRAWN(mi) = True;
+
 	switch (mp->stage) {
 		case 0:
 			drawamountain(mi);
@@ -225,7 +257,8 @@ release_mountain(ModeInfo * mi)
 		for (screen = 0; screen < MI_NUM_SCREENS(mi); screen++) {
 			mountainstruct *mp = &mountains[screen];
 
-			XFreeGC(MI_DISPLAY(mi), mp->stippled_GC);
+			if (mp->stippled_GC)
+				XFreeGC(MI_DISPLAY(mi), mp->stippled_GC);
 		}
 		(void) free((void *) mountains);
 		mountains = NULL;
@@ -237,6 +270,7 @@ refresh_mountain(ModeInfo * mi)
 {
 	mountainstruct *mp = &mountains[MI_SCREEN(mi)];
 
+	MI_CLEARWINDOW(mi);
 	mp->x = 0;
 	mp->y = 0;
 }

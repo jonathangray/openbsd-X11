@@ -34,7 +34,7 @@ static const char sccsid[] = "@(#)laser.c	4.07 97/11/24 xlockmore";
  "*count: -10 \n" \
  "*cycles: 200 \n" \
  "*ncolors: 200 \n"
-#define SMOOTH_COLORS
+#define BRIGHT_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
@@ -67,7 +67,7 @@ ModStruct   laser_description =
 
 #define COLORSTEP 2		/* Laser color step */
 
-#define RANGE_RAND(min,max) ((min) + LRAND() % ((max) - (min)))
+#define RANGE_RAND(min,max) (int) ((min) + LRAND() % ((max) - (min)))
 
 typedef enum {
 	TOP, RIGHT, BOTTOM, LEFT
@@ -116,11 +116,11 @@ init_laser(ModeInfo * mi)
 	}
 	lp = &lasers[MI_SCREEN(mi)];
 
-	lp->width = MI_WIN_WIDTH(mi);
-	lp->height = MI_WIN_HEIGHT(mi);
+	lp->width = MI_WIDTH(mi);
+	lp->height = MI_HEIGHT(mi);
 	lp->time = 0;
 
-	lp->ln = MI_BATCHCOUNT(mi);
+	lp->ln = MI_COUNT(mi);
 	if (lp->ln < -MINLASER) {
 		/* if lp->ln is random ... the size can change */
 		if (lp->laser != NULL) {
@@ -184,7 +184,7 @@ init_laser(ModeInfo * mi)
 				l->by = NRAND(lp->height);
 		}
 
-		l->dir = LRAND() & 1;
+		l->dir = (int) (LRAND() & 1);
 		l->speed = ((RANGE_RAND(MINSPEED, MAXSPEED) * lp->width) / 1000) + 1;
 		if (MI_NPIXELS(mi) > 2) {
 			l->gcv.foreground = MI_PIXEL(mi, c);
@@ -200,6 +200,8 @@ draw_laser_once(ModeInfo * mi)
 	Display    *display = MI_DISPLAY(mi);
 	lasersstruct *lp = &lasers[MI_SCREEN(mi)];
 	int         i;
+
+	MI_IS_DRAWN(mi) = True;
 
 	for (i = 0; i < lp->ln; i++) {
 		laserstruct *l = &lp->laser[i];
@@ -330,5 +332,5 @@ release_laser(ModeInfo * mi)
 void
 refresh_laser(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

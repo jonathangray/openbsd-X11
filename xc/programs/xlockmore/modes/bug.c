@@ -49,6 +49,7 @@ static const char sccsid[] = "@(#)bug.c	4.07 97/11/24 xlockmore";
 #include "xlock.h"		/* in xlockmore distribution */
 
 #endif /* STANDALONE */
+#include "automata.h"
 
 ModeSpecOpt bug_opts =
 {0, NULL, 0, NULL, NULL};
@@ -110,6 +111,7 @@ typedef struct _BugList {
 } BugList;
 
 typedef struct {
+	Bool        painted;
 	int         neighbors;
 	int         n;		/* Number of bugs */
 	int         eden;	/* Does the garden exist? */
@@ -612,7 +614,7 @@ mutatebug(bugstruct * info, int neighbors)
 
 static void
 makebacteria(ModeInfo * mi,
-	     int n, int startx, int starty, int width, int height)
+	     int n, int startx, int starty, int width, int height, Bool draw)
 {
 	int         i = 0, j = 0, hcol, hrow, colrow;
 	bugfarmstruct *bp = &bugfarms[MI_SCREEN(mi)];
@@ -629,7 +631,7 @@ makebacteria(ModeInfo * mi,
 		if (!bp->arr[colrow] && !bp->bacteria[colrow]) {
 			i++;
 			bp->bacteria[colrow] = True;
-			drawabacterium(mi, hcol, hrow, True);
+			drawabacterium(mi, hcol, hrow, draw);
 		}
 	}
 }
@@ -667,7 +669,6 @@ init_bug(ModeInfo * mi)
 			return;
 	}
 	bp = &bugfarms[MI_SCREEN(mi)];
-	bp->redrawing = 0;
 	if (MI_NPIXELS(mi) <= 3) {
 		if (bp->stippledGC == None) {
 			gcv.fill_style = FillOpaqueStippled;
@@ -706,8 +707,8 @@ init_bug(ModeInfo * mi)
 	}
 #endif
 
-	bp->width = MI_WIN_WIDTH(mi);
-	bp->height = MI_WIN_HEIGHT(mi);
+	bp->width = MI_WIDTH(mi);
+	bp->height = MI_HEIGHT(mi);
 	if (bp->width < 4)
 		bp->width = 4;
 	if (bp->height < 4)
@@ -751,11 +752,12 @@ init_bug(ModeInfo * mi)
 			bp->edenstarty++;
 	}
 	/* Play G-d with these numbers */
-	bp->n = MI_BATCHCOUNT(mi);
+	bp->n = MI_COUNT(mi);
 	if (bp->n < 0)
 		bp->n = NRAND(-bp->n) + 1;
 
 	MI_CLEARWINDOW(mi);
+	bp->painted = False;
 
 	/* Make bugs but if can't, don't loop forever */
 	i = 0, j = 0;
@@ -800,10 +802,14 @@ init_bug(ModeInfo * mi)
 			drawabug(mi, hcol, hrow, bp->currbug->info.color);
 		}
 	}
-	makebacteria(mi, bp->nhcols * bp->nhrows / 2, 0, 0, bp->nhcols, bp->nhrows);
+	makebacteria(mi, bp->nhcols * bp->nhrows / 2, 0, 0, bp->nhcols, bp->nhrows,
+		     False);
 	if (bp->eden)
 		makebacteria(mi, bp->edenwidth * bp->edenheight / 2,
-			     bp->edenstartx, bp->edenstarty, bp->edenwidth, bp->edenheight);
+		bp->edenstartx, bp->edenstarty, bp->edenwidth, bp->edenheight,
+			     False);
+	bp->redrawing = 1;
+	bp->redrawpos = 0;
 }
 
 #define ENOUGH 16
@@ -813,6 +819,9 @@ draw_bug(ModeInfo * mi)
 	bugfarmstruct *bp = &bugfarms[MI_SCREEN(mi)];
 	int         hcol, hrow, nhcol, nhrow, colrow, ncolrow, absdir, tryit;
 
+	MI_IS_DRAWN(mi) = True;
+
+	bp->painted = True;
 	bp->currbug = bp->firstbug->next;
 	while (bp->currbug != bp->lastbug) {
 		hcol = bp->currbug->info.col;
@@ -873,10 +882,10 @@ draw_bug(ModeInfo * mi)
 		bp->currbug = bp->currbug->next;
 	}
 	reattach_buglist(bp);
-	makebacteria(mi, FOODPERCYCLE, 0, 0, bp->nhcols, bp->nhrows);
+	makebacteria(mi, FOODPERCYCLE, 0, 0, bp->nhcols, bp->nhrows, True);
 	if (bp->eden)
 		makebacteria(mi, FOODPERCYCLE,
-			     bp->edenstartx, bp->edenstarty, bp->edenwidth, bp->edenheight);
+			     bp->edenstartx, bp->edenstarty, bp->edenwidth, bp->edenheight, True);
 	if (!bp->n || bp->generation >= MI_CYCLES(mi))
 		init_bug(mi);
 	bp->generation++;
@@ -907,9 +916,12 @@ release_bug(ModeInfo * mi)
 			if (bp->stippledGC != None) {
 				XFreeGC(MI_DISPLAY(mi), bp->stippledGC);
 			}
-			for (shade = 0; shade < bp->init_bits; shade++)
-				XFreePixmap(MI_DISPLAY(mi), bp->pixmaps[shade]);
-			flush_buglist(bp);
+			for (shade = 0; shade < bp->init_bits; shade++) {
+				if (bp->pixmaps[shade])
+					XFreePixmap(MI_DISPLAY(mi), bp->pixmaps[shade]);
+			}
+			if (bp->firstbug)
+				flush_buglist(bp);
 			(void) free((void *) bp->lastbug);
 			(void) free((void *) bp->firstbug);
 			(void) free((void *) bp->lasttemp);
@@ -929,6 +941,10 @@ refresh_bug(ModeInfo * mi)
 {
 	bugfarmstruct *bp = &bugfarms[MI_SCREEN(mi)];
 
-	bp->redrawing = 1;
-	bp->redrawpos = 0;
+	if (bp->painted) {
+		MI_CLEARWINDOW(mi);
+		bp->painted = False;
+		bp->redrawing = 1;
+		bp->redrawpos = 0;
+	}
 }

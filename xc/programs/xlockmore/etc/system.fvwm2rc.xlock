@@ -26,18 +26,22 @@ AddToMenu "Automata-Lock"
 AddToMenu "Fractal-Lock"
 +	"Fractal-Lock"	Title
 +	"Coral"		Exec	xlock -mode coral
++	"Discrete"		Exec	xlock -mode discrete
 +	"Drift"		Exec	xlock -mode drift -fullrandom
 +	"Flame"		Exec	xlock -mode flame
++	"Flow"		Exec	xlock -mode flow
 +	"Forest"	Exec	xlock -mode forest
 +	"Hop"		Exec	xlock -mode hop -fullrandom
 +	"IFS"	Exec	xlock -mode ifs
 +	"Julia"		Exec	xlock -mode julia +mouse
 +	"Juliaptr"	Exec	xlock -mode julia -mouse
++	"Kumppa"	Exec	xlock -mode kumppa
 +	"Lightning"	Exec	xlock -mode lightning
 +	"Mandelbrot"	Exec	xlock -mode mandelbrot -install
 +	"Mountain"	Exec	xlock -mode mountain
 +	"Sierpinski"	Exec	xlock -mode sierpinski 
 +	"Strange"	Exec	xlock -mode strange 
++	"Thornbird"	Exec	xlock -mode thornbird
 +	"Triangle"	Exec	xlock -mode triangle
 +	"Turtle"	Exec	xlock -mode turtle
 +	"Vines"	Exec	xlock -mode vines
@@ -94,6 +98,7 @@ AddToMenu "Assorted-Lock"
 +	"Deco"		Exec	xlock -mode deco
 +	"Eyes"		Exec	xlock -mode eyes +mouse
 +	"Eyesptr"	Exec	xlock -mode eyes -mouse
++	"Goop"		Exec	xlock -mode goop
 +	"Marquee"	Exec	xlock -mode marquee
 +	"Munch"		Exec	xlock -mode munch
 +	"Nose"		Exec	xlock -mode nose
@@ -102,6 +107,7 @@ AddToMenu "Assorted-Lock"
 +	"Pyro3d"	Exec	xlock -mode pyro -use3d
 +	"Roll"		Exec	xlock -mode roll
 +	"Slip"		Exec	xlock -mode slip
++	"Starfish"		Exec	xlock -mode starfish -install
 +	"Swarm"		Exec	xlock -mode swarm +mouse
 +	"Swarmptr"	Exec	xlock -mode swarm -mouse
 +	"Swirl"		Exec	xlock -mode swirl -install
@@ -123,6 +129,8 @@ AddToMenu "XPM-Lock"
 
 AddToMenu "GL-Lock"
 +	"GL-Lock"	Title	
++	"Atlantis"		Exec	xlock -mode atlantis
++	"Bubble3d"		Exec	xlock -mode bubble3d
 +	"Cage"		Exec	xlock -mode cage
 +	"Gears"		Exec	xlock -mode gears
 +	"Moebius"		Exec	xlock -mode moebius
@@ -180,18 +188,22 @@ AddToMenu "Automata-Saver"
 AddToMenu "Fractal-Saver"
 +	"Fractal-Saver"	Title
 +	"Coral"		Exec	xlock -nolock -mode coral
++	"Discrete"		Exec	xlock -nolock -mode discrete
 +	"Drift"		Exec	xlock -nolock -mode drift -fullrandom
 +	"Flame"		Exec	xlock -nolock -mode flame
++	"Flow"		Exec	xlock -nolock -mode flow
 +	"Forest"	Exec	xlock -nolock -mode forest
 +	"Hop"		Exec	xlock -nolock -mode hop -fullrandom
 +	"IFS"		Exec	xlock -nolock -mode ifs
 +	"Julia"		Exec	xlock -nolock -mode julia +mouse
 +	"Juliaptr"	Exec	xlock -nolock -mode julia -mouse
++	"Kumppa"	Exec	xlock -nolock -mode kumppa
 +	"Lightning"	Exec	xlock -nolock -mode lightning
 +	"Mandelbrot"	Exec	xlock -nolock -mode mandelbrot -install
 +	"Mountain"	Exec	xlock -nolock -mode mountain
 +	"Sierpinski"	Exec	xlock -nolock -mode sierpinski
 +	"Strange"		Exec	xlock -nolock -mode strange
++	"Thornbird"	Exec	xlock -nolock -mode thornbird
 +	"Triangle"	Exec	xlock -nolock -mode triangle
 +	"Turtle"	Exec	xlock -nolock -mode turtle
 +	"Vines"		Exec	xlock -nolock -mode vines
@@ -248,6 +260,7 @@ AddToMenu "Assorted-Saver"
 +	"Deco"		Exec	xlock -nolock -mode deco
 +	"Eyes"		Exec	xlock -nolock -mode eyes +mouse
 +	"Eyesptr"	Exec	xlock -nolock -mode eyes -mouse
++	"Goop"		Exec	xlock -nolock -mode goop
 +	"Marquee"	Exec	xlock -nolock -mode marquee
 +	"Munch"		Exec	xlock -nolock -mode munch
 +	"Nose"		Exec	xlock -nolock -mode nose
@@ -256,6 +269,7 @@ AddToMenu "Assorted-Saver"
 +	"Pyro3d"	Exec	xlock -nolock -mode pyro -use3d
 +	"Roll"		Exec	xlock -nolock -mode roll
 +	"Slip"		Exec	xlock -nolock -mode slip
++	"Starfish"		Exec	xlock -nolock -mode starfish -install
 +	"Swarm"		Exec	xlock -nolock -mode swarm +mouse
 +	"Swarmptr"	Exec	xlock -nolock -mode swarm -mouse
 +	"Swirl"		Exec	xlock -nolock -mode swirl -install
@@ -277,6 +291,8 @@ AddToMenu "XPM-Saver"
 
 AddToMenu "GL-Saver"
 +	"GL-Saver"	Title	
++	"Atlantis"		Exec	xlock -nolock -mode atlantis
++	"Bubble3d"		Exec	xlock -nolock -mode bubble3d
 +	"Cage"		Exec	xlock -nolock -mode cage
 +	"Gears"		Exec	xlock -nolock -mode gears
 +	"Moebius"		Exec	xlock -nolock -mode moebius

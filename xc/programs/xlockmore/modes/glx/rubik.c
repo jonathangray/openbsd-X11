@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)rubik.c	4.07 97/11/24 xlockmore";
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  *
- * This mode shows a auto-solving rubik's cube "puzzle". If somebody
+ * This mode shows an auto-solving rubik's cube "puzzle". If somebody
  * intends to make a game or something based on this code, please let me
  * know first, my e-mail address is provided in this comment. Marcelo.
  *
@@ -40,6 +40,9 @@ static const char sccsid[] = "@(#)rubik.c	4.07 97/11/24 xlockmore";
  * Marcelo F. Vianna (Jul-31-1997)
  *
  * Revision History:
+ * 26-Sep-98: Added some more movement (the cube do not stays in the screen
+ *            center anymore. Also fixed the scale problem imediatelly after
+ *            shuffling when the puzzle is solved.
  * 08-Aug-97: Now has some internals from xrubik by David Bagley
  *            This should make it easier to add features.
  * 02-Aug-97: Now behaves more like puzzle.c: first show the cube being
@@ -126,13 +129,14 @@ static const char sccsid[] = "@(#)rubik.c	4.07 97/11/24 xlockmore";
 #define HACK_INIT init_rubik
 #define HACK_DRAW draw_rubik
 #define rubik_opts xlockmore_opts
-#define DEFAULTS "*delay: 1000 \n" \
- "*count: 50 \n" \
- "*cycles: 1 \n"
+#define DEFAULTS "*delay: 40000 \n" \
+ "*count: -30 \n" \
+ "*cycles: 5 \n" \
+ "*size: -6 \n"
 #include "xlockmore.h"		/* from the xscreensaver distribution */
 #else /* !STANDALONE */
 #include "xlock.h"		/* from the xlockmore distribution */
-
+#include "vis.h"
 #endif /* !STANDALONE */
 
 #ifdef USE_GL
@@ -164,7 +168,7 @@ ModeSpecOpt rubik_opts =
 ModStruct   rubik_description =
 {"rubik", "init_rubik", "draw_rubik", "release_rubik",
  "draw_rubik", "change_rubik", NULL, &rubik_opts,
- 1000, -30, 5, -6, 4, 1.0, "",
+ 10000, -30, 5, -6, 4, 1.0, "",
  "Shows an auto-solving Rubik's Cube", 0, NULL};
 
 #endif
@@ -381,6 +385,7 @@ typedef struct {
 	RubikLoc   *rowLoc[MAXORIENT];
 	RubikMove   movement;
 	GLfloat     rotatestep;
+	GLfloat     PX, PY, VX, VY;
 	GLXContext *glx_context;
 	int         AreObjectsDefined[1];
 } rubikstruct;
@@ -490,7 +495,7 @@ draw_cubit(ModeInfo * mi,
 	   int back, int front, int left, int right, int bottom, int top)
 {
 	rubikstruct *rp = &rubik[MI_SCREEN(mi)];
-	int         mono = MI_WIN_IS_MONO(mi);
+	int         mono = MI_IS_MONO(mi);
 
 	if (!rp->AreObjectsDefined[ObjCubit]) {
 		glNewList(objects + ObjCubit, GL_COMPILE_AND_EXECUTE);
@@ -768,6 +773,7 @@ draw_cube(ModeInfo * mi)
 		slice = convertMove(rp, rp->movement);
 	}
 	rotatestep = (slice.rotation == CCW) ? rp->rotatestep : -rp->rotatestep;
+
 
 /*-
  * The glRotatef() routine transforms the coordinate system for every future
@@ -1558,7 +1564,7 @@ shuffle(ModeInfo * mi)
 			(void) fprintf(stderr,
 				       "Could not allocate memory for rubik row position info\n");
 	}
-	rp->storedmoves = MI_BATCHCOUNT(mi);
+	rp->storedmoves = MI_COUNT(mi);
 	if (rp->storedmoves < 0) {
 		if (rp->moves != NULL)
 			(void) free((void *) rp->moves);
@@ -1608,6 +1614,12 @@ shuffle(ModeInfo * mi)
 			evalmovement(mi, move);
 		rp->moves[i] = move;
 	}
+	rp->VX = 0.05;
+	if (NRAND(100) < 50)
+		rp->VX *= -1;
+	rp->VY = 0.05;
+	if (NRAND(100) < 50)
+		rp->VY *= -1;
 	rp->movement.face = NO_FACE;
 	rp->rotatestep = 0;
 	rp->action = hideshuffling ? ACTION_SOLVE : ACTION_SHUFFLE;
@@ -1671,10 +1683,12 @@ init_rubik(ModeInfo * mi)
 	}
 	rp = &rubik[screen];
 	rp->step = NRAND(90);
+	rp->PX = ((float) LRAND() / (float) RAND_MAX) * 2 - 1;
+	rp->PY = ((float) LRAND() / (float) RAND_MAX) * 2 - 1;
 
 	if ((rp->glx_context = init_GL(mi)) != NULL) {
 
-		reshape(mi, MI_WIN_WIDTH(mi), MI_WIN_HEIGHT(mi));
+		reshape(mi, MI_WIDTH(mi), MI_HEIGHT(mi));
 		objects = glGenLists(1);
 		pinit(mi);
 	} else {
@@ -1685,9 +1699,13 @@ init_rubik(ModeInfo * mi)
 void
 draw_rubik(ModeInfo * mi)
 {
+	int         bounced = 0;
+
 	rubikstruct *rp = &rubik[MI_SCREEN(mi)];
 	Display    *display = MI_DISPLAY(mi);
 	Window      window = MI_WINDOW(mi);
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (!rp->glx_context)
 		return;
@@ -1701,7 +1719,43 @@ draw_rubik(ModeInfo * mi)
 
 	glTranslatef(0.0, 0.0, -10.0);
 
-	if (!MI_WIN_IS_ICONIC(mi)) {
+	rp->PX += rp->VX;
+	rp->PY += rp->VY;
+
+	if (rp->PY < -1) {
+		rp->PY += (-1) - (rp->PY);
+		rp->VY = -rp->VY;
+		bounced = 1;
+	}
+	if (rp->PY > 1) {
+		rp->PY -= (rp->PY) - 1;
+		rp->VY = -rp->VY;
+		bounced = 1;
+	}
+	if (rp->PX < -1) {
+		rp->PX += (-1) - (rp->PX);
+		rp->VX = -rp->VX;
+		bounced = 1;
+	}
+	if (rp->PX > 1) {
+		rp->PX -= (rp->PX) - 1;
+		rp->VX = -rp->VX;
+		bounced = 1;
+	}
+	if (bounced) {
+		rp->VX += ((float) LRAND() / (float) RAND_MAX) * 0.02 - 0.01;
+		rp->VX += ((float) LRAND() / (float) RAND_MAX) * 0.02 - 0.01;
+		if (rp->VX > 0.06)
+			rp->VX = 0.06;
+		if (rp->VY > 0.06)
+			rp->VY = 0.06;
+		if (rp->VX < -0.06)
+			rp->VX = -0.06;
+		if (rp->VY < -0.06)
+			rp->VY = -0.06;
+	}
+	if (!MI_IS_ICONIC(mi)) {
+		glTranslatef(rp->PX, rp->PY, 0);
 		glScalef(Scale4Window * rp->WindH / rp->WindW, Scale4Window, Scale4Window);
 	} else {
 		glScalef(Scale4Iconic * rp->WindH / rp->WindW, Scale4Iconic, Scale4Iconic);
@@ -1710,6 +1764,9 @@ draw_rubik(ModeInfo * mi)
 	glRotatef(rp->step * 100, 1, 0, 0);
 	glRotatef(rp->step * 95, 0, 1, 0);
 	glRotatef(rp->step * 90, 0, 0, 1);
+
+	draw_cube(mi);
+	glXSwapBuffers(display, window);
 
 	if (rp->action == ACTION_SHUFFLE) {
 		if (rp->done) {
@@ -1763,13 +1820,9 @@ draw_rubik(ModeInfo * mi)
 		}
 	}
 
-	draw_cube(mi);
-
 	glPopMatrix();
 
 	glFlush();
-
-	glXSwapBuffers(display, window);
 
 	rp->step += 0.05;
 }

@@ -32,7 +32,7 @@ static const char sccsid[] = "@(#)nose.c	4.07 97/11/24 xlockmore";
  *            Jouk Jansen <joukj@crys.chem.uva.nl>.
  * 21-Sep-95: font option added, debugged for multiscreens
  * 12-Aug-95: xlock version
- * 1992: xscreensaver version, noseguy (Jamie Zawinski <jwz@netscape.com>)
+ * 1992: xscreensaver version, noseguy (Jamie Zawinski <jwz@jwz.org>)
  * 1990: X11 version, xnlock (Dan Heller <argv@sun.com>)
  */
 
@@ -54,11 +54,18 @@ static const char sccsid[] = "@(#)nose.c	4.07 97/11/24 xlockmore";
 #define HACK_DRAW draw_nose
 #define nose_opts xlockmore_opts
 #define DEFAULTS "*delay: 100000 \n" \
- "*ncolors: 64 \n"
+ "*ncolors: 64 \n" \
+ "*font: \n" \
+ "*text: \n" \
+ "*filename: \n" \
+ "*fortunefile: \n" \
+ "*program: \n"
+#define UNIFORM_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 #endif /* STANDALONE */
+#include "iostuff.h"
 
 ModeSpecOpt nose_opts =
 {0, NULL, 0, NULL, NULL};
@@ -663,8 +670,8 @@ init_nose(ModeInfo * mi)
 	}
 	np = &noses[MI_SCREEN(mi)];
 
-	np->width = MI_WIN_WIDTH(mi) + 2;
-	np->height = MI_WIN_HEIGHT(mi) + 2;
+	np->width = MI_WIDTH(mi) + 2;
+	np->height = MI_HEIGHT(mi) + 2;
 	np->tinymode = (np->width + np->height < 4 * PIXMAP_SIZE);
 	np->xs = PIXMAP_SIZE;
 	np->ys = PIXMAP_SIZE;
@@ -717,6 +724,8 @@ draw_nose(ModeInfo * mi)
 {
 	nosestruct *np = &noses[MI_SCREEN(mi)];
 
+	MI_IS_DRAWN(mi) = True;
+
 	if (np->busyLoop > 0) {
 		np->busyLoop--;
 		return;
@@ -765,5 +774,5 @@ release_nose(ModeInfo * mi)
 void
 refresh_nose(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

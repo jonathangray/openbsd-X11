@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)bouboule.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 15-May-97: jwz@netscape.com: turned into a standalone program.
+ * 15-May-97: jwz@jwz.org: turned into a standalone program.
  * 04-Sep-96: Added 3d support Henrik Theiling <theiling@coli-uni-sb.de>
  * 20-Feb-96: Added tests so that already malloced objects are not
  *            malloced twice, thanks to the report from <mccomb@interport.net>
@@ -30,10 +30,9 @@ static const char sccsid[] = "@(#)bouboule.c	4.07 97/11/24 xlockmore";
  *            Patched by <bagleyd@bigfoot.com> for TrueColor displays
  * 30-Jan-96: Wrote all that I wanted to.
  *
- * Sort of starfield for xlockmore. I found that making a starfield for
- * a 3D engine and thought it could be a nice lock mode. For a real starfield,
- * I only scale the sort of sphere you see to the whole sky and clip the stars
- * to the camera screen.
+ * Sort of starfield with a 3D engine.  For a real starfield, I only scale
+ * the sort of sphere you see to the whole sky and clip the stars to the
+ * camera screen.
  *
  * Use: batchcount is the number of stars.
  *      cycles is the maximum size for a star
@@ -331,11 +330,11 @@ init_bouboule(ModeInfo * mi)
 	}
 	sp = &starfield[MI_SCREEN(mi)];
 
-	sp->width = MI_WIN_WIDTH(mi);
-	sp->height = MI_WIN_HEIGHT(mi);
+	sp->width = MI_WIDTH(mi);
+	sp->height = MI_HEIGHT(mi);
 
 	/* use the right `black' pixel values: */
-	if (MI_WIN_IS_INSTALL(mi) && MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi)) {
 		MI_CLEARWINDOWCOLOR(mi, MI_NONE_COLOR(mi));
 	} else {
 		MI_CLEARWINDOW(mi);
@@ -348,7 +347,7 @@ init_bouboule(ModeInfo * mi)
 	else
 		sp->max_star_size = size;
 
-	sp->NbStars = MI_BATCHCOUNT(mi);
+	sp->NbStars = MI_COUNT(mi);
 	if (sp->NbStars < -MINSTARS) {
 		if (sp->star) {
 			(void) free((void *) sp->star);
@@ -381,12 +380,12 @@ init_bouboule(ModeInfo * mi)
 		sp->star = (Star *) malloc(sp->NbStars * sizeof (Star));
 	if (sp->xarc == NULL)
 		sp->xarc = (XArc *) malloc(sp->NbStars * sizeof (XArc));
-	if (MI_WIN_IS_USE3D(mi) && sp->xarcleft == NULL)
+	if (MI_IS_USE3D(mi) && sp->xarcleft == NULL)
 		sp->xarcleft = (XArc *) malloc(sp->NbStars * sizeof (XArc));
 #if ((USEOLDXARCS == 1) || (ADAPT_ERASE == 1))
 	if (sp->oldxarc == NULL)
 		sp->oldxarc = (XArc *) malloc(sp->NbStars * sizeof (XArc));
-	if (MI_WIN_IS_USE3D(mi) && sp->oldxarcleft == NULL)
+	if (MI_IS_USE3D(mi) && sp->oldxarcleft == NULL)
 		sp->oldxarcleft = (XArc *) malloc(sp->NbStars * sizeof (XArc));
 #endif
 
@@ -456,11 +455,11 @@ init_bouboule(ModeInfo * mi)
 
 		star = &(sp->star[i]);
 		arc = &(sp->xarc[i]);
-		if (MI_WIN_IS_USE3D(mi))
+		if (MI_IS_USE3D(mi))
 			arcleft = &(sp->xarcleft[i]);
 #if ((USEOLDXARCS == 1) || (ADAPT_ERASE == 1))
 		oarc = &(sp->oldxarc[i]);
-		if (MI_WIN_IS_USE3D(mi))
+		if (MI_IS_USE3D(mi))
 			oarcleft = &(sp->oldxarcleft[i]);
 #endif
 		/* Elevation and bearing of the star */
@@ -480,30 +479,30 @@ init_bouboule(ModeInfo * mi)
 			star->size -= sp->max_star_size;
 
 		/* We set default values for the XArc lists elements, but offscreen */
-		arc->x = MI_WIN_WIDTH(mi);
-		arc->y = MI_WIN_HEIGHT(mi);
-		if (MI_WIN_IS_USE3D(mi)) {
-			arcleft->x = MI_WIN_WIDTH(mi);
-			arcleft->y = MI_WIN_HEIGHT(mi);
+		arc->x = MI_WIDTH(mi);
+		arc->y = MI_HEIGHT(mi);
+		if (MI_IS_USE3D(mi)) {
+			arcleft->x = MI_WIDTH(mi);
+			arcleft->y = MI_HEIGHT(mi);
 		}
 #if ((USEOLDXARCS == 1) || (ADAPT_ERASE == 1))
-		oarc->x = MI_WIN_WIDTH(mi);
-		oarc->y = MI_WIN_HEIGHT(mi);
-		if (MI_WIN_IS_USE3D(mi)) {
-			oarcleft->x = MI_WIN_WIDTH(mi);
-			oarcleft->y = MI_WIN_HEIGHT(mi);
+		oarc->x = MI_WIDTH(mi);
+		oarc->y = MI_HEIGHT(mi);
+		if (MI_IS_USE3D(mi)) {
+			oarcleft->x = MI_WIDTH(mi);
+			oarcleft->y = MI_HEIGHT(mi);
 		}
 #endif
 		arc->width = 2 + star->size;
 		arc->height = 2 + star->size;
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			arcleft->width = 2 + star->size;
 			arcleft->height = 2 + star->size;
 		}
 #if ((USEOLDXARCS == 1) || (ADAPT_ERASE == 1))
 		oarc->width = 2 + star->size;
 		oarc->height = 2 + star->size;
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			oarcleft->width = 2 + star->size;
 			oarcleft->height = 2 + star->size;
 		}
@@ -511,7 +510,7 @@ init_bouboule(ModeInfo * mi)
 
 		arc->angle1 = 0;
 		arc->angle2 = 360 * 64;
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			arcleft->angle1 = 0;
 			arcleft->angle2 = 360 * 64;
 		}
@@ -519,7 +518,7 @@ init_bouboule(ModeInfo * mi)
 		oarc->angle1 = 0;
 		oarc->angle2 = 360 * 64;	/* ie. we draw whole disks:
 						 * from 0 to 360 degrees */
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			oarcleft->angle1 = 0;
 			oarcleft->angle2 = 360 * 64;
 		}
@@ -529,7 +528,7 @@ init_bouboule(ModeInfo * mi)
 	if (MI_NPIXELS(mi) > 2)
 		sp->colorp = NRAND(MI_NPIXELS(mi));
 	/* We set up the starfield color */
-	if (!MI_WIN_IS_USE3D(mi) && MI_NPIXELS(mi) > 2)
+	if (!MI_IS_USE3D(mi) && MI_NPIXELS(mi) > 2)
 		sp->color = MI_PIXEL(mi, sp->colorp);
 	else
 		sp->color = MI_WHITE_PIXEL(mi);
@@ -574,8 +573,10 @@ draw_bouboule(ModeInfo * mi)
 	/* star in 3d mode, otherwise 0 */
 #endif
 
+	MI_IS_DRAWN(mi) = True;
+
 #if ((USEOLDXARCS == 0) || (ADAPT_ERASE == 1))
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		maxdiff = (int) MAXDIFF;
 	}
 	x_1 = (int) sp->x.value - (int) sp->sizex.value -
@@ -592,7 +593,7 @@ draw_bouboule(ModeInfo * mi)
 
 	sinvary(&sp->x);
 	sinvary(&sp->y);
-	if (MI_WIN_IS_USE3D(mi))
+	if (MI_IS_USE3D(mi))
 		sinvary(&sp->z);
 
 	/* A little trick to prevent the bouboule from being
@@ -630,7 +631,7 @@ draw_bouboule(ModeInfo * mi)
 	for (i = 0; i < sp->NbStars; i++) {
 		star = &(sp->star[i]);
 		arc = &(sp->xarc[i]);
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			arcleft = &(sp->xarcleft[i]);
 			/* to help the eyes, the starfield is always as wide as */
 			/* deep, so .sizex.value can be used. */
@@ -649,7 +650,7 @@ draw_bouboule(ModeInfo * mi)
 				    (SY * SZ - SX * CY * CZ) * star->z) +
 				   sp->y.value));
 
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			arcleft->x = (short) ((sp->sizex.value *
 					((CY * CZ - SX * SY * SZ) * star->x +
 					 (-CX * SZ) * star->y +
@@ -666,7 +667,7 @@ draw_bouboule(ModeInfo * mi)
 		if (star->size != 0) {
 			arc->x -= star->size;
 			arc->y -= star->size;
-			if (MI_WIN_IS_USE3D(mi)) {
+			if (MI_IS_USE3D(mi)) {
 				arcleft->x -= star->size;
 				arcleft->y -= star->size;
 			}
@@ -674,7 +675,7 @@ draw_bouboule(ModeInfo * mi)
 	}
 
 	/* First, we erase the previous starfield */
-	if (MI_WIN_IS_INSTALL(mi) && MI_WIN_IS_USE3D(mi))
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi))
 		XSetForeground(display, gc, MI_NONE_COLOR(mi));
 	else
 		XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -688,7 +689,7 @@ draw_bouboule(ModeInfo * mi)
 			sp->hasbeenchecked = -2;	/* XFillRectangle mode */
 			(void) free((void *) sp->oldxarc);
 			sp->oldxarc = NULL;
-			if (MI_WIN_IS_USE3D(mi)) {
+			if (MI_IS_USE3D(mi)) {
 				(void) free((void *) sp->oldxarcleft);
 				sp->oldxarcleft = NULL;
 			}
@@ -704,7 +705,7 @@ draw_bouboule(ModeInfo * mi)
 		/* Erasing is done with XFillArcs */
 		XFillArcs(display, window, gc,
 			  sp->oldxarc, sp->NbStars);
-		if (MI_WIN_IS_USE3D(mi))
+		if (MI_IS_USE3D(mi))
 			XFillArcs(display, window, gc,
 				  sp->oldxarcleft, sp->NbStars);
 	} else {
@@ -724,7 +725,7 @@ draw_bouboule(ModeInfo * mi)
 			GETTIMEOFDAY(&tv1);
 			XFillArcs(display, window, gc,
 				  sp->oldxarc, sp->NbStars);
-			if (MI_WIN_IS_USE3D(mi))
+			if (MI_IS_USE3D(mi))
 				XFillArcs(display, window, gc,
 					  sp->oldxarcleft, sp->NbStars);
 			GETTIMEOFDAY(&tv2);
@@ -739,7 +740,7 @@ draw_bouboule(ModeInfo * mi)
 #if (USEOLDXARCS == 1)
 	XFillArcs(display, window, gc,
 		  sp->oldxarc, sp->NbStars);
-	if (MI_WIN_IS_USE3D(mi))
+	if (MI_IS_USE3D(mi))
 		XFillArcs(display, window, gc,
 			  sp->oldxarcleft, sp->NbStars);
 #else
@@ -749,14 +750,14 @@ draw_bouboule(ModeInfo * mi)
 #endif
 
 	/* Then we draw the new one */
-	if (MI_WIN_IS_USE3D(mi)) {
-		if (MI_WIN_IS_INSTALL(mi))
+	if (MI_IS_USE3D(mi)) {
+		if (MI_IS_INSTALL(mi))
 			XSetFunction(display, gc, GXor);
 		XSetForeground(display, gc, MI_RIGHT_COLOR(mi));
 		XFillArcs(display, window, gc, sp->xarc, sp->NbStars);
 		XSetForeground(display, gc, MI_LEFT_COLOR(mi));
 		XFillArcs(display, window, gc, sp->xarcleft, sp->NbStars);
-		if (MI_WIN_IS_INSTALL(mi))
+		if (MI_IS_INSTALL(mi))
 			XSetFunction(display, gc, GXcopy);
 	} else {
 		XSetForeground(display, gc, sp->color);
@@ -769,7 +770,7 @@ draw_bouboule(ModeInfo * mi)
 		arc = sp->xarc;
 		sp->xarc = sp->oldxarc;
 		sp->oldxarc = arc;
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			arcleft = sp->xarcleft;
 			sp->xarcleft = sp->oldxarcleft;
 			sp->oldxarcleft = arcleft;
@@ -779,7 +780,7 @@ draw_bouboule(ModeInfo * mi)
 	arc = sp->xarc;
 	sp->xarc = sp->oldxarc;
 	sp->oldxarc = arc;
-	if (MI_WIN_IS_USE3D(mi)) {
+	if (MI_IS_USE3D(mi)) {
 		arcleft = sp->xarcleft;
 		sp->xarcleft = sp->oldxarcleft;
 		sp->oldxarcleft = arcleft;
@@ -788,7 +789,7 @@ draw_bouboule(ModeInfo * mi)
 #endif
 
 	/* We set up the color for the next drawing */
-	if (!MI_WIN_IS_USE3D(mi) && MI_NPIXELS(mi) > 2 &&
+	if (!MI_IS_USE3D(mi) && MI_NPIXELS(mi) > 2 &&
 	    (++sp->colorchange >= COLOR_CHANGES)) {
 		sp->colorchange = 0;
 		if (++sp->colorp >= MI_NPIXELS(mi))
@@ -835,5 +836,11 @@ release_bouboule(ModeInfo * mi)
 void
 refresh_bouboule(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	/* use the right `black' pixel values: */
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi)) {
+		MI_CLEARWINDOWCOLOR(mi, MI_NONE_COLOR(mi));
+	} else {
+		MI_CLEARWINDOW(mi);
+	}
+
 }

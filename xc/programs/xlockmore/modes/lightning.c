@@ -522,8 +522,8 @@ init_lightning(ModeInfo * mi)
 	}
 	st = &Helga[MI_SCREEN(mi)];
 
-	st->scr_width = MI_WIN_WIDTH(mi);
-	st->scr_height = MI_WIN_HEIGHT(mi);
+	st->scr_width = MI_WIDTH(mi);
+	st->scr_height = MI_HEIGHT(mi);
 
 	st->multi_strike = setup_multi_strike();
 	random_storm(st);
@@ -538,9 +538,13 @@ draw_lightning(ModeInfo * mi)
 	Storm      *st = &Helga[MI_SCREEN(mi)];
 	int         i;
 
+	MI_IS_DRAWN(mi) = True;
+
 	switch (st->stage) {
 		case 0:
+			MI_IS_DRAWN(mi) = False;
 			MI_CLEARWINDOW(mi);
+			MI_IS_DRAWN(mi) = True;
 
 			st->color = NRAND(MI_NPIXELS(mi));
 			st->draw_time = 0;
@@ -566,7 +570,9 @@ draw_lightning(ModeInfo * mi)
 			}
 			break;
 		case 3:
+			MI_IS_DRAWN(mi) = False;
 			MI_CLEARWINDOW(mi);
+			MI_IS_DRAWN(mi) = True;
 
 			if (storm_active(st))
 				st->stage = 1;

@@ -375,11 +375,11 @@ the same information from the ModeInfo argument (see mode.h):
 	saturation	MI_SATURATION	colormap saturation value
 
    These variables are booleans, usually set by cmd line:
-	mono		MI_WIN_IS_MONO	use only B&W (can be set for color)
-	inwindow	MI_WIN_IS_INWINDOW  running in regular window
-	inroot		MI_WIN_IS_INROOT  running in the root window
+	mono		MI_IS_MONO	use only B&W (can be set for color)
+	inwindow	MI_IS_INWINDOW  running in regular window
+	inroot		MI_IS_INROOT  running in the root window
 
-   The MI_WIN_IS_MONO flag will be true if the global "mono" is set
+   The MI_IS_MONO flag will be true if the global "mono" is set
 (which can be specified on the command line for color displays) or
 if the screen is a monochrome device.  It IS possible to have both
 color and monochrome screens at the same time.  Use the passed-in
@@ -560,7 +560,7 @@ modes/Makefile.in make.com modes/Imakefile  Makefiles
 modes/glx/Imakefile                         If it is a gl mode
 xlock/XLock.ad                              Resource file
 xlock/xlock.man                             The manual
-xmlock/modes.h                              Motif launcher file
+xmlock/modes.h                              Motif launcher file (description)
 xalock/modes.h                              Athena launcher file
 etc/xlock.tcl                               TCL lanuncher file
 etc/xlockFrame.java                         Java lanuncher file
@@ -568,8 +568,8 @@ etc/system.fvwm2rc.xlock                    fvwm2 menu
 etc/system.fvwmrc.xlock                     fvwm menu
 etc/system.olwmrc.xlock                     Openwin menu
 etc/system.mwmrc.xlock                      Motif menu
-etc/dtscreen.dt                             Screensaver actions for CDE
+etc/dtscreen.dt                             Screensaver actions for CDE (descr)
 etc/dtprofile                               CDE profile
 docs/Revisions                              Give credit
-docs/xlock.html                             Web reformat of manual
-docs/xlock.hlp                              VMS reformat of manual
+docs/xlock.html                             Web reformat of manual (generated)
+docs/xlock.hlp                              VMS reformat of manual (generated)

@@ -35,7 +35,7 @@ static const char sccsid[] = "@(#)star.c	4.07 97/11/24 xlockmore";
  *            Get out your 3D glasses, Red on right and Blue on left.
  * 14-Apr-95: Jeremie PETIT <petit@aurora.unice.fr> added a "move" feature.
  * 2-Sep-93: xlock version David Bagley <bagleyd@bigfoot.com>
- * 1992:     xscreensaver version Jamie Zawinski <jwz@netscape.com>
+ * 1992:     xscreensaver version Jamie Zawinski <jwz@jwz.org>
  */
 
 /*-
@@ -110,7 +110,7 @@ ModeSpecOpt star_opts =
 ModStruct   star_description =
 {"star", "init_star", "draw_star", "release_star",
  "refresh_star", "init_star", NULL, &star_opts,
- 40000, 100, 1, 100, 64, 0.2, "",
+ 40000, 100, 1, 100, 64, 0.3, "",
  "Shows a star field with a twist", 0, NULL};
 
 #endif
@@ -377,8 +377,8 @@ star_draw(ModeInfo * mi, astar * astars, int draw_p)
 	starstruct *sp = &stars[MI_SCREEN(mi)];
 
 	if (draw_p) {
-		if (MI_WIN_IS_USE3D(mi)) {
-			if (MI_WIN_IS_INSTALL(mi))
+		if (MI_IS_USE3D(mi)) {
+			if (MI_IS_INSTALL(mi))
 				XSetForeground(MI_DISPLAY(mi), gc, MI_NONE_COLOR(mi));
 			else
 				XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
@@ -398,9 +398,9 @@ star_draw(ModeInfo * mi, astar * astars, int draw_p)
 		return;
 	}
 	if (astars->size <= 1) {
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			if (draw_p) {
-				if (MI_WIN_IS_INSTALL(mi))
+				if (MI_IS_INSTALL(mi))
 					XSetFunction(display, gc, GXor);
 				XSetForeground(display, gc, MI_LEFT_COLOR(mi));
 			}
@@ -408,14 +408,14 @@ star_draw(ModeInfo * mi, astar * astars, int draw_p)
 			if (draw_p)
 				XSetForeground(display, gc, MI_RIGHT_COLOR(mi));
 			XDrawPoint(display, window, gc, astars->x + astars->diff, astars->y);
-			if (draw_p && MI_WIN_IS_INSTALL(mi))
+			if (draw_p && MI_IS_INSTALL(mi))
 				XSetFunction(display, gc, GXcopy);
 		} else
 			XDrawPoint(display, window, gc, astars->x, astars->y);
 	} else if (astars->size <= MINSIZE || !draw_p) {
-		if (MI_WIN_IS_USE3D(mi)) {
+		if (MI_IS_USE3D(mi)) {
 			if (draw_p) {
-				if (MI_WIN_IS_INSTALL(mi))
+				if (MI_IS_INSTALL(mi))
 					XSetFunction(display, gc, GXor);
 				XSetForeground(display, gc, MI_LEFT_COLOR(mi));
 			}
@@ -429,15 +429,15 @@ star_draw(ModeInfo * mi, astar * astars, int draw_p)
 				 astars->x - astars->size / 2 + astars->diff,
 				       astars->y - astars->size / 2,
 				       astars->size, astars->size);
-			if (draw_p && MI_WIN_IS_INSTALL(mi))
+			if (draw_p && MI_IS_INSTALL(mi))
 				XSetFunction(display, gc, GXcopy);
 		} else
 			XFillRectangle(display, window, gc,
 				       astars->x - astars->size / 2, astars->y - astars->size / 2,
 				       astars->size, astars->size);
 	} else if (astars->size < sp->max_star_size) {
-		if (MI_WIN_IS_USE3D(mi)) {
-			if (MI_WIN_IS_INSTALL(mi))
+		if (MI_IS_USE3D(mi)) {
+			if (MI_IS_INSTALL(mi))
 				XSetFunction(display, gc, GXor);
 			XSetForeground(display, gc, MI_LEFT_COLOR(mi));
 			XCopyPlane(display, sp->pixmaps[astars->size - MINSIZE], window, gc,
@@ -451,7 +451,7 @@ star_draw(ModeInfo * mi, astar * astars, int draw_p)
 				 astars->x - astars->size / 2 + astars->diff,
 				   astars->y - astars->size / 2,
 				   1L);
-			if (MI_WIN_IS_INSTALL(mi))
+			if (MI_IS_INSTALL(mi))
 				XSetFunction(display, gc, GXcopy);
 		} else
 			XCopyPlane(display, sp->pixmaps[astars->size - MINSIZE], window, gc,
@@ -594,7 +594,7 @@ compute_move(starstruct * sp, int axe)
 
 	if (!straight && !NRAND(DIRECTION_CHANGE_RATE)) {
 		/* We change direction */
-		change = LRAND() & 1;
+		change = (int) (LRAND() & 1);
 		if (change != 1) {
 			if (sp->direction[axe] == 0)
 				sp->direction[axe] = change - 1;	/* 0 becomes either 1 or -1 */
@@ -619,8 +619,8 @@ init_star(ModeInfo * mi)
 	}
 	sp = &stars[MI_SCREEN(mi)];
 
-	sp->width = MI_WIN_WIDTH(mi);
-	sp->height = MI_WIN_HEIGHT(mi);
+	sp->width = MI_WIDTH(mi);
+	sp->height = MI_HEIGHT(mi);
 	sp->midx = sp->width / 2;
 	sp->midy = sp->height / 2;
 	sp->speed = 100;
@@ -630,7 +630,7 @@ init_star(ModeInfo * mi)
 	sp->dep_x = 0;
 	sp->dep_y = 0;
 	sp->current_trek = TREKIES;
-	sp->nstars = MI_BATCHCOUNT(mi);
+	sp->nstars = MI_COUNT(mi);
 	if (sp->nstars < -MIN_STARS) {
 		if (sp->astars) {
 			(void) free((void *) sp->astars);
@@ -662,10 +662,8 @@ init_star(ModeInfo * mi)
 
 	/* don't want any exposure events from XCopyPlane */
 	XSetGraphicsExposures(MI_DISPLAY(mi), MI_GC(mi), False);
-	if (MI_WIN_IS_INSTALL(mi) && MI_WIN_IS_USE3D(mi)) {
-		XSetForeground(MI_DISPLAY(mi), MI_GC(mi), MI_NONE_COLOR(mi));
-		XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), MI_GC(mi),
-			       0, 0, sp->width, sp->height);
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi)) {
+		MI_CLEARWINDOWCOLOR(mi, MI_NONE_COLOR(mi));
 	} else {
 		MI_CLEARWINDOW(mi);
 	}
@@ -675,6 +673,8 @@ void
 draw_star(ModeInfo * mi)
 {
 	starstruct *sp = &stars[MI_SCREEN(mi)];
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (sp->current_delta != sp->new_delta) {
 		if (sp->dchange_tick++ == 5) {
@@ -726,5 +726,9 @@ release_star(ModeInfo * mi)
 void
 refresh_star(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	if (MI_IS_INSTALL(mi) && MI_IS_USE3D(mi)) {
+		MI_CLEARWINDOWCOLOR(mi, MI_NONE_COLOR(mi));
+	} else {
+		MI_CLEARWINDOW(mi);
+	}
 }

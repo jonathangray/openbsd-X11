@@ -25,7 +25,7 @@ static const char sccsid[] = "@(#)braid.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 10-May-97: Jamie Zawinski <jwz@netscape.com> compatible with xscreensaver
+ * 10-May-97: Jamie Zawinski <jwz@jwz.org> compatible with xscreensaver
  * 01-Sep-95: color knotted components differently, J. Neil.
  * 29-Aug-95: Written.  John Neil <neil@math.idbsu.edu>
  */
@@ -38,6 +38,7 @@ static const char sccsid[] = "@(#)braid.c	4.07 97/11/24 xlockmore";
 #define DEFAULTS "*delay: 1000 \n" \
  "*count: 15 \n" \
  "*cycles: 100 \n" \
+ "*size: -7 \n" \
  "*ncolors: 64 \n"
 #define UNIFORM_COLORS
 #include "xlockmore.h"
@@ -83,6 +84,7 @@ ModStruct   braid_description =
 #define FLOATRAND(min,max) ((min)+((double) LRAND()/((double) MAXRAND))*((max)-(min)))
 
 typedef struct {
+	int         linewidth;
 	int         braidword[MAXLENGTH];
 	int         components[MAXSTRANDS];
 	int         startcomp[MAXLENGTH][MAXSTRANDS];
@@ -170,8 +172,8 @@ init_braid(ModeInfo * mi)
 	}
 	braid = &braids[MI_SCREEN(mi)];
 
-	braid->center_x = MI_WIN_WIDTH(mi) / 2;
-	braid->center_y = MI_WIN_HEIGHT(mi) / 2;
+	braid->center_x = MI_WIDTH(mi) / 2;
+	braid->center_y = MI_HEIGHT(mi) / 2;
 	braid->age = 0;
 
 	/* jwz: go in the other direction sometimes. */
@@ -184,12 +186,12 @@ init_braid(ModeInfo * mi)
 	braid->min_radius = min_length * 0.30;
 	braid->max_radius = min_length * 0.90;
 
-	if (MI_BATCHCOUNT(mi) < MINSTRANDS)
+	if (MI_COUNT(mi) < MINSTRANDS)
 		braid->nstrands = MINSTRANDS;
 	else
 		braid->nstrands = INTRAND(MINSTRANDS,
-				  MAX(MIN(MIN(MAXSTRANDS, MI_BATCHCOUNT(mi)),
-					  (int) ((braid->max_radius - braid->min_radius) / 5.0)), MINSTRANDS));
+				       MAX(MIN(MIN(MAXSTRANDS, MI_COUNT(mi)),
+					       (int) ((braid->max_radius - braid->min_radius) / 5.0)), MINSTRANDS));
 	braid->braidlength = INTRAND(MINLENGTH, MIN(MAXLENGTH, braid->nstrands * 6));
 
 	for (i = 0; i < braid->braidlength; i++) {
@@ -248,6 +250,11 @@ init_braid(ModeInfo * mi)
 		}
 	} while (count > 0);
 
+	braid->linewidth = MI_SIZE(mi);
+
+	if (braid->linewidth < 0)
+		braid->linewidth = NRAND(-braid->linewidth) + 1;
+
 	for (i = 0; i < braid->nstrands; i++)
 		if (!(braid->components[i] & 1))
 			braid->components[i] *= -1;
@@ -266,6 +273,13 @@ draw_braid(ModeInfo * mi)
 	int         i, s;
 	float       x_1, y_1, x_2, y_2, r1, r2;
 	float       color, color_use = 0.0, color_inc;
+
+	MI_IS_DRAWN(mi) = True;
+
+	XSetLineAttributes(display, MI_GC(mi), braid->linewidth,
+			   LineSolid,
+			   (braid->linewidth <= 3 ? CapButt : CapRound),
+			   JoinMiter);
 
 	theta = (2.0 * M_PI) / (float) (braid->braidlength);
 	t_inc = (2.0 * M_PI) / (float) num_points;
@@ -404,9 +418,11 @@ draw_braid(ModeInfo * mi)
 			}
 		}
 	}
+	XSetLineAttributes(display, MI_GC(mi), 1, LineSolid, CapNotLast, JoinRound);
 
-	if (++braid->age > MI_CYCLES(mi))
+	if (++braid->age > MI_CYCLES(mi)) {
 		init_braid(mi);
+	}
 }
 
 void
@@ -421,5 +437,5 @@ release_braid(ModeInfo * mi)
 void
 refresh_braid(ModeInfo * mi)
 {
-	/* Do nothing, it will refresh by itself */
+	MI_CLEARWINDOW(mi);
 }

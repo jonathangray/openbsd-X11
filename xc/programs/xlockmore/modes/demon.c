@@ -28,7 +28,9 @@ static const char sccsid[] = "@(#)demon.c	4.07 97/11/24 xlockmore";
  *            Fixed memory management that caused leaks
  * 14-Apr-96: -neighbors 6 runtime-time option added
  * 21-Aug-95: Coded from A.K. Dewdney's "Computer Recreations", Scientific
- *            American Magazine" Aug 1989 pp 102-105.
+ *            American Magazine" Aug 1989 pp 102-105.  Also very similar to
+ *            hodgepodge machine described in A.K. Dewdney's "Computer
+ *            Recreations", Scientific American Magazine" Aug 1988 pp 104-107.
  *            also used life.c as a guide.
  */
 
@@ -53,14 +55,19 @@ static const char sccsid[] = "@(#)demon.c	4.07 97/11/24 xlockmore";
  "*count: 0 \n" \
  "*cycles: 1000 \n" \
  "*size: -7 \n" \
- "*ncolors: 64 \n"
+ "*ncolors: 64 \n" \
+ "*neighbors: 0 \n"
 #define UNIFORM_COLORS
 #include "xlockmore.h"		/* in xscreensaver distribution */
 #else /* STANDALONE */
 #include "xlock.h"		/* in xlockmore distribution */
 
 #endif /* STANDALONE */
+#include "automata.h"
 
+/*-
+ * neighbors of 0 randomizes it between 3, 4, 6, 8, 9, and 12.
+ */
 extern int  neighbors;
 
 ModeSpecOpt demon_opts =
@@ -158,7 +165,8 @@ drawcell(ModeInfo * mi, int col, int row, unsigned char state)
 			    dp->shape.hexagon, 6, Convex, CoordModePrevious);
 	} else if (dp->neighbors == 4 || dp->neighbors == 8) {
 		XFillRectangle(MI_DISPLAY(mi), MI_WINDOW(mi), gc,
-		dp->xb + dp->xs * col, dp->yb + dp->ys * row, dp->xs, dp->ys);
+		dp->xb + dp->xs * col, dp->yb + dp->ys * row,
+		dp->xs - (dp->xs > 3), dp->ys - (dp->ys > 3));
 	} else {		/* TRI */
 		int         orient = (col + row) % 2;	/* O left 1 right */
 
@@ -315,8 +323,8 @@ draw_state(ModeInfo * mi, int state)
 		while (current) {
 			rects[ncells].x = dp->xb + current->pt.x * dp->xs;
 			rects[ncells].y = dp->yb + current->pt.y * dp->ys;
-			rects[ncells].width = dp->xs;
-			rects[ncells].height = dp->ys;
+			rects[ncells].width = dp->xs - (dp->xs > 3);
+			rects[ncells].height = dp->ys - (dp->ys > 3);
 			current = current->next;
 			ncells++;
 		}
@@ -413,7 +421,7 @@ init_demon(ModeInfo * mi)
 		}
 	}
 
-	dp->states = MI_BATCHCOUNT(mi);
+	dp->states = MI_COUNT(mi);
 	if (dp->states < -MINSTATES)
 		dp->states = NRAND(-dp->states - MINSTATES + 1) + MINSTATES;
 	else if (dp->states < MINSTATES)
@@ -423,8 +431,8 @@ init_demon(ModeInfo * mi)
 
 	dp->state = 0;
 
-	dp->width = MI_WIN_WIDTH(mi);
-	dp->height = MI_WIN_HEIGHT(mi);
+	dp->width = MI_WIDTH(mi);
+	dp->height = MI_HEIGHT(mi);
 
 	if (dp->neighbors == 6) {
 		int         nccols, ncrows, i;
@@ -521,6 +529,8 @@ draw_demon(ModeInfo * mi)
 {
 	demonstruct *dp = &demons[MI_SCREEN(mi)];
 	int         i, j, k, l, mj = 0, ml;
+
+	MI_IS_DRAWN(mi) = True;
 
 	if (dp->state >= dp->states) {
 		(void) memcpy((char *) dp->newcell, (char *) dp->oldcell,

@@ -22,7 +22,7 @@ static const char sccsid[] = "@(#)strange.c	4.07 97/11/24 xlockmore";
  * other special, indirect and consequential damages.
  *
  * Revision History:
- * 10-May-97: jwz@netscape.com: turned into a standalone program.
+ * 10-May-97: jwz@jwz.org: turned into a standalone program.
  *            Made it render into an offscreen bitmap and then copy
  *            that onto the screen, to reduce flicker.
  *
@@ -244,6 +244,8 @@ draw_strange(ModeInfo * mi)
 		y = yo + NRAND(8) - 4;
 	}
 
+	MI_IS_DRAWN(mi) = True;
+
 	XSetForeground(display, gc, MI_BLACK_PIXEL(mi));
 
 	if (A->dbuf) {		/* jwz */
@@ -342,8 +344,8 @@ init_strange(ModeInfo * mi)
 	}
 	Attractor->Max_Pt = MAX_POINTS;
 
-	Attractor->Width = MI_WIN_WIDTH(mi);
-	Attractor->Height = MI_WIN_HEIGHT(mi);
+	Attractor->Width = MI_WIDTH(mi);
+	Attractor->Height = MI_HEIGHT(mi);
 	Attractor->Cur_Pt = 0;
 	Attractor->Count = 0;
 	Attractor->Col = NRAND(MI_NPIXELS(mi));
