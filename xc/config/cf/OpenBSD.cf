@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.10 1997/07/27 02:41:03 dawes Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.14 1998/03/05 14:00:15 graichen Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.15 1998/03/05 14:02:09 graichen Exp $
 XCOMM
 XCOMM If building for the mac68k, you MUST use BOOTSTRAPCFLAGS="-Dmac68k"
 XCOMM with make World
@@ -224,7 +224,9 @@ install.man:: 								@@\
 /* We now only use the XFree86 tree - thus we can define this
  * independent of the architecture
  */
-# define XF86Contrib
+#ifndef XF86Contrib
+#define XF86Contrib
+#endif
 
 /*
  * Architecture specific sections - put all architecture dependent
