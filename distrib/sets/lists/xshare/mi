@@ -535,6 +535,7 @@
 ./usr/X11R6/lib/X11/config/xf86site.def
 ./usr/X11R6/lib/X11/config/xfree86.cf
 ./usr/X11R6/lib/X11/fs
+./usr/X11R6/lib/X11/fvwm/.fvwmrc
 ./usr/X11R6/lib/X11/fvwm/decor_examples
 ./usr/X11R6/lib/X11/fvwm/fvwmrc_convert
 ./usr/X11R6/lib/X11/fvwm/system.fvwm2rc
