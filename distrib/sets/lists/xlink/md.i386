@@ -442,6 +442,10 @@
 ./usr/X11R6/lib/Server/drivers/vga256/ncr77c22/Imakefile
 ./usr/X11R6/lib/Server/drivers/vga256/ncr77c22/ncr_bank.s
 ./usr/X11R6/lib/Server/drivers/vga256/ncr77c22/ncr_driver.c
+./usr/X11R6/lib/Server/drivers/vga256/neomagic
+./usr/X11R6/lib/Server/drivers/vga256/neomagic/Imakefile
+./usr/X11R6/lib/Server/drivers/vga256/neomagic/bank.s
+./usr/X11R6/lib/Server/drivers/vga256/neomagic/neo_driver.c
 ./usr/X11R6/lib/Server/drivers/vga256/nv
 ./usr/X11R6/lib/Server/drivers/vga256/nv/Imakefile
 ./usr/X11R6/lib/Server/drivers/vga256/nv/nv1cursor.c
