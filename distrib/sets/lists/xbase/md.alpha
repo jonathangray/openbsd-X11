@@ -1,4 +1,5 @@
 ./usr/X11R6/bin/setxkbmap
+./usr/X11R6/bin/showrgb
 ./usr/X11R6/bin/xdpyinfo
 ./usr/X11R6/bin/xkbbell
 ./usr/X11R6/bin/xkbcomp
@@ -15,6 +16,7 @@
 ./usr/X11R6/include/X11/extensions/XKBui.h
 ./usr/X11R6/include/X11/extensions/XKM.h
 ./usr/X11R6/include/X11/extensions/XKMformat.h
+./usr/X11R6/lib/X11/rgb.txt
 ./usr/X11R6/lib/X11/xkb
 ./usr/X11R6/lib/X11/xkb/compat
 ./usr/X11R6/lib/X11/xkb/compat.dir
@@ -187,6 +189,7 @@
 ./usr/X11R6/lib/libxkbfile.a
 ./usr/X11R6/lib/libxkbui.a
 ./usr/X11R6/man/cat1/setxkbmap.0
+./usr/X11R6/man/cat1/showrgb.0
 ./usr/X11R6/man/cat1/xdpyinfo.0
 ./usr/X11R6/man/cat1/xkbcomp.0
 ./usr/X11R6/man/cat1/xkbevd.0
