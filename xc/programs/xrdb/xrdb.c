@@ -957,9 +957,17 @@ main (argc, argv)
 	strcpy(tmpname, "/tmp/xrdb_XXXXXX");
 #endif
 #endif
+#ifndef HAS_MKSTEMP
 	(void) mktemp(tmpname);
 	filename = tmpname;
 	fp = fopen(filename, "w");
+#else
+	{
+	int fd = mkstemp(tmpname);
+	filename = tmpname;
+	fp = fdopen(fd, "w");
+	}
+#endif /* MKSTEMP */
 	if (!fp)
 	    fatal("%s: Failed to open temp file: %s\n", ProgramName,
 		  filename);
@@ -1124,8 +1132,15 @@ Process(scrno, doScreen, execute)
 	input = fopen(editFile, "r");
 	strcpy(template, editFile);
 	strcat(template, "XXXXXX");
+#ifndef HAS_MKSTEMP
 	(void) mktemp(template);
 	output = fopen(template, "w");
+#else
+	{ 
+	int fd = mkstemp(template);
+	output = fdopen(fd, "w");
+	}
+#endif
 	if (!output)
 	    fatal("%s: can't open temporary file '%s'\n", ProgramName, template);
 	GetEntriesString(&newDB, xdefs);
