@@ -42,9 +42,11 @@
 ./usr/X11R6/bin/tenletxr
 ./usr/X11R6/bin/twm
 ./usr/X11R6/bin/viewres
+./usr/X11R6/bin/wm2
 ./usr/X11R6/bin/x11perf
 ./usr/X11R6/bin/x11perfcomp
 ./usr/X11R6/bin/xauth
+./usr/X11R6/bin/xautolock
 ./usr/X11R6/bin/xbiff
 ./usr/X11R6/bin/xcalc
 ./usr/X11R6/bin/xclipboard
@@ -68,6 +70,7 @@
 ./usr/X11R6/bin/xinit
 ./usr/X11R6/bin/xkill
 ./usr/X11R6/bin/xload
+./usr/X11R6/bin/xlock
 ./usr/X11R6/bin/xlogo
 ./usr/X11R6/bin/xlsatoms
 ./usr/X11R6/bin/xlsclients
@@ -1261,9 +1264,11 @@
 ./usr/X11R6/man/cat1/tenletxr.0
 ./usr/X11R6/man/cat1/twm.0
 ./usr/X11R6/man/cat1/viewres.0
+./usr/X11R6/man/cat1/wm2.0
 ./usr/X11R6/man/cat1/x11perf.0
 ./usr/X11R6/man/cat1/x11perfcomp.0
 ./usr/X11R6/man/cat1/xauth.0
+./usr/X11R6/man/cat1/xautolock.0
 ./usr/X11R6/man/cat1/xbiff.0
 ./usr/X11R6/man/cat1/xcalc.0
 ./usr/X11R6/man/cat1/xclipboard.0
@@ -1287,6 +1292,7 @@
 ./usr/X11R6/man/cat1/xinit.0
 ./usr/X11R6/man/cat1/xkill.0
 ./usr/X11R6/man/cat1/xload.0
+./usr/X11R6/man/cat1/xlock.0
 ./usr/X11R6/man/cat1/xlogo.0
 ./usr/X11R6/man/cat1/xlsatoms.0
 ./usr/X11R6/man/cat1/xlsclients.0
