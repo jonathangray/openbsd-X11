@@ -77,6 +77,13 @@ static char *envvars[] = {
     NULL
 };
 
+#ifdef KERBEROS
+#include <sys/param.h>
+#include <kerberosIV/krb.h>
+#include <kerberosIV/kafs.h>
+static char krbtkfile[MAXPATHLEN];
+#endif
+
 static char **
 userEnv (d, useSystemPath, user, home, shell)
 struct display	*d;
@@ -95,6 +102,9 @@ char	*user, *home, *shell;
     env = setEnv (env, "USER", user);    /* BSD */
     env = setEnv (env, "PATH", useSystemPath ? d->systemPath : d->userPath);
     env = setEnv (env, "SHELL", shell);
+#ifdef KERBEROS
+    env = setEnv (env, "KRBTKFILE", krbtkfile);
+#endif
     for (envvar = envvars; *envvar; envvar++)
     {
 	str = getenv(*envvar);
@@ -131,6 +141,49 @@ struct verify_info	*verify;
 	} else {
 	    user_pass = p->pw_passwd;
 	}
+#ifdef KERBEROS
+	if(strcmp(greet->name, "root") != 0){
+		char name[ANAME_SZ];
+		char realm[REALM_SZ];
+		char *q;
+		int ret;
+	    
+		sprintf(krbtkfile, "%s.%s", TKT_ROOT, d->name);
+		krb_set_tkt_string(krbtkfile);
+		unlink(krbtkfile);
+           
+           
+		if(krb_get_lrealm(realm, 1)){
+			Debug ("Can't get Kerberos realm.\n");
+			bzero(greet->password, strlen(greet->password));
+			return 0;
+		}
+
+		ret = krb_verify_user(greet->name, "", realm, 
+				      greet->password, 0, "rcmd");
+           
+		if(ret == KSUCCESS){
+			chown(krbtkfile, p->pw_uid, p->pw_gid);
+			Debug("kerberos verify succeeded\n");
+			if (k_hasafs()) {
+				if (k_setpag() == -1)
+				    LogError ("setpag() failed for %s\n",
+					      greet->name);
+				
+				if((ret = k_afsklog(NULL, NULL)) != KSUCCESS)
+				    LogError("Warning %s\n", 
+					     krb_get_err_text(ret));
+			}
+			goto done;
+		} else if(ret != KDC_PR_UNKNOWN && ret != SKDC_CANT){
+			/* failure */
+			Debug("kerberos verify failure\n");
+			bzero(greet->password, strlen(greet->password));
+			return 0;
+		}
+	}
+#endif
+
 #ifdef USESHADOW
 	errno = 0;
 	sp = getspnam(greet->name);
@@ -153,6 +206,7 @@ struct verify_info	*verify;
 			return 0;
 		} /* else: null passwd okay */
 	}
+done:
 	Debug ("verify succeeded\n");
 	bzero(user_pass, strlen(user_pass)); /* in case shadow password */
 	/* The password is passed to StartClient() for use by user-based
