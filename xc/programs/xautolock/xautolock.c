@@ -5,212 +5,261 @@
  *
  * Authors   : M. Eyckmans (MCE) + S. De Troch (SDT)
  *
- * Date      :  22/07/90
+ * Date      :  22/07/1990
  *
  * Comments  :  - Patchlevel 1->6 for private use only.
- *              - Patchlevel  7 released: 07/04/92
- *              - Patchlevel  8 released: 15/05/92
- *              - Patchlevel  9 released: 24/01/95
- *              - Patchlevel 10 released: 22/02/95
- *              - Patchlevel 11 released: 03/11/97
+ *              - Patchlevel  7 released: 07/04/1992
+ *              - Patchlevel  8 released: 15/05/1992
+ *              - Patchlevel  9 released: 24/01/1995
+ *              - Patchlevel 10 released: 22/02/1995
+ *              - Patchlevel 11 released: 03/11/1997
+ *              - Patchlevel 12 released: 09/08/1998
+ *              - Patchlevel 13 released: 13/08/1998
+ *              - Patchlevel 14 released: 18/11/1998
+ *              - Patchlevel 15 released: 13/03/1999
  *
- * Review    :  - 12/02/92 (MCE) :
+ * Review    :  - 12/02/1992 (MCE) :
  *                . Hacked around a dxcalendar problem.
- *              - 21/02/92 (MCE) :
+ *              - 21/02/1992 (MCE) :
  *                . Major rewrite.
- *              - 24/02/92 (MCE) :
+ *              - 24/02/1992 (MCE) :
  *                . Removed an initialization bug.
- *              - 25/02/92 (MCE) :
+ *              - 25/02/1992 (MCE) :
  *                . Added code to detect multiple invocations.
- *              - 06/03/92 (MCE) :
+ *              - 06/03/1992 (MCE) :
  *                . Re-arranged the event loop in order to detect defunct
  *                  children as soon as possible.
- *              - 10/03/92 (SDT & MCE) :
+ *              - 10/03/1992 (SDT & MCE) :
  *                . Added code to detect broken server connections.
- *              - 24/03/92 (MCE) :
+ *              - 24/03/1992 (MCE) :
  *                . Don't reset the timeout counter after receiving a
  *                  synthetic or otherwise unexpected event.
- *              - 15/04/92 (MCE) :
+ *              - 15/04/1992 (MCE) :
  *                . Changed the default locker to "xlock 2>&- 1>&-".
  *                . Fixed a couple of event mask bugs. (Thanks to
- *                  jwz@lucid.com for running into these.)
+ *                  Jamie Zawinski <jwz@lucid.com> for running into these.)
  *                . Corrected a property type bug in CheckConnection ().
- *              - 20/04/92 (MCE) :
+ *              - 20/04/1992 (MCE) :
  *                . Cut Main () into more managable pieces.
  *                . Periodically call XQueryPointer ().
- *              - 25/04/92 (MCE) :
+ *              - 25/04/1992 (MCE) :
  *                . Added the `corners' feature. (Suggested by
- *                  weisen@alw.nih.gov.)
- *                . Fixed a problem with pseudo-root windows. (Thanks to
- *                  sherman@unx.sas.com, nedwards@titan.trl.oz.au,
- *                  dave@elxr.jpl.nasa.gov, and tmcconne@sedona.intel.com
- *                  for pointing out the problem and testing the patch.)
+ *                  Neil I. Weisenfeld <weisen@alw.nih.gov>.)
+ *                . Fixed a problem with pseudo-root windows. 
+ *                  (Thnaks to Chris Sherman <sherman@unx.sas.com>,
+ *                  Nathan Edwards <nedwards@titan.trl.oz.au>, Dave 
+ *                  Hayes <dave@elxr.jpl.nasa.gov>, and Tom McConnell
+ *                  <tmcconne@sedona.intel.com> for pointing out 
+ *                  the problem and testing the patch.)
  *                . Added `disable/enable on SIGHUP'. (Suggested by
- *                  paul_smith@dg.com.)
+ *                  Paul Smith <paul_smith@dg.com>.)
  *                . Added support for multi-headed displays. 
- *              - 28/04/92 (MCE) :
+ *              - 28/04/1992 (MCE) :
  *                . Use the X resource manager.
- *              - 06/05/92 (MCE) :
+ *              - 06/05/1992 (MCE) :
  *                . Fixed a few potential portability problems. (Thanks
- *                  to paul_smith@dg.com again.)
+ *                  to Paul Smith <paul_smith@dg.com> again.)
  *                . CheckConnection () now works properly on multi-headed
- *                  displays. (Thanks to brian@natinst.com for testing
- *                  the `multi-headed' support.)
+ *                  displays. (Thanks to Brian ? <brian@natinst.com> for
+ *                  testing the `multi-headed' support.)
  *                . Better version of Sleep ().
  *                . Recognize X resources for class "Xautolock".
  *                . Don't update timer while sighupped.
  *                . Switched to vfork () and execl ().
  *                . New copyright notice.
- *              - 11/05/92 (MCE) :
+ *              - 11/05/1992 (MCE) :
  *                . Close stdout and stderr instead of using "2>&- 1>&-".
- *                  (Suggested by sinkwitz@ifi.unizh.ch.)
+ *                  (Suggested by Rainer Sinkwitz <sinkwitz@ifi.unizh.ch>.)
  *                . Added "-noclose" for debugging. 
- *              - 08/07/92 (MCE) :
+ *              - 08/07/1992 (MCE) :
  *                . Efficiency improvements and code embellishments
  *                . Improved conditional "#include"s etc. (Thanks to
- *                  jik@pit-manager.mit.edu and fred@cv.ruu.nl.)
+ *                  Jonathan I. Kamens <jik@pit-manager.mit.edu> and
+ *                  Fred J.R. Appelman <fred@cv.ruu.nl>.)
  *                . Moved a couple of premature calls to free ().
  *                  (Purify sure is a great tool!)
  *                . Fixed a race condition related to the `corners'
  *                  feature.
  *                . Fixed a minor initialization bug. 
- *              - 21/12/92 (MCE) :
+ *              - 21/12/1992 (MCE) :
  *                . Added code to circumvent a server initialisation bug
  *                  (OpenWindows 2.0 and 3.0) related to XQueryPointer ().
- *                  (Thanks to engstrom@src.honeywell.com for providing
- *                  the patch.)
- *              - 22/06/93 (MCE) :
+ *                  (Thanks to Eric Engstrom <engstrom@src.honeywell.com> 
+ *                  for providing the patch.)
+ *              - 22/06/1993 (MCE) :
  *                . Reset screensaver upon locking the screen.
- *                  (Suggested by mossip@vizlab.rutgers.edu.)
+ *                  (Suggested by Paul Mossip <mossip@vizlab.rutgers.edu>.)
  *                . Improved resource usage.
- *              - 13/08/93 (MCE) :
+ *              - 13/08/1993 (MCE) :
  *                . Added "-cornerredelay" for reasons described in the
  *                  man page.
- *              - 23/12/93 (MCE) :
- *                . Improved "#ifdef"s for SYSV.
- *                  (Thanks to John.Somerfield@barclays.co.uk.)
- *              - 11/05/94 (MCE) :
+ *              - 23/12/1993 (MCE) :
+ *                . Improved "#ifdef"s for SYSV. (Thanks to John Somerfield 
+ *                  <John.Somerfield@barclays.co.uk>.)
+ *              - 11/05/1994 (MCE) :
  *                . Corrected a "real stupid typo" ;-).
- *              - 25/08/94 (MCE) :
+ *              - 25/08/1994 (MCE) :
  *                . More accurate "usage" message.
- *              - 21/09/94 (MCE) :
+ *              - 21/09/1994 (MCE) :
  *                . Several minor code embellishments.
  *                . Better wording of the copyright statement.
- *                . Ported to VMS. (Thanks to bdr@cbnewsg.cb.att.com
- *                  for providing the nitty-gritty details.)
+ *                . Ported to VMS. (Thanks to Brian D. Reed
+ *                  <bdr@cbnewsg.cb.att.com> for providing the 
+ *                  nitty-gritty details.)
  *                . Resources now have a (dummy) resource class.
- *                  (Thanks to johnny@cett.alcatel-alsthom.fr for
- *                  pointing out that something had to be done here.)
- *                . Reworked resource processing. (Thanks to
- *                  jlehrke@wmi.physik.tu-muenchen.de for providing 
+ *                  (Thanks to JF Bonhomme <johnny@cett.alcatel-alsthom.fr>
+ *                  for pointing out that something had to be done here.)
+ *                . Reworked resource processing. (Thanks to Joerg Lehrke
+ *                  <jlehrke@wmi.physik.tu-muenchen.de> for providing 
  *                  the original patch (stripped by me).)
  *                . Create a dummy window for proper XKillCLient ()
  *                  behaviour when using xdm without XDMCP or similar.
  *                . Added "-nocloseout" and "-nocloseerr".
- *              - 14/10/94 (MCE) :
+ *              - 14/10/1994 (MCE) :
  *                . Finally added Xidle support.
  *                . Return value of waitpid () on SYSV was being
  *                  used incorrectly.
- *              - 01/11/94 (MCE) :
- *                . Added SIGUSR1 and SIGUSR2 support, as well as
- *                  "-enable", "-disable", "-toggle" options.
- *                  (Thanks to ckd@loiosh.kei.com for the initial patch.)
+ *              - 01/11/1994 (MCE) :
+ *                . Added SIGUSR1 and SIGUSR2 support, as well as "-enable",
+ *                  "-disable", "-toggle" options.(Thanks to Christopher 
+ *                  Davis <ckd@loiosh.kei.com> for the initial patch.)
  *                . Renamed some stuff for better maintainability.
- *              - 06/11/94 (MCE) :
+ *              - 06/11/1994 (MCE) :
  *                . Several minor corrections for VMS.
  *                . Added #define _HPUX_SOURCE for c89 on HP/UX.
  *                . Totally reworked time-keeping code to protect it
  *                  against incorrect implementations of sleep ().
- *              - 10/11/94 (MCE) :
+ *              - 10/11/1994 (MCE) :
  *                . Added "-notifier" option. (Based on a suggestion
- *                  by woodard@peach.kodak.com.)
+ *                  by Steve Woodard <woodard@peach.kodak.com>.)
  *                . Made the "xxx_SEMAPHORE_PID" stuff honour the
  *                  prog_name stuff.
  *                . Casting fixes related to use of time_t.
- *              - 21/11/94 (MCE) :
+ *              - 21/11/1994 (MCE) :
  *                . Added "#ifdef"s as needed by Novell Unixware. 
- *                  (Thanks to tma@encore.com for reporting this.)
+ *                  (Thanks to Thanh Ma <tma@encore.com> for reporting this.)
  *                . Plugged a minor memory leak in the resource
  *                  management code.
- *              - 03/01/95 (MCE) :
+ *              - 03/01/1995 (MCE) :
  *                . Finally solved the logout problems under OpenWinDows.
  *                  (Thanks to the many people who reported this one in
- *                  the past, and in particular to badger@ssd.intel.com
- *                  for putting me on the right track.)
+ *                  the past, and in particular to John Kent 
+ *                  <badger@ssd.intel.com>for putting me on the right track.)
  *                . Some minor cosmetic changes.
- *              - 20/01/95 (MCE) :
+ *              - 20/01/1995 (MCE) :
  *                . Take the modifier mask into account when looking
  *                  for pointer activity. (Idea taken from xscreensaver,
- *                  which is by jwz@mcom.com.)
+ *                  which is by Jamie Zawinski <jwz@mcom.com>.)
  *                . Fixed a minor oversight in option handling.
  *                . Fixed some uninitialised memory problems, a rare
  *                  null pointer dereference and a small memory leak.
  *                  (Purify sure is a great tool!)
- *              - 23/01/95 (MCE) :
+ *              - 23/01/1995 (MCE) :
  *                . Fixed various things ProLint complained about.
  *                . Fixed yet another minor oversight in option handling.
- *              - 01/02/95 (MCE) :
+ *              - 01/02/1995 (MCE) :
  *                . Added a few unused intialisations because otherwise
  *                  some compilers complain about them missing.
- *              - 21/02/95 (MCE) :
+ *              - 21/02/1995 (MCE) :
  *                . Initial cleaning up of the #ifdef and #include stuff.
  *                . Be less pedantic when validating the notification
  *                  margin if the `corners' feature is not being used.
  *                . Fixed a horrificly stupid blooper that was sometimes 
  *                  causing the thing not to work at all. (Thanks to
- *                  gdonl@gv.ssi1.com and ben@telecom.ptt.nl for
- *                  attracting my attention to this one.)
- *              - 28/02/95 (MCE) :
+ *                  Don Lewis <gdonl@gv.ssi1.com> and Ben Suurmeijer
+ *                  <ben@telecom.ptt.nl> for attracting my attention 
+ *                  to this one.)
+ *              - 28/02/1995 (MCE) :
  *                . Added correct setup of the standard WM properties.
- *              - 21/04/95 (MCE) :
+ *              - 21/04/1995 (MCE) :
  *                . Better wording of the copyright notice 
  *                  (no fundamental change).
- *              - 08/05/95 (MCE) :
+ *              - 08/05/1995 (MCE) :
  *                . Fixed a race condition in SelectEvents ().
- *              - 15/05/95 (MCE) :
+ *              - 15/05/1995 (MCE) :
  *                . Removed the INITIAL_SLEEP stuff.
- *              - 28/01/96 (MCE) :
+ *              - 28/01/1996 (MCE) :
  *                . Minor stylistic editing.
- *              - 29/04/96 (MCE) :
+ *              - 29/04/1996 (MCE) :
  *                . Fixed a serious problem with the Xidle support.
- *                  (Thanks to lamn@cs.cuhk.hk for attracting my
+ *                  (Thanks to Lam N <lamn@cs.cuhk.hk> for attracting my
  *                  attention to this one.)
- *              - 07/05/96 (MCE) :
+ *              - 07/05/1996 (MCE) :
  *                . Allow the user to exploit the entire range of
  *                  bell_percent values supported by XBell().
- *                  (Suggested by degreef@imec.be.)
- *              - 23/06/96 (MCE) :
+ *                  (Suggested by Eddy De Greef <degreef@imec.be>.)
+ *              - 23/06/1996 (MCE) :
  *                . Incorporated the "-secure", "-killtime" and
  *                  "-killpid" options. (Based on a patch provided
- *                  by mione@nbcs.rutgers.edu.)
- *              - 25/06/96 (MCE) :
+ *                  by Tony Mione <mione@nbcs.rutgers.edu>.)
+ *              - 25/06/1996 (MCE) :
  *                . General clean up.
- *              - 21/08/96 (MCE) :
+ *              - 21/08/1996 (MCE) :
  *                . Do not free() the return value of getenv().
- *                  (Pointed out by stefan.jais@pr-steyr.ac.at.)
- *              - 03/04/97 (MCE) :
+ *                  (Pointed out by Stefan Jais <stefan.jais@pr-steyr.ac.at>.)
+ *              - 03/04/1997 (MCE) :
  *                . Cleaned up the (unreleased) debugging code.
  *                . Fixed some minor bugs concerning "-killpid" and
  *                  "-killtime".
- *              - 30/06/97 (MCE) :
+ *              - 30/06/1997 (MCE) :
  *                . Added the "-resetsaver" option to aid people with
- *                  DPMS monitors. (Triggered by ian@tarcus.demon.co.uk.)
- *              - 10/08/97 (MCE) :
+ *                  DPMS monitors. (Triggered by Ian Rawlings 
+ *                  <ian@tarcus.demon.co.uk>.)
+ *              - 10/08/1997 (MCE) :
  *                . On VMS, use LIB$SPAWN rather than vfork to work
  *                  around DECC/VAXC interoperability problems. (Taken
  *                  from one of the many VMS branch versions.) Untested!
  *                . Added code to properly handle the -locker option
  *                  to the VMS version. (Based on a patch by
- *                  GUR.EREZ@a1.tavis.iso.mts.dec.com.) Untested!
- *              - 25/10/97 (MCE) :
+ *                  Erez Gur <gur.erez@a1.tavis.iso.mts.dec.com>.) Untested!
+ *              - 25/10/1997 (MCE) :
  *                . Merged in lots of VMS portability fixes taken 
  *                  from the latest VMS version. (Original code
- *                  by goathunter@MadGoat.COM.) Untested!
+ *                  by Hunter Goatley <goathunter@madgoat.com>.) Untested!
  *                . Replaced the "-killpid" option with the "-killer"
  *                  one to allow for more flexibility.
- *              - 27/10/97 (MCE) :
+ *              - 27/10/1997 (MCE) :
  *                . Added support for the MIT ScreenSaver extension.
  *                . Made gcc -Wall shut up on Linux and HP-UX 10.
+ *              - 14/11/1997 (MCE) :
+ *                . Read resources from $HOME/.Xdefaults as a last resort.
+ *                  (Suggested by Marc Baudoin <Marc.Baudoin@solsoft.com>.)
+ *              - 08/04/1998 (MCE) :
+ *                . Cleaned up some of the stuff that LCLint complained 
+ *                  about (but definitely not all of it).
+ *              - 03/06/1998 (MCE) :
+ *                . Extended the (unreleased) debugging code somewhat.
+ *              - 09/08/1998 (MCE) :
+ *                . Plugged a memory leak in the $HOME/.Xdefaults code.
+ *                . Updated this changelog to always mention the full 
+ *                  name of people. Provided I know it, that is...
+ *              - 11/08/1998 (MCE) :
+ *                . Include pwd.h to make the $HOME/.Xdefaults stuff
+ *                  compile on more platforms. (Problem reported by
+ *                  Jens Schleusener <Jens.Schleusener@dlr.de>.)
+ *              - 19/10/1998 (MCE) :
+ *                . Added the "-exit" option. (Based on a patch by 
+ *                  Yakov Yukhnovetsky <yakov.yukhnovetsky@telrad.co.il>.)
+ *              - 05/02/1999 (MCE) :
+ *                . The VMS port should now actually work more or less.
+ *                  (Thanks to Jouk Jansen <joukj@hrem.stm.tudelft.nl>
+ *                  for taking the trouble to actually submit a patch.)
+ *                . Fixed an include file conflict on AIX. (Also thanks 
+ *                  to Jouk Jansen <joukj@hrem.stm.tudelft.nl>.)
+ *              - 15/02/1999 (MCE) :
+ *                . Added the "-locknow", "-unlocknow", and "-nowlocker"
+ *                  options. (Thanks to Timo J Rinne <tri@iki.fi> for the
+ *                  original patch (slightly modified by me).)
+ *                . Some minor clean up.
+ *              - 16/02/1999 (MCE) :
+ *                . Ripped out the use of signals to communicate with
+ *                  other xautolock processes. This removes the limit
+ *                  on the number of possible messages (yesterday's
+ *                  change was pushing it very hard) and makes things 
+ *                  more portable as well.
+ *              - 11/03/1999 (MCE) :
+ *                . Fixed the communication code to always do the right
+ *                  thing when handling "-exit".
  *
  * ---------------------------------------------------------------------------
  *
@@ -218,7 +267,7 @@
  *
  * ---------------------------------------------------------------------------
  *
- * Copyright 1990, 1992-1997 by S. De Troch and M. Eyckmans (MCE).
+ * Copyright 1990, 1992-1999 by S. De Troch and M. Eyckmans (MCE).
  *
  * Permission to use, copy, modify and distribute this software and the
  * supporting documentation without fee is hereby granted, provided that
@@ -265,14 +314,14 @@
 #endif /* __STDC__ */
 
 #ifdef VMS
+#define HasVFork
+
 #include <descrip.h>
 #include <clidef.h>
 #include <lib$routines.h>
 #include <ssdef.h>
 #include <ssdef.h>    
 #include <processes.h>
-#define HasVFork
-#define HasVoidSignalReturn
 #include <unixio.h>     /* Needed for close ()  */
 #include <unixlib.h>    /* Needed for getpid () */
 #endif /* VMS */
@@ -292,14 +341,25 @@
 
 #include <time.h>
 #include <signal.h>
+
 #ifndef VMS
+#include <pwd.h>
 #include <sys/wait.h>
 #endif /* VMS */
+
 #include <sys/types.h>
 
+#ifdef UNDEF
+/*
+ *  Somebody once told me to insert this, but later on others
+ *  reported that it conflicts with sys/wait.h included above.
+ *  Feel free to experiment if things don't compile out of the 
+ *  box on your AIX version.
+ */
 #ifdef AIXV3    
 #include <sys/m_wait.h>
 #endif /* AIXV3 */
+#endif
 
 #if !defined (news1800) && !defined (sun386)
 
@@ -353,19 +413,24 @@
 #define SLOW_VMS_DELAY             15      /* explained in VMS.NOTES file  */
 #endif /* VMS */
 
-#if !defined (VMS) || (defined (VMS) && defined(__DECC) && defined(SIGUSR1))
-#define SIGDISABLE                 SIGUSR1 /* as it says                   */
-#define SIGENABLE                  SIGUSR2 /* as it says                   */
-#define SIGTOGGLE                  SIGHUP  /* as it says                   */
-#define VMS_HAS_SIGS
-#endif /* !VMS || (VMS && __DECC && SIGUSR1) */
+#define MES_DISABLE                1       /* as it says                   */
+#define MES_ENABLE                 2       /* as it says                   */
+#define MES_TOGGLE                 3       /* as it says                   */
+#define MES_EXIT                   4       /* as it says                   */
+#define MES_LOCKNOW		   5       /* as it says                   */
+#define MES_UNLOCKNOW		   6       /* as it says                   */
 
 #define APPLIC_CLASS               "Xautolock"
-                                           /* Application class.           */
+                                           /* application class.           */
 #define DUMMY_RESOURCE_CLASS       "_xAx_" /* some versions of X don't
                                               like the old NULL class name,
                                               and I consider implementing
-                                              real classes isn't worth it. */
+                                              real classes isn't worth it  */
+#define SEM_PID "_SEMAPHORE_PID"           /* used to locate other 
+					      xautolocks                   */
+#define MESSAGE "_MESSAGE"                 /* used to talk to other
+					      xautolocks                   */
+
 #ifdef VMS
 #define LOCKER                     "mcr sys$system:decw$pausesession"
 #else /* VMS */
@@ -424,18 +489,18 @@ typedef int                        pid_t;
 
 #ifdef VMS
 
-#ifdef defined(VAX) && defined(vaxc)
+#if defined(VAX) && defined(vaxc)
 typedef long                       pid_t;
 #endif /* VMS && VAX && vaxc */
 
 /*
  *  Different versions of the DEC C compiler for OpenVMS Alpha define
- *  pid_t in different ways.  Later versions define either __PID_T (v5.2)
- *  or __DEV_T (V5.0) when pid_t is already typedef'ed.  DEC C V1.3 did
+ *  pid_t in different ways. Later versions define either __PID_T (v5.2)
+ *  or __DEV_T (V5.0) when pid_t is already typedef'ed. DEC C V1.3 did
  *  neither, so typedef if those aren't defined.
  *
  */
-#if     defined(__DECC) && defined(__alpha) \
+#if     defined(__DECC) && defined(__alpha)     \
     && !defined(____PID_T) && !defined(__DEV_T)
 typedef long                       pid_t;
 #endif /* __DECC && __alpha && !____PID_T && !__DEV_T */
@@ -452,13 +517,6 @@ typedef caddr_t                    Caddrt;
 typedef unsigned int               Unsigned;
 typedef unsigned long              Huge;
 
-#ifdef HasVoidSignalReturn
-#define SigRet                     Void     /* no typedef because of VAX */
-#else /* HasVoidSignalReturn */
-typedef Int                        SigRet;
-#endif /* HasVoidSignalReturn */
-
-typedef SigRet                     (*SigHandler) PP((/* OS dependent */));
 typedef Boolean                    (*OptAction)  PP((Display*, String));
 typedef Void                       (*OptChecker) PP((Display*));
 
@@ -485,7 +543,7 @@ typedef struct Queue_
 
 typedef struct Opt_
         {
-          String                   name;          /* as it says          */
+          const String             name;          /* as it says          */
           XrmOptionKind            kind;          /* as it says          */
           Caddrt                   value;         /* XrmOptionNoArg only */
           OptAction                action;        /* as it says          */
@@ -512,7 +570,7 @@ static Queue    NewQueue              PP((Void));
 static Void     AddToQueue            PP((Queue, Window));
 static Void     ProcessQueue          PP((Queue, Display*, time_t));
 static Void     SelectEvents          PP((Display*, Window, Boolean));
-static Void     CheckConnectionAndSendSignal
+static Void     CheckConnectionAndSendMessage
 				      PP((Display*));
 #ifdef VMS
 static Int      PollSmPauseWindow     PP((Display*));
@@ -522,6 +580,7 @@ static Void     ProcessOpts           PP((Display*, Int, String*));
 static Boolean  HelpAction            PP((Display*, String));
 static Boolean  VersionAction         PP((Display*, String));
 static Boolean  LockerAction          PP((Display*, String));
+static Boolean  NowLockerAction       PP((Display*, String));
 static Boolean  KillerAction          PP((Display*, String));
 static Boolean  NotifierAction        PP((Display*, String));
 static Boolean  CornersAction         PP((Display*, String));
@@ -532,12 +591,13 @@ static Boolean  LockTimeAction        PP((Display*, String));
 static Boolean  KillTimeAction        PP((Display*, String));
 static Boolean  NotifyAction          PP((Display*, String));
 static Boolean  BellAction            PP((Display*, String));
-#if !defined(VMS) || (defined(VMS) && defined(VMS_HAS_SIGS))
 static Boolean  SecureAction          PP((Display*, String));
 static Boolean  EnableAction          PP((Display*, String));
 static Boolean  DisableAction         PP((Display*, String));
 static Boolean  ToggleAction          PP((Display*, String));
-#endif /* !VMS || (VMS && VMS_HAS_SIGS) */
+static Boolean  ExitAction            PP((Display*, String));
+static Boolean  LockNowAction         PP((Display*, String));
+static Boolean  UnlockNowAction       PP((Display*, String));
 static Boolean  ResetSaverAction      PP((Display*, String));
 static Boolean  NoCloseOutAction      PP((Display*, String));
 static Boolean  NoCloseErrAction      PP((Display*, String));
@@ -545,6 +605,7 @@ static Boolean  NoCloseAction         PP((Display*, String));
 static Boolean  GetInteger            PP((String, Int*));
 static Boolean  GetPositive           PP((String, Int*));
 static Void     LockerChecker         PP((Display*));
+static Void     NowLockerChecker      PP((Display*));
 static Void     KillerChecker         PP((Display*));
 static Void     NotifierChecker       PP((Display*));
 static Void     LockTimeChecker       PP((Display*));
@@ -553,11 +614,12 @@ static Void     NotifyChecker         PP((Display*));
 static Void     CornerSizeChecker     PP((Display*));
 static Void     CornerReDelayChecker  PP((Display*));
 static Void     BellChecker           PP((Display*));
-#if !defined(VMS) || (defined(VMS) && defined(VMS_HAS_SIGS))
-static SigRet   DisableBySignal       PP((Void));
-static SigRet   EnableBySignal        PP((Void));
-static SigRet   ToggleBySignal        PP((Void));
-#endif /* !VMS || (VMS && VMS_HAS_SIGS) */
+static Void     DisableByMessage      PP((Void));
+static Void     EnableByMessage       PP((Void));
+static Void     ToggleByMessage       PP((Void));
+static Void     ExitByMessage         PP((Void));
+static Void     LockNowByMessage      PP((Void));
+static Void     UnlockNowByMessage    PP((Void));
 
 
 
@@ -571,6 +633,7 @@ static time_t        lock_trigger = 0;       /* as it says                 */
 static time_t        kill_trigger = 0;       /* as it says                 */
 static String        prog_name;              /* as it says                 */
 static String        locker = LOCKER;        /* as it says                 */
+static String        now_locker = LOCKER;    /* as it says                 */
 static String        notifier = NOTIFIER;    /* as it says                 */
 static String        killer = KILLER;        /* as it says                 */
 static time_t        lock_time = LOCK_MINS;  /* as it says                 */
@@ -597,8 +660,18 @@ static Boolean       notify_lock = False;    /* whether to notify the user
                                                 before locking             */
 static Boolean       disabled = False;       /* whether to ignore all
                                                 timeouts                   */
-static Int           signal_to_send = 0;     /* signal to send to an 
+static Boolean       lock_now = False;       /* whether to lock screen
+                                                immediately                */
+static Boolean       unlock_now = False;     /* whether to unlock screen
+                                                immediately                */
+static Int           message_to_send = 0;    /* message to send to an 
                                                 already running xautolock  */
+static Atom          semaphore;              /* semaphore property for 
+						locating an already 
+						running xautolock          */
+static Atom          message_atom;           /* message property for
+						talking to another 
+						xautolock                  */
 static Boolean       use_redelay = False;    /* as it says                 */
 static CornerAction  corners[4] = { IGNORE, IGNORE, IGNORE, IGNORE };
                                              /* default CornerActions      */
@@ -607,10 +680,10 @@ static Boolean       reset_saver = False;    /* whether to reset the X
 static Boolean       close_out = True;       /* whether to close stdout    */
 static Boolean       close_err = True;       /* whether to close stderr    */
 
-
 #ifdef VMS
 struct dsc$descriptor locker_d;              /* used to fire up the locker */
-Int                   vms_status = 0;        /* locker completion status   */
+struct dsc$descriptor now_locker_d;          /* used to fire up the locker *
+Int                   vms_status = 1;        /* locker completion status   */
 #endif /* VMS */
 
 static anOpt         options[] = 
@@ -621,6 +694,8 @@ static anOpt         options[] =
 			 VersionAction      , (OptChecker) NULL         },
                        {"locker"       , XrmoptionSepArg, (Caddrt) NULL,
 			 LockerAction       , LockerChecker             },
+                       {"nowlocker"    , XrmoptionSepArg, (Caddrt) NULL,
+			 NowLockerAction    , NowLockerChecker          },
                        {"killer"       , XrmoptionSepArg, (Caddrt) NULL,
 			 KillerAction       , KillerChecker             },
 		       {"notifier"     , XrmoptionSepArg, (Caddrt) NULL,
@@ -641,7 +716,6 @@ static anOpt         options[] =
 			 NotifyAction       , NotifyChecker             },
                        {"bell"         , XrmoptionSepArg, (Caddrt) NULL,
 			 BellAction         , BellChecker               },
-#if !defined(VMS) || (defined(VMS) && defined(VMS_HAS_SIGS))
                        {"secure"       , XrmoptionNoArg , (Caddrt) ""  ,
 			 SecureAction       , (OptChecker) NULL         },
                        {"enable"       , XrmoptionNoArg , (Caddrt) ""  ,
@@ -650,7 +724,12 @@ static anOpt         options[] =
 			 DisableAction      , (OptChecker) NULL         },
                        {"toggle"       , XrmoptionNoArg , (Caddrt) ""  ,
 			 ToggleAction       , (OptChecker) NULL         },
-#endif /* !VMS || (VMS && VMS_HAS_SIGS) */
+                       {"exit"         , XrmoptionNoArg , (Caddrt) ""  ,
+			 ExitAction         , (OptChecker) NULL         },
+                       {"locknow"      , XrmoptionNoArg , (Caddrt) ""  ,
+			 LockNowAction      , (OptChecker) NULL         },
+                       {"unlocknow"    , XrmoptionNoArg , (Caddrt) ""  ,
+			 UnlockNowAction    , (OptChecker) NULL         },
                        {"resetsaver"   , XrmoptionNoArg , (Caddrt) ""  ,
 			 ResetSaverAction   , (OptChecker) NULL         },
                        {"noclose"      , XrmoptionNoArg , (Caddrt) ""  ,
@@ -748,7 +827,18 @@ Display*  d;    /* display pointer */
 String    arg;  /* argument value  */
 
 {
-  locker = arg;
+  now_locker = locker = arg;
+  return True;
+}
+
+
+/*ARGSUSED*/
+static Boolean  NowLockerAction (d, arg)
+Display*  d;    /* display pointer */
+String    arg;  /* argument value  */
+
+{
+  now_locker = arg;
   return True;
 }
 
@@ -924,7 +1014,6 @@ String    arg;  /* argument value  */
 }
 
 
-#if !defined(VMS) || (defined(VMS) && defined(VMS_HAS_SIGS))
 /*ARGSUSED*/
 static Boolean  SecureAction (d, arg)
 Display*  d;    /* display pointer */
@@ -942,8 +1031,8 @@ Display*  d;    /* display pointer */
 String    arg;  /* program name    */
 
 {
-  if (signal_to_send) return False;
-  signal_to_send = SIGDISABLE;
+  if (message_to_send) return False;
+  message_to_send = MES_DISABLE;
   return True;  
 }
 
@@ -954,8 +1043,8 @@ Display*  d;    /* display pointer */
 String    arg;  /* program name    */
 
 {
-  if (signal_to_send) return False;
-  signal_to_send = SIGENABLE;
+  if (message_to_send) return False;
+  message_to_send = MES_ENABLE;
   return True;  
 }
 
@@ -966,11 +1055,46 @@ Display*  d;    /* display pointer */
 String    arg;  /* program name    */
 
 {
-  if (signal_to_send) return False;
-  signal_to_send = SIGTOGGLE;
+  if (message_to_send) return False;
+  message_to_send = MES_TOGGLE;
   return True;  
 }
-#endif /* !VMS || (VMS && VMS_HAS_SIGS) */
+
+
+/*ARGSUSED*/
+static Boolean  ExitAction (d, arg)
+Display*  d;    /* display pointer */
+String    arg;  /* program name    */
+
+{
+  if (message_to_send) return False;
+  message_to_send = MES_EXIT;
+  return True;  
+}
+
+
+/*ARGSUSED*/
+static Boolean  LockNowAction (d, arg)
+Display*  d;    /* display pointer */
+String    arg;  /* program name    */
+
+{
+  if (message_to_send) return False;
+  message_to_send = MES_LOCKNOW;
+  return True;  
+}
+
+
+/*ARGSUSED*/
+static Boolean  UnlockNowAction (d, arg)
+Display*  d;    /* display pointer */
+String    arg;  /* program name    */
+
+{
+  if (message_to_send) return False;
+  message_to_send = MES_UNLOCKNOW;
+  return True;  
+}
 
 
 /*ARGSUSED*/
@@ -1097,6 +1221,33 @@ Display*  d;  /* display pointer */
 
 
 /*ARGSUSED*/
+static Void  NowLockerChecker (d)
+Display*  d;  /* display pointer */
+
+{
+#ifndef VMS
+  String  tmp;  /* as it says */
+
+ /*
+  *  Let's manipulate the now_locker command a bit
+  *  in order to reduce resource usage. 
+  */
+  (Void) sprintf (tmp = NewArray (Char, strlen (now_locker) + 6),
+		  "exec %s", now_locker);
+  now_locker = tmp;
+#else /* VMS */
+ /*
+  *  Translate things to something that VMS knows how to handle.
+  */
+  now_locker_d.dsc$w_length = (unsigned short) strlen (now_locker);
+  now_locker_d.dsc$b_class = DSC$K_CLASS_S;
+  now_locker_d.dsc$b_dtype = DSC$K_DTYPE_T;
+  now_locker_d.dsc$a_pointer = now_locker;
+#endif /* VMS */
+}
+
+
+/*ARGSUSED*/
 static Void  NotifierChecker (d)
 Display*  d;  /* display pointer */
 
@@ -1137,7 +1288,7 @@ Display*  d;  /* display pointer */
     String  tmp;  /* as it says */
 
    /*
-    *  Add an `&' to the notifier command, so that it always gets put 
+    *  Add an `&' to the notifier command, so that it always gets 
     *  run as a background process and things will work out properly 
     *  later. The rationale behind this hack is explained elsewhere.
     */
@@ -1160,7 +1311,7 @@ Display*  d;  /* display pointer */
 	  || corners[2] == FORCE_LOCK
 	  || corners[3] == FORCE_LOCK))
   {
-    int min_delay = Min (corner_delay, corner_redelay);
+    time_t min_delay = Min (corner_delay, corner_redelay);
 
     if (notify_margin > min_delay)
     {
@@ -1278,12 +1429,9 @@ Int  exit_code;  /* as it says */
   Error1 ("%s[-corners xxxx][-cornerdelay secs]\n", blanks);
   Error1 ("%s[-cornerredelay secs][-cornersize pixels]\n", blanks);
   Error1 ("%s[-nocloseout][-nocloseerr][-noclose]\n", blanks);
-#if !defined(VMS) || (defined(VMS) && defined(VMS_HAS_SIGS))
-  Error1 ("%s[-enable][-disable][-toggle][-secure]\n", blanks);
+  Error1 ("%s[-enable][-disable][-toggle][-exit][-secure]\n", blanks);
+  Error1 ("%s[-locknow][-unlocknow][-nowlocker locker]\n", blanks);
   Error1 ("%s[-resetsaver]\n", blanks);
-#else /* !VMS || (VMS && VMS_HAS_SIGS) */
-  Error1 ("%s[-secure][-resetsaver]\n", blanks);
-#endif /* !VMS || (VMS && VMS_HAS_SIGS) */
 
   Error0 ("\n");
   Error0 (" -help               : print this message and exit.\n");
@@ -1291,6 +1439,7 @@ Int  exit_code;  /* as it says */
   Error0 (" -time mins          : time before locking the screen");
   Error2 (" [%d <= mins <= %d].\n", MIN_LOCK_MINS, MAX_LOCK_MINS);
   Error0 (" -locker locker      : program used to lock.\n");
+  Error0 (" -nowlocker locker   : program used to lock immediately.\n");
   Error0 (" -killtime killmins  : time after locking at which to run\n");
   Error2 ("                       the killer [%d <= killmins <= %d].\n",
                                   MIN_KILL_MINS, MAX_KILL_MINS);
@@ -1306,12 +1455,14 @@ Int  exit_code;  /* as it says */
   Error0 (" -nocloseout         : do not close stdout.\n");
   Error0 (" -nocloseerr         : do not close stderr.\n");
   Error0 (" -noclose            : close neither stdout nor stderr.\n");
-#if !defined(VMS) || (defined(VMS) && defined(VMS_HAS_SIGS))
   Error0 (" -enable             : enable a running xautolock.\n");
   Error0 (" -disable            : disable a running xautolock.\n");
   Error0 (" -toggle             : toggle a running xautolock.\n");
-  Error0 (" -secure             : disallow enable/disable/toggle.\n");
-#endif /* !VMS || (VMS && VMS_HAS_SIGS) */
+  Error0 (" -locknow            : tell a running xautolock to lock.\n");
+  Error0 (" -unlocknow          : tell a running xautolock to unlock.\n");
+  Error0 (" -exit               : kill a running xautolock.\n");
+  Error0 (" -secure             : ignore enable, disable, toggle,\n");
+  Error0 ("                       locknow, and unlocknow messages.\n");
   Error0 (" -resetsaver         : reset the screensaver when starting "
                                   "the locker.\n");
 
@@ -1321,6 +1472,7 @@ Int  exit_code;  /* as it says */
   Error0 ("\n");
   Error1 ("  time          : %d minutes\n"  , LOCK_MINS   );
   Error1 ("  locker        : %s\n"          , LOCKER      );
+  Error1 ("  nowlocker     : %s\n"          , LOCKER      );
   Error1 ("  killtime      : %d minutes\n"  , KILL_MINS   );
   Error0 ("  killer        : none\n"                      );
   Error0 ("  notify        : don't notify\n"              );
@@ -1389,6 +1541,41 @@ String    argv[];  /* array of arguments  */
   {
     XrmMergeDatabases (XrmGetFileDatabase (str), &resc_db);
   }
+#ifndef VMS
+  else
+  {
+    struct passwd *passwd;
+    String home, path;
+    XrmDatabase Xdefaults;
+ 
+    passwd = getpwuid (getuid ());
+
+    if (passwd != NULL)
+    {
+      home = passwd->pw_dir;
+    }
+    else
+    {
+      home = getenv ("HOME");
+
+      if (home == NULL)
+      {
+        home = ".";
+      }
+    }
+
+    path = NewArray (Char, strlen (home) + strlen ("/.Xdefaults") + 1);
+    (Void) sprintf (path, "%s/.Xdefaults", home);
+    Xdefaults = XrmGetFileDatabase (path);
+
+    if (Xdefaults != NULL)
+    {
+      XrmMergeDatabases (Xdefaults, &resc_db);
+    }
+
+    free (path);
+  }
+#endif /* VMS */
 
   xoptions = NewArray (XrmOptionDescRec, nof_options);
 
@@ -1463,7 +1650,6 @@ String    argv[];  /* array of arguments  */
   }
 
 
-
  /*
   *  Call the consistency checkers.
   */
@@ -1475,7 +1661,7 @@ String    argv[];  /* array of arguments  */
     }
   }
 
- 
+
  /*
   *  General clean up.
   */
@@ -1819,7 +2005,7 @@ Display*  d;  /* display pointer */
   *
   *  The triggers are being moved all the time while in disabled
   *  mode in order to make absolutely sure we cannot run into
-  *  trouble by an enable signal coming in in an odd moment.
+  *  trouble by an enable message coming in in an odd moment.
   *  Otherwise we possibly might lock or kill too soon.
   */
   if (disabled)
@@ -1828,16 +2014,16 @@ Display*  d;  /* display pointer */
     if (kill_trigger) SetKillTrigger (kill_time);
   }
 
-
  /*
-  *  Next, wait for the previous locker (if any). Note that this
-  *  must also be done while in disabled mode. Not only to avoid
-  *  a potential zombie proces hanging around until we are 
-  *  re-enabled, but also to prevent us from incorrctely setting
-  *  a kill trigger at the moment when we are finally re-anabled.
+  *  Next, wait for (or kill, if we were so told) the previous 
+  *  locker (if any). Note that this must also be done while in
+  *  disabled mode. Not only to avoid a potential zombie proces
+  *  hanging around until we are re-enabled, but also to prevent
+  *  us from incorrectly setting a kill trigger at the moment 
+  *  when we are finally re-enabled.
   */
 #ifdef VMS
-  if (vms_status)  
+  if (vms_status != 1)  
   {
 #else /* VMS */
   if (locker_pid)
@@ -1848,6 +2034,10 @@ Display*  d;  /* display pointer */
     int         status = 0;  /* childs process status */
 #endif /* !UTEKV && !SYSV && !SVR4 */
 
+    if (unlock_now)
+    {
+      (Void) kill (locker_pid, SIGTERM);
+    }
 
 #if !defined (UTEKV) && !defined (SYSV) && !defined(SVR4) && !defined(__OpenBSD__)
     if (wait3 (&status, WNOHANG, (struct rusage*) NULL))
@@ -1885,6 +2075,7 @@ Display*  d;  /* display pointer */
     */
   }
 
+  unlock_now = False;
 
  /*
   *  Only now is it safe to return if we are in disabled mode.
@@ -1897,7 +2088,6 @@ Display*  d;  /* display pointer */
   */
   (Void) time (&now);
   
-
  /*
   *  Is it time to run the killer command?
   */
@@ -1938,18 +2128,18 @@ Display*  d;  /* display pointer */
       (Void) XBell (d, bell_percent);
       (Void) XSync (d, 0);
     }
-
     prev_notification = now;
   }
 
 
  /*
-  *  Finally fire up the locker if time has come. 
+  *  Finally fire up the locker if time has somehow come. 
   */
-  if (now >= lock_trigger)
+  if (   lock_now
+      || now >= lock_trigger)
   {
 #ifdef VMS
-    if (!completion_status)
+    if (vms_status == 1)
 #else /* VMS */
     if (!locker_pid)
 #endif /* VMS */
@@ -1964,14 +2154,32 @@ Display*  d;  /* display pointer */
           (Void) close (ConnectionNumber (d));
 #ifdef VMS
           vms_status = 0;
-	  locker_pid = lib$spawn (&locker_d, 0, 0, &1, 0, 0, &vms_status);
+
+	  if (lock_now)
+	  {
+	    locker_pid = lib$spawn (&now_locker_d, 0, 0, &1, 0, 0,
+				    &vms_status);
+	  }
+	  else
+	  {
+	    locker_pid = lib$spawn (&locker_d, 0, 0, &1, 0, 0, 
+				    &vms_status);
+	  }
 
 	  if (!(locker_pid & 1)) exit (locker_pid);
+
 #ifdef SLOW_VMS
           (Void) sleep (SLOW_VMS_DELAY); 
 #endif /* SLOW_VMS */
 #else /* VMS */
-          (Void) execl ("/bin/sh", "sh", "-c", locker, (String) NULL); 
+	  if (lock_now)
+	  {
+            (Void) execl ("/bin/sh", "sh", "-c", now_locker, (String) NULL);
+	  }
+	  else
+	  {
+            (Void) execl ("/bin/sh", "sh", "-c", locker, (String) NULL); 
+	  }
 #endif /* VMS */
           _exit (EXIT_FAILURE);
   
@@ -2000,17 +2208,16 @@ Display*  d;  /* display pointer */
 	  *      advent of DPMS monitors, it now can mess up the power
 	  *      saving setup. Hence we better make it optional. 
 	  *
-	  *      Also, newer xlock versions also unconditionally call
+	  *      Also, later xlock versions also unconditionally call
 	  *      XResetScreenSaver, yielding the same kind of problems
 	  *      with DPMS that xautolock did. The latest and greatest
-	  *      xlock also  has (or will have) a -resetsaver option.
+	  *      xlock also has (or will have) a -resetsaver option.
           */
 	  if (reset_saver) (Void) XResetScreenSaver(d);
   
           SetLockTrigger (lock_time);
           (Void) XSync (d,0);
       }
-
 
      /*
       *  Once the locker is running, all that needs to be done 
@@ -2020,6 +2227,8 @@ Display*  d;  /* display pointer */
 
       use_redelay = False;
     }
+
+    lock_now = False;
   }
 }
 
@@ -2044,12 +2253,11 @@ XErrorEvent  event;  /* error event     */
 
 
 
-#if !defined(VMS) || (defined(VMS) && defined(VMS_HAS_SIGS))
 /*
- *  SIGDISABLE signal handler
- *  -------------------------
+ *  MES_DISABLE message handler
+ *  ---------------------------
  */
-static SigRet  DisableBySignal ()
+static Void  DisableByMessage ()
 
 {
  /*
@@ -2061,52 +2269,34 @@ static SigRet  DisableBySignal ()
     DisableKillTrigger ();
     disabled = True;
   }
-
-  (Void) signal (SIGDISABLE, (SigHandler) DisableBySignal);
-
-#ifndef HasVoidSignalReturn 
-  return 0;
-#endif /* HasVoidSignalReturn */
 }
 
 
 
 /*
- *  SIGENABLE signal handler
- *  ------------------------
+ *  MES_ENABLE message handler
+ *  --------------------------
  */
-static SigRet  EnableBySignal ()
+static Void  EnableByMessage ()
 
 {
- /*
-  *  The order in which things are done is rather important here.
-  */
   if (!secure) 
   {
     SetLockTrigger (lock_time);
     if (killer_specified && locker_pid) SetKillTrigger (kill_time);
     disabled = False;
   }
-
-  (Void) signal (SIGENABLE, (SigHandler) EnableBySignal);
-
-#ifndef HasVoidSignalReturn 
-  return 0;
-#endif /* HasVoidSignalReturn */
 }
 
 
 
 /*
- *  SIGTOGGLE signal handler
- *  ------------------------
+ *  MES_TOGGLE message handler
+ *  --------------------------
  */
-static SigRet  ToggleBySignal ()
+static Void  ToggleByMessage ()
 
 {
- /*
-  *  The order in which things are done is rather important here.
-  */
   if (!secure)
   {
     SetLockTrigger (lock_time);
@@ -2120,14 +2310,155 @@ static SigRet  ToggleBySignal ()
       if (killer_specified && locker_pid) SetKillTrigger (kill_time);
     }
   }
-
-  (Void) signal (SIGTOGGLE, (SigHandler) ToggleBySignal);
-
-#ifndef HasVoidSignalReturn 
-  return 0;
-#endif /* HasVoidSignalReturn */
 }
-#endif /* !VMS || (VMS && VMS_HAS_SIGS) */
+
+
+
+/*
+ *  MES_EXIT message handler
+ *  ------------------------
+ */
+static Void  ExitByMessage ()
+
+{
+  if (!secure)
+  {
+    Error0 ("Exiting. Bye Bye...\n");
+    exit (0);
+  }
+}
+
+
+
+/*
+ *  MES_LOCKNOW message handler
+ *  ---------------------------
+ */
+static Void  LockNowByMessage ()
+
+{
+  if (!secure && !disabled) 
+  {
+    lock_now = True;
+  }
+}
+
+
+
+/*
+ *  MES_UNLOCKNOW message handler
+ *  -----------------------------
+ */
+static Void  UnlockNowByMessage ()
+
+{
+  if (!secure && !disabled) 
+  {
+    unlock_now = True;
+  }
+}
+
+
+
+/*
+ *  Function for creating the communication atoms
+ *  ---------------------------------------------
+ */
+static Void  GetAtoms (d)
+Display*  d;  /* display pointer */
+
+{
+  String  sem;  /* semaphore property name */
+  String  mes;  /* message property name   */
+  Char*   ptr;  /* iterator                */
+
+  sem = NewArray (Char, strlen (prog_name) + strlen (SEM_PID) + 1);
+  (Void) sprintf (sem, "%s%s", prog_name, SEM_PID);
+  for (ptr = sem; *ptr; ++ptr) *ptr = (Char) toupper (*ptr);
+  semaphore = XInternAtom (d, sem, False);
+  free (sem);
+
+  mes = NewArray (Char, strlen (prog_name) + strlen (MESSAGE) + 1);
+  (Void) sprintf (mes, "%s%s", prog_name, MESSAGE);
+  for (ptr = mes; *ptr; ++ptr) *ptr = (Char) toupper (*ptr);
+  message_atom = XInternAtom (d, mes, False);
+  free (mes);
+}
+
+
+
+/*
+ *  Function for looking for messages from another xautolock
+ *  --------------------------------------------------------
+ */
+static Void  LookForMessages (d)
+Display*  d;  /* display pointer */
+
+{
+  Window  r;          /* root window            */
+  Atom    type;       /* actual property type   */
+  Int     format;     /* dummy                  */
+  Huge    nof_items;  /* dummy                  */
+  Huge    after;      /* dummy                  */
+  Int*    contents;   /* message property value */
+
+
+ /*
+  *  It would be cleaner (more X-like, using less cpu time and
+  *  network bandwith, ...) to implement this functionality by
+  *  keeping an eye open for PropertyNotify events on the root
+  *  window. Maybe I'll rewrite it one day to do just that, but
+  *  the current approach works just fine too.
+  *
+  *  Note that we must clear the property before acting on it!
+  *  Otherwise funny things can happen on receipt of MES_EXIT.
+  */
+  r = RootWindowOfScreen (ScreenOfDisplay (d, 0));
+
+  (Void) XGetWindowProperty (d, r, message_atom, 0L, 2L,
+                             False, AnyPropertyType, &type,
+			     &format, &nof_items, &after,
+			     (unsigned char**) &contents);
+
+  XDeleteProperty (d, r, message_atom);
+  XFlush (d);
+
+  if (type == XA_INTEGER)
+  {
+    switch (*contents)
+    {
+      case MES_DISABLE:
+       DisableByMessage ();
+       break;
+
+      case MES_ENABLE:
+       EnableByMessage ();
+       break;
+
+      case MES_TOGGLE:
+       ToggleByMessage ();
+       break;
+
+      case MES_LOCKNOW:
+       LockNowByMessage ();
+       break;
+
+      case MES_UNLOCKNOW:
+       UnlockNowByMessage ();
+       break;
+
+      case MES_EXIT:
+       ExitByMessage (); 
+       break;
+
+      default:
+       /* unknown message, ignore silently */
+       break;
+    }
+  }
+
+  (Void) XFree ((Char*) contents);
+}
 
 
 
@@ -2135,34 +2466,23 @@ static SigRet  ToggleBySignal ()
  *  Function for finding out whether another xautolock is already running
  *  ---------------------------------------------------------------------
  */
-static Void  CheckConnectionAndSendSignal (d)
+static Void  CheckConnectionAndSendMessage (d)
 Display*  d;  /* display pointer */
 
 {
-  pid_t   pid;        /* as it says             */
-  Window  r;          /* root window            */
-  Atom    property;   /* property atom          */
-  Atom    type;       /* property type atom     */
-  Int     format;     /* property format        */
-  Huge    nof_items;  /* actual number of items */
-  Huge    after;      /* dummy                  */
-  String  sem;        /* property name          */
-  Char*   ptr;        /* iterator               */
-  pid_t*  contents;   /* actual property value  */
-
-#define SEM_PID "_SEMAPHORE_PID"  /* for backwards compatibility */
-  sem = NewArray (Char, strlen (prog_name) + strlen (SEM_PID) + 1);
-  (Void) sprintf (sem, "%s%s", prog_name, SEM_PID);
-  for (ptr = sem; *ptr; ++ptr) *ptr = (Char) toupper (*ptr);
-#undef SEM_PID
+  pid_t   pid;        /* as it says               */
+  Window  r;          /* root window              */
+  Atom    type;       /* actual property type     */
+  Int     format;     /* dummy                    */
+  Huge    nof_items;  /* dummy                    */
+  Huge    after;      /* dummy                    */
+  pid_t*  contents;   /* semaphore property value */
 
   r = RootWindowOfScreen (ScreenOfDisplay (d, 0));
-  property = XInternAtom (d, sem, False);
-  free (sem);
 
-  (Void) XGrabServer (d);
-  (Void) XGetWindowProperty (d, r, property, 0L, 2L, False, AnyPropertyType,
-                             &type, &format, &nof_items, &after,
+  (Void) XGetWindowProperty (d, r, semaphore, 0L, 2L, False,
+                             AnyPropertyType, &type, &format,
+			     &nof_items, &after,
                              (unsigned char**) &contents);
 
   if (type == XA_INTEGER)
@@ -2172,15 +2492,20 @@ Display*  d;  /* display pointer */
     */
     if (kill (*contents, 0))
     {
-      if (signal_to_send)
+      if (message_to_send)
       {
-        Error1 ("No process with PID %d.\n", *contents);
+        Error1 ("No process with PID %d, or the process "
+		"is owned bu another user.\n", *contents);
         exit (EXIT_FAILURE);
       }
     }
-    else if (signal_to_send)
+    else if (message_to_send)
     {
-      (Void) kill (*contents, signal_to_send);
+      (Void) XChangeProperty (d, r, message_atom, XA_INTEGER, 
+                              8, PropModeReplace, 
+			      (unsigned char*) &message_to_send, 
+			      (int) sizeof (message_to_send));
+      XFlush (d);
       exit (EXIT_SUCCESS);
     }
     else
@@ -2193,22 +2518,16 @@ Display*  d;  /* display pointer */
       exit (EXIT_FAILURE);
     }
   }
-  else if (signal_to_send)
+  else if (message_to_send)
   {
     Error1 ("Could not locate a running %s.\n", prog_name);
     exit (EXIT_FAILURE);
   }
 
-#if !defined(VMS) || (defined(VMS) && defined(VMS_HAS_SIGS))
-  (Void) signal (SIGTOGGLE , (SigHandler) ToggleBySignal);
-  (Void) signal (SIGENABLE , (SigHandler) EnableBySignal);
-  (Void) signal (SIGDISABLE, (SigHandler) DisableBySignal);
-#endif /* !VMS || (VMS && VMS_HAS_SIGS) */
-
   pid = getpid ();
-  (Void) XChangeProperty (d, r, property, XA_INTEGER, 8, PropModeReplace,
-			  (unsigned char*) &pid, sizeof (pid));
-  (Void) XUngrabServer (d);
+  (Void) XChangeProperty (d, r, semaphore, XA_INTEGER, 8, 
+                          PropModeReplace, (unsigned char*) &pid,
+			  (int) sizeof (pid));
 
   (Void) XFree ((Char*) contents);
 }
@@ -2439,7 +2758,9 @@ String  argv[];  /* array of arguments  */
   */
   ProcessOpts (d, argc, argv);
 
-  CheckConnectionAndSendSignal (d);
+  GetAtoms (d);
+
+  CheckConnectionAndSendMessage (d);
 
   if (close_out) (Void) fclose (stdout);
   if (close_err) (Void) fclose (stderr);
@@ -2482,6 +2803,8 @@ String  argv[];  /* array of arguments  */
   */
   forever
   {
+    LookForMessages (d);
+
     if (use_xidle || use_mit)
     {
       QueryIdleTime (d, use_xidle);
