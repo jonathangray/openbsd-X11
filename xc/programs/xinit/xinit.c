@@ -126,6 +126,9 @@ char *server_names[] = {
     "XF86_W32    Tseng ET4000/W32 color display on i386 PC",
     "XF86_I128   #9 I128 color display on i386 PC",
 #endif
+#if defined(__OpenBSD__) && defined(__m68k__)	/* XXX */
+    "Xamiga      Cybervision64/Cirrus 5426/RetinaZ3/ECS/AGA color display",
+#endif
     NULL};
 
 #ifndef XINITRC
