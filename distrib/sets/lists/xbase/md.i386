@@ -99,6 +99,7 @@
 ./usr/X11R6/lib/X11/doc
 ./usr/X11R6/lib/X11/doc/AccelCards
 ./usr/X11R6/lib/X11/doc/BUILD
+./usr/X11R6/lib/X11/doc/BetaReport
 ./usr/X11R6/lib/X11/doc/COPYRIGHT
 ./usr/X11R6/lib/X11/doc/Devices
 ./usr/X11R6/lib/X11/doc/DocIndex
@@ -133,6 +134,7 @@
 ./usr/X11R6/lib/X11/doc/README.clkprog
 ./usr/X11R6/lib/X11/doc/README.cyrix
 ./usr/X11R6/lib/X11/doc/README.epson
+./usr/X11R6/lib/X11/doc/README.i740
 ./usr/X11R6/lib/X11/doc/README.mouse
 ./usr/X11R6/lib/X11/doc/README.neo
 ./usr/X11R6/lib/X11/doc/README.rendition
@@ -178,7 +180,9 @@
 ./usr/X11R6/lib/modules
 ./usr/X11R6/lib/modules/pex5.so
 ./usr/X11R6/lib/modules/xf86AceCad.so
+./usr/X11R6/lib/modules/xf86Calcomp.so
 ./usr/X11R6/lib/modules/xf86Dial.so
+./usr/X11R6/lib/modules/xf86Dyna.so
 ./usr/X11R6/lib/modules/xf86Elo.so
 ./usr/X11R6/lib/modules/xf86Jstk.so
 ./usr/X11R6/lib/modules/xf86MuTouch.so

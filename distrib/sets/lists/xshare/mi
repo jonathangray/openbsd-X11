@@ -670,6 +670,7 @@
 ./usr/X11R6/lib/X11/xkb/geometry/fujitsu
 ./usr/X11R6/lib/X11/xkb/geometry/keytronic
 ./usr/X11R6/lib/X11/xkb/geometry/kinesis
+./usr/X11R6/lib/X11/xkb/geometry/macintosh
 ./usr/X11R6/lib/X11/xkb/geometry/microsoft
 ./usr/X11R6/lib/X11/xkb/geometry/nec
 ./usr/X11R6/lib/X11/xkb/geometry/northgate
@@ -691,6 +692,7 @@
 ./usr/X11R6/lib/X11/xkb/keycodes/fujitsu
 ./usr/X11R6/lib/X11/xkb/keycodes/hp
 ./usr/X11R6/lib/X11/xkb/keycodes/ibm
+./usr/X11R6/lib/X11/xkb/keycodes/macintosh
 ./usr/X11R6/lib/X11/xkb/keycodes/sgi
 ./usr/X11R6/lib/X11/xkb/keycodes/sgi/indigo
 ./usr/X11R6/lib/X11/xkb/keycodes/sgi/indy
@@ -705,6 +707,7 @@
 ./usr/X11R6/lib/X11/xkb/keymap/ataritt
 ./usr/X11R6/lib/X11/xkb/keymap/digital
 ./usr/X11R6/lib/X11/xkb/keymap/digital/us
+./usr/X11R6/lib/X11/xkb/keymap/macintosh
 ./usr/X11R6/lib/X11/xkb/keymap/sgi
 ./usr/X11R6/lib/X11/xkb/keymap/sgi/be
 ./usr/X11R6/lib/X11/xkb/keymap/sgi/bg
@@ -754,6 +757,7 @@
 ./usr/X11R6/lib/X11/xkb/symbols/ataritt
 ./usr/X11R6/lib/X11/xkb/symbols/be
 ./usr/X11R6/lib/X11/xkb/symbols/bg
+./usr/X11R6/lib/X11/xkb/symbols/br
 ./usr/X11R6/lib/X11/xkb/symbols/ca
 ./usr/X11R6/lib/X11/xkb/symbols/ca_enhanced
 ./usr/X11R6/lib/X11/xkb/symbols/cs
@@ -783,6 +787,8 @@
 ./usr/X11R6/lib/X11/xkb/symbols/jp
 ./usr/X11R6/lib/X11/xkb/symbols/keypad
 ./usr/X11R6/lib/X11/xkb/symbols/lock
+./usr/X11R6/lib/X11/xkb/symbols/macintosh
+./usr/X11R6/lib/X11/xkb/symbols/macintosh/us
 ./usr/X11R6/lib/X11/xkb/symbols/nec
 ./usr/X11R6/lib/X11/xkb/symbols/nec/jp
 ./usr/X11R6/lib/X11/xkb/symbols/no
@@ -801,6 +807,7 @@
 ./usr/X11R6/lib/X11/xkb/symbols/sun/us
 ./usr/X11R6/lib/X11/xkb/symbols/th
 ./usr/X11R6/lib/X11/xkb/symbols/us
+./usr/X11R6/lib/X11/xkb/symbols/us_intl
 ./usr/X11R6/lib/X11/xkb/types
 ./usr/X11R6/lib/X11/xkb/types.dir
 ./usr/X11R6/lib/X11/xkb/types/basic
