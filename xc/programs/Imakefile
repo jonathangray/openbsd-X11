@@ -39,6 +39,7 @@ SCREENSAVESRCDIR = beforelight
     RSTARTSRCDIR = rstart
    SMPROXYSRCDIR = smproxy
         WMSRCDIR = twm fvwm
+ XAUTOLOCKSRCDIR = xautolock
   XCONSOLESRCDIR = xconsole
        XDMSRCDIR = xdm
 XFINDPROXYSRCDIR = xfindproxy
@@ -60,6 +61,7 @@ SUBDIRS = \
 	fslsfonts fstobdf \
 	iceauth  $(KXSRCDIR) mkfontdir oclock $(PROXYMGRSRCDIR) \
 	$(RGBSRCDIR) $(RSTARTSRCDIR) $(SMPROXYSRCDIR) $(WMSRCDIR) x11perf \
+	$(XAUTOLOCKSRCDIR) \
 	xauth xclipboard xclock xcmsdb $(XCONSOLESRCDIR) $(XDMSRCDIR) \
 	$(XF86DGASRCDIR) xfd $(XFSSRCDIR) $(XFINDPROXYSRCDIR) \
 	$(XFWPSRCDIR) $(XLOCKMORESRCDIR) \
