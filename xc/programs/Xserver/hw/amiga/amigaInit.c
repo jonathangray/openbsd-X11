@@ -172,11 +172,13 @@ amigaFbDataRec amigaFbData[] = {
   { amigaCInit, "/dev/grf0" },
 #endif
 #ifdef GFX_CARD_SUPPORT
+#if 0 /* XXX RetinaZ2 is entirely broken at this point */
 #ifdef RETINAZ2_SUPPORT
   { amigaRZ2Init,  "/dev/grf1" },
 #else /* RETINAZ2_SUPPORT */
   { amigaGRFInit,  "/dev/grf1" },
 #endif /* RETINA2_SUPPORT */
+#endif /* 0 */
 #ifdef RETINAZ3_SUPPORT
   { amigaRZ3Init,  "/dev/grf2" },
 #else /* RETINAZ3_SUPPORT */
@@ -219,7 +221,9 @@ static char *fallbackList[] = {
     "/dev/grf4",
     "/dev/grf3",
     "/dev/grf2",
+#if 0 /* XXX no Retina Z2 support yet */
     "/dev/grf1",
+#endif
     "/dev/grf0",
 };
 #endif /* } */
@@ -559,7 +563,7 @@ void InitInput(argc, argv)
     char    	  **argv;
 {
     int		i;
-    DevicePtr	p, k;
+    DeviceIntPtr	p, k;
     extern Bool mieqInit();
 
 
