@@ -6,6 +6,8 @@ XCOMM $XFree86: xc/programs/Imakefile,v 3.15.2.2 1998/02/15 16:08:40 hohndel Exp
 #if BuildServer
        RGBSRCDIR = rgb
         XSSRCDIR = Xserver
+#elif defined(Hp300Archiecture) && defined(OpenBSDArchitecture)
+       RGBSRCDIR = rgb
 #endif
 #ifndef Win32Architecture
 #if HasXServer
