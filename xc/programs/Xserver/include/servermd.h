@@ -239,7 +239,7 @@ SOFTWARE.
 
 #endif /* tektronix */
 
-#ifdef macII
+#if defined(macII) || ((defined(__NetBSD__) || defined(__OpenBSD__)) && defined(__m68k__))
 
 #define IMAGE_BYTE_ORDER      	MSBFirst        /* Values for the MacII only */
 #define BITMAP_BIT_ORDER      	MSBFirst
@@ -248,6 +248,8 @@ SOFTWARE.
 
 /* might want FAST_UNALIGNED_READS for frame buffers with < 1us latency */
 
+#else
+#error ARgj!
 #endif /* macII */
 
 #if (defined(mips) || defined(__mips)) && !defined(sgi)
