@@ -1,20 +1,18 @@
-$OpenBSD: README,v 1.2 2001/02/20 21:48:10 marc Exp $
+$OpenBSD: README,v 1.3 2001/02/20 22:00:56 marc Exp $
 
-This version of the s3 savage driver differs slightly from that
-released by XFree86 in fix-08-s3savage_ix+mx.   The source came
-from http://www.probo.com/timr/savagemx.html on Oct 8, 2000 and
-includes some fixes not present in fix-08-s3savage_ix+mx.   Other
-parts of fix-08-s3savage_ix+mx (e.g. SuperProbe changes) have been
-incorporated into the OpenBSD source tree.
+This version of the s3 savage driver differs from that released by XFree86
+in fix-08-s3savage_ix+mx.   The current source came from
+
+    http://www.probo.com/timr/savagemx.html
+
+as it existed on Feb 19, 2001.   It includes fixes not present in
+fix-08-s3savage_ix+mx.   Other parts of fix-08-s3savage_ix+mx
+(e.g. SuperProbe changes) have been incorporated into the OpenBSD
+source tree.
 
 Some notes from http://www.probo.com/timr/savagemx.html by timr@probo.com 
 
     Known Issues
-
-    Text Scrolling: Some users have reported a bus lock, requiring a power
-    cycle to recover, during rapid text scrolling. This has been reported
-    both in xterm and in the "Matrix" screen saver (xlock -mode matrix).
-    (see below).
 
     VT-Switching: There is a known issue when bringing down the server on
     non-Linux and non-x86 systems. I have some kind of a register timing or
@@ -31,8 +29,10 @@ Some notes from http://www.probo.com/timr/savagemx.html by timr@probo.com
     snow is not intolerable, but it is annoying. I am working on this
     issue.
 
-If you have experienced the "Text Scrolling" problem noted above, export
-the environment variable SAV_SHADOW_STATUS, e.g.
+Note: this version of the driver has a work around for the "text scrolling"
+problem found by some users of earlier versions.  If you've experienced a
+bus lock, requiring a power cycle to recover, during rapid text scrolling
+then export the environment variable SAV_SHADOW_STATUS, e.g.
 
   sh/bash/ksh:	export SAV_SHADOW_STATUS=1
   csh/tcsh:	setenv SAV_SHADOW_STATUS=1
