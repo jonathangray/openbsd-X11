@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.14 1999/12/01 12:49:09 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.54 2000/09/18 22:07:55 matthieu Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.55 2000/10/09 20:46:50 matthieu Exp $
 XCOMM
 
 #ifdef Ports
@@ -275,6 +275,15 @@ install:: fonts.alias							@@\
 	$(RM) _fonts.alias
 #endif /* InstallFontAliasesNoComment */
 
+/*
+ * OpenBSD specific Imake Config files
+ */
+#ifndef LocalConfigFiles
+#define LocalConfigFiles \
+	ports.cf 	 \
+	OpenBSDLib.rules
+#endif
+			
 /* We now only use the XFree86 tree - thus we can define this
  * independent of the architecture
  */
@@ -618,6 +627,9 @@ install:: fonts.alias							@@\
 # define XkbServerDefines	-DXKB_ALWAYS_USES_SOFT_REPEAT
 # define BuildXIE		NO
 # define BuildPexExt		NO
+# define BuildScreenSaverExt	YES
+# define BuildXKB		NO
+# define BuildXKBlib		YES
 #endif
 
 /*
@@ -702,5 +714,9 @@ install:: fonts.alias							@@\
 #endif
 
 /* This must come last */
-#include <bsdLib.rules>
+#if OSMajorVersion == 2 && OSMinorVersion >= 8 || OSMajorVersion > 2
+# include <OpenBSDLib.rules>
+#else
+# include <bsdLib.rules>
+#endif
 
