@@ -178,7 +178,7 @@ char *protocol;
      * a case insensitive match.
      */
 
-    strncpy (protobuf, protocol, PROTOBUFSIZE);
+    strncpy (protobuf, protocol, PROTOBUFSIZE - 1);
 
     for (i = 0; i < PROTOBUFSIZE && protobuf[i] != '\0'; i++)
 	if (isupper (protobuf[i]))
