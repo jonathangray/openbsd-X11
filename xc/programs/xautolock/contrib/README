@@ -2,8 +2,8 @@
 Xautolock contrib directory
 ---------------------------
 
-The contrib  directory contains  a copy of the xidle distribution and
-a set of patches to  xautolock  that have been contributed over time.
+The contrib directory contains various patches that other people have
+contributed to xautolock.
 
 If a patch is in there, I have for some reason or another decided not
 to include it in xautolock proper, but consider it to be sufficiently
@@ -16,7 +16,7 @@ Also note that I do *not* actively support the content of the contrib
 directory  (in contrast to  what is the case  for  xautolock  itself). 
 Use at your own risk.
 
-October 25, 1997
+August 9, 1998
 
      MCE
 

@@ -23,8 +23,8 @@
 
 
 /*
- *  This solves the wait() problems under DEC OSF/1, but there has 
- *  to be a more general fix. DEC OSF/1 also has problems with getenv.
+ *  This solves the wait() problems on DEC OSF/1, but there has to 
+ *  be a more general fix. DEC OSF/1 also has problems with getenv.
  */
 #ifdef OSF
   EXTRA_DEFINES = -DSYSV
@@ -35,7 +35,7 @@
  *  If DEC needs a special option, for sure HP cannot lag behind... :-)
  */
 #ifdef HPArchitecture
-      CCOPTIONS = -Ae 
+      CCOPTIONS = -Ae
 #endif
 
            SRCS = xautolock.c 
@@ -43,6 +43,11 @@
 
 #if HasXidle
        HASXIDLE = -DHasXidle
+/*
+ *  Since Xidle is rather rare, I don't know of a generic way to
+ *  refer to the required libraries and include files. Users of
+ *  xidle will thus have to tweak things by hand here.
+ */
 #endif
 
 #if HasScreenSaver

@@ -1,17 +1,17 @@
-.TH xautolock l "Oct 28, 1997"
+.TH xautolock l "March 13, 1999"
 
 .SH NAME
 xautolock \- fire up programs in case of user inactivity under X
 
 .SH VERSION
-This man page applies to xautolock patchlevel 11.
+This man page applies to xautolock patchlevel 15.
 
 .SH SYNOPSIS 
 .TP 10
 .B \fBxautolock\fR
 [\fB\-help\fR] [\fB\-version\fR] 
 [\fB\-time\fR \fImins\fR] [\fB\-locker\fR \fIlocker\fR]
-[\fB\-killtime \fIkillmins\fR\fR][\fB\-killer\fR \fIkiller\fR]
+[\fB\-killtime \fIkillmins\fR\fR] [\fB\-killer\fR \fIkiller\fR]
 [\fB\-notify \fImargin\fR] [\fB\-notifier \fInotifier\fR]
 [\fB\-bell \fIpercent\fR]
 [\fB\-corners\fR \fIxxxx\fR]
@@ -21,7 +21,8 @@ This man page applies to xautolock patchlevel 11.
 [\fB\-secure\fR]
 [\fB\-resetsaver\fR]
 [\fB\-nocloseout\fR] [\fB\-nocloseerr\fR] [\fB\-noclose\fR]
-[\fB\-disable\fR] [\fB\-enable\fR] [\fB\-toggle\fR]
+[\fB\-disable\fR] [\fB\-enable\fR] [\fB\-toggle\fR] [\fB\-exit\fR]
+[\fB\-locknow\fR] [\fB\-unlocknow\fR] [\fB\-nowlocker\fR \fIlocker\fR]
 
 .SH DESCRIPTION 
 Xautolock monitors the user activity on an X Window display. If none is
@@ -76,13 +77,17 @@ option can be used to specify the time-out interval to be used if and only
 if the mouse is sitting in a `+' corner and has not been moved since the 
 previous \fIlocker\fR exited.
 
-A running xautolock process can also be disabled (unless the \fB\-secure\fR
+A running xautolock process can be disabled (unless the \fB\-secure\fR
 option has been specified), in which case it will not attempt to start the
 \fIlocker\fR. To disable an already running xautolock process, use the
 \fB\-disable\fR option. To re-enable it, use \fB\-enable\fR. To toggle it
 between both states, use \fB\-toggle\fR. Using this method is preferable 
 to using sending it SIGSTOP and SIGCONT signals, because while disabled 
 xautolock will still be emptying its event queue. 
+
+A running xautolock process can also be told to exit (unless the 
+\fB\-secure\fR option has been specified). To do this, use the
+\fB\-exit\fR option.
 
 The \fB\-killtime\fR and \fB\-killer\fR options allow, amongst other
 things, to implement an additional automatic logout, on top of the
@@ -144,9 +149,9 @@ This option is only useful in conjunction with \fB\-killer\fR.
 .TP 
 \fB\-killer\fR
 Specifies the \fIkiller\fR to be used. The default is none. Notice that 
-if \fInotifier\fR contains multiple words, it must be specified between
+if \fIkiller\fR contains multiple words, it must be specified between
 quotes.  In order to use your PATH to locate the program, xautolock feeds 
-the \fInotifier\fR command to /bin/sh, so it should be understandable 
+the \fIkillr\fR command to /bin/sh, so it should be understandable 
 for whatever shell your /bin/sh is. Because this typically is a Bourne 
 shell, ~ expansion most likely will not work.
 .TP 
@@ -194,7 +199,7 @@ the \fIlocker\fR. This is typically used in case the locker is not
 really intended to lock the screen, but to replace the default X screen
 saver. Note that the default screen saver is not disabled, only reset.
 Also note that using \fB\-resetsaver\fR will inferfere with the DPMS
-monitors, as the power down timouts will also be also reset. The
+monitors, as the power down time out will also be also reset. The
 default is not to reset the screen saver.
 
 See the \fIxset\fR man page for more information about managing the 
@@ -202,8 +207,8 @@ X screen saver.
 .TP 
 \fB\-secure\fR
 Instructs xautolock to run in secure mode. In this mode, xautolock
-becomes immune to the effects of \fB\-enable\fR, \fB\-disable\fR, and
-\fB\-toggle\fR. The default is `false'.
+becomes immune to the effects of \fB\-enable\fR, \fB\-disable\fR, 
+\fB\-toggle\fR, and \fB\-exit\fR. The default is `false'.
 .TP 
 \fB\-nocloseout\fR
 Don't close stdout.
@@ -215,17 +220,42 @@ Don't close stderr.
 Close neither stdout nor stderr.
 .TP 
 \fB\-disable\fR
-Disables an already running xautolock process (if there is one). In any
-case, the current invocation of xautolock exits.
+Disables an already running xautolock process (if there is one, and
+it does not have \fB\-secure\fR switched on). In any case, the current
+invocation of xautolock exits.
 .TP 
 \fB\-enable\fR
-Enables an already running xautolock process (if there is one). In any
-case, the current invocation of xautolock exits.
+Enables an already running xautolock process (if there is one, and
+it does not have \fB\-secure\fR switched on). In any case, the current
+invocation of xautolock exits.
 .TP 
 \fB\-toggle\fR
-Toggles an already running xautolock process (if there is one) between
-its disabled and enabled modes of operation. In any case, the current
+Toggles an already running xautolock process (if there is one, and
+it does not have \fB\-secure\fR switched on) between its disabled and
+enabled modes of operation. In any case, the current invocation of
+xautolock exits.
+.TP 
+\fB\-exit\fR
+Causes an already running xautolock process (if there is one, and
+it does not have \fB\-secure\fR switched on) to exit. In any case,
+the current invocation of xautolock also exits.
+.TP 
+\fB\-locknow\fR
+Causes an already running xautolock process (if there is one, if
+it does not have \fB\-secure\fR switched on, and is not currently
+disabled) to lock the display immediately. In any case, the current
 invocation of xautolock exits.
+.TP 
+\fB\-unlocknow\fR
+Causes an already running xautolock process (if there is one, if
+it does not have \fB\-secure\fR switched on, and is not currently
+disabled) to unlock the display immediately (if it's locked). 
+In any case, the current invocation of xautolock exits.
+.TP
+\fB\-nowlocker\fR
+Specifies the \fIlocker\fR to be used if lock is initiated with 
+\fB\-unlocknow\fR option. The default is to use the \fIlocker\fR
+program given with \fB\-locker\fR option, which defaults to xlock. 
 
 .SH RESOURCES
 .TP 16
@@ -327,7 +357,7 @@ xnlock(1),
 xscreensaver(1).
 
 .SH COPYRIGHT
-Copyright 1990, 1992-1997 by S. De Troch and M. Eyckmans (MCE).
+Copyright 1990, 1992-1999 by S. De Troch and M. Eyckmans (MCE).
 
 Permission to use, copy, modify and distribute this software and the
 supporting documentation without fee is hereby granted, provided that
