@@ -1,38 +1,40 @@
 Post-installation instructions for XFree86[tm] on OpenBSD/i386
 --------------------------------------------------------------
 
-1. Find out about your hardware:
+1. Make sure your system has support for X enabled:
 
-Run SuperProbe to find out what chipset is used by your video board.
-Write this information down.
+You must have 'option APERTURE' in your kernel configuration and
+uncomment the line that says:  
 
-Do you need linear video memory access?  Linear video memory access is
-required for the AGX, Mach64, P9000 or Matrox boards.  Many other
-accelerated boards can make use of it if available.  If you want linear
-video memory access, uncomment the line that says
 	machdep.allowaperture=1
 
-in /etc/sysctl.conf.  See xf86(4) for more details about security issues
-related to this.  After changing this variable in rc.conf, you will need
-to reboot for the change to take effect.
+in /etc/sysctl.conf.  See xf86(4) for more details about security
+issues related to this.  After changing this variable in rc.conf, you
+will need to reboot for the change to take effect.
+
+2. Find out about your hardware:
+
+Run SuperProbe to find out what chipset is used by your video board.
+Write this information down. The `dmesg' command output is useful too.
 
 What kind of mouse do you have, which port is it connected to?  You
 may want to read /usr/X11R6/lib/X11/doc/README.mouse before going further.
 
-2. Run XF86Setup
+3. Run XF86Setup
 
 This will make the /etc/XF86Config file.  If for some reason XF86Setup
 don't work on your hardware, try the alternate program xf86config.
-See the XF86Config user's guide in /usr/X11R6/lib/X11/doc/QuickStart.
+See the XF86Config user's guide in /usr/X11R6/lib/X11/doc/QuickStart.doc
 
-For manual configuration information, see /usr/X11R6/lib/X11/doc/Config.
+For manual configuration information, see XF86Config(4).
 
-3. Start xdm, the X display manager by activating the xdm_flags option
+4. Start xdm, the X display manager by activating the xdm_flags option
    in /etc/rc.conf.  You do not need to disable the console getty.
 
-4. Optionally, if you want to be able to rebuild your server from the
-   XFree86 link kit, install the xlink23.tar.gz from the CD and follow
+5. Optionally, if you want to be able to rebuild your server from the
+   XFree86 link kit, install the xlink24.tar.gz from the CD and follow
    the instructions in /usr/X11R6/lib/Server/README.
 
-If you encounter a problem, you can browse the entire documentation at
-http://www.xfree86.org/XFree86/3.3.2/DocIndex
+If you encounter a problem, you can browse the entire documentation 
+in /usr/X11R6/lib/X11/doc or at 
+<http://www.xfree86.org/XFree86/3.3.2/DocIndex.html>
