@@ -1,7 +1,9 @@
-./usr/X11R6/bin/Xnest
-./usr/X11R6/bin/Xvfb
+./usr/X11R6/bin/showrgb
 ./usr/X11R6/bin/xsetmode
 ./usr/X11R6/bin/xsetpointer
+./usr/X11R6/lib/X11/rgb.txt
+./usr/X11R6/lib/X11/xserver
+./usr/X11R6/lib/X11/xserver/SecurityPolicy
 ./usr/X11R6/lib/libICE.so.6.3
 ./usr/X11R6/lib/libPEX5.so.6.0
 ./usr/X11R6/lib/libSM.so.6.0
@@ -16,7 +18,6 @@
 ./usr/X11R6/lib/libXt.so.6.0
 ./usr/X11R6/lib/libXtst.so.6.1
 ./usr/X11R6/lib/liboldX.so.6.0
-./usr/X11R6/man/cat1/Xnest.0
-./usr/X11R6/man/cat1/Xvfb.0
+./usr/X11R6/man/cat1/showrgb.0
 ./usr/X11R6/man/cat1/xsetmode.0
 ./usr/X11R6/man/cat1/xsetpointer.0
