@@ -266,6 +266,13 @@ static char *strindex PROTO((char *s1, char *s2));
 #endif /* HAVE_TERMCAP_H  */
 #endif
 
+#if defined(__OpenBSD__)
+#ifndef USE_TERMINFO
+#define USE_TERMINFO
+#endif
+#include <curses.h>
+#endif
+
 /*
    resets termcap string to reflect current screen size
  */

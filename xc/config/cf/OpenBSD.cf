@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.35 1998/10/15 22:10:47 ryker Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.36 1998/11/16 07:31:10 todd Exp $
 XCOMM
 
 #ifndef OSName
@@ -76,6 +76,11 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 #else
 #define DefaultCCOptions 	-ansi -Dasm=__asm
 #endif
+#if defined(TermcapLibrary)
+#undef TermcapLibrary
+#endif
+#define TermcapLibrary		-lcurses
+
 
 #define GccGasOption 		-DGCCUSESGAS
 #define AsmDefines 		-DUSE_GAS

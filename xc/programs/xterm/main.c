@@ -2176,10 +2176,8 @@ spawn ()
 	screen->uid = getuid();
 	screen->gid = getgid();
 
-#ifdef linux
-	bzero(termcap, sizeof termcap);
-	bzero(newtc, sizeof newtc);
-#endif
+	termcap[0] = '\0';
+	newtc[0] = '\0';
 
 #ifdef SIGTTOU
 	/* so that TIOCSWINSZ || TIOCSIZE doesn't block */
