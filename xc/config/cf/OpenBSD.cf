@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.13 1998/12/22 11:23:02 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.41 1999/04/01 14:04:45 todd Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.42 1999/09/14 06:02:07 matthieu Exp $
 XCOMM
 
 #ifndef OSName
@@ -281,6 +281,10 @@ install:: fonts.alias							@@\
 #ifdef AlphaArchitecture
 
 # define XalphaTGAServer	YES
+/*
+ * XKB is reported not to work with Xtga
+ */
+#define DfltDisableXKB		YES
 
  /*
   * The code for an Alpha XF86_TGA server compiles, but it DOES NOT work
