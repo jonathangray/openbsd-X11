@@ -776,6 +776,7 @@
 ./usr/X11R6/lib/X11/xdm/chooser
 ./usr/X11R6/lib/X11/xdm/pixmaps
 ./usr/X11R6/lib/X11/xdm/pixmaps/OpenBSD.xpm
+./usr/X11R6/lib/X11/xdm/pixmaps/OpenBSDbw.xpm
 ./usr/X11R6/lib/X11/xdm/xdm-config
 ./usr/X11R6/lib/X11/xinit
 ./usr/X11R6/lib/X11/xinit/xinitrc
