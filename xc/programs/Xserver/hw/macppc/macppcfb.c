@@ -1,7 +1,7 @@
 
 /* $XConsortium: sunCfb.c,v 1.15.1.2 95/01/12 18:54:42 kaleb Exp $ */
 /* $XFree86: xc/programs/Xserver/hw/sun/sunCfb.c,v 3.2 1995/02/12 02:36:22 dawes Exp $ */
-/* $OpenBSD: macppcfb.c,v 1.2 2000/09/18 22:09:29 matthieu Exp $ */
+/* $OpenBSD: macppcfb.c,v 1.3 2000/10/01 16:51:59 matthieu Exp $ */
 
 /*
 Copyright (c) 1990  X Consortium
@@ -88,7 +88,6 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "macppc.h"
 #include "cfb.h"
-#include <dev/pci/tgareg.h>
 
 /* XXX */
 #include <stdio.h>
@@ -230,7 +229,7 @@ static void CGScreenInit (pScreen)
     pScreen->ListInstalledColormaps = macppcListInstalledColormaps;
     pScreen->StoreColors = CGStoreColors;
     pPrivate->UpdateColormap = CGUpdateColormap;
-    if (/*macppcFlipPixels ||*/ 0) {			/* XXX */
+    if (/*macppcFlipPixels ||*/ 1) {			/* XXX */
 	Pixel pixel = pScreen->whitePixel;
 	pScreen->whitePixel = pScreen->blackPixel;
 	pScreen->blackPixel = pixel;
