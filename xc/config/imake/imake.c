@@ -394,11 +394,20 @@ main(argc, argv)
 
 	Imakefile = FindImakefile(Imakefile);
 	CheckImakefileC(ImakefileC);
-	if (Makefile)
-		tmpMakefile = Makefile;
-	else {
+	if (Makefile) {
+                tmpMakefile = Makefile;
+                if ((tmpfd = fopen(tmpMakefile, "w+")) == NULL)
+                   LogFatal("Cannot create temporary file %s.", tmpMakefile);
+	} else {
+	        int fd;
 		tmpMakefile = Strdup(tmpMakefile);
-		(void) mktemp(tmpMakefile);
+	        fd = mkstemp(tmpMakefile);
+	        if (fd == -1 || (tmpfd = fdopen(fd, "w+")) == NULL) {
+		   if (fd != -1) {
+		      unlink(tmpMakefile); close(fd);
+		   }
+		   LogFatal("Cannot create temporary file %s.", tmpMakefile);
+		}
 	}
 	AddMakeArg("-f");
 	AddMakeArg( tmpMakefile );
@@ -406,9 +415,6 @@ main(argc, argv)
 	AddMakeArg( makeMacro );
 	sprintf(makefileMacro, "MAKEFILE=%s", Imakefile);
 	AddMakeArg( makefileMacro );
-
-	if ((tmpfd = fopen(tmpMakefile, "w+")) == NULL)
-		LogFatal("Cannot create temporary file %s.", tmpMakefile);
 
 	cleanedImakefile = CleanCppInput(Imakefile);
 	cppit(cleanedImakefile, Template, ImakefileC, tmpfd, tmpMakefile);
@@ -1234,12 +1240,18 @@ CleanCppInput(imakefile)
 		    strcmp(ptoken, "pragma") &&
 		    strcmp(ptoken, "undef")) {
 		    if (outFile == NULL) {
+		        int fd;
 			tmpImakefile = Strdup(tmpImakefile);
-			(void) mktemp(tmpImakefile);
-			outFile = fopen(tmpImakefile, "w");
-			if (outFile == NULL)
+			fd=mkstemp(tmpImakefile);
+			if (fd != -1)
+			    outFile = fdopen(fd, "w");
+			if (outFile == NULL) {
+			    if (fd != -1) {
+			       unlink(tmpImakefile); close(fd);
+			    }
 			    LogFatal("Cannot open %s for write.",
 				tmpImakefile);
+			}
 		    }
 		    writetmpfile(outFile, punwritten, pbuf-punwritten,
 				 tmpImakefile);
