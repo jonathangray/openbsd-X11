@@ -4,6 +4,11 @@
 # redirect errors to a file in user's home directory if we can
 for errfile in "$HOME/.xsession-errors" "${TMPDIR-/tmp}/xses-$USER" "/tmp/xses-$USER"
 do
+	case "$errfile" in
+	/tmp/* | /var/tmp/*)
+		errfile=`mktemp ${errfile}.XXXXXX` || break;
+		;;
+	esac
 	if ( cp /dev/null "$errfile" 2> /dev/null )
 	then
 		chmod 600 "$errfile"
