@@ -1,7 +1,9 @@
 Post-installation instructions for XFree86 on OpenBSD/powerpc
 -------------------------------------------------------------
 
-The person who was responsible for putting instructions here
-but failed to do so in time for the release is rahnds@openbsd.org.
+Currently no hardware is supported for X servers on powerpc.
 
-Give them hell.
+Only Xvfb, Xnest are built.
+
+This is supplied to be used in a server environment or provide
+an environment to finish X support for this platform.
