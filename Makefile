@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.9 1998/07/05 09:04:20 todd Exp $
+#	$OpenBSD: Makefile,v 1.10 1998/09/19 01:02:48 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -17,8 +17,11 @@ CP?= /bin/cp
 MKDIR?= /bin/mkdir -p
 LN?= /bin/ln
 CHOWN?=/usr/sbin/chown
+RM?= /bin/rm
 
 all:
+	${RM} ${CONFHOSTDEF}
+	${CP} ${HOSTDEF} ${CONFHOSTDEF}
 	cd xc ; ${MAKE} World
 	${MAKE} all-contrib
 
@@ -42,12 +45,11 @@ release:
 	fi
 .endif
 .endif
-	rm -rf ${DESTDIR}/usr/X11R6/*
+	${RM} -rf ${DESTDIR}/usr/X11R6/*
 	@if [ "`cd ${DESTDIR}/usr/X11R6;ls`" ]; then \
 		echo "Files found in ${DESTDIR}. Cleanup before proceeding."; \
 		exit 255; \
 	fi
-	${CP} ${HOSTDEF} ${CONFHOSTDEF}
 	@${MKDIR} -p ${DESTDIR}/usr/X11R6
 	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/usr/X11R6
 	@make build
@@ -57,13 +59,16 @@ release:
 	@${LN} -s Xhp ${DESTDIR}/usr/X11R6/bin/X
 	@${ECHO} /dev/grf0 > ${DESTDIR}/usr/X11R6/lib/X11/X0screens
 .endif
-	@cd distrib/sets && ./maketars && ./checkflist
+	@cd distrib/sets && ./maketars ${OSrev} && ./checkflist
 .else
 	@${RELERROR}
 .endif
 .else
 	@${RELERROR}
 .endif
+
+dist:
+	cd distrib/sets && ./maketars && ./checkflist
 
 install: install-xc install-contrib install-linkkit install-distrib
 
