@@ -19,7 +19,7 @@ is" without express or implied warranty.
 #define UNDEFINED -1
 
 #define MAXDEPTH 32
-#define MAXVISUALSPERDEPTH 6
+#define MAXVISUALSPERDEPTH 32
 
 extern Display *xnestDisplay;
 extern XVisualInfo *xnestVisuals;       

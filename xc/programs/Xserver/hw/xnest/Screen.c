@@ -161,6 +161,9 @@ Bool xnestOpenScreen(index, pScreen, argc, argv)
 	(VisualID *)xalloc(MAXVISUALSPERDEPTH * sizeof(VisualID));
       numDepths++;
     }
+    if (depths[depthIndex].numVids >= MAXVISUALSPERDEPTH) {
+	FatalError("Visual table overflow");
+    }
     depths[depthIndex].vids[depths[depthIndex].numVids] = 
       visuals[numVisuals].vid;
     depths[depthIndex].numVids++;
