@@ -49,7 +49,9 @@ InstallNamedProgNoClobber(Startup_0,Startup_0,$(XDMDIR))
 
 # if InstallXdmConfig
 InstallNonExecFile(XdmPixmap,$(XDMDIR)/pixmaps)
+InstallNonExecFile(OpenBSDbw.xpm,$(XDMDIR)/pixmaps)
 # else
 InstallNonExecFileNoClobber(XdmPixmap,$(XDMDIR)/pixmaps)
+InstallNonExecFileNoClobber(OpenBSDbw.xpm,$(XDMDIR)/pixmaps)
 # endif
 #endif

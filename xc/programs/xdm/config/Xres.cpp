@@ -47,9 +47,9 @@ xlogin*failColor: red
 #ifdef XPM
 xlogin*borderWidth: 3
 xlogin*frameWidth: 0
-xlogin*innerFramesWidth: 0
+xlogin*innerFramesWidth: 1
 xlogin*shdColor: black
-xlogin*hiColor: white
+xlogin*hiColor: black
 #else
 xlogin*borderWidth: 3
 xlogin*Foreground: black
@@ -57,7 +57,11 @@ xlogin*Background: white
 #endif /* XPM */
 /**/#endif
 #ifdef XPM
+/**/#if PLANES >= 8
 xlogin*logoFileName: BITMAPDIR/**//OpenBSD.xpm
+/**/#else
+xlogin*logoFileName: BITMAPDIR/**//OpenBSDbw.xpm
+/**/#endif
 xlogin*useShape: true
 xlogin*logoPadding: 10
 
