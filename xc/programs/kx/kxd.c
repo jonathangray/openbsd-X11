@@ -88,7 +88,7 @@ fatal (int fd, des_cblock *key, des_key_schedule schedule,
     vsnprintf (p + 4, sizeof(msg) - 5, format, args);
     syslog (LOG_ERR, p + 4);
     len = strlen (p + 4);
-    p += krb_put_int (len, p, 4);
+    p += krb_put_int (len, p, 4, 4);
     p += len;
     write_encrypted (fd, msg, p - msg, schedule, key, thisaddr, thataddr);
     va_end(args);
@@ -316,7 +316,7 @@ doit_conn (int fd, int meta_sock, int flags,
     }
     p = msg;
     *p++ = NEW_CONN;
-    p += krb_put_int (ntohs(addr.sin_port), p, 4);
+    p += krb_put_int (ntohs(addr.sin_port), p, 4, 4);
 
     if (write_encrypted (meta_sock, msg, p - msg, schedule, key,
 			 thisaddr, thataddr) < 0) {
@@ -370,6 +370,7 @@ doit(int sock, int tcpp)
      struct sockaddr_in me, him;
      int flags;
      u_char msg[1024], *p;
+     size_t rem;
 
      flags = recv_conn (sock, &key, schedule, &me, &him);
 
@@ -390,15 +391,23 @@ doit(int sock, int tcpp)
 	      return 1;
 
 	  p = msg;
+	  rem = sizeof(msg);
 	  *p++ = ACK;
+	  rem--;
 	  len = strlen (display);
-	  p += krb_put_int (len, p, 4);
+	  tmp = krb_put_int (len, p, rem, 4);
+	  p += tmp;
+	  rem -= tmp;
 	  strncpy (p, display, len);
 	  p += len;
+	  rem -= len;
 	  len = strlen (xauthfile);
-	  p += krb_put_int (len, p, 4);
+	  tmp += krb_put_int (len, p, rem, 4);
+	  p += tmp;
+	  rem -= tmp;
 	  strncpy (p, xauthfile, len);
 	  p += len;
+	  rem -= len;
 	  
 	  if(write_encrypted (sock, msg, p - msg, schedule, &key,
 			      &me, &him) < 0) {
