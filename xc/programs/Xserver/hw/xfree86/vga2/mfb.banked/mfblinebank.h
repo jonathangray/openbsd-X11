@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/vga2/mfb.banked/mfblinebank.h,v 3.9 1996/12/23 06:55:24 dawes Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/vga2/mfb.banked/mfblinebank.h,v 3.9.2.1 1999/05/25 06:55:48 hohndel Exp $ */
 /* mfblinebank.h */
 /* included from mfb.h if MFB_LINE_BANK is defined */
 

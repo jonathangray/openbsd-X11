@@ -215,7 +215,7 @@ static char *intro_text =
 "This program will create a basic " CONFIGNAME " file, based on menu selections you\n"
 "make.\n"
 "\n"
-"The " CONFIGNAME " file usually resides in " TREEROOTLX " or /etc. A sample\n"
+"The " CONFIGNAME " file usually resides in " TREEROOTLX " or /etc/X11. A sample\n"
 CONFIGNAME " file is supplied with XFree86; it is configured for a standard\n"
 "VGA card and monitor with 640x480 resolution. This program will ask for a\n"
 "pathname when it is ready to write the file.\n"
@@ -259,7 +259,7 @@ void *Malloc(int i) {
 	return p;
 }
 
-void createtmpdir() {
+void createtmpdir(void) {
 #ifndef __EMX__
 	/* length of prefix + 20 (digits in 2**64) + 1 (slash) + 1 */
 	temp_dir = Malloc(strlen(TEMPORARY_XF86CONFIG_DIR_PREFIX) + 22);
@@ -273,20 +273,19 @@ void createtmpdir() {
 #endif
 }
 
-void keypress() {
+void keypress(void) {
 	printf("Press enter to continue, or ctrl-c to abort.");
 	getchar();
 	printf("\n");
 }
 
-void emptylines() {
+void emptylines(void) {
 	int i;
 	for (i = 0; i < 50; i++)
 		printf("\n");
 }
 
-int answerisyes(s)
-	char *s;
+int answerisyes(char *s)
 {
 	if (s[0] == '\'')	/* For fools that type the ' literally. */
 		return tolower(s[1]) == 'y';
@@ -298,8 +297,7 @@ int answerisyes(s)
  * The 386BSD descendants scream about using gets(), for good reason.
  */
 
-void getstring(s)
-	char *s;
+void getstring(char *s)
 {
 	char *cp;
 	fgets(s, 80, stdin);
@@ -395,7 +393,7 @@ static char *mousemancomment_text =
 
 #endif /* !__EMX__ */
 
-void mouse_configuration() {
+void mouse_configuration(void) {
 
 #ifndef __EMX__
 	int i;
@@ -518,7 +516,7 @@ static char *keyboardalt_text =
 "set the left Alt key to Meta, and the right Alt key to ModeShift.\n"
 "\n";
 
-void keyboard_configuration() {
+void keyboard_configuration(void) {
 	char s[80];
 
 	printf("%s", keyboardalt_text);
@@ -608,7 +606,7 @@ static struct symlist2 {
 
 static int nsym2 = sizeof(sympart2)/sizeof(struct symlist2);
 
-void xkb_composekeymaps()
+void xkb_composekeymaps(void)
 {
 	int i;
 	char s[80];
@@ -749,7 +747,7 @@ static int nkeymaps = sizeof(keymaps)/sizeof(struct kmlist);
 
 static char *keymap_default = "xfree86(us)";
 
-void xkb_keyboard_configuration()
+void xkb_keyboard_configuration(void)
 {
 	char s[80];
 	int i;
@@ -888,7 +886,7 @@ static char *monitortype_name[NU_MONITORTYPES] = {
 	"Monitor that can do 1280x1024 @ 76 Hz"
 };
 
-void monitor_configuration() {
+void monitor_configuration(void) {
 	int i;
 	char s[80];
 	printf("%s", monitorintro_text);
@@ -1020,7 +1018,7 @@ static char *accelserver_id[NU_ACCELSERVER_IDS] = {
 	"I128", "S3V", "3DLabs"
 };
 
-void carddb_configuration() {
+void carddb_configuration(void) {
 	int i;
 	char s[80];
 	card_selected = -1;
@@ -1441,7 +1439,7 @@ static int exists_dir(char *name) {
 	return ((sbuf.st_mode & S_IFMT)==S_IFDIR) ? 1 : 0;
 }
 
-void screen_configuration() {
+void screen_configuration(void) {
 	int i, c, varlink, np;
 	int usecardscreentype;
 	char s[80];
@@ -2061,6 +2059,19 @@ static char *XF86Config_firstchunk_text =
 "# Refer to the XF86Config(4/5) man page for details about the format of \n"
 "# this file.\n"
 "# **********************************************************************\n"
+"# **********************************************************************\n"
+"# Module section. This allow default module selection\n"
+"# **********************************************************************\n"
+"\n"
+"Section \"Module\"\n"
+"\n"
+"    Load \"dbe\"\n"
+"    Load \"type1\"\n"
+"    SubSection \"extmod\"\n"
+"         Option \"omit xfree86-dga\"  # don't initialize the DGA extension\n"
+"    EndSubSection\n"
+"\n"
+"EndSection\n"
 "\n"
 "# **********************************************************************\n"
 "# Files section.  This allows default font and rgb paths to be set\n"
@@ -2109,22 +2120,6 @@ static char *XF86Config_fontpathchunk_text =
 "#    ModulePath \"" MODULEPATH "\"\n"
 "\n"
 "EndSection\n"
-"\n"
-"# **********************************************************************\n"
-"# Module section -- this is an optional section which is used to specify\n"
-"# which dynamically loadable modules to load.  Dynamically loadable\n"
-"# modules are currently supported only for Linux ELF, FreeBSD 2.x\n"
-"# and NetBSD 1.x.  Currently, dynamically loadable modules are used\n"
-"# only for some extended input (XInput) device drivers.\n"
-"# **********************************************************************\n"
-"#\n"
-"# Section \"Module\"\n"
-"#\n"
-"# This loads the module for the Joystick driver\n"
-"#\n"
-"# Load \"xf86Jstk.so\"\n"
-"# \n"
-"# EndSection\n"
 "\n"
 "# **********************************************************************\n"
 "# Server flags section.\n"
@@ -2245,25 +2240,29 @@ static char *keyboardlastchunk_text =
 
 static char *pointersection_text1 = 
 "# **********************************************************************\n"
-"# Pointer section\n"
+"# Input devices section\n"
 "# **********************************************************************\n"
 "\n"
-"Section \"Pointer\"\n";
+"Section \"InputDevice\"\n"
+"\n"
+"    Identifier \"Mouse-1\"\n"
+"    Driver \"Mouse\"\n";
+
 
 static char *pointersection_text2 =
 "\n"
 "# When using XQUEUE, comment out the above two lines, and uncomment\n"
 "# the following line.\n"
 "\n"
-"#    Protocol	\"Xqueue\"\n"
+"#    Option \"Protocol\"	\"Xqueue\"\n"
 "\n"
 "# Baudrate and SampleRate are only for some Logitech mice\n"
 "# or for the AceCad tablets which require 9600 baud\n"
 "\n";
 
 static char *pointersection_text3 =
-"    BaudRate	9600\n"
-"#    SampleRate	150\n"
+"    Option \"BaudRate\"	\"9600\"\n"
+"#    Option \"SampleRate\"	\"150\"\n"
 "\n"
 "# Emulate3Buttons is an option for 2-button Microsoft mice\n"
 "# Emulate3Timeout is the timeout in milliseconds (default is 50ms)\n"
@@ -2271,12 +2270,12 @@ static char *pointersection_text3 =
 
 static char *xinputsection_text =
 "# **********************************************************************\n"
-"# Xinput section -- this is optional and is required only if you\n"
+"# Other Input Device sections are optional. Use them only if you\n"
 "# are using extended input devices.  This is for example only.  Refer\n"
 "# to the XF86Config man page for a description of the options.\n"
 "# **********************************************************************\n"
 "#\n"
-"# Section \"Xinput\" \n"
+"# Section \"InputDevice\" \n"
 "#    SubSection \"WacomStylus\"\n"
 "#        Port \"/dev/ttyS1\"\n"
 "#        DeviceName \"Wacom\"\n"
@@ -2313,16 +2312,6 @@ static char *xinputsection_text =
 "#        Delta 20\n"
 "#    EndSubSection\n"
 "#\n"
-"# The Mouse Subsection contains the same type of entries as the\n"
-"# standard Pointer Section (see above), with the addition of the\n"
-"# DeviceName entry.\n"
-"#\n"
-"#    SubSection \"Mouse\" \n"
-"#        Port \"/dev/mouse2\"\n"
-"#        DeviceName \"Second Mouse\"\n"
-"#        Protocol \"Logitech\"\n"
-"#    EndSubSection\n"
-"# EndSection\n"
 "\n";
 
 static char *monitorsection_text1 =
@@ -2550,8 +2539,15 @@ static char *screensection_text1 =
 "# **********************************************************************\n"
 "\n";
 
-void write_fontpath_section(f)
-	FILE *f;
+static  char *serverlaytout_text1 = 
+"# **********************************************************************\n"
+"# Server Layout section\n"
+"# This section allows to define the layout of a multi-head configuration\n"
+"# Here only one device is configured\n"
+"# **********************************************************************\n"
+"\n";
+
+void write_fontpath_section(FILE *f)
 {
 	/* this will create the Fontpath lines, but only after checking,
 	 * that the corresponding dir exists (was THE absolute problem
@@ -2574,8 +2570,7 @@ void write_fontpath_section(f)
 	}
 }
 
-void write_XF86Config(filename)
-	char *filename;
+void write_XF86Config(char *filename)
 {
 	FILE *f;
 
@@ -2939,7 +2934,7 @@ void write_XF86Config(filename)
  * Ask where to write XF86Config to. Returns filename.
  */
 
-char *ask_XF86Config_location() {
+char *ask_XF86Config_location(void) {
 	char s[80];
 	char *filename;
 
@@ -2950,11 +2945,11 @@ char *ask_XF86Config_location() {
 #ifndef __EMX__
 	if (getuid() == 0) {
 #ifdef PREFER_XF86CONFIG_IN_ETC
-		printf("Shall I write it to /etc/XF86Config? ");
+		printf("Shall I write it to /etc/X11/XF86Config? ");
 		getstring(s);
 		printf("\n");
 		if (answerisyes(s))
-			return "/etc/XF86Config";
+			return "/etc/X11/XF86Config";
 #endif
 
 		printf("Please answer the following question with either 'y' or 'n'.\n");
@@ -2965,11 +2960,11 @@ char *ask_XF86Config_location() {
 			return "/usr/X11R6/lib/X11/XF86Config";
 
 #ifndef PREFER_XF86CONFIG_IN_ETC
-		printf("Shall I write it to /etc/XF86Config? ");
+		printf("Shall I write it to /etc/X11/XF86Config? ");
 		getstring(s);
 		printf("\n");
 		if (answerisyes(s))
-			return "/etc/XF86Config";
+			return "/etc/X11/XF86Config";
 #endif
 #else /* __EMX__ */
 	{
@@ -3034,7 +3029,7 @@ static char *pathnote_text =
 "Make sure the path is OK before continuing.\n";
 #endif
 
-void path_check() {
+void path_check(void) {
 	char s[80];
 	int ok;
 
@@ -3066,7 +3061,7 @@ void path_check() {
  * Program entry point.
  */
 
-int main() {
+int main(int argc, char *argv[]) {
 	createtmpdir();
 
 	emptylines();

@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/vga256/drivers/cirrus/cir_inline.h,v 3.1 1996/12/23 06:56:50 dawes Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/vga256/drivers/cirrus/cir_inline.h,v 3.1.2.1 1999/05/25 06:55:48 hohndel Exp $ */
 
 
 

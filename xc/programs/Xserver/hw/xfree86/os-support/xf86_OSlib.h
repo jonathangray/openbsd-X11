@@ -394,6 +394,9 @@ extern int errno;
 #    undef MOUSE_GETINFO
 #    include <machine/mouse.h>
 #   endif
+#   if defined(__OpenBSD__)
+#    include <machine/mouse.h>
+#   endif
     /* Include these definitions in case ioctl_pc.h didn't get included */
 #   ifndef CONSOLE_X_MODE_ON
 #    define CONSOLE_X_MODE_ON _IO('t',121)
