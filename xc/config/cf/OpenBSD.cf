@@ -1,6 +1,6 @@
 XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.18 1998/03/21 22:13:04 gene Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.19 1998/03/25 03:17:10 todd Exp $
 XCOMM
 
 #ifndef OSName
@@ -140,6 +140,13 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 
 #ifndef ExtraFilesToClean
 # define ExtraFilesToClean 	*.core
+#endif
+
+#ifndef BuildXpmLibrary
+# define BuildXpmLibrary		YES
+# ifndef HasXpm
+#  define HasXpm			YES
+# endif
 #endif
 
 #if HasXpm

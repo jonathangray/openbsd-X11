@@ -1049,7 +1049,7 @@ XPMLIBDIR = XpmLibDir
 XPMINCDIR = XpmIncDir
 #ifndef XpmLibrary
 #if HasXpm
-#define XpmLibrary Concat(-L,$(XPMLIBDIR)) Concat(-l,$(XPMLIBNAME))
+#define XpmLibrary Concat(-l,$(XPMLIBNAME))
 #else
 #define XpmLibrary
 #endif

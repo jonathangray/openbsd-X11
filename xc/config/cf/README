@@ -179,6 +179,7 @@ X11.tmpl provides defaults for the following variables:
 	BuildXInputLib		build X Input library
 	BuildXKB		build X Keyboard Extension?
 	BuildXKBlib		build X Keyboard Extension into Xlib?
+	BuildXpmLibrary		build Xpm library
 	UseXKBInClients		Use XKB functions in normal clients?
 	BuildDBE		build DOUBLE-BUFFER extension
 	BuildMultibuffer	build Multibuffer extension (obsolete)
