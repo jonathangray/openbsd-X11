@@ -119,6 +119,7 @@ Imake.tmpl provides defaults for the following variables:
 	Malloc0ReturnsNull	boolean for malloc(0) == NULL
 	Malloc0ReturnsNullDefines -D's to build libX11/libXt
 	MathLibrary		library for programs using C math functions
+        MkCookieCmd             command to generate an xauth cookie
 	MsMacros		macro flag for TroffCmd, normally "-ms"
 	MvCmd			command to rename a file
 	NdbmDefines		-D's to turn on use of ndbm routines

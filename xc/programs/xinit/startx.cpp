@@ -1,7 +1,6 @@
 XCOMM!/bin/sh
 
-XCOMM $XConsortium: startx.cpp,v 1.4 91/08/22 11:41:29 rws Exp $
-XCOMM $XFree86: xc/programs/xinit/startx.cpp,v 3.0.8.4 1998/12/27 13:10:18 dawes Exp $
+XCOMM $Xorg: startx.cpp,v 1.3 2000/08/17 19:54:29 cpqbld Exp $
 XCOMM 
 XCOMM This is just a sample implementation of a slightly less primitive 
 XCOMM interface than xinit.  It looks for user .xinitrc and .xserverrc
@@ -12,8 +11,8 @@ XCOMM and pop a clock and serveral xterms.
 XCOMM
 XCOMM Site administrators are STRONGLY urged to write nicer versions.
 XCOMM 
+XCOMM $XFree86: xc/programs/xinit/startx.cpp,v 3.6 2001/01/17 23:45:42 dawes Exp $
 
-bindir=BINDIR
 #ifdef SCO
 
 XCOMM Check for /usr/bin/X11 and BINDIR in the path, if not add them.
@@ -22,6 +21,7 @@ XCOMM and people may use X without changing their PATH
 
 XCOMM First our compiled path
 
+bindir=BINDIR
 if expr $PATH : ".*`echo $bindir | sed 's?/?\\/?g'`.*" > /dev/null 2>&1; then
 	:
 else
@@ -78,6 +78,7 @@ else if [ -f $sysserverrc ]; then
 fi
 fi
 
+display=:0
 whoseargs="client"
 while [ "x$1" != "x" ]; do
     case "$1" in
@@ -98,11 +99,34 @@ while [ "x$1" != "x" ]; do
 	*)	if [ "$whoseargs" = "client" ]; then
 		    clientargs="$clientargs $1"
 		else
-		    serverargs="$serverargs $1"
+		    case "$1" in
+			:[0-9]*) display="$1"; serverargs="$serverargs $1";;
+			*) serverargs="$serverargs $1" ;;
+		    esac
 		fi ;;
     esac
     shift
 done
+
+#if defined(HAS_COOKIE_MAKER) && defined(MK_COOKIE)
+XCOMM set up default Xauth info for this machine
+#ifndef HOSTNAME
+#ifdef __linux__
+#define HOSTNAME hostname -f
+#else
+#define HOSTNAME hostname
+#endif
+#endif
+mcookie=`MK_COOKIE`
+if [ X"$XAUTHORITY" = X ]; then
+    authfile="$HOME/.Xauthority"
+else
+    authfile="$XAUTHORITY"
+fi
+serverargs="$serverargs -auth $authfile"
+xauth add $display . $mcookie
+xauth add `HOSTNAME`$display . $mcookie
+#endif
 
 xinit $clientargs -- $serverargs
 
