@@ -72,7 +72,7 @@ XCOMM $TOG: X11.rules /main/4 1997/04/30 15:23:24 kaleb $
 # ifdef XProjectRoot
 #  define TopXInclude	-I$(XPROJECTROOT)/include
 # else
-#  define TopXinclude	/**/
+#  define TopXInclude	/**/
 # endif
 #endif
 #ifdef TopIncludes
