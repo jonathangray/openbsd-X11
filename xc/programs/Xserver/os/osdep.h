@@ -111,7 +111,7 @@ SOFTWARE.
 #endif
 
 /* ignore OPEN_MAX on FreeBSD, it's bogusly low */
-#if OPEN_MAX <= 128 && !defined(__FreeBSD__)
+#if OPEN_MAX <= 128 && !defined(__FreeBSD__) && !defined(__OpenBSD__)
 #define MAXSOCKS (OPEN_MAX - 1)
 #else
 #define MAXSOCKS 128
