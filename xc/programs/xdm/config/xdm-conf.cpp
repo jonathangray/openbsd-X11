@@ -18,6 +18,9 @@ DisplayManager._0.reset:	XDMDIR/TakeConsole
 DisplayManager*resources:	XDMDIR/Xresources
 DisplayManager*session:		XDMDIR/Xsession
 DisplayManager*authComplain:	false
+#if HAS_DES_AUTH == YES
+DisplayManager._0.authName:     MIT-MAGIC-COOKIE-1
+#endif
 #ifdef XDM
 ! this is a new line Caolan, 9312811@ul.ie
 DisplayManager*loginmoveInterval:	10

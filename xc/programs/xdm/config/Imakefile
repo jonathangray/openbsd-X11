@@ -7,13 +7,18 @@ all:: Xservers.ws xdm-config Xservers Xresources
 #if defined(OpenBSDArchitecture) && defined(i386Architecture)
 DEFAULTVT=vt05
 #endif
+#if defined(OpenBSDArchitecture) && defined(PmaxArchitecture)
+#undef HasXdmAuth
+#define HasXdmAuth NO
+#endif
+HAS_DES_AUTH=HasXdmAuth
 
 #if HasXpm
 XPM_DEFINES=-DXPM -DBITMAPDIR=$(XDMDIR)/pixmaps
 #endif
 
 CppFileTarget(Xservers.ws,Xserv.ws.cpp,-DBINDIR=$(BINDIR) -DDEFAULTVT=$(DEFAULTVT),NullParameter)
-CppFileTarget(xdm-config,xdm-conf.cpp,-DXDMDIR=$(XDMDIR),NullParameter)
+CppFileTarget(xdm-config,xdm-conf.cpp,-DXDMDIR=$(XDMDIR) -DHAS_DES_AUTH=$(HAS_DES_AUTH),NullParameter)
 CppFileTarget(Xresources,Xres.cpp,$(XPM_DEFINES),NullParameter)
 
 LinkFile(Xservers,Xservers.$(SERVERSTYPE))
@@ -49,9 +54,13 @@ InstallNamedProgNoClobber(Startup_0,Startup_0,$(XDMDIR))
 
 # if InstallXdmConfig
 InstallNonExecFile(XdmPixmap,$(XDMDIR)/pixmaps)
-InstallNonExecFile(OpenBSDbw.xpm,$(XDMDIR)/pixmaps)
+#  ifdef XdmbwPixmap
+InstallNonExecFile(XdmbwPixmap,$(XDMDIR)/pixmaps)
+#  endif
 # else
 InstallNonExecFileNoClobber(XdmPixmap,$(XDMDIR)/pixmaps)
-InstallNonExecFileNoClobber(OpenBSDbw.xpm,$(XDMDIR)/pixmaps)
+#  ifdef XdmbwPixmap
+InstallNonExecFileNoClobber(XdmbwPixmap,$(XDMDIR)/pixmaps)
+#  endif
 # endif
 #endif
