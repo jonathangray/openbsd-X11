@@ -53,20 +53,24 @@ InstallNamedProgNoClobber(Xsetup_0,Xsetup_0,$(XDMDIR))
 InstallNamedProgNoClobber(Startup_0,Startup_0,$(XDMDIR))
 #endif
 
-#if HasXpm
+#if HasXpm /* { */
 # ifndef XdmPixmap
 #  define XdmPixmap XFree86.xpm
 # endif
 
 # if InstallXdmConfig
-InstallNonExecFile(XdmPixmap,$(XDMDIR)/pixmaps)
-#  ifdef XdmbwPixmap
-InstallNonExecFile(XdmbwPixmap,$(XDMDIR)/pixmaps)
-#  endif
+#  define PixmapInstall InstallNonExecFile
 # else
-InstallNonExecFileNoClobber(XdmPixmap,$(XDMDIR)/pixmaps)
-#  ifdef XdmbwPixmap
-InstallNonExecFileNoClobber(XdmbwPixmap,$(XDMDIR)/pixmaps)
-#  endif
+#  define PixmapInstall InstallNonExecFileNoClobber
 # endif
-#endif
+
+# ifdef Xdm_8bpp_Pixmap
+PixmapInstall(Xdm_8bpp_Pixmap,$(XDMDIR)/pixmaps)
+# endif
+# ifdef Xdm_1bpp_Pixmap
+PixmapInstall(Xdm_1bpp_Pixmap,$(XDMDIR)/pixmaps)
+# endif
+# ifdef Xdm_4bpp_Pixmap
+PixmapInstall(Xdm_4bpp_Pixmap,$(XDMDIR)/pixmaps)
+# endif
+#endif /* } HasXpm */
