@@ -96,8 +96,6 @@
 ./usr/X11R6/lib/X11/XF86Setup/texts/ja/message_proc.tcl
 ./usr/X11R6/lib/X11/XF86Setup/texts/ja/messages.tcl
 ./usr/X11R6/lib/X11/XF86Setup/texts/local_text.tcl
-./usr/X11R6/lib/X11/app-defaults/Beforelight
-./usr/X11R6/lib/X11/app-defaults/Xvidtune
 ./usr/X11R6/lib/X11/doc
 ./usr/X11R6/lib/X11/doc/AccelCards
 ./usr/X11R6/lib/X11/doc/BUILD
@@ -223,3 +221,5 @@
 ./usr/X11R6/man/cat3/XF86VidModeSwitchMode.0
 ./usr/X11R6/man/cat5
 ./usr/X11R6/man/cat5/XF86Config.0
+./var/X11/app-defaults/Beforelight
+./var/X11/app-defaults/Xvidtune
