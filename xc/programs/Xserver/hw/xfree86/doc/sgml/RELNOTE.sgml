@@ -668,6 +668,17 @@ X3319WSN.tgz    PC98 WSN-A2F(cirrus) server
 X3319TGU.tgz    PC98 TGUI server
 </verb>
 </quote>
+The following X servers are for sparc hardware.
+<quote>
+<verb>
+X331sun.tgz     Standard 8bit Xsun server
+X331Mono.tgz    Monochrome X server
+X331Sun24.tgz   X server for 24bit framebuffers
+X331nest.tgz    Nested X server
+X331vfb.tgz     Virtual framebuffer X server
+X331prt.tgz     X printer server
+</verb>
+</quote>
 The following are optional.
 <quote>
 <verb>
