@@ -16,7 +16,9 @@ target=$1
 shift
 label=$target
 resource=xterm-$label
-if [ -f /usr/bin/remsh ]; then
+if [ -f /usr/bin/ssh ]; then
+    rsh=/usr/bin/ssh
+elif [ -f /usr/bin/remsh ]; then
     rsh=/usr/bin/remsh
 elif [ -f /usr/bin/rcmd ]; then
     rsh=/usr/bin/rcmd
