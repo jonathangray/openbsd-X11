@@ -1229,8 +1229,6 @@
 ./usr/X11R6/lib/X11/xinit
 ./usr/X11R6/lib/X11/xinit/xinitrc
 ./usr/X11R6/lib/X11/xman.help
-./usr/X11R6/lib/X11/xserver
-./usr/X11R6/lib/X11/xserver/SecurityPolicy
 ./usr/X11R6/lib/X11/xsm
 ./usr/X11R6/lib/X11/xsm/system.xsm
 ./usr/X11R6/lib/libFS.a
