@@ -1,12 +1,13 @@
-.\"	$OpenBSD: ssh-askpass.man,v 1.1 2000/05/17 12:57:43 matthieu Exp $
+.\"	$OpenBSD: ssh-askpass.man,v 1.2 2000/06/26 17:31:32 marc Exp $
 .\"
 .Dd May 17, 2000
 .Dt SSH-ASKPASS 1 
 .Os
 .Sh NAME
 .Nm ssh-askpass
+.Nd X11-based pass-phrase dialog for OpenSSH
 .Sh SYNOPSIS
-.Nm ssh-askpass
+.Nm
 .Op options
 .Sh DESCRIPTION
 This is an X11-based pass-phrase dialog for use with OpenSSH. These
