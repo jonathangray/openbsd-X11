@@ -1,5 +1,5 @@
 /* $XConsortium: Login.c,v 1.42 94/04/17 20:03:53 gildea Exp $ */
-/* $XFree86: xc/programs/xdm/greeter/Login.c,v 3.1 1995/10/21 12:52:30 dawes Exp $ */
+/* $XFree86: xc/programs/xdm/greeter/Login.c,v 3.1.4.2 1999/07/23 13:23:19 hohndel Exp $ */
 /*
 
 Copyright (c) 1988  X Consortium
@@ -40,6 +40,7 @@ from the X Consortium.
 # include <X11/IntrinsicP.h>
 # include <X11/StringDefs.h>
 # include <X11/keysym.h>
+# include <X11/DECkeysym.h>
 # include <X11/Xfuncs.h>
 
 # include <stdio.h>
@@ -239,7 +240,9 @@ static XtResource resources[] = {
 static void Initialize(), Realize(), Destroy(), Redisplay();
 static Boolean SetValues();
 
+#ifndef __QNX__
 static int max (a,b) { return a > b ? a : b; }
+#endif /* QNX has max() defines already */
 
 static void
 EraseName (w, cursor)
@@ -866,6 +869,35 @@ ResetLogin (w)
     w->login.state = GET_NAME;
 }
 
+static void
+InitI18N(Widget ctxw)
+{
+    LoginWidget ctx = (LoginWidget)ctxw;
+    XIM         xim = (XIM) NULL;
+    char *p;
+
+    ctx->login.xic = (XIC) NULL;
+
+    if ((p = XSetLocaleModifiers("@im=none")) != NULL && *p)
+	xim = XOpenIM(XtDisplay(ctx), NULL, NULL, NULL);
+
+    if (!xim) {
+	LogError("Failed to open input method\n");
+	return;
+    }
+
+    ctx->login.xic = XCreateIC(xim,
+	 XNInputStyle, (XIMPreeditNothing|XIMStatusNothing),
+	 XNClientWindow, ctx->core.window,
+	 XNFocusWindow,  ctx->core.window, NULL);
+
+    if (!ctx->login.xic) {
+        LogError("Failed to create input context\n");
+        XCloseIM(xim);
+    }
+    return;
+}
+
 /* ARGSUSED */
 static void
 InsertChar (ctxw, event, params, num_params)
@@ -882,8 +914,17 @@ InsertChar (ctxw, event, params, num_params)
 #else
     int  len,pixels;
 #endif /* XPM */
+    KeySym  keysym = 0;
 
-    len = XLookupString (&event->xkey, strbuf, sizeof (strbuf), 0, 0);
+    if (ctx->login.xic) {
+	static Status status;
+	len = XmbLookupString(ctx->login.xic, &event->xkey, strbuf,
+			      sizeof (strbuf), &keysym, &status);
+    } else {
+	static XComposeStatus compose_status = {NULL, 0};
+	len = XLookupString (&event->xkey, strbuf, sizeof (strbuf),
+			     &keysym, &compose_status);
+    }
     strbuf[len] = '\0';
 
 #ifdef XPM
@@ -893,6 +934,56 @@ InsertChar (ctxw, event, params, num_params)
     	     		strlen(ctx->login.data.name));
     	     	/* pixels to be added */
 #endif /* XPM */
+
+
+    /*
+     * Note: You can override this default key handling
+     * by the settings in the translation table
+     * loginActionsTable at the end of this file.
+     */
+    switch (keysym) {
+    case XK_Return:
+    case XK_KP_Enter:
+    case XK_Linefeed:
+    case XK_Execute:
+	FinishField(ctxw, event, params, num_params);
+	return;
+    case XK_BackSpace:
+	DeleteBackwardChar(ctxw, event, params, num_params);
+	return;
+    case XK_Delete:
+    case XK_KP_Delete:
+    case DXK_Remove:
+	/* Sorry, it's not a telex machine, it's a terminal */
+	DeleteForwardChar(ctxw, event, params, num_params);
+	return;
+    case XK_Left:
+    case XK_KP_Left:
+	MoveBackwardChar(ctxw, event, params, num_params);
+	return;
+    case XK_Right:
+    case XK_KP_Right:
+	MoveForwardChar(ctxw, event, params, num_params);
+	return;
+    case XK_End:
+    case XK_KP_End:
+	MoveToEnd(ctxw, event, params, num_params);
+	return;
+    case XK_Home:
+    case XK_KP_Home:
+	MoveToBegining(ctxw, event, params, num_params);
+	return;
+    default:
+	if (IsFunctionKey(keysym) || IsMiscFunctionKey(keysym) ||
+	    IsPrivateKeypadKey(keysym) || IsCursorKey(keysym) ||
+	    IsKeypadKey(keysym) || IsPFKey(keysym)) {
+	    XBell(XtDisplay(ctxw), 60);
+	    return;
+	} else if (len == 0 && IsModifierKey(keysym)) {
+	    return; /* it's a modifier */
+	} else
+	    break;
+    }
 
     switch (ctx->login.state) {
     case GET_NAME:
@@ -1158,6 +1249,7 @@ static void Realize (gw, valueMask, attrs)
         XMapWindow(XtDisplay(w), w->login.logoWindow);
     }
 #endif /* XPM */
+    InitI18N(gw);
 }
 
 static void Destroy (gw)
@@ -1230,11 +1322,11 @@ Ctrl<Key>\\\\:	abort-session() \n\
 <Key>Delete:	delete-previous-character() \n\
 <Key>Return:	finish-field() \n"
 #ifndef XPM
-"<Key>:		insert-char() \
+"<KeyPress>:	insert-char() \
 "
 #else
 "<Key>Tab:	tab-field() \n\
-<Key>:		insert-char() \
+<KeyPress>:	insert-char() \
 "
 #endif /* XPM */
 ;

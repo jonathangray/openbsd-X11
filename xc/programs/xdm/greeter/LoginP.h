@@ -1,5 +1,5 @@
 /* $XConsortium: LoginP.h,v 1.7 94/04/17 20:03:54 jim Exp $ */
-/* $XFree86: xc/programs/xdm/greeter/LoginP.h,v 3.1 1995/10/21 12:52:34 dawes Exp $ */
+/* $XFree86: xc/programs/xdm/greeter/LoginP.h,v 3.1.4.1 1999/07/21 18:07:46 hohndel Exp $ */
 /*
 
 Copyright (c) 1988  X Consortium
@@ -104,6 +104,7 @@ typedef struct {
         Boolean useShape, logoValid;
         Pixmap logoPixmap, logoMask;
 #endif /* XPM */
+	XIC		xic;		/* input method of input context */
    } LoginPart;
 
 /* Full instance record declaration */
