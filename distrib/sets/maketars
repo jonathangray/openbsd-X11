@@ -1,0 +1,41 @@
+#!/bin/csh -f
+
+set RELEASE=23
+
+if (! $?RELEASEDIR) then
+	echo RELEASEDIR must be set
+	exit 1
+endif
+
+if (! $?DESTDIR) then
+	echo DESTDIR must be set
+	exit 1
+endif
+
+set arch=`machine`
+set listsdir=`pwd`/lists
+set tardir=$RELEASEDIR
+set fsdir=$DESTDIR
+
+cd $fsdir
+
+set lists=(xbase xserv)
+# SPECIAL: man misc
+# EXTRA SPECIAL (not done here): secr
+
+foreach setname ($lists)
+	echo -n "${setname}: "
+	cat $listsdir/$setname/mi $listsdir/$setname/md.${arch} | sort | \
+	    pax -w -d | gzip -9 > ${tardir}/${setname}${RELEASE}.tar.gz
+	echo    "done."
+end
+
+if ( "$arch" == "i386" ) then 
+    set setname=xlink
+    echo -n "${setname}: "
+    cat $listsdir/$setname/mi $listsdir/$setname/md.${arch} | sort | \
+    pax -w -d | gzip -9 > ${tardir}/${setname}${RELEASE}.tar.gz
+    echo    "done."
+endif
+
+
