@@ -2,7 +2,7 @@
  * xrdb - X resource manager database utility
  *
  * $XConsortium: xrdb.c,v 11.76 95/05/12 18:36:46 mor Exp $
- * $XFree86: xc/programs/xrdb/xrdb.c,v 3.7.2.1 1997/05/25 05:06:57 dawes Exp $
+ * $XFree86: xc/programs/xrdb/xrdb.c,v 3.7.2.2 1998/02/15 16:09:53 hohndel Exp $
  */
 
 /*
@@ -805,6 +805,9 @@ main (argc, argv)
     int retainProp = 0;
     FILE *fp = NULL;
     Bool need_newline;
+#ifdef HAS_MKSTEMP
+    int fd;
+#endif
 
     ProgramName = argv[0];
 
@@ -957,17 +960,15 @@ main (argc, argv)
 	strcpy(tmpname, "/tmp/xrdb_XXXXXX");
 #endif
 #endif
-#ifndef HAS_MKSTEMP
-	(void) mktemp(tmpname);
 	filename = tmpname;
-	fp = fopen(filename, "w");
+#ifdef HAS_MKSTEMP
+	fp = NULL;
+	if ((fd = mkstemp(filename)) >= 0)
+	    fp = fdopen(fd, "w");
 #else
-	{
-	int fd = mkstemp(tmpname);
-	filename = tmpname;
-	fp = fdopen(fd, "w");
-	}
-#endif /* MKSTEMP */
+	(void) mktemp(filename);
+	fp = fopen(filename, "w");
+#endif
 	if (!fp)
 	    fatal("%s: Failed to open temp file: %s\n", ProgramName,
 		  filename);
@@ -1104,7 +1105,11 @@ Process(scrno, doScreen, execute)
     Atom res_prop;
     FILE *input, *output;
     char *cmd;
+#ifdef HAS_MKSTEMP
+    int fd;
+#endif
 
+    defines.val[defines_base] = '\0';
     buffer.used = 0;
     InitEntries(&newDB);
     DoScreenDefines(dpy, scrno, &defines);
@@ -1132,14 +1137,13 @@ Process(scrno, doScreen, execute)
 	input = fopen(editFile, "r");
 	strcpy(template, editFile);
 	strcat(template, "XXXXXX");
-#ifndef HAS_MKSTEMP
+#ifdef HAS_MKSTEMP
+	output = NULL;
+	if ((fd = mkstemp(template)) >= 0)
+	    output = fdopen(fd, "w");
+#else
 	(void) mktemp(template);
 	output = fopen(template, "w");
-#else
-	{ 
-	int fd = mkstemp(template);
-	output = fdopen(fd, "w");
-	}
 #endif
 	if (!output)
 	    fatal("%s: can't open temporary file '%s'\n", ProgramName, template);

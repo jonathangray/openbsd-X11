@@ -228,6 +228,7 @@ RES_DEFINES = '-DDEF_SERVER_LINE=":0 local $(DEF_SERVER) :0"' \
 ComplexProgramTarget_1(xdm,$(LOCAL_LIBRARIES),NullParameter)
 NormalProgramTarget(xdmshell,$(OBJS2),NullParameter,NullParameter,NullParameter)
 NormalProgramTarget(sessreg,$(OBJS4),NullParameter,NullParameter,NullParameter)
+LinkVarDirectory(xdm,.,xdm,.)
 InstallProgram(sessreg,$(BINDIR))
 InstallManPage(sessreg,$(MANDIR))
 
