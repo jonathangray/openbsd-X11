@@ -331,6 +331,8 @@ may optionally be followed by a number specifying the number of
 buttons the mouse has.
 \fBSysMouse\fP refers to the system mouse device, /dev/sysmouse, in
 FreeBSD.
+NetBSD and OpenBSD systems using the wscons console driver should use
+\fBwsmouse\fP, together with the /dev/wsmouse0 device. 
 .PP
 The \fBPS/2\fP and other \fBXXXXPS/2\fP protocol types are for PS/2 mice.
 \fBPS/2\fP should always work with any PS/2 mouse
