@@ -1,5 +1,5 @@
 /* $XConsortium: sunInit.c /main/78 1996/06/10 11:07:58 kaleb $ */
-/* $XFree86: xc/programs/Xserver/hw/sun/sunInit.c,v 3.3 1996/12/23 06:30:15 dawes Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/sun/sunInit.c,v 3.3.2.1 1998/02/15 16:08:42 hohndel Exp $ */
 /*
  * sunInit.c --
  *	Initialization functions for screen/keyboard/mouse, etc.
