@@ -57,6 +57,9 @@ xlogin*Background: white
 #endif /* XPM */
 /**/#endif
 #ifdef XPM
+#if defined(Hp300Architecture)
+xlogin*logoFileName: BITMAPDIR/**//OpenBSDbw.xpm
+#else /* Hp300Architecture */
 /**/#if PLANES >= 8
 xlogin*logoFileName: BITMAPDIR/**//OpenBSD.xpm
 /**/#else
@@ -64,7 +67,7 @@ xlogin*logoFileName: BITMAPDIR/**//OpenBSDbw.xpm
 /**/#endif
 xlogin*useShape: true
 xlogin*logoPadding: 10
-
+#endif /* Hp300Architecture */
 #endif /* XPM */
 
 XConsole.text.geometry:	480x130
