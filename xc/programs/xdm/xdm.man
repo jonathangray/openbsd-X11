@@ -981,6 +981,11 @@ the .Xauthority file cannot be created by
 Be very careful using this;
 it might be better to disconnect the machine from the network
 before doing this.
+.PP
+On some systems (OpenBSD) the user's shell must be listed in
+.I /etc/shells
+to allow login through xdm. The normal password and account expiration 
+dates are enforced too.
 .SH "STARTUP PROGRAM"
 .PP
 The \fIXstartup\fP program is run as
