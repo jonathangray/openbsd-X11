@@ -126,6 +126,9 @@ No testing has been done with BSD/OS.
 FreeBSD supports the <tt>"SysMouse"</tt> protocol which must be 
 specified when the <tt>moused</tt> daemon is running in versions 2.2.1 
 or later.
+When running the <tt>moused</tt>daemon, you must always specify the
+<tt>/dev/sysmouse</tt> device and the <tt>"SysMouse"</tt> protocol
+to the X server, regardless of the actual type of your mouse.
 
 FreeBSD versions 2.2.5 or earlier do not support extended PS/2 
 mouse protocols (<tt>"xxxPS/2"</tt>).
@@ -133,17 +136,17 @@ Always specify the <tt>"PS/2"</tt> protocol for any PS/2 mouse
 in these versions regardless of the brand of the mouse.
 
 FreeBSD versions 2.2.6 or later include the kernel-level
-support for these mice.
+support for these PS/2 mice.
 Specify the <tt>"PS/2"</tt> or <tt>"Auto"</tt> protocol and 
 the X server will automatically make use of the kernel-level support.
 In fact, you may always specify <tt>"Auto"</tt> to any mouse in these
 versions unless the mouse is an old serial model which doesn't support PnP.
 
-Recent FreeBSD versions have support for USB mices in the
-<tt>"SysMouse"</tt> protocol, and also provide a
-<tt>"MouseSystems"</tt> protocol emulation through the 
-<tt>/dev/ums0</tt> device. See the <em>ums(4)</em> manual page for
-details. 
+FreeBSD versions 3.1 or later have support for USB mice.
+Specify the <tt>"Auto"</tt> protocol for the <tt>/dev/ums0</tt> device.
+(If the <tt>moused</tt> daemon is running for the USB mouse, 
+you must use <tt>/dev/sysmouse</tt> instead of <tt>/dev/ums0</tt>
+as explained above.) See the <em>ums(4)</em> manual page for details. 
 
 <sect1>FreeBSD(98) <p>
 The PS/2 mouse is not supported.
@@ -512,11 +515,18 @@ PS/2 mouse detection:
 	Device   "/dev/xxxx"  (where xxxx is the PS/2 mouse device)
 </verb>
 
-To use this mouse as the USB device wand the OS supports the generic
+To use this mouse as the USB device and the OS supports the generic
 HID protocol:
 <verb>
 	Protocol "usb"
 	Device   "/dev/uhidx" (where x is the USB device number)
+</verb>
+
+To use this mouse as the USB device and the OS supports automatic
+mouse detection:
+<verb>
+	Protocol "Auto"
+	Device   "/dev/xxxx"  (where xxxx is the USB mouse device)
 </verb>
 
 <sect1>Kensington Thinking Mouse (serial, PS/2) <p>
@@ -720,6 +730,6 @@ PS/2 mouse detection:
 
 
 <verb>
-$XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/mouse.sgml,v 1.1.2.12 1999/06/30 13:00:29 hohndel Exp $
+$XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/mouse.sgml,v 1.1.2.14 1999/12/10 12:38:21 hohndel Exp $
 </verb>
 </article>

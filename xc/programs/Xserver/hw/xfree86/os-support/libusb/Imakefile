@@ -1,4 +1,4 @@
-XCOMM $XFree86$
+XCOMM $XFree86: xc/programs/Xserver/hw/xfree86/os-support/libusb/Imakefile,v 1.1.2.1 1999/12/01 12:49:27 hohndel Exp $
 
 #include <Server.tmpl>
 

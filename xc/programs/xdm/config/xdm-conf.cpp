@@ -1,3 +1,5 @@
+! $XFree86: xc/programs/xdm/config/xdm-conf.cpp,v 1.1.1.2.4.2 1999/10/12 18:33:29 hohndel Exp $
+!
 ! $XConsortium: xdm-conf.cpp /main/3 1996/01/15 15:17:26 gildea $
 DisplayManager.errorLogFile:	/var/log/xdm-errors
 DisplayManager.pidFile:		/var/run/xdm-pid

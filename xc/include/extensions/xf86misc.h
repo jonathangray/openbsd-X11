@@ -1,4 +1,4 @@
-/* $XFree86: xc/include/extensions/xf86misc.h,v 3.6.2.6 1999/06/23 12:37:09 hohndel Exp $ */
+/* $XFree86: xc/include/extensions/xf86misc.h,v 3.6.2.7 1999/12/01 14:53:57 hohndel Exp $ */
 
 /*
  * Copyright (c) 1995, 1996  The XFree86 Project, Inc

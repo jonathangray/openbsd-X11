@@ -1,6 +1,6 @@
 /*
  * $XConsortium: xdpyinfo.c /main/34 1995/12/08 12:09:32 dpw $
- * $XFree86: xc/programs/xdpyinfo/xdpyinfo.c,v 3.12.2.3 1999/04/21 07:21:23 hohndel Exp $
+ * $XFree86: xc/programs/xdpyinfo/xdpyinfo.c,v 3.12.2.4 1999/12/01 14:54:04 hohndel Exp $
  * 
  * xdpyinfo - print information about X display connecton
  *

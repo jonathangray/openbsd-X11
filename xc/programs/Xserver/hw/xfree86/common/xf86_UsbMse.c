@@ -1,4 +1,4 @@
-/* $XFree86$ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/common/xf86_UsbMse.c,v 1.1.2.1 1999/12/01 12:49:24 hohndel Exp $ */
 /* $NetBSD: ums.c,v 1.36 1999/11/26 01:39:27 augustss Exp $	*/
 
 /*

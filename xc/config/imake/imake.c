@@ -8,7 +8,7 @@
  * be passed to the template file.                                         *
  *                                                                         *
  ***************************************************************************/
-/* $XFree86: xc/config/imake/imake.c,v 3.13.2.20 1999/07/23 13:22:10 hohndel Exp $ */
+/* $XFree86: xc/config/imake/imake.c,v 3.13.2.23 1999/12/20 12:55:40 hohndel Exp $ */
 
 /*
  * 
@@ -293,6 +293,10 @@ extern int sys_nerr;
 #include <sys/utsname.h>
 #endif
 
+#if !(defined(Lynx) || defined(__Lynx__) || (defined(SVR4) && !defined(sun)))
+#define HAS_MKSTEMP
+#endif
+
 #define	TRUE		1
 #define	FALSE		0
 
@@ -401,6 +405,12 @@ main(argc, argv)
 	} else {
 	        int fd;
 		tmpMakefile = Strdup(tmpMakefile);
+#ifndef HAS_MKSTEMP
+		if (mktemp(tmpMakefile) == NULL ||
+		    (tmpfd = fopen(tmpMakefile, "w+")) == NULL) {
+		   LogFatal("Cannot create temporary file %s.", tmpMakefile);
+		}
+#else
 	        fd = mkstemp(tmpMakefile);
 	        if (fd == -1 || (tmpfd = fdopen(fd, "w+")) == NULL) {
 		   if (fd != -1) {
@@ -408,6 +418,7 @@ main(argc, argv)
 		   }
 		   LogFatal("Cannot create temporary file %s.", tmpMakefile);
 		}
+#endif
 	}
 	AddMakeArg("-f");
 	AddMakeArg( tmpMakefile );
@@ -1242,6 +1253,13 @@ CleanCppInput(imakefile)
 		    if (outFile == NULL) {
 		        int fd;
 			tmpImakefile = Strdup(tmpImakefile);
+#ifndef HAS_MKSTEMP
+			if (mktemp(tmpImakefile) == NULL ||
+			    (outFile = fopen(tmpImakefile, "w+")) == NULL) {
+			    LogFatal("Cannot open %s for write.",
+				tmpImakefile);
+			}
+#else
 			fd=mkstemp(tmpImakefile);
 			if (fd != -1)
 			    outFile = fdopen(fd, "w");
@@ -1252,6 +1270,7 @@ CleanCppInput(imakefile)
 			    LogFatal("Cannot open %s for write.",
 				tmpImakefile);
 			}
+#endif
 		    }
 		    writetmpfile(outFile, punwritten, pbuf-punwritten,
 				 tmpImakefile);

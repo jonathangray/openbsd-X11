@@ -1,5 +1,5 @@
 /* $XConsortium: policy.c,v 1.12 94/04/17 20:03:41 hersh Exp $ */
-/* $XFree86: xc/programs/xdm/policy.c,v 3.1.2.1 1999/07/21 18:07:43 hohndel Exp $ */
+/* $XFree86: xc/programs/xdm/policy.c,v 3.1.2.2 1999/11/18 15:37:36 hohndel Exp $ */
 /*
 
 Copyright (c) 1988  X Consortium
