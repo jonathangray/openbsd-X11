@@ -79,7 +79,7 @@
 
 #if defined(CSRG_BASED)
 /* *BSD doesn't like a ':0' type entry in utmp */
-#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
+#if !defined(__FreeBSD__)
 #define NO_UTMP
 #endif
 #endif
