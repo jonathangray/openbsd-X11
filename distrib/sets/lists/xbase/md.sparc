@@ -23,8 +23,6 @@
 ./usr/X11R6/lib/X11/fonts/PEX
 ./usr/X11R6/lib/X11/fonts/PEX/Roman.phont
 ./usr/X11R6/lib/X11/fonts/PEX/Roman_M.phont
-./usr/X11R6/lib/X11/xdm/pixmaps
-./usr/X11R6/lib/X11/xdm/pixmaps/OpenBSD.xpm
 ./usr/X11R6/lib/X11/xkb
 ./usr/X11R6/lib/X11/xkb/compat
 ./usr/X11R6/lib/X11/xkb/compat.dir
@@ -205,6 +203,7 @@
 ./usr/X11R6/lib/libXi.so.6.0
 ./usr/X11R6/lib/libXmu.so.6.0
 ./usr/X11R6/lib/libXp.so.6.2
+./usr/X11R6/lib/libXpm.so.4.10
 ./usr/X11R6/lib/libXt.so.6.0
 ./usr/X11R6/lib/libXtst.so.6.1
 ./usr/X11R6/lib/liboldX.so.6.0

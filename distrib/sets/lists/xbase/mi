@@ -16,6 +16,8 @@
 ./usr/X11R6/bin/iceauth
 ./usr/X11R6/bin/ico
 ./usr/X11R6/bin/imake
+./usr/X11R6/bin/kx
+./usr/X11R6/bin/kxd
 ./usr/X11R6/bin/lbxproxy
 ./usr/X11R6/bin/listres
 ./usr/X11R6/bin/lndir
@@ -29,11 +31,15 @@
 ./usr/X11R6/bin/resize
 ./usr/X11R6/bin/rstart
 ./usr/X11R6/bin/rstartd
+./usr/X11R6/bin/rxtelnet
+./usr/X11R6/bin/rxterm
 ./usr/X11R6/bin/sessreg
 ./usr/X11R6/bin/showfont
 ./usr/X11R6/bin/showrgb
 ./usr/X11R6/bin/smproxy
 ./usr/X11R6/bin/startx
+./usr/X11R6/bin/sxpm
+./usr/X11R6/bin/tenletxr
 ./usr/X11R6/bin/twm
 ./usr/X11R6/bin/viewres
 ./usr/X11R6/bin/x11perf
@@ -379,6 +385,7 @@
 ./usr/X11R6/include/X11/fonts/fsmasks.h
 ./usr/X11R6/include/X11/keysym.h
 ./usr/X11R6/include/X11/keysymdef.h
+./usr/X11R6/include/X11/xpm.h
 ./usr/X11R6/include/bitmaps
 ./usr/X11R6/include/bitmaps/ldblarrow
 ./usr/X11R6/include/bitmaps/rdblarrow
@@ -1185,6 +1192,8 @@
 ./usr/X11R6/lib/X11/xdm/Xsession
 ./usr/X11R6/lib/X11/xdm/Xsetup_0
 ./usr/X11R6/lib/X11/xdm/chooser
+./usr/X11R6/lib/X11/xdm/pixmaps
+./usr/X11R6/lib/X11/xdm/pixmaps/OpenBSD.xpm
 ./usr/X11R6/lib/X11/xdm/xdm-config
 ./usr/X11R6/lib/X11/xinit
 ./usr/X11R6/lib/X11/xinit/xinitrc
@@ -1206,6 +1215,7 @@
 ./usr/X11R6/lib/libXi.a
 ./usr/X11R6/lib/libXmu.a
 ./usr/X11R6/lib/libXp.a
+./usr/X11R6/lib/libXpm.a
 ./usr/X11R6/lib/libXss.a
 ./usr/X11R6/lib/libXt.a
 ./usr/X11R6/lib/libXtst.a
@@ -1225,6 +1235,8 @@
 ./usr/X11R6/man/cat1/iceauth.0
 ./usr/X11R6/man/cat1/ico.0
 ./usr/X11R6/man/cat1/imake.0
+./usr/X11R6/man/cat1/kx.0
+./usr/X11R6/man/cat1/kxd.0
 ./usr/X11R6/man/cat1/lbxproxy.0
 ./usr/X11R6/man/cat1/listres.0
 ./usr/X11R6/man/cat1/lndir.0
@@ -1238,11 +1250,15 @@
 ./usr/X11R6/man/cat1/resize.0
 ./usr/X11R6/man/cat1/rstart.0
 ./usr/X11R6/man/cat1/rstartd.0
+./usr/X11R6/man/cat1/rxtelnet.0
+./usr/X11R6/man/cat1/rxterm.0
 ./usr/X11R6/man/cat1/sessreg.0
 ./usr/X11R6/man/cat1/showfont.0
 ./usr/X11R6/man/cat1/showrgb.0
 ./usr/X11R6/man/cat1/smproxy.0
 ./usr/X11R6/man/cat1/startx.0
+./usr/X11R6/man/cat1/sxpm.0
+./usr/X11R6/man/cat1/tenletxr.0
 ./usr/X11R6/man/cat1/twm.0
 ./usr/X11R6/man/cat1/viewres.0
 ./usr/X11R6/man/cat1/x11perf.0
