@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: data.h /main/13 1996/11/24 17:35:40 rws $
- *	$XFree86: xc/programs/xterm/data.h,v 3.3.2.2 1998/04/29 04:18:39 dawes Exp $
+ *	$XFree86: xc/programs/xterm/data.h,v 3.3.2.3 1998/10/20 20:51:45 hohndel Exp $
  */
 /*
  * Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts.
@@ -24,6 +24,11 @@
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
  * SOFTWARE.
  */
+
+#ifndef included_data_h
+#define included_data_h 1
+
+#include <ptyx.h>
 
 #if XtSpecificationRelease >= 6 && !defined(NO_XPOLL_H)
 #include <X11/Xpoll.h>
@@ -57,7 +62,6 @@ extern int Tbcnt;
 extern int Ttoggled;
 #endif
 
-extern XPoint VTbox[];
 extern Char *bptr;
 #ifdef ALLOWLOGGING
 extern char log_def_name[];
@@ -66,10 +70,17 @@ extern char *ptydev;
 extern char *ttydev;
 extern char *xterm_name;
 extern Boolean sunFunctionKeys;
+#if OPT_ZICONBEEP 
+extern int zIconBeep; 
+extern Boolean zIconBeep_flagged; 
+#endif 
+#if OPT_SAME_NAME 
+extern Boolean sameName; 
+#endif 
 #if OPT_SUNPC_KBD
 extern Boolean sunKeyboard;
 #endif
-extern Char buffer[];
+extern Char VTbuffer[];
 extern int am_slave;
 extern int bcnt;
 #ifdef DEBUG
@@ -107,3 +118,5 @@ extern XtermWidget term;
 #define	XkbBI_MarginBell		10
 #define	XkbBI_CursorStuck		11
 #endif
+
+#endif /* included_data_h */

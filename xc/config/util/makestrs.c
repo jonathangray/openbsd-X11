@@ -26,6 +26,7 @@ used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization from the X Consortium.
 
 */
+/* $XFree86: xc/config/util/makestrs.c,v 3.2.2.2 1998/10/04 15:22:48 hohndel Exp $ */
 
 /* Constructs string definitions */
 

@@ -1,5 +1,5 @@
 /* $XConsortium: Screen.c /main/8 1996/12/02 10:21:46 lehors $ */
-/* $XFree86: xc/programs/Xserver/hw/xnest/Screen.c,v 3.3 1996/12/23 07:09:19 dawes Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xnest/Screen.c,v 3.3.2.1 1998/10/04 13:37:08 hohndel Exp $ */
 /*
 
 Copyright 1993 by Davor Matic

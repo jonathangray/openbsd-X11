@@ -1,6 +1,6 @@
-XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.11 1998/02/15 16:08:33 hohndel Exp $
+XCOMM platform:  $XFree86: xc/config/cf/OpenBSD.cf,v 3.1.2.12 1998/10/04 13:36:13 hohndel Exp $
 XCOMM
-XCOMM $OpenBSD: OpenBSD.cf,v 1.36 1998/11/16 07:31:10 todd Exp $
+XCOMM $OpenBSD: OpenBSD.cf,v 1.37 1998/11/28 11:18:15 matthieu Exp $
 XCOMM
 
 #ifndef OSName
@@ -40,7 +40,6 @@ XCOMM operating system:  OSName (OSMajorVersion./**/OSMinorVersion./**/OSTeenyVe
 #ifndef HasKrbIV
 #define HasKrbIV		YES
 #endif
-
 
 /*
  * Compiler Features
@@ -469,7 +468,7 @@ install:: fonts.alias							@@\
 # include <xf86.rules>
 # define Xmac68kServer
 
-#endif /* Mac68kArchitecture */
+#endif /* mac68kArchitecture */
 
 
 /*
@@ -522,6 +521,7 @@ install:: fonts.alias							@@\
 # ifndef BuildPexExt
 #  define BuildPexExt 		(XsunServer || Xsun24Server)
 # endif
+#endif
 
 #endif /* Sun3Architecture */
 
@@ -580,13 +580,13 @@ install:: fonts.alias							@@\
 # include <xf86.rules>
 
 # ifndef Xsun24Server
-# define Xsun24Server			YES
+# define Xsun24Server		YES
 # endif
 # ifndef XsunServer
-# define XsunServer			YES
+# define XsunServer		YES
 # endif
 # ifndef XsunMonoServer
-# define XsunMonoServer			YES
+# define XsunMonoServer		YES
 # endif
 
 #define XkbServerDefines  -DXKB_ALWAYS_USES_SOFT_REPEAT
@@ -635,7 +635,7 @@ install:: fonts.alias							@@\
  * XFree86 uses its own (more portable) database routines to speed up
  * the RGB database lookups
  * However, if you want to use ndbm anyway, you can set that to NO in
- * site.def
+ * host.def
  */
 #ifndef UseRgbTxt
 # define UseRgbTxt			YES

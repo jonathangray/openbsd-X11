@@ -2,8 +2,8 @@
 !
 !
 !
-! $XFree86: xc/programs/xterm/XTerm.ad,v 3.1.2.3 1998/02/15 16:09:57 hohndel Exp $
-! $OpenBSD: XTerm.ad,v 1.2 1998/06/03 06:45:15 todd Exp $
+!
+! $XFree86: xc/programs/xterm/XTerm.ad,v 3.1.2.4 1998/10/20 20:51:34 hohndel Exp $
 
 XTerm.JoinSession:False
 
@@ -22,6 +22,7 @@ XTerm.JoinSession:False
 *mainMenu*securekbd*Label:  Secure Keyboard
 *mainMenu*allowsends*Label:  Allow SendEvents
 *mainMenu*logging*Label:  Log to File
+*mainMenu*print*Label:  Print Window
 *mainMenu*redraw*Label:  Redraw Window
 *mainMenu*8-bit control*Label: 8-Bit Controls
 *mainMenu*backarrow key*Label: Backarrow Key

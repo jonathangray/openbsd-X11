@@ -1,10 +1,10 @@
 /*
- * $XFree86: xc/programs/xterm/print.c,v 1.3.2.3 1998/04/29 11:18:07 dawes Exp $
+ * $XFree86: xc/programs/xterm/print.c,v 1.3.2.4 1998/10/20 20:51:50 hohndel Exp $
  */
 
 /************************************************************
 
-Copyright 1997 by Thomas E. Dickey <dickey@clark.net>
+Copyright 1997,1998 by Thomas E. Dickey <dickey@clark.net>
 
                         All Rights Reserved
 
@@ -34,34 +34,49 @@ authorization.
 
 ********************************************************/
 
-#ifdef HAVE_CONFIG_H
-#include <xtermcfg.h>
-#endif
-
 #include <stdio.h>
 
-#include "ptyx.h"
-#include "data.h"
-#include "error.h"
-#include "xterm.h"
+#include <xterm.h>
+#include <data.h>
+#include <error.h>
 
+#define SHIFT_IN  '\017'
+#define SHIFT_OUT '\016'
+
+#define CSET_IN   'A'
+#define CSET_OUT  '0'
+
+#define isForm(c) ((c) == '\r' || (c) == '\n' || (c) == '\f')
 #define Strlen(a) strlen((char *)a)
 #define Strcmp(a,b) strcmp((char *)a,(char *)b)
 #define Strncmp(a,b,c) strncmp((char *)a,(char *)b,c)
 
 #define SGR_MASK (BOLD|BLINK|UNDERLINE|INVERSE)
 
-static void charToPrinter PROTO((int chr));
-static void printCursorLine PROTO((void));
-static void printLine PROTO((int row, int chr));
-static void printPage PROTO((void));
-static void send_CharSet PROTO((int row));
-static void send_SGR PROTO((unsigned attr));
-static void stringToPrinter PROTO((char * str));
+static void charToPrinter (int chr);
+static void printLine (int row, int chr);
+static void send_CharSet (int row);
+static void send_SGR (unsigned attr, int fg, int bg);
+static void stringToPrinter (char * str);
 
 static FILE *Printer;
+static int Printer_pid;
+static int initialized;
 
-static void printCursorLine()
+static void closePrinter(void)
+{
+	if (Printer != 0) {
+		fclose(Printer);
+		TRACE(("closed printer, waiting...\n"));
+		while (nonblocking_wait() > 0)
+			;
+		Printer = 0;
+		initialized = 0;
+		TRACE(("closed printer\n"));
+	}
+}
+
+static void printCursorLine(void)
 {
 	register TScreen *screen = &term->screen;
 	TRACE(("printCursorLine\n"))
@@ -73,18 +88,26 @@ static void printCursorLine()
  * happens with a line that is entirely blank.  This function prints the
  * characters that xterm would allow as a selection (which may include blanks).
  */
-static void printLine(row, chr)
-	int row;
-	int chr;
+static void printLine(int row, int chr)
 {
 	register TScreen *screen = &term->screen;
 	Char *c = SCRN_BUF_CHARS(screen, row);
 	Char *a = SCRN_BUF_ATTRS(screen, row);
 	Char attr = *a & SGR_MASK;
 	int last = screen->max_col;
+	int col;
+#if OPT_ISO_COLORS && OPT_PRINT_COLORS
+	register Char *fb = 0;
+#endif
+	int fg = -1, last_fg = -1;
+	int bg = -1, last_bg = -1;
+	int cs = CSET_IN,last_cs = CSET_IN;
 
 	TRACE(("printLine(row=%d, chr=%d)\n", row, chr))
 
+	if_OPT_ISO_COLORS(screen,{
+		fb = SCRN_BUF_COLOR(screen, row);
+	})
 	while (last > 0) {
 		if ((a[last-1] & CHARDRAWN) == 0)
 			last--;
@@ -92,38 +115,90 @@ static void printLine(row, chr)
 			break;
 	}
 	if (last) {
-		send_CharSet(row);	/* FIXME: is this needed? */
-		send_SGR(0);
-		while (last--) {
-			if (((*a & SGR_MASK) != attr) && *c) {
-				send_SGR(attr = (*a & SGR_MASK));
-			}
-			charToPrinter(*c ? *c : ' ');
-			c++;
-			a++;
+		if (screen->print_attributes) {
+			send_CharSet(row);
+			send_SGR(0,-1,-1);
 		}
-		send_SGR(0);
+		for (col = 0; col < last; col++) {
+			Char ch = c[col];
+#if OPT_PRINT_COLORS
+			if_OPT_ISO_COLORS(screen,{
+				if (screen->print_attributes > 1) {
+					fg = (a[col] & FG_COLOR)
+						? extract_fg(fb[col], a[col])
+						: -1;
+					bg = (a[col] & BG_COLOR)
+						? extract_bg(fb[col])
+						: -1;
+				}
+			})
+#endif
+			if ((((a[col] & SGR_MASK) != attr)
+#if OPT_PRINT_COLORS
+			    || (last_fg != fg) || (last_bg != bg)
+#endif
+			    )
+			 && ch) {
+				attr = (a[col] & SGR_MASK);
+				last_fg = fg;
+				last_bg = bg;
+				if (screen->print_attributes)
+					send_SGR(attr, fg, bg);
+			}
+
+			if (ch == 0)
+				ch = ' ';
+
+			cs = (ch >= ' ' && ch != 0x7f) ? CSET_IN : CSET_OUT;
+			if (last_cs != cs) {
+				if (screen->print_attributes) {
+					charToPrinter((cs == CSET_OUT)
+						? SHIFT_OUT
+						: SHIFT_IN);
+				}
+				last_cs = cs; 	
+			}
+
+			/* FIXME:  we shouldn't have to map back from the
+			 * alternate character set, except that the
+			 * corresponding charset information is not encoded
+			 * into the CSETS array.
+			 */
+			charToPrinter((cs == CSET_OUT)
+					? (ch == 0x7f ? 0x5f : (ch + 0x5f))
+					: ch);
+		}
+		if (screen->print_attributes) {
+			send_SGR(0,-1,-1);
+			if (cs != CSET_IN)
+				charToPrinter(SHIFT_IN);
+		}
 	}
-	charToPrinter('\r');
+	if (screen->print_attributes)
+		charToPrinter('\r');
 	charToPrinter(chr);
 }
 
-static void printPage()
+void xtermPrintScreen(void)
 {
 	register TScreen *screen = &term->screen;
 	int top = screen->printer_extent ? 0 : screen->top_marg;
 	int bot = screen->printer_extent ? screen->max_row : screen->bot_marg;
+	int was_open = initialized;
 
-	TRACE(("printPage, rows %d..%d\n", top, bot))
+	TRACE(("xtermPrintScreen, rows %d..%d\n", top, bot))
 
 	while (top <= bot)
 		printLine(top++, '\n');
 	if (screen->printer_formfeed)
 		charToPrinter('\f');
+
+	if (!was_open || screen->printer_autoclose) {
+		closePrinter();
+	}
 }
 
-static void send_CharSet(row)
-	int row;
+static void send_CharSet(int row)
 {
 #if OPT_DEC_CHRSET
 	register TScreen *screen = &term->screen;
@@ -148,8 +223,7 @@ static void send_CharSet(row)
 #endif /* OPT_DEC_CHRSET */
 }
 
-static void send_SGR(attr)
-	unsigned attr;
+static void send_SGR(unsigned attr, int fg, int bg)
 {
 	char msg[80];
 	strcpy(msg, "\033[0");
@@ -161,6 +235,20 @@ static void send_SGR(attr)
 		strcat(msg, ";5");
 	if (attr & INVERSE)	/* typo? DEC documents this as invisible */
 		strcat(msg, ";7");
+#if OPT_PRINT_COLORS
+	if (bg >= 0) {
+		sprintf(msg + strlen(msg), ";%d", (bg < 8) ? (40 + bg) : (92 + bg));
+	}
+	if (fg >= 0) {
+#if OPT_PC_COLORS
+		if (term->screen.boldColors
+		 && fg > 8
+		 && attr & BOLD)
+			fg -= 8;
+#endif
+		sprintf(msg + strlen(msg), ";%d", (fg < 8) ? (30 + fg) : (82 + fg));
+	}
+#endif
 	strcat(msg, "m");
 	stringToPrinter(msg);
 }
@@ -168,49 +256,60 @@ static void send_SGR(attr)
 /*
  * This implementation only knows how to write to a pipe.
  */
-static void charToPrinter(chr)
-	int chr;
+static void charToPrinter(int chr)
 {
-	static int initialized;
 	if (!initialized) {
 		FILE	*input;
 		int	my_pipe[2];
-		int	my_pid;
 		int	c;
 		register TScreen *screen = &term->screen;
 
 	    	if (pipe(my_pipe))
 			SysError (ERROR_FORK);
-		if ((my_pid = fork()) < 0)
+		if ((Printer_pid = fork()) < 0)
 			SysError (ERROR_FORK);
 
-		if (my_pid == 0) {
+		if (Printer_pid == 0) {
+			TRACE(((char *)0))
 			close(my_pipe[1]);	/* printer is silent */
-			setgid (screen->gid);
+			close (screen->respond);
+
+			close(fileno(stdout));
+			dup2(fileno(stderr), 1);
+
+			if (fileno(stderr) != 2) {
+				dup2(fileno(stderr), 2);
+				close(fileno(stderr));
+			}
+
+			setgid (screen->gid);	/* don't want privileges! */
 			setuid (screen->uid);
+
 			Printer = popen(screen->printer_command, "w");
 			input = fdopen(my_pipe[0], "r");
 			while ((c = fgetc(input)) != EOF) {
 				fputc(c, Printer);
-				if (chr == '\r' || chr == '\n' || chr == '\f')
+				if (isForm(c))
 					fflush(Printer);
 			}
+			pclose(Printer);
 			exit(0);
 		} else {
 			close(my_pipe[0]);	/* won't read from printer */
 			Printer = fdopen(my_pipe[1], "w");
+			TRACE(("opened printer from pid %d/%d\n",
+				(int)getpid(), Printer_pid))
 		}
 		initialized++;
 	}
 	if (Printer != 0) {
 		fputc(chr, Printer);
-		if (chr == '\r' || chr == '\n' || chr == '\f')
+		if (isForm(chr))
 			fflush(Printer);
 	}
 }
 
-static void stringToPrinter(str)
-	char *str;
+static void stringToPrinter(char *str)
 {
 	while (*str)
 		charToPrinter(*str++);
@@ -222,15 +321,13 @@ static void stringToPrinter(str)
  * VT330/VT340 Programmer Reference Manual EK-VT3XX-TP-001 (Digital Equipment
  * Corp., March 1987).
  */
-void xtermMediaControl (param, private)
-	int param;
-	int private;
+void xtermMediaControl (int param, int private_seq)
 {
 	register TScreen *screen = &term->screen;
 
-	TRACE(("MediaCopy param=%d, private=%d\n", param, private))
+	TRACE(("MediaCopy param=%d, private=%d\n", param, private_seq))
 
-	if (private) {
+	if (private_seq) {
 		switch (param) {
 		case  1:
 			printCursorLine();
@@ -248,7 +345,7 @@ void xtermMediaControl (param, private)
 		switch (param) {
 		case -1:
 		case  0:
-			printPage();
+			xtermPrintScreen();
 			break;
 		case  4:
 			screen->printer_controlmode = 0;
@@ -268,8 +365,7 @@ void xtermMediaControl (param, private)
  * autowrap occurs.  The printed line ends with a CR and the character (LF, FF
  * or VT) that moved the cursor off the previous line.
  */
-void xtermAutoPrint(chr)
-	int chr;
+void xtermAutoPrint(int chr)
 {
 	register TScreen *screen = &term->screen;
 
@@ -293,8 +389,7 @@ void xtermAutoPrint(chr)
  */
 #define LB '['
 
-int xtermPrinterControl(chr)
-	int chr;
+int xtermPrinterControl(int chr)
 {
 	register TScreen *screen = &term->screen;
 
@@ -309,8 +404,8 @@ int xtermPrinterControl(chr)
 	};
 
 	static Char bfr[10];
-	static Size_t length;
-	Size_t n;
+	static size_t length;
+	size_t n;
 
 	TRACE(("In printer:%d\n", chr))
 
@@ -328,11 +423,16 @@ int xtermPrinterControl(chr)
 	case 'i':
 		bfr[length++] = chr;
 		for (n = 0; n < sizeof(tbl)/sizeof(tbl[0]); n++) {
-			Size_t len = Strlen(tbl[n].seq);
+			size_t len = Strlen(tbl[n].seq);
 
 			if (length == len
 			 && Strcmp(bfr, tbl[n].seq) == 0) {
 				screen->printer_controlmode = tbl[n].active;
+				TRACE(("Set printer controller mode %sactive\n",
+					tbl[n].active ? "" : "in"))
+				if (screen->printer_autoclose
+				 && screen->printer_controlmode == 0)
+					closePrinter();
 				length = 0;
 				return 0;
 			} else if (len > length

@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: misc.c /main/112 1996/11/29 10:34:07 swick $
- *	$XFree86: xc/programs/xterm/misc.c,v 3.17.2.4 1998/04/29 04:18:45 dawes Exp $
+ *	$XFree86: xc/programs/xterm/misc.c,v 3.17.2.5 1998/10/20 20:51:48 hohndel Exp $
  */
 
 /*
@@ -26,11 +26,7 @@
  * SOFTWARE.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <xtermcfg.h>
-#endif
-
-#include "ptyx.h"		/* X headers included here. */
+#include <xterm.h>
 
 #include <X11/Xos.h>
 #include <stdio.h>
@@ -38,7 +34,6 @@
 #include <signal.h>
 #include <ctype.h>
 #include <pwd.h>
-#include <errno.h>
 
 #include <X11/Xatom.h>
 #include <X11/cursorfont.h>
@@ -48,7 +43,10 @@
 #include <X11/Xmu/SysUtil.h>
 #include <X11/Xmu/WinUtil.h>
 
-#include "xterm.h"
+#include <data.h>
+#include <error.h>
+#include <menu.h>
+#include <xcharmouse.h>
 
 #include "VTparse.h"
 #include "data.h"
@@ -62,8 +60,8 @@
 #endif
 
 #ifdef AMOEBA
-#include "amoeba.h"
-#include "module/proc.h"
+#include <amoeba.h>
+#include <module/proc.h>
 #endif
 
 #ifdef __EMX__
@@ -74,13 +72,6 @@ extern char **environ;		/* used in 'Setenv()' */
 
 extern jmp_buf Tekend;
 extern jmp_buf VTend;
-
-#ifndef X_NOT_STDC_ENV
-#include <stdlib.h>
-#else
-extern char *malloc();
-extern char *getenv();
-#endif
 
 extern Widget toplevel;		/* used in 'ChangeGroup()' */
 
@@ -96,23 +87,14 @@ extern Widget toplevel;		/* used in 'ChangeGroup()' */
 		   (event.xcrossing.window == XtWindow(XtParent(term))))
 #endif
 
-static Boolean AllocateColor PROTO((XtermWidget pTerm, ScrnColors *pNew, int ndx, char *name));
-static Boolean ChangeColorsRequest PROTO((XtermWidget pTerm, int start, char *names));
-static Boolean GetOldColors PROTO(( XtermWidget pTerm));
-static Boolean UpdateOldColors PROTO((XtermWidget pTerm, ScrnColors *pNew));
-static int hexvalue PROTO((int c));
-static void ChangeGroup PROTO((String attribute, XtArgVal value));
-static void DoSpecialEnterNotify PROTO((XEnterWindowEvent *ev));
-static void DoSpecialLeaveNotify PROTO((XEnterWindowEvent *ev));
-static void selectwindow PROTO((TScreen *screen, int flag));
-static void unselectwindow PROTO((TScreen *screen, int flag));
-
-#if OPT_TEK4014
-static void withdraw_window PROTO((Display *dpy, Window w, int scr));
-#endif
+static Boolean ChangeColorsRequest (XtermWidget pTerm, int start, char *names);
+static void DoSpecialEnterNotify (XEnterWindowEvent *ev);
+static void DoSpecialLeaveNotify (XEnterWindowEvent *ev);
+static void selectwindow (TScreen *screen, int flag);
+static void unselectwindow (TScreen *screen, int flag);
 
 void
-do_xevents()
+do_xevents(void)
 {
 	register TScreen *screen = &term->screen;
 
@@ -122,7 +104,7 @@ do_xevents()
 }
 
 void
-xevents()
+xevents(void)
 {
 	XEvent event;
 	XtInputMask input_mask;
@@ -132,8 +114,8 @@ xevents()
 		FlushScroll(screen);
 	/*
 	 * process timeouts, relying on the fact that XtAppProcessEvent
-	 * will process the timeout and return without blockng on the 
-	 * XEvent queue.  Other sources i.e. the pty are handled elsewhere 
+	 * will process the timeout and return without blockng on the
+	 * XEvent queue.  Other sources i.e. the pty are handled elsewhere
 	 * with select().
 	 */
 	while ((input_mask = XtAppPending(app_con)) & XtIMTimer)
@@ -155,9 +137,15 @@ xevents()
 		 */
 		if(OUR_EVENT(event, EnterNotify))
 		  DoSpecialEnterNotify (&event.xcrossing);
-		else 
+		else
 		if(OUR_EVENT(event, LeaveNotify))
 		  DoSpecialLeaveNotify (&event.xcrossing);
+		else if (screen->send_mouse_pos == ANY_EVENT_MOUSE
+		 && event.xany.type == MotionNotify
+		 && event.xcrossing.window == XtWindow(term)) {
+		    SendMousePosition((Widget)term, &event);
+		    continue;
+		}
 
 		if (!event.xany.send_event ||
 		    screen->allowSendEvents ||
@@ -170,14 +158,15 @@ xevents()
 }
 
 
-Cursor make_colored_cursor (cursorindex, fg, bg)
-	unsigned cursorindex;			/* index into font */
-	unsigned long fg, bg;			/* pixel value */
+Cursor make_colored_cursor (
+	unsigned cursorindex,			/* index into font */
+	unsigned long fg,			/* pixel value */
+	unsigned long bg)			/* pixel value */
 {
 	register TScreen *screen = &term->screen;
 	Cursor c;
 	register Display *dpy = screen->display;
-	
+
 	c = XCreateFontCursor (dpy, cursorindex);
 	if (c == (Cursor) 0) return (c);
 
@@ -186,11 +175,11 @@ Cursor make_colored_cursor (cursorindex, fg, bg)
 }
 
 /* ARGSUSED */
-void HandleKeyPressed(w, event, params, nparams)
-    Widget w GCC_UNUSED;
-    XEvent *event;
-    String *params GCC_UNUSED;
-    Cardinal *nparams GCC_UNUSED;
+void HandleKeyPressed(
+	Widget w GCC_UNUSED,
+	XEvent *event,
+	String *params GCC_UNUSED,
+	Cardinal *nparams GCC_UNUSED)
 {
     register TScreen *screen = &term->screen;
 
@@ -201,11 +190,11 @@ void HandleKeyPressed(w, event, params, nparams)
 }
 
 /* ARGSUSED */
-void HandleEightBitKeyPressed(w, event, params, nparams)
-    Widget w GCC_UNUSED;
-    XEvent *event;
-    String *params GCC_UNUSED;
-    Cardinal *nparams GCC_UNUSED;
+void HandleEightBitKeyPressed(
+	Widget w GCC_UNUSED,
+	XEvent *event,
+	String *params GCC_UNUSED,
+	Cardinal *nparams GCC_UNUSED)
 {
     register TScreen *screen = &term->screen;
 
@@ -216,11 +205,11 @@ void HandleEightBitKeyPressed(w, event, params, nparams)
 }
 
 /* ARGSUSED */
-void HandleStringEvent(w, event, params, nparams)
-    Widget w GCC_UNUSED;
-    XEvent *event GCC_UNUSED;
-    String *params;
-    Cardinal *nparams;
+void HandleStringEvent(
+	Widget w GCC_UNUSED,
+	XEvent *event GCC_UNUSED,
+	String *params,
+	Cardinal *nparams)
 {
     register TScreen *screen = &term->screen;
 
@@ -251,8 +240,7 @@ void HandleStringEvent(w, event, params, nparams)
     }
 }
 
-static void DoSpecialEnterNotify (ev)
-    register XEnterWindowEvent *ev;
+static void DoSpecialEnterNotify (register XEnterWindowEvent *ev)
 {
     register TScreen *screen = &term->screen;
 
@@ -266,18 +254,17 @@ static void DoSpecialEnterNotify (ev)
 }
 
 /*ARGSUSED*/
-void HandleEnterWindow(w, eventdata, event, cont)
-Widget w GCC_UNUSED;
-XtPointer eventdata GCC_UNUSED;
-XEvent *event GCC_UNUSED;
-Boolean *cont GCC_UNUSED;
+void HandleEnterWindow(
+	Widget w GCC_UNUSED,
+	XtPointer eventdata GCC_UNUSED,
+	XEvent *event GCC_UNUSED,
+	Boolean *cont GCC_UNUSED)
 {
     /* NOP since we handled it above */
 }
 
 
-static void DoSpecialLeaveNotify (ev)
-    register XEnterWindowEvent *ev;
+static void DoSpecialLeaveNotify (register XEnterWindowEvent *ev)
 {
     register TScreen *screen = &term->screen;
 
@@ -292,22 +279,22 @@ static void DoSpecialLeaveNotify (ev)
 
 
 /*ARGSUSED*/
-void HandleLeaveWindow(w, eventdata, event, cont)
-Widget w GCC_UNUSED;
-XtPointer eventdata GCC_UNUSED;
-XEvent *event GCC_UNUSED;
-Boolean *cont GCC_UNUSED;
+void HandleLeaveWindow(
+	Widget w GCC_UNUSED,
+	XtPointer eventdata GCC_UNUSED,
+	XEvent *event GCC_UNUSED,
+	Boolean *cont GCC_UNUSED)
 {
     /* NOP since we handled it above */
 }
 
 
 /*ARGSUSED*/
-void HandleFocusChange(w, eventdata, ev, cont)
-Widget w GCC_UNUSED;
-XEvent *ev;
-XtPointer eventdata GCC_UNUSED;
-Boolean *cont GCC_UNUSED;
+void HandleFocusChange(
+	Widget w GCC_UNUSED,
+	XtPointer eventdata GCC_UNUSED,
+	XEvent *ev,
+	Boolean *cont GCC_UNUSED)
 {
 	register XFocusChangeEvent *event = (XFocusChangeEvent  *)ev;
         register TScreen *screen = &term->screen;
@@ -331,9 +318,7 @@ Boolean *cont GCC_UNUSED;
 
 
 static void
-selectwindow(screen, flag)
-register TScreen *screen;
-register int flag;
+selectwindow(register TScreen *screen, register int flag)
 {
 #if OPT_TEK4014
 	if(screen->TekEmu) {
@@ -361,9 +346,7 @@ register int flag;
 }
 
 static void
-unselectwindow(screen, flag)
-register TScreen *screen;
-register int flag;
+unselectwindow(register TScreen *screen, register int flag)
 {
     if (screen->always_highlight) return;
 
@@ -390,9 +373,7 @@ register int flag;
 static long lastBellTime;	/* in milliseconds */
 
 void
-Bell(which,percent)
-     int which GCC_UNUSED;
-     int percent;
+Bell(int which GCC_UNUSED, int percent)
 {
     register TScreen *screen = &term->screen;
     struct timeval curtime;
@@ -438,7 +419,7 @@ Bell(which,percent)
 }
 
 void
-VisualBell()
+VisualBell(void)
 {
     register TScreen *screen = &term->screen;
     register Pixel xorPixel = screen->foreground ^ term->core.background_pixel;
@@ -452,7 +433,7 @@ VisualBell()
     if(screen->TekEmu) {
 	XFillRectangle(
 		       screen->display,
-		       TWindow(screen), 
+		       TWindow(screen),
 		       visualGC,
 		       0, 0,
 		       (unsigned) TFullWidth(screen),
@@ -460,7 +441,7 @@ VisualBell()
 	XFlush(screen->display);
 	XFillRectangle(
 		       screen->display,
-		       TWindow(screen), 
+		       TWindow(screen),
 		       visualGC,
 		       0, 0,
 		       (unsigned) TFullWidth(screen),
@@ -470,7 +451,7 @@ VisualBell()
     {
 	XFillRectangle(
 		       screen->display,
-		       VWindow(screen), 
+		       VWindow(screen),
 		       visualGC,
 		       0, 0,
 		       (unsigned) FullWidth(screen),
@@ -478,7 +459,7 @@ VisualBell()
 	XFlush(screen->display);
 	XFillRectangle(
 		       screen->display,
-		       VWindow(screen), 
+		       VWindow(screen),
 		       visualGC,
 		       0, 0,
 		       (unsigned) FullWidth(screen),
@@ -487,11 +468,11 @@ VisualBell()
 }
 
 /* ARGSUSED */
-void HandleBellPropertyChange(w, data, ev, more)
-    Widget w GCC_UNUSED;
-    XtPointer data GCC_UNUSED;
-    XEvent *ev;
-    Boolean *more GCC_UNUSED;
+void HandleBellPropertyChange(
+	Widget w GCC_UNUSED,
+	XtPointer data GCC_UNUSED,
+	XEvent *ev,
+	Boolean *more GCC_UNUSED)
 {
     register TScreen *screen = &term->screen;
 
@@ -501,7 +482,7 @@ void HandleBellPropertyChange(w, data, ev, more)
 }
 
 void
-Redraw()
+Redraw(void)
 {
 	register TScreen *screen = &term->screen;
 	XExposeEvent event;
@@ -510,14 +491,14 @@ Redraw()
 	event.display = screen->display;
 	event.x = 0;
 	event.y = 0;
-	event.count = 0; 
-	
+	event.count = 0;
+
 	if(VWindow(screen)) {
 	        event.window = VWindow(screen);
 		event.width = term->core.width;
 		event.height = term->core.height;
 		(*term->core.widget_class->core_class.expose)((Widget)term, (XEvent *)&event, NULL);
-		if(Scrollbar(screen)) 
+		if(Scrollbar(screen))
 			(*screen->scrollWidget->core.widget_class->core_class.expose)(screen->scrollWidget, (XEvent *)&event, NULL);
 		}
 
@@ -533,12 +514,6 @@ Redraw()
 
 #if defined(ALLOWLOGGING) || defined(DEBUG)
 
-#ifndef X_NOT_POSIX
-#ifndef linux
-#define HAS_WAITPID
-#endif
-#endif
-
 /*
  * create a file only if we could with the permissions of the real user id.
  * We could emulate this with careful use of access() and following
@@ -551,17 +526,13 @@ Redraw()
  * for the debug logs.
  */
 void
-creat_as(uid, gid, pathname, mode)
-    int uid;
-    int gid;
-    char *pathname;
-    int mode;
+creat_as(int uid, int gid, char *pathname, int mode)
 {
     int fd;
     int pid;
-#ifndef HAS_WAITPID
+#ifndef HAVE_WAITPID
     int waited;
-    SIGNAL_T (*chldfunc)();
+    SIGNAL_T (*chldfunc) (int);
 
     chldfunc = signal(SIGCHLD, SIG_DFL);
 #endif
@@ -581,7 +552,7 @@ creat_as(uid, gid, pathname, mode)
     case -1:			/* error */
 	return;
     default:			/* parent */
-#ifdef HAS_WAITPID
+#ifdef HAVE_WAITPID
 	waitpid(pid, NULL, 0);
 #else
 	waited = wait(NULL);
@@ -604,16 +575,11 @@ creat_as(uid, gid, pathname, mode)
 
 /*
  * Logging is a security hole, since it allows a setuid program to write
- * arbitrary data to an arbitrary file.  So it is disabled by default. 
- * (However, this version of xterm resets the setuid before opening the
- * logfile).
- */ 
+ * arbitrary data to an arbitrary file.  So it is disabled by default.
+ */
 
 #ifdef ALLOWLOGFILEEXEC
-static SIGNAL_T logpipe PROTO((int sig));
-
-static SIGNAL_T logpipe (sig)
-	int sig GCC_UNUSED;
+static SIGNAL_T logpipe (int sig GCC_UNUSED)
 {
 	register TScreen *screen = &term->screen;
 
@@ -626,13 +592,12 @@ static SIGNAL_T logpipe (sig)
 #endif /* ALLOWLOGFILEEXEC */
 
 void
-StartLog(screen)
-register TScreen *screen;
+StartLog(register TScreen *screen)
 {
 	static char *log_default;
 #ifdef ALLOWLOGFILEEXEC
 	register char *cp;
-	register int i;
+	register int i = 0;
 #ifdef SYSV
 	/* SYSV has another pointer which should be part of the
 	** FILE structure but is actually a separate array.
@@ -647,13 +612,13 @@ register TScreen *screen;
 		if(screen->logfile)
 			free(screen->logfile);
 		if(log_default == NULL) {
-			log_default = malloc(strlen(log_def_name) + 1);
+			log_default = (char *)malloc(strlen(log_def_name) + 1);
 			if (log_default == 0)
 				return;
 			strcpy(log_default, log_def_name);
 			mktemp(log_default);
 		}
-		if((screen->logfile = malloc(strlen(log_default) + 1)) == NULL)
+		if((screen->logfile = (char *)malloc(strlen(log_default) + 1)) == 0)
 			return;
 		strcpy(screen->logfile, log_default);
 	}
@@ -689,7 +654,7 @@ register TScreen *screen;
 			if ((((cp = getenv("SHELL")) == NULL || *cp == 0)
 			  && ((pw = getpwuid(screen->uid)) == NULL
 			   || *(cp = pw->pw_shell) == 0))
-			 || (shell = malloc(strlen(cp) + 1)) == NULL)
+			 || (shell = (char *)malloc(strlen(cp) + 1)) == 0)
 				shell = "/bin/sh";
 			else
 				strcpy(shell, cp);
@@ -737,8 +702,7 @@ register TScreen *screen;
 }
 
 void
-CloseLog(screen)
-register TScreen *screen;
+CloseLog(register TScreen *screen)
 {
 	if(!screen->logging || (screen->inhibit & I_LOG))
 		return;
@@ -749,8 +713,7 @@ register TScreen *screen;
 }
 
 void
-FlushLog(screen)
-register TScreen *screen;
+FlushLog(register TScreen *screen)
 {
 	register Char *cp;
 	register int i;
@@ -758,22 +721,20 @@ register TScreen *screen;
 	cp = CURRENT_EMU_VAL(screen, Tbptr, bptr);
 	if((i = cp - screen->logstart) > 0)
 		write(screen->logfd, (char *)screen->logstart, i);
-	screen->logstart = CURRENT_EMU_VAL(screen, Tbuffer, buffer);
+	screen->logstart = CURRENT_EMU_VAL(screen, Tbuffer, VTbuffer);
 }
 
 #endif /* ALLOWLOGGING */
 
 void
-do_osc(oscbuf, len)
-Char *oscbuf;
-int len GCC_UNUSED;
+do_osc(Char *oscbuf, int len GCC_UNUSED)
 {
 	register int mode;
 	register Char *cp;
 	int state = 0;
 	char *buf = 0;
 
-	/* 
+	/*
 	 * lines should be of the form <OSC> number ; string <ST>
 	 */
 	mode = 0;
@@ -861,8 +822,7 @@ static struct {
 	} user_keys[MAX_UDK];
 
 static int
-hexvalue(c)
-	int c;
+hexvalue(int c)
 {
 	if (c >= '0' && c <= '9') return c - '0';
 	if (c >= 'A' && c <= 'F') return c - 'A' + 10;
@@ -871,7 +831,7 @@ hexvalue(c)
 }
 
 void
-reset_decudk()
+reset_decudk(void)
 {
 	int n;
 	for (n = 0; n < MAX_UDK; n++) {
@@ -884,9 +844,7 @@ reset_decudk()
 }
 
 void
-do_dcs(dcsbuf, dcslen)
-Char *dcsbuf;
-Size_t dcslen;
+do_dcs(Char *dcsbuf, size_t dcslen)
 {
 	register TScreen *screen = &term->screen;
 	char *cp = (char *)dcsbuf;
@@ -981,7 +939,7 @@ Size_t dcslen;
 			reset_decudk();
 
 		while (*cp) {
-			char *str = malloc(strlen(cp) + 2);
+			char *str = (char *)malloc(strlen(cp) + 2);
 			int key = 0;
 			int len = 0;
 
@@ -1013,9 +971,7 @@ Size_t dcslen;
 }
 
 char *
-udk_lookup(keycode, len)
-	int keycode;
-	int *len;
+udk_lookup(int keycode, int *len)
 {
 	if (keycode < MAX_UDK) {
 		*len = user_keys[keycode].len;
@@ -1025,26 +981,48 @@ udk_lookup(keycode, len)
 }
 
 static void
-ChangeGroup(attribute, value)
-     String attribute;
-     XtArgVal value;
+ChangeGroup(String attribute, XtArgVal value)
 {
 	Arg args[1];
+	char *name = (value != 0) ? (char *)value : "";
 
-	XtSetArg( args[0], attribute, value );
+#if OPT_SAME_NAME
+	/* If the attribute isn't going to change, then don't bother... */
+
+	if( sameName ) {
+	    char *buf;
+	    XtSetArg( args[0], attribute, &buf );
+	    XtGetValues( toplevel, args, 1 );
+	    if (strcmp(name, buf) == 0)
+		return;
+	}
+#endif /* OPT_SAME_NAME */
+
+	XtSetArg( args[0], attribute, name );
 	XtSetValues( toplevel, args, 1 );
 }
 
 void
-Changename(name)
-register char *name;
+Changename(register char *name)
 {
-    ChangeGroup( XtNiconName, (XtArgVal)name );
+#if OPT_ZICONBEEP	/* If warning should be given then give it */
+    if ( zIconBeep && zIconBeep_flagged ) {
+	char *newname = (char *)malloc(strlen(name)+ 4 + 1);
+	if (!newname) {
+	    fprintf(stderr, "malloc failed in Changename\n");
+	    return;
+	}
+	strcpy(newname, "*** ");
+	strcat(newname, name);
+	ChangeGroup( XtNiconName, (XtArgVal)newname );
+	free(newname);
+    } else
+#endif /* OPT_ZICONBEEP */
+	ChangeGroup( XtNiconName, (XtArgVal)name );
 }
 
 void
-Changetitle(name)
-register char *name;
+Changetitle(register char *name)
 {
     ChangeGroup( XtNtitle, (XtArgVal)name );
 }
@@ -1054,8 +1032,7 @@ register char *name;
 ScrnColors	*pOldColors= NULL;
 
 static Boolean
-GetOldColors(pTerm)
-XtermWidget	pTerm;
+GetOldColors(XtermWidget pTerm)
 {
 int	i;
     if (pOldColors==NULL) {
@@ -1075,9 +1052,9 @@ int	i;
 }
 
 static Boolean
-UpdateOldColors(pTerm,pNew)
-XtermWidget	pTerm GCC_UNUSED;
-ScrnColors	*pNew;
+UpdateOldColors(
+	XtermWidget	pTerm GCC_UNUSED,
+	ScrnColors	*pNew)
 {
 int	i;
 
@@ -1104,7 +1081,7 @@ int	i;
 }
 
 void
-ReverseOldColors()
+ReverseOldColors(void)
 {
 register ScrnColors	*pOld= pOldColors;
 Pixel	 tmpPix;
@@ -1155,11 +1132,11 @@ char	*tmpName;
 }
 
 static Boolean
-AllocateColor(pTerm,pNew,ndx,name)
-XtermWidget	 pTerm;
-ScrnColors	*pNew;
-int		 ndx;
-char		*name;
+AllocateColor(
+	XtermWidget	 pTerm,
+	ScrnColors	*pNew,
+	int		 ndx,
+	char		*name)
 {
 XColor			 def;
 register TScreen	*screen=	&pTerm->screen;
@@ -1180,10 +1157,10 @@ char			*newName;
 }
 
 static Boolean
-ChangeColorsRequest(pTerm,start,names)
-XtermWidget	pTerm;
-int		start;
-register char	*names;
+ChangeColorsRequest(
+	XtermWidget	pTerm,
+	int		start,
+	register char	*names)
 {
 char		*thisName;
 ScrnColors	newColors;
@@ -1232,9 +1209,7 @@ int		i,ndx;
 /* ARGSUSED */
 #endif
 void
-Panic(s, a)
-char	*s GCC_UNUSED;
-int a GCC_UNUSED;
+Panic(char *s GCC_UNUSED, int a GCC_UNUSED)
 {
 #ifdef DEBUG
 	if(debug) {
@@ -1246,16 +1221,14 @@ int a GCC_UNUSED;
 #endif	/* DEBUG */
 }
 
-char *SysErrorMsg (n)
-    int n;
+char *SysErrorMsg (int n)
 {
     register char *s = strerror(n);
     return s ? s : "unknown error";
 }
 
 void
-SysError (i)
-int i;
+SysError (int i)
 {
 	int oerrno;
 
@@ -1267,8 +1240,7 @@ int i;
 }
 
 void
-Error (i)
-int i;
+Error (int i)
 {
 	fprintf (stderr, "%s: Error %d\n", xterm_name, i);
 	Cleanup(i);
@@ -1279,8 +1251,7 @@ int i;
  * cleanup by sending SIGHUP to client processes
  */
 void
-Cleanup (code)
-int code;
+Cleanup (int code)
 {
 	register TScreen *screen;
 
@@ -1305,11 +1276,12 @@ int code;
  * to have to do a realloc().
  */
 void
-Setenv (var, value)
-register char *var, *value;
+Setenv (register char *var, register char *value)
 {
 	register int envindex = 0;
-	register Size_t len = strlen(var);
+	register size_t len = strlen(var);
+
+	TRACE(("Setenv(var=%s, value=%s)\n", var, value))
 
 	while (environ [envindex] != NULL) {
 	    if (strncmp (environ [envindex], var, len) == 0) {
@@ -1322,9 +1294,7 @@ register char *var, *value;
 	    envindex ++;
 	}
 
-#ifdef DEBUG
-	if (debug) fputs ("expanding env\n", stderr);
-#endif	/* DEBUG */
+	TRACE(("...expanding env to %d\n", envindex+1))
 
 	environ [envindex] = (char *) malloc ((unsigned)len + strlen (value) + 1);
 	(void) strcpy (environ [envindex], var);
@@ -1336,11 +1306,10 @@ register char *var, *value;
  * returns a pointer to the first occurrence of s2 in s1,
  * or NULL if there are none.
  */
-char *strindex (s1, s2)
-register char	*s1, *s2;
+char *strindex ( register char *s1, register char *s2)
 {
 	register char	*s3;
-	Size_t s2len = strlen (s2);
+	size_t s2len = strlen (s2);
 
 	while ((s3=strchr(s1, *s2)) != NULL) {
 		if (strncmp(s3, s2, s2len) == 0)
@@ -1352,9 +1321,7 @@ register char	*s1, *s2;
 
 /*ARGSUSED*/
 int
-xerror(d, ev)
-Display *d;
-register XErrorEvent *ev;
+xerror(Display *d, register XErrorEvent *ev)
 {
     fprintf (stderr, "%s:  warning, error event received:\n", xterm_name);
     (void) XmuPrintDefaultErrorMessage (d, ev, stderr);
@@ -1364,10 +1331,9 @@ register XErrorEvent *ev;
 
 /*ARGSUSED*/
 int
-xioerror(dpy)
-Display *dpy;
+xioerror(Display *dpy)
 {
-    (void) fprintf (stderr, 
+    (void) fprintf (stderr,
 		    "%s:  fatal IO error %d (%s) or KillClient on X server \"%s\"\r\n",
 		    xterm_name, errno, SysErrorMsg (errno),
 		    DisplayString (dpy));
@@ -1378,16 +1344,14 @@ Display *dpy;
 
 extern char *ProgramName;
 
-void xt_error(message)
-    String message;
+void xt_error(String message)
 {
     (void) fprintf (stderr, "%s Xt error: %s\n", ProgramName, message);
     exit(1);
 }
 
 int
-XStrCmp(s1, s2)
-char *s1, *s2;
+XStrCmp(char *s1, char *s2)
 {
   if (s1 && s2) return(strcmp(s1, s2));
   if (s1 && *s1) return(1);
@@ -1396,10 +1360,7 @@ char *s1, *s2;
 }
 
 #if OPT_TEK4014
-static void withdraw_window (dpy, w, scr)
-    Display *dpy;
-    Window w;
-    int scr;
+static void withdraw_window (Display *dpy, Window w, int scr)
 {
     (void) XmuUpdateMapHints (dpy, w, NULL);
     XWithdrawWindow (dpy, w, scr);
@@ -1408,8 +1369,7 @@ static void withdraw_window (dpy, w, scr)
 #endif
 
 
-void set_vt_visibility (on)
-    Boolean on;
+void set_vt_visibility (Boolean on)
 {
     register TScreen *screen = &term->screen;
 
@@ -1423,7 +1383,7 @@ void set_vt_visibility (on)
 #if OPT_TEK4014
     else {
 	if (screen->Vshow && term) {
-	    withdraw_window (XtDisplay (term), 
+	    withdraw_window (XtDisplay (term),
 			     XtWindow(XtParent(term)),
 			     XScreenNumberOfScreen(XtScreen(term)));
 	    screen->Vshow = FALSE;
@@ -1437,12 +1397,11 @@ void set_vt_visibility (on)
 #endif
     return;
 }
-				
+
 #if OPT_TEK4014
 extern Atom wm_delete_window;	/* for ICCCM delete window */
 
-void set_tek_visibility (on)
-    Boolean on;
+void set_tek_visibility (Boolean on)
 {
     register TScreen *screen = &term->screen;
     if (on) {
@@ -1453,14 +1412,14 @@ void set_tek_visibility (on)
 	    XtOverrideTranslations(tekParent,
 				   XtParseTranslationTable
 				   ("<Message>WM_PROTOCOLS: DeleteWindow()"));
-	    (void) XSetWMProtocols (XtDisplay(tekParent), 
+	    (void) XSetWMProtocols (XtDisplay(tekParent),
 				    XtWindow(tekParent),
 				    &wm_delete_window, 1);
 	    screen->Tshow = TRUE;
 	}
     } else {
 	if (screen->Tshow && tekWidget) {
-	    withdraw_window (XtDisplay (tekWidget), 
+	    withdraw_window (XtDisplay (tekWidget),
 			     XtWindow(XtParent(tekWidget)),
 			     XScreenNumberOfScreen(XtScreen(tekWidget)));
 	    screen->Tshow = FALSE;
@@ -1474,7 +1433,7 @@ void set_tek_visibility (on)
     return;
 }
 
-void end_tek_mode ()
+void end_tek_mode (void)
 {
     register TScreen *screen = &term->screen;
 
@@ -1482,15 +1441,15 @@ void end_tek_mode ()
 #ifdef ALLOWLOGGING
 	if (screen->logging) {
 	    FlushLog (screen);
-	    screen->logstart = buffer;
+	    screen->logstart = VTbuffer;
 	}
 #endif
 	longjmp(Tekend, 1);
-    } 
+    }
     return;
 }
 
-void end_vt_mode ()
+void end_vt_mode (void)
 {
     register TScreen *screen = &term->screen;
 
@@ -1503,12 +1462,11 @@ void end_vt_mode ()
 #endif
 	screen->TekEmu = TRUE;
 	longjmp(VTend, 1);
-    } 
+    }
     return;
 }
 
-void switch_modes (tovt)
-    Bool tovt;				/* if true, then become vt mode */
+void switch_modes (Bool tovt)		/* if true, then become vt mode */
 {
     if (tovt) {
 	if (TekRefresh) dorefresh();
@@ -1518,7 +1476,7 @@ void switch_modes (tovt)
     }
 }
 
-void hide_vt_window ()
+void hide_vt_window (void)
 {
     register TScreen *screen = &term->screen;
 
@@ -1526,7 +1484,7 @@ void hide_vt_window ()
     if (!screen->TekEmu) switch_modes (False);	/* switch to tek mode */
 }
 
-void hide_tek_window ()
+void hide_tek_window (void)
 {
     register TScreen *screen = &term->screen;
 

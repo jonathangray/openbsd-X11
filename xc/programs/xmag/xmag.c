@@ -28,6 +28,7 @@ other dealings in this Software without prior written authorization
 from the X Consortium.
 
 */
+/* $XFree86: xc/programs/xmag/xmag.c,v 1.1.1.1.12.2 1998/10/04 15:23:18 hohndel Exp $ */
 
 
 #include <X11/Intrinsic.h>

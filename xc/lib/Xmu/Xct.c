@@ -26,6 +26,7 @@ used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization from the X Consortium.
 
 */
+/* $XFree86: xc/lib/Xmu/Xct.c,v 1.1.1.1.12.2 1998/10/04 15:22:53 hohndel Exp $ */
 
 #include <X11/Xfuncs.h>
 #include "Xct.h"

@@ -1,6 +1,6 @@
 /*
  * $XConsortium: Tekproc.c /main/120 1996/11/29 10:33:20 swick $
- * $XFree86: xc/programs/xterm/Tekproc.c,v 3.13.2.4 1998/04/29 11:18:06 dawes Exp $
+ * $XFree86: xc/programs/xterm/Tekproc.c,v 3.13.2.5 1998/10/20 20:51:32 hohndel Exp $
  *
  * Warning, there be crufty dragons here.
  */
@@ -56,11 +56,8 @@ in this Software without prior written authorization from the X Consortium.
 
 /* Tekproc.c */
 
-#ifdef HAVE_CONFIG_H
-#include <xtermcfg.h>
-#endif
+#include <xterm.h>
 
-#include "ptyx.h"
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
@@ -71,24 +68,18 @@ in this Software without prior written authorization from the X Consortium.
 
 #include <stdio.h>
 #include <ctype.h>
-#include <errno.h>
 #include <setjmp.h>
 #include <signal.h>
 
-#include "xterm.h"
-
-#include "Tekparse.h"
-#include "data.h"
-#include "error.h"
-#include "menu.h"
+#include <Tekparse.h>
+#include <data.h>
+#include <error.h>
+#include <menu.h>
 
 #ifdef X_NOT_STDC_ENV
-extern int errno;
-#define Time_t long
-extern Time_t time ();
+extern time_t time ();
 #else
 #include <time.h>
-#define Time_t time_t
 #endif
 
 #ifdef MINIX
@@ -115,14 +106,6 @@ extern Time_t time ();
 #endif
 
 extern jmp_buf Tekend;
-
-#ifndef X_NOT_STDC_ENV
-#include <stdlib.h>
-#else
-extern char *malloc();
-extern void exit();
-extern long time();		/* included in <time.h> by Xos.h */
-#endif
 
 #define DefaultGCID XGContextFromGC(DefaultGC(screen->display, DefaultScreen(screen->display)))
 
@@ -194,8 +177,8 @@ extern int Tplttable[];
 extern int Tpttable[];
 extern int Tspttable[];
 
-static int *curstate = Talptable;
-static int *Tparsestate = Talptable;
+static Const int *curstate = Talptable;
+static Const int *Tparsestate = Talptable;
 
 static char defaultTranslations[] = "\
                 ~Meta<KeyPress>: insert-seven-bit() \n\
@@ -293,23 +276,20 @@ static XtResource resources[] = {
        XtRString, GIN_TERM_NONE_STR},
 };
 
-static TekWidget CreateTekWidget PROTO((void));
-static int Tinput PROTO((void));
-static int getpoint PROTO((void));
-static void AddToDraw PROTO((int x1, int y1, int x2, int y2));
-static void TCursorBack PROTO((void));
-static void TCursorDown PROTO((void));
-static void TCursorForward PROTO((void));
-static void TCursorUp PROTO((void));
-static void TekBackground PROTO((TScreen *screen));
-static void TekConfigure PROTO((Widget w));
-static void TekDraw PROTO((int x, int y));
-static void TekEnq PROTO((int status, int x, int y));
-static void TekFlush PROTO((void));
-static void TekInitialize PROTO((Widget request, Widget new, ArgList args, Cardinal *num_args));
-static void TekPage PROTO((void));
-static void TekRealize PROTO((Widget gw, XtValueMask *valuemaskp, XSetWindowAttributes *values));
-static void Tekparse PROTO((void));
+static int Tinput (void);
+static int getpoint (void);
+static void TCursorBack (void);
+static void TCursorDown (void);
+static void TCursorForward (void);
+static void TCursorUp (void);
+static void TekBackground (TScreen *screen);
+static void TekConfigure (Widget w);
+static void TekDraw (int x, int y);
+static void TekEnq (int status, int x, int y);
+static void TekFlush (void);
+static void TekInitialize (Widget request, Widget wnew, ArgList args, Cardinal *num_args);
+static void TekPage (void);
+static void TekRealize (Widget gw, XtValueMask *valuemaskp, XSetWindowAttributes *values);
 
 static WidgetClassRec tekClassRec = {
   {
@@ -354,7 +334,7 @@ static Boolean Tfailed = FALSE;
 
 static Widget tekshellwidget;
 
-static TekWidget CreateTekWidget ()
+static TekWidget CreateTekWidget (void)
 {
     /* this causes the Initialize method to be called */
     tekshellwidget = XtCreatePopupShell ("tektronix", topLevelShellWidgetClass,
@@ -369,7 +349,7 @@ static TekWidget CreateTekWidget ()
 }
 
 
-int TekInit ()
+int TekInit (void)
 {
     if (Tfailed) return (0);
     if (tekWidget) return (1);
@@ -379,7 +359,7 @@ int TekInit ()
     return (0);
 }
 
-static void Tekparse()
+static void Tekparse(void)
 {
 	register TScreen *screen = &term->screen;
 	register int c, x, y;
@@ -410,7 +390,7 @@ static void Tekparse()
 #ifdef ALLOWLOGGING
 			if(screen->logging) {
 				FlushLog(screen);
-				screen->logstart = buffer;
+				screen->logstart = VTbuffer;
 			}
 #endif
 			return;
@@ -698,7 +678,7 @@ static int rcnt;
 static char *rptr;
 static fd_set Tselect_mask;
 
-static int Tinput()
+static int Tinput(void)
 {
 	register TScreen *screen = &term->screen;
 	register int i;
@@ -734,11 +714,12 @@ again:
 				       &crocktimeout);
 #endif
 #ifndef AMOEBA
-			if(FD_ISSET (screen->respond, &Tselect_mask)) {
+			if(FD_ISSET (screen->respond, &Tselect_mask))
 #else
 			/* XXX resolve polling since it wastes CPU cycles */
-			if ((Tbcnt = cb_full(screen->tty_outq)) > 0) {
+			if ((Tbcnt = cb_full(screen->tty_outq)) > 0)
 #endif /* AMOEBA */
+			{
 #ifdef ALLOWLOGGING
 				if(screen->logging)
 					FlushLog(screen);
@@ -843,8 +824,7 @@ again:
 }
 
 /* this should become the Tek Widget's Resize proc */
-static void TekConfigure(w)
-    Widget w;
+static void TekConfigure(Widget w)
 {
     register TScreen *screen = &term->screen;
     register int border = 2 * screen->border;
@@ -863,10 +843,10 @@ static void TekConfigure(w)
 
 /*ARGSUSED*/
 void
-TekExpose(w, event, region)
-    Widget w GCC_UNUSED;
-    XEvent *event GCC_UNUSED;
-    Region region GCC_UNUSED;
+TekExpose(
+    Widget w GCC_UNUSED,
+    XEvent *event GCC_UNUSED,
+    Region region GCC_UNUSED)
 {
 	register TScreen *screen = &term->screen;
 
@@ -897,7 +877,7 @@ TekExpose(w, event, region)
 }
 
 void
-dorefresh()
+dorefresh(void)
 {
 	register TScreen *screen = &term->screen;
 	static Cursor wait_cursor = None;
@@ -914,7 +894,7 @@ dorefresh()
 }
 
 static void
-TekPage()
+TekPage(void)
 {
 	register TScreen *screen = &term->screen;
 	register TekLink *tek;
@@ -953,7 +933,7 @@ TekPage()
 #define	TWOBITS		03
 
 static int
-getpoint()
+getpoint(void)
 {
 	register int c, x, y, e, lo_y = 0;
 	register TScreen *screen = &term->screen;
@@ -998,7 +978,7 @@ getpoint()
 }
 
 static void
-TCursorBack()
+TCursorBack(void)
 {
 	register TScreen *screen = &term->screen;
 	register struct Tek_Char *t;
@@ -1021,7 +1001,7 @@ TCursorBack()
 }
 
 static void
-TCursorForward()
+TCursorForward(void)
 {
 	register TScreen *screen = &term->screen;
 	register struct Tek_Char *t;
@@ -1041,7 +1021,7 @@ TCursorForward()
 }
 
 static void
-TCursorUp()
+TCursorUp(void)
 {
 	register TScreen *screen = &term->screen;
 	register struct Tek_Char *t;
@@ -1061,7 +1041,7 @@ TCursorUp()
 }
 
 static void
-TCursorDown()
+TCursorDown(void)
 {
 	register TScreen *screen = &term->screen;
 	register struct Tek_Char *t;
@@ -1081,8 +1061,7 @@ TCursorDown()
 }
 
 static void
-AddToDraw(x1, y1, x2, y2)
-    int x1, y1, x2, y2;
+AddToDraw(int x1, int y1, int x2, int y2)
 {
 	register TScreen *screen = &term->screen;
 	register XSegment *lp;
@@ -1091,18 +1070,17 @@ AddToDraw(x1, y1, x2, y2)
 		TekFlush();
 	}
 	lp = line_pt++;
-	lp->x1 = x1 = x1 * TekScale(screen) + screen->border;
-	lp->y1 = y1 = (TEKHEIGHT + TEKTOPPAD - y1) * TekScale(screen) +
-	 screen->border;
-	lp->x2 = x2 = x2 * TekScale(screen) + screen->border;
-	lp->y2 = y2 = (TEKHEIGHT + TEKTOPPAD - y2) * TekScale(screen) +
-	 screen->border;
+	lp->x1 = x1 = (int) (x1 * TekScale(screen) + screen->border);
+	lp->y1 = y1 = (int) ((TEKHEIGHT + TEKTOPPAD - y1) * TekScale(screen) +
+				screen->border);
+	lp->x2 = x2 = (int) (x2 * TekScale(screen) + screen->border);
+	lp->y2 = y2 = (int) ((TEKHEIGHT + TEKTOPPAD - y2) * TekScale(screen) +
+				screen->border);
 	nplot++;
 }
 
 static void
-TekDraw (x, y)
-    int x, y;
+TekDraw (int x, int y)
 {
 	register TScreen *screen = &term->screen;
 
@@ -1121,7 +1099,7 @@ TekDraw (x, y)
 }
 
 static void
-TekFlush ()
+TekFlush (void)
 {
 	register TScreen *screen = &term->screen;
 
@@ -1134,7 +1112,7 @@ TekFlush ()
 }
 
 void
-TekGINoff()
+TekGINoff(void)
 {
 	register TScreen *screen = &term->screen;
 	
@@ -1148,8 +1126,7 @@ TekGINoff()
 }
 
 void
-TekEnqMouse(c)
-    int c;			/* character pressed */
+TekEnqMouse(int c)		/* character pressed */
 {
 	register TScreen *screen = &term->screen;
 	int mousex, mousey, rootx, rooty;
@@ -1162,21 +1139,22 @@ TekEnqMouse(c)
 	    &rootx, &rooty,
 	    &mousex, &mousey,
 	    &mask);
-	if((mousex = (mousex - screen->border) / TekScale(screen)) < 0)
+	if((mousex = (int)((mousex - screen->border) / TekScale(screen))) < 0)
 		mousex = 0;
 	else if(mousex >= TEKWIDTH)
 		mousex = TEKWIDTH - 1;
-	if((mousey = TEKHEIGHT + TEKTOPPAD - (mousey - screen->border) /
-	     TekScale(screen)) < 0)
+	if((mousey = (int)(TEKHEIGHT + TEKTOPPAD - (mousey - screen->border) /
+	     TekScale(screen))) < 0)
 		mousey = 0;
 	else if(mousey >= TEKHEIGHT)
 		mousey = TEKHEIGHT - 1;
 	TekEnq(c, mousex, mousey);
 }
 
-static void TekEnq (status, x, y)
-    int status;
-    register int x, y;
+static void TekEnq (
+    int status,
+    register int x,
+    register int y)
 {
     register TScreen *screen = &term->screen;
     int pty = screen->respond;
@@ -1202,7 +1180,7 @@ static void TekEnq (status, x, y)
 }
 
 void
-TekRun()
+TekRun(void)
 {
 	register TScreen *screen = &term->screen;
 	register int i;
@@ -1267,30 +1245,30 @@ static unsigned char *dashes[TEKNUMLINES] = {
  * The following is called the create the tekWidget
  */
 
-static void TekInitialize(request, new, args, num_args)
-    Widget request GCC_UNUSED;
-    Widget new GCC_UNUSED;
-    ArgList args GCC_UNUSED;
-    Cardinal *num_args GCC_UNUSED;
+static void TekInitialize(
+    Widget request GCC_UNUSED,
+    Widget wnew GCC_UNUSED,
+    ArgList args GCC_UNUSED,
+    Cardinal *num_args GCC_UNUSED)
 {
     /* look for focus related events on the shell, because we need
      * to care about the shell's border being part of our focus.
      */
-    XtAddEventHandler(XtParent(new), EnterWindowMask, FALSE,
+    XtAddEventHandler(XtParent(wnew), EnterWindowMask, FALSE,
 		      HandleEnterWindow, (caddr_t)NULL);
-    XtAddEventHandler(XtParent(new), LeaveWindowMask, FALSE,
+    XtAddEventHandler(XtParent(wnew), LeaveWindowMask, FALSE,
 		      HandleLeaveWindow, (caddr_t)NULL);
-    XtAddEventHandler(XtParent(new), FocusChangeMask, FALSE,
+    XtAddEventHandler(XtParent(wnew), FocusChangeMask, FALSE,
 		      HandleFocusChange, (caddr_t)NULL);
-    XtAddEventHandler((Widget)new, PropertyChangeMask, FALSE,
+    XtAddEventHandler((Widget)wnew, PropertyChangeMask, FALSE,
 		      HandleBellPropertyChange, (Opaque)NULL);
 }
 
 
-static void TekRealize (gw, valuemaskp, values)
-    Widget gw;
-    XtValueMask *valuemaskp;
-    XSetWindowAttributes *values;
+static void TekRealize (
+    Widget gw,
+    XtValueMask *valuemaskp,
+    XSetWindowAttributes *values)
 {
     TekWidget tw = (TekWidget) gw;
     register TScreen *screen = &term->screen;
@@ -1534,8 +1512,7 @@ static void TekRealize (gw, valuemaskp, values)
     return;
 }
 
-void TekSetFontSize (newitem)
-    int newitem;
+void TekSetFontSize (int newitem)
 {
     register TScreen *screen = &term->screen;
     int oldsize = screen->cur.fontsize;
@@ -1563,9 +1540,7 @@ void TekSetFontSize (newitem)
 }
 
 void
-ChangeTekColors(screen,pNew)
-register TScreen *screen;
-ScrnColors *pNew;
+ChangeTekColors(register TScreen *screen, ScrnColors *pNew)
 {
 	register int i;
 	XGCValues gcv;
@@ -1610,8 +1585,7 @@ ScrnColors *pNew;
 }
 
 void
-TekReverseVideo(screen)
-register TScreen *screen;
+TekReverseVideo(register TScreen *screen)
 {
 	register int i;
 	XGCValues gcv;
@@ -1652,8 +1626,7 @@ register TScreen *screen;
 }
 
 static void
-TekBackground(screen)
-register TScreen *screen;
+TekBackground(register TScreen *screen)
 {
 	if(TWindow(screen))
 		XSetWindowBackground(screen->display, TWindow(screen), 
@@ -1664,8 +1637,7 @@ register TScreen *screen;
  * Toggles cursor on or off at cursor position in screen.
  */
 void
-TCursorToggle(toggle)
-    int toggle;			/* TOGGLE or CLEAR */
+TCursorToggle(int toggle)	/* TOGGLE or CLEAR */
 {
 	register TScreen *screen = &term->screen;
 	register int c, x, y;
@@ -1678,9 +1650,9 @@ TCursorToggle(toggle)
 	cellheight = (unsigned) (tekWidget->tek.Tfont[c]->ascent + 
 				 tekWidget->tek.Tfont[c]->descent);
 
-	x = (screen->cur_X * TekScale(screen)) + screen->border;
-	y = ((TEKHEIGHT + TEKTOPPAD - screen->cur_Y) * TekScale(screen)) +
-	    screen->border - tekWidget->tek.tobaseline[c];
+	x = (int)((screen->cur_X * TekScale(screen)) + screen->border);
+	y = (int)(((TEKHEIGHT + TEKTOPPAD - screen->cur_Y) * TekScale(screen))
+	    + screen->border - tekWidget->tek.tobaseline[c]);
 
 	if (toggle == TOGGLE) {
 	   if (screen->select || screen->always_highlight) 
@@ -1704,8 +1676,7 @@ TCursorToggle(toggle)
 	}
 }
 
-void TekSimulatePageButton (reset)
-    Bool reset;
+void TekSimulatePageButton (Bool reset)
 {
     register TScreen *screen = &term->screen;
 
@@ -1722,30 +1693,19 @@ void TekSimulatePageButton (reset)
     screen->cur_Y = TEKHOME;
 }
 
-
-#ifndef X_NOT_POSIX
-#ifndef linux
-#define HAS_WAITPID
-#endif
-#endif
-
-#ifdef HAS_WAITPID
-#include <sys/wait.h>
-#endif
-
 /* write copy of screen to a file */
 
 void
-TekCopy()
+TekCopy(void)
 {
 	register TScreen *screen = &term->screen;
 	register struct tm *tp;
-	Time_t l;
+	time_t l;
 	char buf[32];
 	int pid;
-#ifndef HAS_WAITPID
+#ifndef HAVE_WAITPID
 	int waited;
-	SIGNAL_T (*chldfunc) PROTO((int n));
+	SIGNAL_T (*chldfunc) (int);
 
 	chldfunc = signal(SIGCHLD, SIG_DFL);
 #endif
@@ -1768,10 +1728,8 @@ TekCopy()
 	   using access before the open still leaves a small window
 	   of opportunity. */
 	pid = fork();
-	switch (pid)
-	{
-	case 0:			/* child */
-	{
+
+	if (pid == 0) {			/* child */
 	    register int tekcopyfd;
 	    char initbuf[5];
 	    register TekLink *Tp;
@@ -1792,12 +1750,11 @@ TekCopy()
 	    } while(Tp);
 	    close(tekcopyfd);
 	    _exit(0);
-	}
-	case -1:		/* error */
+	} else if (pid < 0) {	/* error */
 	    Bell(XkbBI_MinorError,0);
 	    return;
-	default:		/* parent */
-#ifdef HAS_WAITPID
+	} else {		/* parent */
+#ifdef HAVE_WAITPID
 	    waitpid(pid, NULL, 0);
 #else
 	    waited = wait(NULL);

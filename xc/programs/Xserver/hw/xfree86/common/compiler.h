@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/common/compiler.h,v 3.24.2.2 1998/02/07 00:44:37 dawes Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/common/compiler.h,v 3.24.2.4 1998/10/18 20:42:10 hohndel Exp $ */
 /*
  * Copyright 1990,91 by Thomas Roell, Dinkelscherben, Germany.
  *
@@ -382,7 +382,7 @@ static __inline__ unsigned long ldw_u(unsigned short * r11)
 #define mem_barrier()   /* NOP */
 #define write_mem_barrier()   /* NOP */
 
-#if !defined(FAKEIT) && !defined(__mc68000__)
+#if !defined(FAKEIT) && !defined(__mc68000__) && !defined(__powerpc__)
 #ifdef GCCUSESGAS
 
 /*
@@ -907,7 +907,7 @@ unsigned short int port;
 
 #endif /* GCCUSESGAS */
 
-#else /* !defined(FAKEIT) && !defined(__mc68000__) */
+#else /* !defined(FAKEIT) && !defined(__mc68000__) && !defined(__powerpc__) */
 
 static __inline__ void
 #if NeedFunctionPrototypes

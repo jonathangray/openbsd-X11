@@ -1,5 +1,8 @@
 XCOMM $XConsortium: Xserv.ws.cpp,v 1.3 93/09/28 14:30:30 gildea Exp $
 XCOMM
+XCOMM
+XCOMM $XFree86: xc/programs/xdm/config/Xserv.ws.cpp,v 1.1.1.1.12.2 1998/10/04 15:23:14 hohndel Exp $
+XCOMM
 XCOMM Xservers file, workstation prototype
 XCOMM
 XCOMM This file should contain an entry to start the server on the

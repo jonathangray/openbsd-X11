@@ -46,6 +46,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
 SOFTWARE.
 
 ************************************************************************/
+/* $XFree86: xc/lib/X11/PolyReg.c,v 1.1.1.2.8.2 1998/10/04 15:22:49 hohndel Exp $ */
 
 #define LARGE_COORDINATE 1000000
 #define SMALL_COORDINATE -LARGE_COORDINATE

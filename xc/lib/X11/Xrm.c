@@ -51,7 +51,7 @@ other dealings in this Software without prior written authorization
 from the X Consortium.
 
 */
-/* $XFree86: xc/lib/X11/Xrm.c,v 3.3.4.3 1997/06/22 12:19:25 dawes Exp $ */
+/* $XFree86: xc/lib/X11/Xrm.c,v 3.3.4.4 1998/10/04 13:36:22 hohndel Exp $ */
 
 #include	<stdio.h>
 #include	<ctype.h>

@@ -26,6 +26,8 @@
 //other dealings in this Software without prior written authorization
 //from the X Consortium.
 //
+// $XFree86: xc/programs/xkbcomp/keycodes/sun,v 3.1.2.2 1998/10/04 15:23:15 hohndel Exp $
+//
 default xkb_keycodes "type4" {
 
     minimum= 8;

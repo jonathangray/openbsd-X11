@@ -1,6 +1,6 @@
 /*
  *	$XConsortium: data.c,v 1.12 95/04/05 19:58:47 kaleb Exp $
- *	$XFree86: xc/programs/xterm/data.c,v 3.2.4.3 1998/04/29 04:18:39 dawes Exp $
+ *	$XFree86: xc/programs/xterm/data.c,v 3.2.4.4 1998/10/20 20:51:44 hohndel Exp $
  */
 
 /*
@@ -30,8 +30,8 @@
 #include <xtermcfg.h>
 #endif
 
-#include "ptyx.h"		/* gets Xt stuff, too */
-#include "data.h"
+#include <ptyx.h>		/* gets Xt stuff, too */
+#include <data.h>
 
 #include <setjmp.h>
 
@@ -77,16 +77,9 @@ int Ttoggled = 0;
 #endif
 
 int bcnt = 0;
-Char buffer[BUF_SIZE];
-Char *bptr = buffer;
+Char VTbuffer[BUF_SIZE];
+Char *bptr = VTbuffer;
 jmp_buf VTend;
-XPoint VTbox[NBOX] = {
-	{0, 0},
-	{0, 0},
-	{0, 0},
-	{0, 0},
-	{0, 0},
-};
 
 #ifdef DEBUG
 int debug = 0; 		/* true causes error messages to be displayed */
@@ -96,6 +89,18 @@ XtAppContext app_con;
 XtermWidget term;		/* master data structure for client */
 char *xterm_name;	/* argv[0] */
 Boolean sunFunctionKeys;
+
+#if OPT_ZICONBEEP
+int zIconBeep;  /* non-zero means beep; see charproc.c for details -IAN! */
+Boolean zIconBeep_flagged; /* True if the icon name has been changed */
+#endif /* OPT_ZICONBEEP */
+
+#if OPT_SAME_NAME
+Boolean sameName;            /* Don't change the title or icon name if it
+			is the same.  This prevents flicker on the screen at
+			the cost of an extra request to the server */
+#endif
+
 #if OPT_SUNPC_KBD
 Boolean sunKeyboard;
 #endif

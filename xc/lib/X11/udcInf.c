@@ -35,7 +35,7 @@ from the X Consortium.
  *
  */
 
-/* $XFree86: xc/lib/X11/udcInf.c,v 1.1.1.1.2.1 1998/05/19 07:31:42 dawes Exp $ */
+/* $XFree86: xc/lib/X11/udcInf.c,v 1.1.1.1.2.2 1998/10/04 13:36:26 hohndel Exp $ */
 
 #include <stdio.h>
 #include <locale.h>

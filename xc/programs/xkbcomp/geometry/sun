@@ -26,6 +26,8 @@
 //other dealings in this Software without prior written authorization
 //from the X Consortium.
 //
+// $XFree86: xc/programs/xkbcomp/geometry/sun,v 1.1.1.2.4.3 1998/10/04 15:23:14 hohndel Exp $
+//
 xkb_geometry "type4" {
 
     // This is an approximate layout for a (US/ASCII) Sun Type4 US

@@ -24,6 +24,7 @@ Except as contained in this notice, the name of the X Consortium shall not be
 used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization from the X Consortium.
  */
+/* $XFree86: xc/programs/editres/editres.c,v 1.1.1.1.12.2 1998/10/04 15:23:07 hohndel Exp $ */
 
 #include <stdio.h>
 #include <X11/Intrinsic.h>

@@ -1,7 +1,7 @@
 XCOMM ---------------------------------------------------------------------
 XCOMM Imake rules for building libraries, programs, scripts, and data files
 XCOMM rules:  $TOG: Imake.rules /main/222 1997/07/17 20:04:40 kaleb $
-XCOMM rules:  $XFree86: xc/config/cf/Imake.rules,v 3.33.2.7 1998/02/06 09:02:17 dawes Exp $
+XCOMM rules:  $XFree86: xc/config/cf/Imake.rules,v 3.33.2.10 1998/11/04 10:53:01 dawes Exp $
 
 /*
  *		   MACHINE-INDEPENDENT RULES; DO NOT MODIFY
@@ -647,7 +647,7 @@ InstallManPage(program,$(MANDIR))
 #endif /* ProgramTargetHelper */
 
 #ifndef ProgramTargetHelperNoMan
-#define        ProgramTargetHelperNoMan(program,srcs,objs,deplib,locallib,syslib) @@\
+#define ProgramTargetHelperNoMan(program,srcs,objs,deplib,locallib,syslib) @@\
 ProgramTargetName(program): $(objs) $(deplib)				@@\
 	RemoveTargetProgram($@)						@@\
 	LinkRule($@,$(LDOPTIONS),$(objs),locallib $(LDLIBS) syslib)	@@\
@@ -718,7 +718,7 @@ clean::									@@\
  * that describe a single program.
  */
 #ifndef ComplexProgramTargetNoMan
-#define        ComplexProgramTargetNoMan(program)			@@\
+#define ComplexProgramTargetNoMan(program)				@@\
         PROGRAM = program						@@\
 									@@\
 AllTarget(program)							@@\

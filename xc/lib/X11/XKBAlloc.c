@@ -1,5 +1,5 @@
 /* $XConsortium: XKBAlloc.c /main/6 1996/02/02 14:09:14 kaleb $ */
-/* $XFree86: xc/lib/X11/XKBAlloc.c,v 3.2 1996/10/13 11:17:24 dawes Exp $ */
+/* $XFree86: xc/lib/X11/XKBAlloc.c,v 3.2.4.1 1998/10/04 13:36:20 hohndel Exp $ */
 /************************************************************
 Copyright (c) 1993 by Silicon Graphics Computer Systems, Inc.
 
