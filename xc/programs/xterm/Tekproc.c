@@ -168,15 +168,6 @@ static jmp_buf Tekjump;
 static TekLink *TekRecord;
 static XSegment *Tline;
 
-extern int Talptable[];
-extern int Tbestable[];
-extern int Tbyptable[];
-extern int Tesctable[];
-extern int Tipltable[];
-extern int Tplttable[];
-extern int Tpttable[];
-extern int Tspttable[];
-
 static Const int *curstate = Talptable;
 static Const int *Tparsestate = Talptable;
 
