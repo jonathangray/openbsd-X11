@@ -400,13 +400,17 @@ install.man:: 								@@\
 #  define XsunMonoServer	YES
 # endif
 
+#define XkbServerDefines  -DXKB_ALWAYS_USES_SOFT_REPEAT
+
+#if 0
 # ifndef BuildXKB
 #  define BuildXKB        	NO
 # endif
 
 # ifndef BuildXKBlib
-#  define BuildXKBlib     	YES
+#  define BuildXKBlib     	NO
 # endif
+#endif
 
 # ifndef BuildPexExt
 #  define BuildPexExt 		(XsunServer || Xsun24Server)
