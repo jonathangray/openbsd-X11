@@ -1,5 +1,5 @@
 XCOMM $XConsortium: Imakefile /main/81 1996/10/22 18:32:26 kaleb $
-XCOMM $XFree86: xc/programs/xdm/Imakefile,v 3.19.2.3 1997/06/08 15:41:29 dawes Exp $
+XCOMM $XFree86: xc/programs/xdm/Imakefile,v 3.19.2.4 1998/01/23 12:35:19 dawes Exp $
 #define IHaveSubdirs
 #define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)'
 
@@ -21,9 +21,8 @@ XCOMM $XFree86: xc/programs/xdm/Imakefile,v 3.19.2.3 1997/06/08 15:41:29 dawes E
 #ifndef SharedLibXdmGreet
 #define SharedLibXdmGreet						\
     ((defined(AlphaArchitecture) &&					\
-      ((!defined(NetBSDArchitecture) && !defined(OpenBSDArchitecture)) ||\
-       ((defined(NetBSDArchitecture) || defined(OpenBSDArchitecture)) &&\
-	HasSharedLibraries))) ||					\
+      (!defined(NetBSDArchitecture) ||					\
+       (defined(NetBSDArchitecture) && HasSharedLibraries))) ||		\
      SystemV4)
 #endif
 
@@ -73,12 +72,19 @@ SHADOWLIB = -lshadow
 #endif
 #endif
 
+#if HasXpm
+XPM_DEFINES = -DXPM 
+XPM_INCLUDES = -I$(XPMINCDIR)
+XPM_LIBRARIES = XpmLibrary
+#endif
+
 #if SystemV4 || HasShadowPasswd
 #if !LinuxShadowSuite
 PWD_DEFINES = -DUSESHADOW
 #else
 PWD_DEFINES = -DUSESHADOW -DSHADOWSUITE
 #endif
+
 #if !defined(i386IscArchitecture) && !defined(i386ScoArchitecture) && !defined(LinuxArchitecture)
 SYS_LIBRARIES3 = -lresolv
 #endif
@@ -98,11 +104,11 @@ SYS_LIBRARIES1 = -lauth
 SYS_LIBRARIES1 = -ls
 #endif
 
-#if defined(XFree86Version) && HasLibCrypt || defined(NetBSDArchitecture)
+#if HasLibCrypt
 #ifdef SpecialLibCrypt
-SYS_LIBRARIES2 = SpecialLibCrypt
+CRYPT_LIBRARIES = SpecialLibCrypt
 #else
-SYS_LIBRARIES2 = -lcrypt
+CRYPT_LIBRARIES = -lcrypt
 #endif
 #endif
 
@@ -124,12 +130,17 @@ VFORK_DEFINES = -DHAS_VFORK
 XKB_CLIENT_DEFINES = XkbClientDefines
 #endif
 
+#if HasSetUserContext
+USER_CONTEXT_DEFINES = -DHAS_SETUSERCONTEXT
+SYS_LIBRARIES1 = -lutil
+#endif
+
    XDMCONFIGDIR = XdmConfigurationSubdirectory
         SUBDIRS = $(GREET_DIR) $(XDMCONFIGDIR)
 
-INCLUDES = $(KRB5_INCLUDE)
+INCLUDES = $(KRB5_INCLUDE) $(XPM_INCLUDES)
 DEPLIBS = $(DEPXMULIB) $(DEPXTOOLLIB) $(DEPXLIB) $(DEPXAUTHLIB) $(DEPXDMCPLIB)
-LOCAL_LIBRARIES = $(XMULIB) $(XTOOLLIB) $(XLIB) $(XAUTHLIB) $(XDMCPLIB) $(RPCLIB) $(DLLIBRARY)
+LOCAL_LIBRARIES = $(XMULIB) $(XTOOLLIB) $(XLIB) $(XAUTHLIB) $(XDMCPLIB) $(RPCLIB) $(DLLIBRARY) $(CRYPT_LIBRARIES) $(XPM_LIBRARIES)
 
           SRCS1 = auth.c daemon.c server.c dpylist.c dm.c error.c file.c \
 		  netaddr.c reset.c resource.c protodpy.c policy.c \
@@ -151,7 +162,7 @@ LOCAL_LIBRARIES = $(XMULIB) $(XTOOLLIB) $(XLIB) $(XAUTHLIB) $(XDMCPLIB) $(RPCLIB
        DEPLIBS3 = XawClientDepLibs XkbClientDepLibs $(DEPXDMCPLIB)
           LIBS3 = XawClientLibs XkbClientLibs $(XDMCPLIB)
 #endif
-       
+
           SRCS4 = sessreg.c
           OBJS4 = sessreg.o
 
@@ -185,7 +196,8 @@ LOCAL_LIBRARIES = $(XMULIB) $(XTOOLLIB) $(XLIB) $(XAUTHLIB) $(XDMCPLIB) $(RPCLIB
 		$(GREET_DEFINES) $(FRAGILE_DEFINES) \
 		-DOSMAJORVERSION=$(OSMAJORVERSION) \
 		-DOSMINORVERSION=$(OSMINORVERSION) \
-		$(XKB_CLIENT_DEFINES)
+		$(XKB_CLIENT_DEFINES) $(USER_CONTEXT_DEFINES) \
+		$(XPM_DEFINES)
 
 XCOMM
 XCOMM Special definitions for compiling default resources; these parameters
@@ -255,10 +267,12 @@ ObjectFromSpecialSource(sessionsh,session,-DUSESHADOW)
 #endif
 #endif /* !SharedLibXdmGreet */
 
+
 #ifdef IHaveSubdirs
 MakeSubdirs($(SUBDIRS))
 DependSubdirs($(SUBDIRS))
 #endif
+
 
 /*
  * Don't install; let people read the instructions about putting in the

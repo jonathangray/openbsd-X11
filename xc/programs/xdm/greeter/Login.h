@@ -79,6 +79,29 @@ from the X Consortium.
 # define XtNallowAccess		"allowAccess"
 # define XtNallowNullPasswd	"allowNullPasswd"
 
+#ifdef XPM
+/* added by Amit Margalit Oct 1996 */
+# define XtNhiColor		"hiColor"
+# define XtNshdColor		"shdColor"
+# define XtNframeWidth		"frameWidth"
+# define XtNinnerFramesWidth	"innerFramesWidth"
+# define XtNsepWidth		"sepWidth"
+
+/* caolan begin */
+#define XtNlastEventTime "lastEventTime"
+#define XtCLastEventTime "LastEventTime"
+/* caolan end */
+
+#define XtNuseShape "useShape"
+#define XtCUseShape "UseShape"
+#define XtNlogoFileName "logoFileName"
+#define XtCLogoFileName "LogoFileName"
+#define XtNlogoPadding "logoPadding"
+#define XtCLogoPadding "LogoPadding"
+
+# define XtCFrameWidth		"FrameWidth"
+
+#endif /* XPM */
 # define XtCGreeting		"Greeting"
 # define XtCNamePrompt		"NamePrompt"
 # define XtCPasswdPrompt	"PasswdPrompt"

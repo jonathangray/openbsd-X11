@@ -43,13 +43,29 @@ from the X Consortium.
 # include <X11/Xfuncs.h>
 
 # include <stdio.h>
+#ifdef XPM
+# include <time.h>
+#endif /* XPM */
 
 # include "dm.h"
 # include "greet.h"
 # include "LoginP.h"
 
+#ifdef XPM
+#include <sys/stat.h>
+#include <unistd.h>
+#include <X11/Xlib.h>
+#include <X11/xpm.h>
+#include <X11/extensions/shape.h>
+#include <X11/cursorfont.h>
+#endif /* XPM */
+
 #define offset(field) XtOffsetOf(LoginRec, login.field)
 #define goffset(field) XtOffsetOf(WidgetRec, core.field)
+
+#ifdef XPM
+extern Debug(), ResetLogin(), LogOutOfMem(), RedrawFail();
+#endif /* XPM */
 
 static XtResource resources[] = {
     {XtNwidth, XtCWidth, XtRDimension, sizeof(Dimension),
@@ -68,6 +84,37 @@ static XtResource resources[] = {
         offset(greetpixel), XtRString,	XtDefaultForeground},
     {XtNfailColor, XtCForeground, XtRPixel, sizeof (Pixel),
 	offset(failpixel), XtRString,	XtDefaultForeground},
+
+#ifdef XPM
+/* added by Caolan McNamara */
+	{XtNlastEventTime, XtCLastEventTime, XtRInt , sizeof (int),
+	offset(lastEventTime), XtRImmediate,	(XtPointer)0},
+/* end (caolan) */
+
+/* added by Ivan Griffin (ivan.griffin@ul.ie) */
+        {XtNlogoFileName, XtCLogoFileName, XtRString, sizeof(char*),
+        offset(logoFileName), XtRImmediate, (XtPointer)0},
+        {XtNuseShape, XtCUseShape, XtRBoolean, sizeof(Boolean),
+        offset(useShape), XtRImmediate, (XtPointer) True},
+        {XtNlogoPadding, XtCLogoPadding, XtRInt, sizeof(int),
+        offset(logoPadding), XtRImmediate, (XtPointer) 5},
+/* end (ivan) */
+
+
+/* added by Amit Margalit */
+    {XtNhiColor, XtCForeground, XtRPixel, sizeof (Pixel),
+	offset(hipixel), XtRString,	XtDefaultForeground},
+    {XtNshdColor, XtCForeground, XtRPixel, sizeof (Pixel),
+	offset(shdpixel), XtRString,	XtDefaultForeground},
+    {XtNframeWidth, XtCFrameWidth, XtRInt, sizeof(int),
+        offset(outframewidth), XtRImmediate, (XtPointer) 1},
+    {XtNinnerFramesWidth, XtCFrameWidth, XtRInt, sizeof(int),
+        offset(inframeswidth), XtRImmediate, (XtPointer) 1},
+    {XtNsepWidth, XtCFrameWidth, XtRInt, sizeof(int),
+        offset(sepwidth), XtRImmediate, (XtPointer) 1},
+/* end (amit) */
+#endif /* XPM */
+
     {XtNfont, XtCFont, XtRFontStruct, sizeof (XFontStruct *),
     	offset (font), XtRString,	"*-new century schoolbook-medium-r-normal-*-180-*"},
     {XtNpromptFont, XtCFont, XtRFontStruct, sizeof (XFontStruct *),
@@ -118,22 +165,43 @@ static XtResource resources[] = {
 
 # define Y_INC(w)	max (TEXT_Y_INC(w), PROMPT_Y_INC(w))
 
+#ifndef XPM
 # define LOGIN_PROMPT_W(w) (XTextWidth (w->login.promptFont,\
 				 w->login.namePrompt,\
 				 strlen (w->login.namePrompt)))
+#else
+# define LOGIN_PROMPT_W(w) (XTextWidth (w->login.promptFont,\
+				 w->login.namePrompt,\
+				 strlen (w->login.namePrompt)) + \
+				 w->login.inframeswidth)
+#endif /* XPM */
+#ifndef XPM
 # define PASS_PROMPT_W(w) (XTextWidth (w->login.promptFont,\
 				 w->login.passwdPrompt,\
 				 strlen (w->login.passwdPrompt)))
+#else
+# define PASS_PROMPT_W(w) (XTextWidth (w->login.promptFont,\
+				 w->login.passwdPrompt,\
+				 strlen (w->login.passwdPrompt)) + \
+				 w->login.inframeswidth)
+#endif /* XPM */
 # define PROMPT_W(w)	(max(LOGIN_PROMPT_W(w), PASS_PROMPT_W(w)))
 # define GREETING(w)	((w)->login.secure_session  && !(w)->login.allow_access ?\
 				(w)->login.greeting : (w)->login.unsecure_greet)
 # define GREET_X(w)	((int)(w->core.width - XTextWidth (w->login.greetFont,\
 			  GREETING(w), strlen (GREETING(w)))) / 2)
 # define GREET_Y(w)	(GREETING(w)[0] ? 2 * GREET_Y_INC (w) : 0)
+#ifndef XPM
 # define GREET_W(w)	(max (XTextWidth (w->login.greetFont,\
 			      w->login.greeting, strlen (w->login.greeting)), \
 			      XTextWidth (w->login.greetFont,\
 			      w->login.unsecure_greet, strlen (w->login.unsecure_greet))))
+#else
+# define GREET_W(w)	(max (XTextWidth (w->login.greetFont,\
+			      w->login.greeting, strlen (w->login.greeting)), \
+			      XTextWidth (w->login.greetFont,\
+			      w->login.unsecure_greet, strlen (w->login.unsecure_greet)))) + w->login.logoWidth + (2*w->login.logoPadding)
+#endif /* XPM */
 # define LOGIN_X(w)	(2 * PROMPT_X_INC(w))
 # define LOGIN_Y(w)	(GREET_Y(w) + GREET_Y_INC(w) +\
 			 w->login.greetFont->max_bounds.ascent + Y_INC(w))
@@ -141,7 +209,11 @@ static XtResource resources[] = {
 # define LOGIN_H(w)	(3 * Y_INC(w) / 2)
 # define LOGIN_TEXT_X(w)(LOGIN_X(w) + PROMPT_W(w))
 # define PASS_X(w)	(LOGIN_X(w))
+#ifndef XPM
 # define PASS_Y(w)	(LOGIN_Y(w) + 8 * Y_INC(w) / 5)
+#else
+# define PASS_Y(w)	(LOGIN_Y(w) + 10 * Y_INC(w) / 5)
+#endif /* XPM */
 # define PASS_W(w)	(LOGIN_W(w))
 # define PASS_H(w)	(LOGIN_H(w))
 # define PASS_TEXT_X(w)	(PASS_X(w) + PROMPT_W(w))
@@ -149,8 +221,13 @@ static XtResource resources[] = {
 				w->login.fail, strlen (w->login.fail))) / 2)
 # define FAIL_Y(w)	(PASS_Y(w) + 2 * FAIL_Y_INC (w) +\
 			w->login.failFont->max_bounds.ascent)
+#ifndef XPM
 # define FAIL_W(w)	(XTextWidth (w->login.failFont,\
 			 w->login.fail, strlen (w->login.fail)))
+#else
+# define FAIL_W(w)	(XTextWidth (w->login.failFont,\
+			 w->login.fail, strlen (w->login.fail))) + w->login.logoWidth + (2*w->login.logoPadding)
+#endif /* XPM */
 
 # define PAD_X(w)	(2 * (LOGIN_X(w) + max (GREET_X_INC(w), FAIL_X_INC(w))))
 
@@ -159,7 +236,6 @@ static XtResource resources[] = {
 	
 static void Initialize(), Realize(), Destroy(), Redisplay();
 static Boolean SetValues();
-static void draw_it ();
 
 static int max (a,b) { return a > b ? a : b; }
 
@@ -189,6 +265,12 @@ DrawName (w, cursor)
 	x += XTextWidth (w->login.font, w->login.data.name, cursor);
     XDrawString (XtDisplay(w), XtWindow (w), w->login.textGC, x, LOGIN_Y(w),
 		w->login.data.name + cursor, strlen (w->login.data.name + cursor));
+
+#ifdef XPM
+	/*as good a place as any Caolan begin*/
+	w->login.lastEventTime = time(NULL);
+	/*as good a place as any Caolan end*/
+#endif /* XPM */
 }
 
 static void
@@ -218,7 +300,27 @@ realizeCursor (w, gc)
 	return;
     }
     XFillRectangle (XtDisplay (w), XtWindow (w), gc,
+#ifndef XPM
 		    x, y - w->login.font->max_bounds.ascent, width, height);
+#else
+		    x, y+1 - w->login.font->max_bounds.ascent, width, height-1);
+    XDrawPoint     (XtDisplay (w), XtWindow (w), gc,
+    		    x-1 , y - w->login.font->max_bounds.ascent);
+    XDrawPoint     (XtDisplay (w), XtWindow (w), gc,
+    		    x+1 , y - w->login.font->max_bounds.ascent);
+    XDrawPoint     (XtDisplay (w), XtWindow (w), gc,
+    		    x-1 , y - w->login.font->max_bounds.ascent+height);
+    XDrawPoint     (XtDisplay (w), XtWindow (w), gc,
+    		    x+1 , y - w->login.font->max_bounds.ascent+height);
+    XDrawPoint     (XtDisplay (w), XtWindow (w), gc,
+    		    x-2 , y - w->login.font->max_bounds.ascent);
+    XDrawPoint     (XtDisplay (w), XtWindow (w), gc,
+    		    x+2 , y - w->login.font->max_bounds.ascent);
+    XDrawPoint     (XtDisplay (w), XtWindow (w), gc,
+    		    x-2 , y - w->login.font->max_bounds.ascent+height);
+    XDrawPoint     (XtDisplay (w), XtWindow (w), gc,
+    		    x+2 , y - w->login.font->max_bounds.ascent+height);
+#endif /* XPM */
 }
 
 static void
@@ -306,10 +408,99 @@ static void
 draw_it (w)
     LoginWidget	w;
 {
+#ifdef XPM
+    int i,in_frame_x,in_login_y,in_pass_y,in_width,in_height;
+    int gr_line_x, gr_line_y, gr_line_w;
+#endif /* XPM */
+
     EraseCursor (w);
+
+#ifdef XPM
+    if( (w->login.outframewidth) < 1 )
+      w->login.outframewidth = 1;
+    for(i=1;i<=(w->login.outframewidth);i++)
+    {
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.hiGC,
+    		i-1,i-1,w->core.width-i,i-1);
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.hiGC,
+    		i-1,i-1,i-1,w->core.height-i);
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.shdGC,
+    		w->core.width-i,i-1,w->core.width-i,w->core.height-i);
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.shdGC,
+    		i-1,w->core.height-i,w->core.width-i,w->core.height-i);
+    }
+    
+    /* make separator line */
+    gr_line_x = w->login.outframewidth + w->login.logoPadding;
+    gr_line_y = GREET_Y(w) + GREET_Y_INC(w);
+    gr_line_w = w->core.width - 2*(w->login.outframewidth) -
+        (w->login.logoWidth + 3*(w->login.logoPadding));
+ 
+    for(i=1;i<=(w->login.sepwidth);i++)
+    {
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.shdGC,
+        gr_line_x,           gr_line_y + i-1,
+        gr_line_x+gr_line_w, gr_line_y + i-1);
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.hiGC,
+        gr_line_x,           gr_line_y + 2*(w->login.inframeswidth) -i,
+        gr_line_x+gr_line_w, gr_line_y + 2*(w->login.inframeswidth) -i);
+    }
+    
+    in_frame_x = LOGIN_TEXT_X(w) - w->login.inframeswidth - 3;
+    in_login_y = LOGIN_Y(w) - w->login.inframeswidth - 1 - TEXT_Y_INC(w);
+    in_pass_y  = PASS_Y(w) - w->login.inframeswidth - 1 - TEXT_Y_INC(w);
+ 
+    in_width = LOGIN_W(w) - PROMPT_W(w) -
+        (w->login.logoWidth + 2*(w->login.logoPadding));
+    in_height = LOGIN_H(w) + w->login.inframeswidth + 2;
+
+    for(i=1;i<=(w->login.inframeswidth);i++)
+    {
+      /* Make top/left sides */
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.shdGC,
+	in_frame_x + i-1,             in_login_y + i-1,
+	in_frame_x + in_width-i,      in_login_y + i-1); 
+
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.shdGC,
+	in_frame_x + i-1,             in_login_y + i-1,
+	in_frame_x + i-1,             in_login_y + in_height-i); 
+
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.hiGC,
+        in_frame_x + in_width-i,      in_login_y + i-1,
+        in_frame_x + in_width-i,      in_login_y + in_height-i); 
+                
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.hiGC,
+	in_frame_x + i-1,             in_login_y + in_height-i,
+	in_frame_x + in_width-i,      in_login_y + in_height-i);
+
+      /* Make bottom/right sides */
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.shdGC,
+	in_frame_x + i-1,             in_pass_y + i-1,
+	in_frame_x + in_width-i,      in_pass_y + i-1); 
+
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.shdGC,
+	in_frame_x + i-1,             in_pass_y + i-1,
+	in_frame_x + i-1,             in_pass_y + in_height-i); 
+
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.hiGC,
+        in_frame_x + in_width-i,      in_pass_y + i-1,
+        in_frame_x + in_width-i,      in_pass_y + in_height-i); 
+                
+      XDrawLine(XtDisplay (w), XtWindow (w), w->login.hiGC,
+	in_frame_x + i-1,             in_pass_y + in_height-i,
+	in_frame_x + in_width-i,      in_pass_y + in_height-i);
+    }
+#endif /* XPM */
+
     if (GREETING(w)[0])
 	    XDrawString (XtDisplay (w), XtWindow (w), w->login.greetGC,
+#ifndef XPM
 			GREET_X(w), GREET_Y(w),
+#else
+			GREET_X(w) -
+                            ((w->login.logoWidth/2) + w->login.logoPadding),
+                        GREET_Y(w),
+#endif /* XPM */
 			GREETING(w), strlen (GREETING(w)));
     XDrawString (XtDisplay (w), XtWindow (w), w->login.promptGC,
 		LOGIN_X(w), LOGIN_Y(w),
@@ -540,6 +731,33 @@ FinishField (ctxw, event, params, num_params)
     XorCursor (ctx);
 }
 
+#ifdef XPM
+/*ARGSUSED*/
+static void
+TabField (ctxw, event, params, num_params)
+    Widget	ctxw;
+    XEvent	*event;
+    String	*params;
+    Cardinal	*num_params;
+{
+    LoginWidget ctx = (LoginWidget)ctxw;
+
+    XorCursor (ctx);
+    RemoveFail (ctx);
+    switch (ctx->login.state) {
+    case GET_NAME:
+	ctx->login.state = GET_PASSWD;
+	ctx->login.cursor = 0;
+	break;
+    case GET_PASSWD:
+	ctx->login.state = GET_NAME;
+	ctx->login.cursor = 0;
+	break;
+    }
+    XorCursor (ctx);
+}
+#endif /* XPM */
+
 /*ARGSUSED*/
 static void
 AllowAccess (ctxw, event, params, num_params)
@@ -657,19 +875,43 @@ InsertChar (ctxw, event, params, num_params)
     LoginWidget ctx = (LoginWidget)ctxw;
 
     char strbuf[128];
+#ifndef XPM
     int  len;
+#else
+    int  len,pixels;
+#endif /* XPM */
 
     len = XLookupString (&event->xkey, strbuf, sizeof (strbuf), 0, 0);
     strbuf[len] = '\0';
+
+#ifdef XPM
+    pixels = 3 + ctx->login.font->max_bounds.width * len +
+    	     XTextWidth(ctx->login.font,
+    	     		ctx->login.data.name,
+    	     		strlen(ctx->login.data.name));
+    	     	/* pixels to be added */
+#endif /* XPM */
+
     switch (ctx->login.state) {
     case GET_NAME:
+#ifndef XPM
 	if (len + (int)strlen(ctx->login.data.name) >= NAME_LEN - 1)
+#else
+	if (
+	        (len + (int)strlen(ctx->login.data.name) >= NAME_LEN - 1)/* &&
+		(pixels <= LOGIN_W(ctx) - PROMPT_W(ctx))*/
+	   )
+#endif /* XPM */
 	    len = NAME_LEN - strlen(ctx->login.data.name) - 2;
     case GET_PASSWD:
 	if (len + (int)strlen(ctx->login.data.passwd) >= NAME_LEN - 1)
 	    len = NAME_LEN - strlen(ctx->login.data.passwd) - 2;
     }
+#ifndef XPM
     if (len == 0)
+#else
+    if (len == 0 || pixels >= LOGIN_W(ctx) - PROMPT_W(ctx))
+#endif /* XPM */
 	return;
     XorCursor (ctx);
     RemoveFail (ctx);
@@ -689,6 +931,12 @@ InsertChar (ctxw, event, params, num_params)
 	       strlen (ctx->login.data.passwd + ctx->login.cursor) + 1);
 	memmove( ctx->login.data.passwd + ctx->login.cursor, strbuf, len);
 	ctx->login.cursor += len;
+
+#ifdef XPM
+	/*as good a place as any Caolan begin*/
+	ctx->login.lastEventTime = time(NULL);
+	/*as good a place as any Caolan end*/
+#endif /* XPM */
 	break;
     }
     XorCursor (ctx);
@@ -705,6 +953,18 @@ static void Initialize (greq, gnew, args, num_args)
     XGCValues	myXGCV;
     Arg		position[2];
     Position	x, y;
+
+#ifdef XPM
+    myXGCV.foreground = w->login.hipixel;
+    myXGCV.background = w->core.background_pixel;
+    valuemask = GCForeground | GCBackground;
+    w->login.hiGC = XtGetGC(gnew, valuemask, &myXGCV);
+
+    myXGCV.foreground = w->login.shdpixel;
+    myXGCV.background = w->core.background_pixel;
+    valuemask = GCForeground | GCBackground;
+    w->login.shdGC = XtGetGC(gnew, valuemask, &myXGCV);
+#endif /* XPM */
 
     myXGCV.foreground = w->login.textpixel;
     myXGCV.background = w->core.background_pixel;
@@ -761,6 +1021,48 @@ static void Initialize (greq, gnew, args, num_args)
     myXGCV.font = w->login.failFont->fid;
     w->login.failGC = XtGetGC (gnew, xvaluemask, &myXGCV);
 
+#ifdef XPM
+    w->login.logoValid = False;
+
+    if (NULL != w->login.logoFileName)
+    {
+        XpmAttributes myAttributes = { 0 };
+        Window tmpWindow = { 0 };
+        struct stat myBuffer = { 0 };
+        unsigned int myPixmapDepth = 0;
+
+        if (0 != stat(w->login.logoFileName, &myBuffer))
+        {
+            LogError("Unable to stat() pixmap file %s\n",
+                w->login.logoFileName);
+            w->login.logoValid = False;
+            goto SkipXpmLoad;
+        }
+        else
+
+        myAttributes.valuemask |= XpmReturnPixels;
+        myAttributes.valuemask |= XpmReturnExtensions;
+
+        XpmReadFileToPixmap(XtDisplay(w),            /* display */
+            RootWindowOfScreen(XtScreen(w)),         /* window */
+            w->login.logoFileName,                   /* XPM filename */
+            &(w->login.logoPixmap),                  /* pixmap */
+            &(w->login.logoMask),                    /* pixmap mask */
+            &myAttributes);                          /* XPM attributes */
+        w->login.logoValid = True;
+
+        XGetGeometry(XtDisplay(w), w->login.logoPixmap,
+            &tmpWindow,
+            &(w->login.logoX),
+            &(w->login.logoY),
+            &(w->login.logoWidth),
+            &(w->login.logoHeight),
+            &(w->login.logoBorderWidth),
+            &myPixmapDepth);
+    }
+
+SkipXpmLoad:
+#endif /* XPM */
     w->login.data.name[0] = '\0';
     w->login.data.passwd[0] = '\0';
     w->login.state = GET_NAME;
@@ -772,7 +1074,15 @@ static void Initialize (greq, gnew, args, num_args)
 	int fy = FAIL_Y(w);
 	int pady = PAD_Y(w);
 
+#ifndef XPM
 	w->core.height = fy + pady;	/* for stupid compilers */
+#else
+/*	w->core.height = fy + pady;	* for stupid compilers */
+
+        w->core.height = max(fy + pady,
+            (w->login.logoHeight + (2*w->login.logoPadding)) + pady);
+        
+#endif /* XPM */
     }
     if ((x = w->core.x) == -1)
 	x = (int)(XWidthOfScreen (XtScreen (w)) - w->core.width) / 2;
@@ -789,8 +1099,63 @@ static void Realize (gw, valueMask, attrs)
      XtValueMask *valueMask;
      XSetWindowAttributes *attrs;
 {
+#ifdef XPM
+    LoginWidget	w = (LoginWidget) gw;
+    Cursor cursor;
+#endif /* XPM */
+
     XtCreateWindow( gw, (unsigned)InputOutput, (Visual *)CopyFromParent,
 		     *valueMask, attrs );
+
+#ifdef XPM
+    cursor = XCreateFontCursor(XtDisplay(gw), XC_left_ptr);
+    XDefineCursor(XtDisplay(gw), XtWindow(gw), cursor);
+
+    /* 
+     * Check if Pixmap was valid
+     */
+    if (True == w->login.logoValid)
+    {
+        /*
+         * Create pixmap window 
+         */
+        {
+            unsigned long valueMask = CWBackPixel | CWBackPixmap;
+            XSetWindowAttributes windowAttributes = { 0 };
+
+            windowAttributes.background_pixel = w->core.background_pixel;
+            windowAttributes.background_pixmap = None;
+
+            w->login.logoWindow = XCreateWindow(XtDisplay(w),
+                XtWindow(w),
+                w->core.width - w->login.outframewidth -
+                    w->login.logoWidth - w->login.logoPadding,
+                (w->core.height - w->login.logoHeight) /2,
+                w->login.logoWidth, w->login.logoHeight, 0,
+                CopyFromParent, InputOutput, CopyFromParent,
+                valueMask, &windowAttributes);
+        }
+
+        /*
+         * check if we can use shape extension
+         */
+        if (True == w->login.useShape)
+        {
+            int foo, bar;
+
+            if (XShapeQueryExtension(XtDisplay(w), &foo, &bar) == TRUE)
+            {
+                XShapeCombineMask(XtDisplay(w), w->login.logoWindow,
+                    ShapeBounding, w->login.logoX, w->login.logoY,
+                    w->login.logoMask, ShapeSet);
+            }
+        }
+
+        XSetWindowBackgroundPixmap(XtDisplay(w), w->login.logoWindow,
+            w->login.logoPixmap);
+        XMapWindow(XtDisplay(w), w->login.logoWindow);
+    }
+#endif /* XPM */
 }
 
 static void Destroy (gw)
@@ -805,6 +1170,19 @@ static void Destroy (gw)
     XtReleaseGC(gw, w->login.promptGC);
     XtReleaseGC(gw, w->login.greetGC);
     XtReleaseGC(gw, w->login.failGC);
+#ifdef XPM
+    XtReleaseGC(gw, w->login.hiGC);
+    XtReleaseGC(gw, w->login.shdGC);
+
+    if (True == w->login.logoValid)
+    {
+        if (w->login.logoPixmap != 0)
+            XFreePixmap(XtDisplay(w), w->login.logoPixmap);
+
+        if (w->login.logoMask != 0)
+            XFreePixmap(XtDisplay(w), w->login.logoMask);
+    }
+#endif /* XPM */
 }
 
 /* ARGSUSED */
@@ -831,6 +1209,7 @@ static Boolean SetValues (current, request, new, args, num_args)
     return False;
 }
 
+
 char defaultLoginTranslations [] =
 "\
 Ctrl<Key>H:	delete-previous-character() \n\
@@ -847,9 +1226,16 @@ Ctrl<Key>\\\\:	abort-session() \n\
 :Ctrl<Key>plus:	allow-all-access() \n\
 <Key>BackSpace:	delete-previous-character() \n\
 <Key>Delete:	delete-previous-character() \n\
-<Key>Return:	finish-field() \n\
+<Key>Return:	finish-field() \n"
+#ifndef XPM
+"<Key>:		insert-char() \
+"
+#else
+"<Key>Tab:	tab-field() \n\
 <Key>:		insert-char() \
-";
+"
+#endif /* XPM */
+;
 
 XtActionsRec loginActionsTable [] = {
   {"delete-previous-character",	DeleteBackwardChar},
@@ -861,6 +1247,9 @@ XtActionsRec loginActionsTable [] = {
   {"erase-to-end-of-line",	EraseToEndOfLine},
   {"erase-line",		EraseLine},
   {"finish-field", 		FinishField},
+#ifdef XPM
+  {"tab-field", 		TabField},
+#endif /* XPM */
   {"abort-session",		AbortSession},
   {"abort-display",		AbortDisplay},
   {"restart-session",		RestartSession},
@@ -894,7 +1283,11 @@ LoginClassRec loginClassRec = {
     /* expose			*/	Redisplay,
     /* set_values		*/	SetValues,
     /* set_values_hook		*/	NULL,
+#ifndef XPM
     /* set_values_almost	*/	NULL,
+#else
+    /* set_values_almost	*/	XtInheritSetValuesAlmost,
+#endif /* XPM */
     /* get_values_hook		*/	NULL,
     /* accept_focus		*/	NULL,
     /* version			*/	XtVersion,

@@ -1,0 +1,21 @@
+
+Hi There,
+
+Added pixmap logos to the XDM 3d ook from Amit Margalit and the random
+movement of the Login widget by Caolan McNamara.
+
+The following resources are important:
+
+xlogin*logoFileName:     Specify the file name of the XPM file
+xlogin*useShape:         (True/False) use the shape extension?
+                         Allows transparency in XPMs
+xlogin*logoPadding:      Minimum space around XPM (and also around LHS of
+                         Amit's separator line).   
+
+see ya,
+
+Ivan.
+
+
+TODO:
+should move pixmap window stuff into Realize() ...

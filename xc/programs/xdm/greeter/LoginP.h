@@ -40,6 +40,9 @@ from the X Consortium.
 
 #include "Login.h"
 #include <X11/CoreP.h>
+#ifdef XPM
+#include <X11/Xlib.h>
+#endif /* XPM */
 
 #define GET_NAME	0
 #define GET_PASSWD	1
@@ -51,12 +54,20 @@ typedef struct {
 	Pixel		promptpixel;	/* prompt pixel */
 	Pixel		greetpixel;	/* greeting pixel */
 	Pixel		failpixel;	/* failure pixel */
+#ifdef XPM
+	Pixel		hipixel;	/* frame hilite pixel */
+	Pixel		shdpixel;	/* shadow frame pixel */
+#endif /* XPM */
 	GC		textGC;		/* pointer to GraphicsContext */
 	GC		bgGC;		/* pointer to GraphicsContext */
 	GC		xorGC;		/* pointer to GraphicsContext */
 	GC		promptGC;
 	GC		greetGC;
 	GC		failGC;
+#ifdef XPM
+	GC		hiGC;		/* for hilight part of frame */
+	GC		shdGC;		/* for shaded part of frame */
+#endif /* XPM */
 	char		*greeting;	/* greeting */
 	char		*unsecure_greet;/* message displayed when insecure */
 	char		*namePrompt;	/* name prompt */
@@ -77,6 +88,21 @@ typedef struct {
 	Boolean		secure_session;	/* session is secured */
 	Boolean		allow_access;	/* disable access control on login */
 	Boolean		allow_null_passwd; /* allow null password on login */
+#ifdef XPM
+	/*caolan begin*/
+	int lastEventTime;
+	/*caolan end*/
+	int		outframewidth;	/* outer frame thickness */
+	int		inframeswidth;	/* inner frames thickness */
+	int		sepwidth;	/* width of separator line */
+
+        char *logoFileName;
+        unsigned int logoWidth, logoHeight, logoPadding, logoBorderWidth;
+        int logoX, logoY;
+        Window logoWindow;
+        Boolean useShape, logoValid;
+        Pixmap logoPixmap, logoMask;
+#endif /* XPM */
    } LoginPart;
 
 /* Full instance record declaration */

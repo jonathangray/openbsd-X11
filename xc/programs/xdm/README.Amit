@@ -1,0 +1,86 @@
+Hi!
+
+OK. Here's the deal. I've made the XDM login box a 3D outfit. The resources
+to control it are: (Compilation notes below).
+
+xlogin*hiColor:		 Color of the highlighted part of the frames
+xlogin*shdColor:	 Color of the frames' shaded part
+xlogin*frameWidth	 Width of outer frame
+xlogin*innerFramesWidht: Width of the inner frames
+xlogin*sepWidth:	 Width of the separator line
+
+Here's my Xresources_0 file:
+
+! $XConsortium: Xresources,v 1.7 93/09/28 14:30:29 gildea Exp $
+xlogin*login.translations: #override\
+	Ctrl<Key>R: abort-display()\n\
+	<Key>F1: set-session-argument(failsafe) finish-field()\n\
+	Ctrl<Key>Return: set-session-argument(failsafe) finish-field()\n\
+	<Key>Return: set-session-argument() finish-field()
+!xlogin*greeting: Running Debian GNU/Linux (CLIENTHOST)
+xlogin*greeting: Running Debian GNU/Linux
+xlogin*namePrompt: login:\ 
+xlogin*fail: Login incorrect
+xlogin*geometry: +380+380
+
+! Notice the borderWidth!
+
+#ifdef COLOR
+
+xlogin*borderWidth: 0
+xlogin*frameWidth: 6
+xlogin*innerFramesWidth: 2
+xlogin*shdColor: darkgoldenrod
+xlogin*hiColor: lightgoldenrod
+xlogin*background: goldenrod
+xlogin*foreground: darkgreen
+xlogin*greetColor: darkblue
+xlogin*failColor:  #c00000
+*Foreground: black
+*Background: #fffff0
+
+#else
+
+xlogin*borderWidth: 3
+xlogin*frameWidth: 0
+xlogin*innerFramesWidth: 0
+xlogin*shdColor: black
+xlogin*hiColor: white
+xlogin*Foreground: black
+xlogin*Background: white
+
+#endif
+
+XConsole.text.geometry:	480x130
+XConsole.verbose:	true
+XConsole*iconic:	true
+XConsole*font:		fixed
+
+Chooser*geometry:		700x500+300+200
+Chooser*allowShellResize:	false
+Chooser*viewport.forceBars:	true
+Chooser*label.font:		*-new century schoolbook-bold-i-normal-*-240-*
+Chooser*label.label:		XDMCP Host Menu  from CLIENTHOST
+Chooser*list.font:		-*-*-medium-r-normal-*-*-230-*-*-c-*-iso8859-1
+Chooser*Command.font:		*-new century schoolbook-bold-r-normal-*-180-*
+
+-------------------
+
+I didn't touch the chooser, yet, and I cannot promise you that I will. This
+code still contains minor bugs. They are only minor because I really didn't
+change much. Just added a couple of things. I suggest you compile the
+chooser with Xaw3D instead of hoping for a kludge from me...
+
+==============
+
+Compilation
+-----------
+
+Get ftp://sunsite.unc.edu/pub/Linux/X11/xutils/xdm.tar.gz and unpack it.
+It is also available in the XBanner ftp sites under the same file name.
+Then go into xdm/greeter and replace Login.h LoginP.h and Login.c with the
+ones I have supplied.
+
+Just 'xmkmf -a' and make.
+
+	Amit Margalit

@@ -1,0 +1,92 @@
+This is the full source of the X consortium's xdm with Amit Margalit's
+changes to make it 3d, all ive done is to add a new resource to xdm and fiddle
+withe the login widget a bit to add the capability to shift the login widget
+around the screen randomly if the screen has been idle for a period of time
+
+This is the new resource found in xdm-config, the unit is seconds.
+
+DisplayManager*loginmoveInterval:       10
+
+
+all you have to do is
+xmkmf -a
+make 
+and change your xdm-config and  Xresources to use the new resources
+Heres my sample Xresources and xdm-config
+
+!---xdm-config begin---
+! $XConsortium: xdm-conf.cpp,v 1.2 93/09/28 14:30:32 gildea Exp $
+! Caolan McNamara xdm-config
+DisplayManager.errorLogFile:	/usr/X11R6/lib/X11/xdm/xdm-errors
+DisplayManager.pidFile:		/usr/X11R6/lib/X11/xdm/xdm-pid
+DisplayManager.keyFile:		/usr/X11R6/lib/X11/xdm/xdm-keys
+DisplayManager.servers:		/usr/X11R6/lib/X11/xdm/Xservers
+DisplayManager.accessFile:	/usr/X11R6/lib/X11/xdm/Xaccess
+DisplayManager._0.authorize:	true
+DisplayManager._0.setup:	/usr/X11R6/lib/X11/xdm/Xsetup_0
+DisplayManager._0.startup:	/usr/X11R6/lib/X11/xdm/GiveConsole
+DisplayManager._0.reset:	/usr/X11R6/lib/X11/xdm/TakeConsole
+DisplayManager*resources:	/usr/X11R6/lib/X11/xdm/Xresources
+DisplayManager*authComplain:	false
+DisplayManager*session:		/usr/X11R6/lib/X11/xdm/Xsession
+! this is a new line Caolan, 9312811@ul.ie
+DisplayManager*loginmoveInterval:	10
+!---xdm-config end ---
+
+
+
+!---Xresource begin--
+! $XConsortium: Xresources,v 1.7 93/09/28 14:30:29 gildea Exp $
+! Caolan McNamara Xresources
+xlogin*login.translations: #override\
+	Ctrl<Key>R: abort-display()\n\
+	<Key>F1: set-session-argument(failsafe) finish-field()\n\
+	Ctrl<Key>Return: set-session-argument(failsafe) finish-field()\n\
+	<Key>Return: set-session-argument() finish-field()
+xlogin*greeting: CLIENTHOST 
+xlogin*namePrompt: login:\ 
+xlogin*fail: Login incorrect
+#ifdef COLOR
+xlogin*borderWidth: 0
+xlogin*frameWidth: 6
+xlogin*innerFramesWidth: 2
+xlogin*shdColor: bisque4
+xlogin*hiColor: bisque1
+xlogin*background: bisque3
+xlogin*foreground: SlateBlue4
+
+xlogin*greetColor: MediumBlue
+xlogin*failColor: red
+*Foreground: black
+*Background: #fffff0
+#else
+xlogin*borderWidth: 3
+xlogin*frameWidth: 0
+xlogin*innerFramesWidth: 0
+xlogin*shdColor: black
+xlogin*hiColor: white
+
+xlogin*Foreground: black
+xlogin*Background: white
+#endif
+
+XConsole.text.geometry:	480x130
+XConsole.verbose:	true
+XConsole*iconic:	true
+XConsole*font:		fixed
+
+Chooser*geometry:		700x500+300+200
+Chooser*allowShellResize:	false
+Chooser*viewport.forceBars:	true
+Chooser*label.font:		*-new century schoolbook-bold-i-normal-*-240-*
+Chooser*label.label:		XDMCP Host Menu  from CLIENTHOST
+Chooser*list.font:		-*-*-medium-r-normal-*-*-230-*-*-c-*-iso8859-1
+Chooser*Command.font:		*-new century schoolbook-bold-r-normal-*-180-*
+!---Xresource end--
+
+Amit Margalit's version found at http://www.linux.org.il/local/XBanner/
+mine at 
+
+Caolan McNamara
+9312811@ul.ie
+http://skynet.csn.ul.ie

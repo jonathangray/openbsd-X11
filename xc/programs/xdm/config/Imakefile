@@ -2,14 +2,19 @@ XCOMM $XConsortium: Imakefile /main/17 1996/01/15 12:19:32 gildea $
 
 SERVERSTYPE = XdmServersType
 
-all:: Xservers.ws xdm-config Xservers
+all:: Xservers.ws xdm-config Xservers Xresources
 
 #if defined(OpenBSDArchitecture) && defined(i386Architecture)
 DEFAULTVT=vt05
 #endif
 
+#if HasXpm
+XPM_DEFINES=-DXPM -DBITMAPDIR=$(XDMDIR)/pixmaps
+#endif
+
 CppFileTarget(Xservers.ws,Xserv.ws.cpp,-DBINDIR=$(BINDIR) -DDEFAULTVT=$(DEFAULTVT),NullParameter)
 CppFileTarget(xdm-config,xdm-conf.cpp,-DXDMDIR=$(XDMDIR),NullParameter)
+CppFileTarget(Xresources,Xres.cpp,$(XPM_DEFINES),NullParameter)
 
 LinkFile(Xservers,Xservers.$(SERVERSTYPE))
 
@@ -31,4 +36,16 @@ InstallNamedProgNoClobber(Xsession,Xsession,$(XDMDIR))
 InstallNamedProgNoClobber(GiveConsole,GiveConsole,$(XDMDIR))
 InstallNamedProgNoClobber(TakeConsole,TakeConsole,$(XDMDIR))
 InstallNamedProgNoClobber(Xsetup_0,Xsetup_0,$(XDMDIR))
+#endif
+
+#if HasXpm
+# ifndef XdmPixmap
+#  define XdmPixmap XFree86.xpm
+# endif
+
+# if InstallXdmConfig
+InstallNonExecFile(XdmPixmap,$(XDMDIR)/pixmaps)
+# else
+InstallNonExecFileNoClobber(XdmPixmap,$(XDMDIR)/pixmaps)
+# endif
 #endif

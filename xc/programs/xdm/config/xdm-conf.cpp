@@ -17,3 +17,7 @@ DisplayManager._0.reset:	XDMDIR/TakeConsole
 DisplayManager*resources:	XDMDIR/Xresources
 DisplayManager*session:		XDMDIR/Xsession
 DisplayManager*authComplain:	false
+#ifdef XDM
+! this is a new line Caolan, 9312811@ul.ie
+DisplayManager*loginmoveInterval:	10
+#endif /* XDM */
