@@ -1416,12 +1416,8 @@ krb_check_password(struct passwd *pwd, char *pass)
 
 	/* find local realm */
 	if (krb_get_lrealm(realm, 1) != KSUCCESS)
-#ifdef KRB_REALM
-		/* krb_get_default_realm() may not work well on Solaris */
-		(void) strncpy(realm, KRB_REALM, sizeof (realm));
-#else
-		(void) strncpy(realm, krb_get_default_realm(), sizeof (realm));
-#endif
+		return False;
+
 	/* Construct a ticket file */
 	(void) sprintf(tkfile, "/tmp/xlock_tkt_%d", getpid());
 
