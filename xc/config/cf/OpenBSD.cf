@@ -405,7 +405,7 @@ install.man:: 								@@\
 # endif
 
 # ifndef BuildXKBlib
-#  define BuildXKBlib     	NO
+#  define BuildXKBlib     	YES
 # endif
 
 # ifndef BuildPexExt
