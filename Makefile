@@ -1,5 +1,5 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.24 2000/06/01 06:56:21 todd Exp $
+#	$OpenBSD: Makefile,v 1.25 2000/07/07 22:12:38 todd Exp $
 #
 # build and install X11, create release tarfiles
 #
@@ -26,8 +26,8 @@ RM?= /bin/rm
 MACHINE?=`uname -m`
 
 # Some defaults.
-RELEASEDIR?=`/bin/pwd`/rel
-DESTDIR?=`/bin/pwd`/dest
+RELEASEDIR?=${.CURDIR}/rel
+DESTDIR?=${.CURDIR}/dest
 
 LOCALAPPD=/usr/local/lib/X11/app-defaults
 LOCALAPPX=/usr/local/lib/X11
@@ -78,8 +78,8 @@ release:
 	@${LN} -s XhpBSD ${DESTDIR}/usr/X11R6/bin/X
 	@${ECHO} /dev/grf0 > ${DESTDIR}/usr/X11R6/lib/X11/X0screens
 .endif
-	@${MAKE} dist
 	@${MAKE} fix-appd
+	@${MAKE} dist
 
 perms:
 	@${CHOWN} ${BINOWN}.${BINGRP} ${DESTDIR}/.
