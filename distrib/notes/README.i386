@@ -1,0 +1,41 @@
+Post-installation instructions for X11 on OpenBSD/i386
+------------------------------------------------------
+
+1. Find out about your hardware:
+
+   - Run SuperProbe to find out what chipset is used by your video board.
+
+   - Do you need linear video memory access ?
+
+     Linear video memory access is required for the AGX, Mach64, P9000
+     or Matrox boards. Many other accelerated boards can make use of
+     it if available.
+
+     If you want linear video memory access, uncomment
+     machdep.allowaperture=1 in /etc/sysctl.conf (see xf86(4) for details). 
+
+   - What kind of mouse do you have, which port is it connected to ?
+     You may want to read /usr/X11R6/lib/X11/doc/README.mouse
+
+2. Run XF86Setup
+
+   This will make the /etc/XF86Config.  If for some reason XF86Setup
+   don't work on your hardware, try xf86config.  See the XF86Config
+   user's guide in /usr/X11R6/lib/X11/doc/QuickStart.  
+
+   For manual configuration information, see
+   /usr/X11R6/lib/X11/doc/Config.
+
+3. Start xdm, the X display manager:
+
+   - manually, as root: xdm -nodaemon or, 
+   - in /etc/rc.local uncomment the corresponding lines.
+
+4. Optionnally, if you want to be able to rebuild your server from the
+   XFree86 link kit, install the xlink23.tar.gz from the CD and follow
+   the instructions in /usr/X11R6/lib/Server/README.
+
+If you encounter a problem, browse the whole documentation on
+<http://www.xfree86.org/XFree86/3.3.2/DocIndex> 
+
+
