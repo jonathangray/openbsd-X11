@@ -765,6 +765,7 @@
 ./usr/X11R6/lib/X11/x11perfcomp/perfratio
 ./usr/X11R6/lib/X11/xdm
 ./usr/X11R6/lib/X11/xdm/GiveConsole
+./usr/X11R6/lib/X11/xdm/Startup_0
 ./usr/X11R6/lib/X11/xdm/TakeConsole
 ./usr/X11R6/lib/X11/xdm/Xaccess
 ./usr/X11R6/lib/X11/xdm/Xresources
