@@ -325,11 +325,9 @@ static Bool IsPts = False;
 #endif
 #ifdef SVR4
 #define USE_POSIX_WAIT
-#define HAS_SAVED_IDS_AND_SETEUID
 #endif
 
 #ifdef linux
-#define HAS_SAVED_IDS_AND_SETEUID
 #ifndef CBAUD
 #define CBAUD 0010017
 #endif
@@ -343,7 +341,6 @@ static Bool IsPts = False;
 #define USE_POSIX_WAIT
 #define LASTLOG
 #define WTMP
-#define HAS_SAVED_IDS_AND_SETEUID
 #endif
 
 #include <stdio.h>
@@ -1728,9 +1725,14 @@ char **argv;
 	XSetErrorHandler(xerror);
 	XSetIOErrorHandler(xioerror);
 
+#ifndef HAS_SAVED_IDS_AND_SETEUID
 	(void) setuid (screen->uid); /* we're done with privileges... */
 	(void) setgid (screen->gid);
 	done_setuid = 1;
+#else
+	seteuid(screen->uid);
+	setegid(screen->gid);
+#endif
 
 #ifdef ALLOWLOGGING
 	if (term->misc.log_on) {
@@ -2157,6 +2159,10 @@ spawn ()
 
 	screen->uid = getuid();
 	screen->gid = getgid();
+#ifdef HAS_SAVED_IDS_AND_SETEUID
+	screen->euid = geteuid();
+	screen->egid = getegid();
+#endif
 
 #ifdef linux
 	bzero(termcap, sizeof termcap);
@@ -3886,6 +3892,10 @@ Exit(n)
 	register int wfd;
 	struct utmp utmp;
 
+#ifdef HAS_SAVED_IDS_AND_SETEUID
+        setegid(screen->egid);
+        seteuid(screen->euid);
+#endif
 	if (!resource.utmpInhibit && added_utmp_entry &&
 	    (!am_slave && tslot > 0 && (wfd = open(etc_utmp, O_WRONLY)) >= 0)){
 		bzero((char *)&utmp, sizeof(struct utmp));
@@ -3904,6 +3914,10 @@ Exit(n)
 		}
 #endif /* WTMP */
 	}
+#ifdef HAS_SAVED_IDS_AND_SETEUID
+	setegid(screen->gid);
+	seteuid(screen->uid);
+#endif  /* HAS_SAVED_IDS_AND_SETEUID */
 #endif	/* USE_SYSV_UTMP */
 #endif	/* UTMP */
 #ifndef AMOEBA
