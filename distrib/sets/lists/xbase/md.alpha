@@ -188,6 +188,7 @@
 ./usr/X11R6/lib/libxkbui.a
 ./usr/X11R6/man/cat1/setxkbmap.0
 ./usr/X11R6/man/cat1/xdpyinfo.0
+./usr/X11R6/man/cat1/xkbcomp.0
 ./usr/X11R6/man/cat1/xkbevd.0
 ./usr/X11R6/man/cat1/xkbprint.0
 ./usr/X11R6/man/cat1/xsetmode.0
