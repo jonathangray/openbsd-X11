@@ -886,7 +886,7 @@
 ./usr/X11R6/man/cat1/setxkbmap.0
 ./usr/X11R6/man/cat1/showfont.0
 ./usr/X11R6/man/cat1/smproxy.0
-./usr/X11R6/man/cat1/sh-askpass.0
+./usr/X11R6/man/cat1/ssh-askpass.0
 ./usr/X11R6/man/cat1/startx.0
 ./usr/X11R6/man/cat1/sxpm.0
 ./usr/X11R6/man/cat1/tenletxr.0
