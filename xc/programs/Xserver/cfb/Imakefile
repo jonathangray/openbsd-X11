@@ -24,6 +24,11 @@ STIPPLESRC = stipsparc.s stipsparcte.s
 STIPPLEOBJ = stipsparc.o stipsparcte.o
 STIPPLEDEF = -DHAS_STIPPLE_CODE
 #endif
+#ifdef Mc68020Architecture
+STIPPLESRC = stipple68k.s stipple68kte.s
+STIPPLEOBJ = stipple68k.o stipple68kte.o
+STIPPLEDEF = -DHAS_STIPPLE_CODE
+#endif
 #endif
 
 #if PixelSize == 32
@@ -209,6 +214,20 @@ stipsparc.o: stipsparc.s
 
 stipsparcte.o: stipsparcte.s
 	$(CPP) -DTETEXT stipsparcte.s | $(AS) -o $@ -
+#endif
+
+#ifdef Mc68020Architecture
+stipple68kte.s: stipple68k.s
+	$(RM) $@
+	$(LN) stipple68k.s stipple68kte.s
+clean::
+	$(RM) stipple68kte.s
+
+stipple68k.o: stipple68k.s
+	$(CPP) stipple68k.s | $(AS) -o $@ -
+
+stipple68kte.o: stipple68kte.s
+	$(CPP) -DTETEXT stipple68kte.s | $(AS) -o $@ -
 #endif
 #endif
 
