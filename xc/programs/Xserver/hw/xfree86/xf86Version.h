@@ -1,6 +1,6 @@
 /* $XFree86: xc/programs/Xserver/hw/xfree86/xf86Version.h,v 3.236.2.50 1998/03/02 09:58:21 dawes Exp $ */
 
-#define XF86_VERSION " 3.3.2 "
+#define XF86_VERSION " 3.3.2 (OpenBSD) "
 
 /* The finer points in versions... */
 #define XF86_VERSION_MAJOR	3
