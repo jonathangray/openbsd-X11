@@ -914,6 +914,15 @@ XCOMM $XConsortium: xfree86.cf /main/34 1996/12/06 11:45:18 rws $
 #endif
 #endif
 
+/* Support for USB mouse */
+#ifndef UsbMouseSupport
+#define UsbMouseSupport	NO
+#endif
+/* Does this OS has libusb ? */
+#ifndef HasLibUsb
+#define HasLibUsb	NO
+#endif
+
 #ifndef UseServerLock
 #define UseServerLock	YES
 #endif

@@ -63,8 +63,11 @@ set ExtraMouseTypes [list \
 #define MOUSE_TYPES $SerialMouseTypes $BusMouseTypes $ExtraMouseTypes \
 			$PnpMouseTypes 
 #elif defined(__OpenBSD__)
+set ExtraMouseTypes [ list \
+		    "usb" \
+]
 #define MOUSE_TYPES $SerialMouseTypes $BusMouseTypes $StandardPS2Types \
-			$PnpMouseTypes
+			$ExtraMouseTypes $PnpMouseTypes 
 #elif defined(Lynx)
 #define MOUSE_TYPES $SerialMouseTypes $BusMouseTypes $StandardPS2Types
 #elif defined(ISC)

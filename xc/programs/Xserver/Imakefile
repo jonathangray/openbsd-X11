@@ -152,13 +152,21 @@ XPFBLIBS = dix/LibraryTargetName(xpstubs)
              MI = mi/LibraryTargetName(mi)
             DIX = dix/LibraryTargetName(dix)
            FONT = $(DEPFONTLIB)
+#if UsbMouseSupport 
+#if !HasLibUsb
+            USB = $(XF86OSSRC)/libusb/LibraryTargetName(usb)
+#else
+	    USB = -lusb
+#endif
+#endif
 #ifdef ServerExtraSysLibs
    EXTRASYSLIBS = ServerExtraSysLibs
 #endif
 #if SystemV4 || defined(SGIArchitecture) || UseRgbTxt
-        SYSLIBS = $(ZLIB) MathLibrary Krb5Libraries $(EXTRASYSLIBS)
+        SYSLIBS = $(ZLIB) MathLibrary Krb5Libraries $(USB) $(EXTRASYSLIBS)
 #else
-        SYSLIBS = $(ZLIB) MathLibrary Krb5Libraries DBMLibrary $(EXTRASYSLIBS)
+        SYSLIBS = $(ZLIB) MathLibrary Krb5Libraries DBMLibrary \
+	$(USB) $(EXTRASYSLIBS)
 #endif
 #if HasPam
 	PAMLIBS = -lpam -lpam_misc -ldl

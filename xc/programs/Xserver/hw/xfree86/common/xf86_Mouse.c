@@ -46,6 +46,10 @@
 #include "xf86_OSlib.h"
 #include "xf86_Config.h"
 
+#ifdef USB_MOUSE
+#include "xf86_UsbMse.h"
+#endif
+
 #if defined(__NetBSD__)
 #undef MAXHOSTNAMELEN		/* avoid duplication from param.h */
 #include <sys/param.h>		/* pull in __NetBSD_Version__ */
@@ -135,6 +139,11 @@ Bool xf86SupportedMouseTypes[] =
 	TRUE,	/* wsmouse */
 #else
 	FALSE,	/* wsmouse */
+#endif
+#ifdef USB_MOUSE
+        TRUE,
+#else
+        FALSE,
 #endif
 };
 
@@ -230,6 +239,7 @@ static unsigned char proto[][7] = {
 #else
   {  0x00,   0x00, 0x00,   0x00, 0,    0x00,   0x00 },  /* wsmouse */
 #endif
+  {  0x00,   0x00, 0x00,   0x00, 0,    0x00,   0x00 },  /* USB mouse */
 };
 #endif /* ! MOUSE_PROTOCOL_IN_KERNEL */
 
@@ -589,6 +599,11 @@ MouseDevPtr mouse;
 	break;
 #endif
 
+#ifdef USB_MOUSE
+      case P_USB:
+	mouse->usb = usbMouseInit(mouse);
+	break;
+#endif
       default:
 	xf86SetMouseSpeed(mouse, mouse->baudRate, mouse->baudRate,
                           xf86MouseCflags[mouse->mseType]);
@@ -714,6 +729,9 @@ xf86MouseProtocol(device, rBuf, nBytes)
 #endif
 #if defined(__NetBSD__)
 	mouse->mseType != P_WSMOUSE &&
+#endif
+#ifdef USB_MOUSE
+	mouse->mseType != P_USB &&
 #endif
 	((rBuf[i] & mouse->protoPara[2]) != mouse->protoPara[3] 
 	 || rBuf[i] == 0x80))
@@ -1013,6 +1031,12 @@ xf86MouseProtocol(device, rBuf, nBytes)
       break;
       }
 #endif /* defined(__NetBSD__) && __NetBSD_Version__ >= 103060000 */
+
+#ifdef USB_MOUSE
+    case P_USB:
+      usbMouseProtocol(mouse, &dx, &dy, &dz, &buttons);
+      break;
+#endif
 
     default: /* There's a table error */
       continue;

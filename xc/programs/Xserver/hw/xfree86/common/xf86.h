@@ -374,6 +374,9 @@ typedef struct _MouseDevRec {
 #ifdef XINPUT
     struct _LocalDeviceRec	*local;
 #endif
+#ifdef USB_MOUSE
+    struct UsbMouseRec *usb;
+#endif
   int		pBufP;
   unsigned char pBuf[32];
 } MouseDevRec, *MouseDevPtr;
