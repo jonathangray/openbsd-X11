@@ -3,17 +3,24 @@ Post-installation instructions for XFree86 on OpenBSD/pmax
 
 1. Pmax setup is easy:
 
-Typical XFree86 use on Pmax machines requires no special configuration.
-However, you will need to deal with the X11R5 X server provided in 1 of 2 ways
+You need to do the following steps to get XFree86 working on Pmax machines.
 
-a) decompress all fonts:	cd /usr/X11R6/lib/X11/fonts
-                         	find . -name '*gz' -exec gzip -d '{}' ';'
-b) run the X11R6 font server:	xfs
-   then, either:
-   1) point the Xserver to it:	X -fp tcp/localhost:7100
-   2) add '-fp tcp/localhost:7100' to /usr/X11R6/lib/X11/xdm/Xservers:
-	:0 local /usr/X11R6/bin/X -fp tcp/localhost:7100 vt05
-      .. then start xdm as below.
+a) /usr/X11R6/lib need to exist in /etc/ld.so.conf
+
+   # echo "/usr/X11R6/lib" >> /etc/ld.so.conf
+   # ldconfig
+
+b) /dev/mouse must be linked with the correct framebuffer device. eg:
+
+   # ln -s /dev/fb0 /dev/mouse
+
+c) link the correct X-server to X.
+
+   # cd /usr/X11R6/bin
+   # ln -s Xcfbpmax X
+   or 
+   # ln -s Xmfbpmax X
+   depending on which framebuffer the system has.
 
 2. Start xdm, the X display manager by activating the xdm_flags option
    in /etc/rc.conf.  You may need to disable the console getty in /etc/ttys.
