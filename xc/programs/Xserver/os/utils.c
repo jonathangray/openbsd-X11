@@ -1003,7 +1003,15 @@ InsertFileIntoCommandLine(resargc, resargv, prefix_argc, prefix_argv,
     len = fread(buf, 1, (unsigned) st.st_size, f);
 
     fclose(f);
-
+#ifdef HAS_SAVED_IDS_AND_SETEUID
+    if (setegid(egid) == -1)
+	(void) fprintf(stderr, "setegid(%d): %s\n",
+		       (int) egid, strerror(errno));
+    
+    if (seteuid(euid) == -1)
+	(void) fprintf(stderr, "seteuid(%d): %s\n",
+		       (int) euid, strerror(errno));
+#endif
     if (len < 0)
 	FatalError("Error reading option file %s\n", filename);
 
