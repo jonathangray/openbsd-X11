@@ -1,5 +1,5 @@
 /* $XConsortium: misc.c,v 1.31 94/12/16 21:36:53 gildea Exp $ */
-/* $XFree86: contrib/programs/xman/misc.c,v 3.2 1996/10/24 03:59:17 dawes Exp $ */
+/* $XFree86: contrib/programs/xman/misc.c,v 3.2.2.1 1998/09/26 06:45:14 dawes Exp $ */
 /*
 
 Copyright (c) 1987, 1988  X Consortium
@@ -221,7 +221,7 @@ int section_num, entry_num;
 /*
  * Look for uncompressed files first.
  */
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
   /* look in machine subdir first */
   sprintf(filename, "%s/%s%s/%s/%s", path, CAT, 
 	  section + len_cat, MACHINE, page);
@@ -238,7 +238,7 @@ int section_num, entry_num;
  */
 
 #if !defined(ISC) && !defined(SCO)
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
   /* look in machine subdir first */
   sprintf(filename, "%s/%s%s/%s/%s.%s", path, CAT, 
 	  section + len_cat, MACHINE, page, COMPRESSION_EXTENSION);
@@ -251,7 +251,7 @@ int section_num, entry_num;
     return(file);
 #ifdef GZIP_EXTENSION
   else {
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
       /* look in machine subdir first */
       sprintf(filename, "%s/%s%s/%s/%s.%s", path, CAT, 
 	      section + len_cat, MACHINE, page, GZIP_EXTENSION);
@@ -498,7 +498,7 @@ char * entry, * filename;
 
   ParseEntry(entry, path, section, page);
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
   /* 
    * look for uncomressed file in machine subdir first 
    */
@@ -533,7 +533,7 @@ char * entry, * filename;
     }
   }
 #endif /* GZIP_EXTENSION */
-#endif /* OpenBSD */
+#endif /* __OpenBSD__ || __NetBSD__ */
 /*
  * Look for uncompressed file first.
  */
@@ -729,7 +729,7 @@ char *entry, *path, *page, *sect;
   if (c == NULL) 
     PrintError("index failure in ParseEntry.");
   *c++ = '\0';
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
   /* Skip machine subdirectory if present */
   if (strcmp(c, MACHINE) == 0) {
       c = rindex(temp, '/');

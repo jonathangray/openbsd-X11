@@ -1,5 +1,5 @@
 /* $XConsortium: man.c,v 1.30 94/04/17 20:43:56 rws Exp $ */
-/* $XFree86: contrib/programs/xman/man.c,v 3.1 1994/08/02 07:14:42 dawes Exp $ */
+/* $XFree86: contrib/programs/xman/man.c,v 3.1.2.1 1998/09/26 06:45:14 dawes Exp $ */
 /*
 
 Copyright (c) 1987, 1988  X Consortium
@@ -353,7 +353,7 @@ char * path;
 {
   char temp_path[BUFSIZ];
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
   sprintf(temp_path, "%s/%s", path, MACHINE);
   ReadCurrentSection(local_manual, temp_path);
 #endif
@@ -944,7 +944,7 @@ DumpManual(number)
 
 #ifdef MANCONF
 
-#ifndef __OpenBSD__
+#if !defined(__OpenBSD__) && !defined(__NetBSD__)
 /*    Function Name: ReadManConfig
  *    Description: Reads man.conf file used by BSD 4.4
  *      Argument: manpath - char array to return path in.
@@ -984,10 +984,10 @@ char  manpath[];
   fclose(fp);
   return(!firstpath);
 }
-#else /* __OpenBSD__ */
+#else /* __OpenBSD__ || __NetBSD__ */
 
 /*    Function Name: ReadManConfig
- *    Description: Reads man.conf file used by OpenBSD
+ *    Description: Reads man.conf file used by Open/NetBSD
  *      Argument: manpath - char array to return path in.
  *    Returns: TRUE if read was successful.
  *
@@ -1043,6 +1043,6 @@ char  manpath[];
     return(!firstpath);
 }
 
-#endif /* __OpenBSD__ */
+#endif /* __OpenBSD__ || __NetBSD__ */
 
 #endif /* MANCONF */
