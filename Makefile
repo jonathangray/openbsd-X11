@@ -1,10 +1,16 @@
 #	$NetBSD: Makefile,v 1.3 1997/12/09 11:58:28 mrg Exp $
-#	$OpenBSD: Makefile,v 1.1 1998/03/19 20:48:46 matthieu Exp $
+#	$OpenBSD: Makefile,v 1.2 1998/03/19 22:36:35 gene Exp $
 #
 # build and install X11
 
+.if ($(MACHINE) == "mac68k")
+BCFLAGS?=	-Dmac68k
+.else
+BCFLAGS?=
+.endif
+
 all:
-	cd xc ; ${MAKE} World
+	cd xc ; ${MAKE} BOOTSTRAPCFLAGS="$(BCFLAGS)" World
 	${MAKE} all-contrib
 
 all-contrib:
